@@ -110,7 +110,7 @@ Note: We have safeguard implemented that does not allow you to set this less tha
 1. Manage the Twitter feeds you've created.
 2. Edit a Twitter feed.
 3. Grab your application credentials from dev.twitter.com and put them in the plugin's Authorization settings.
-4. Use the "Tweetster Twitter Feed" widget to display tweets in one of your widget areas.
+4. Use the "Tweeple Twitter Feed" widget to display tweets in one of your widget areas.
 5. Should fit naturally into most themes with no frontend styling added by the plugin.
 6. If you're using a Theme Blvd theme, the widget will integrate as your old Theme Blvd Twitter widget did.
 
