@@ -1,0 +1,142 @@
+/* Page Setup */
+#icon-tweeple {
+	background: url(../images/icon.png);
+	margin: 5px 5px 0 0;
+	width: 50px;
+	height: 40px;
+}
+#tweeple .wrap {
+	max-width: 780px;
+}
+#tweeple .hide {
+	display: none;
+}
+
+/* General Options */
+#tweeple .wrap div.updated,
+#tweeple .wrap div.error {
+	margin-bottom: 0;
+}
+#tweeple .postbox h3 {
+	cursor: inherit;
+}
+#tweeple .options-submit {
+	padding: 0 0 0 2px;
+}
+#tweeple span.note {
+	color: #999;
+	display: inline-block;
+	font-size: 12px;
+	font-style: italic;
+	margin: 0 0 0 10px;
+	padding: 0;
+}
+#tweeple .col-wrap {
+	overflow: hidden;
+	padding: 0;
+}
+#tweeple .col-wrap .col-left,
+#tweeple .col-wrap .col-right {
+	float: left;
+	width: 50%;
+}
+#tweeple .col-inner {
+	padding: 10px;
+}
+#tweeple .col-wrap h4 {
+	margin: 8px 6px;
+}
+#tweeple .col-wrap input[type="text"],
+#tweeple .col-wrap input[type="password"] {
+	width: 90%;
+}
+#tweeple .col-wrap select {
+	width: 90%;
+}
+
+/* Feeds */
+#tweeple .widefat .head-cache {
+	width: 70px;
+	text-align: center;
+}
+#tweeple .widefat .cache {
+	position: relative;
+	text-align: center;
+}
+#tweeple .widefat .cache .inactive {
+	background: #f9f9f9;
+	display: block;
+	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
+	filter: alpha(opacity=80);
+	-moz-opacity: 0.8;
+	-khtml-opacity: 0.8;
+	opacity: 0.8;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+}
+#tweeple .widefat .clear-cache {
+	background: url(../images/icon-delete.png);
+	display: inline-block;
+	margin-top: 10px;
+	text-indent: -9999px;
+	width: 16px;
+	height: 16px;
+}
+
+/* Feed Form */
+#tweeple .feed-type-wrap {
+	margin-bottom: 10px;
+}
+#tweeple #feed-config .desc {
+	color: #888;
+	padding-right: 40px;
+}
+#tweeple #feed-config .desc p {
+	line-height: 140%;
+}
+#tweeple #feed-config .section {
+	border-top: 1px solid #dfdfdf;
+}
+#tweeple #feed-config .section:first-of-type {
+	border-top: none;
+}
+
+/* Authentication */
+#tweeple .authentication-help {
+	color: #888;
+	padding: 0 10px 10px 10px;
+}
+#tweeple .authentication-help p {
+	margin: 0 0 5px 0;
+}
+#tweeple .postbox {
+	position: relative;
+}
+#tweeple .security-toggle {
+	font-size: 11px;
+	height: 22px;
+	line-height: 21px;
+	padding: 0 5px;
+	position: absolute;
+	top: 4px;
+	right: 4px;
+}
+
+/* HiDPI support */
+@media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
+		only screen and (-moz-min-device-pixel-ratio: 1.5),
+		only screen and (-o-min-device-pixel-ratio: 1.5),
+		only screen and (min-device-pixel-ratio: 1.5),
+		only screen and (min-resolution: 1.5dppx) {
+	#icon-tweeple {
+		background: url(../images/icon_2x.png);
+		background-size: 50px 40px;
+	}
+	#tweeple .widefat .clear-cache {
+		background: url(../images/icon-delete_2x.png);
+		background-size: 16px 16px;
+	}
+}
