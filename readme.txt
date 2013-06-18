@@ -2,10 +2,10 @@
 Author URI: http://www.themeblvd.com
 Contributors: themeblvd
 Tags: twitter, api, status, tweets, list, favorites, tmhOAuth, Theme Blvd, themeblvd, Jason Bobich
-Stable Tag: 0.1.0
+Stable Tag: 0.2.0
 Tested up to: 3.6
 
-Create custom Twitter feeds to show on your website using Twitter API.
+Setup Twitter feeds to pull a user's public timeline, public list, favorite tweets, or a custom search term, phrase, or hashtag.
 
 == Description ==
 
@@ -19,7 +19,7 @@ For all you fellow tweeple, this is the plugin for you. Sure, there are tons of 
 
 **Twitter Feeds**: You can setup as many Twitter Feeds on your site as you want, and manage them all from one location at *WP Admin > Tools > Tweeple*. A Twitter feed can be configured to pull a Twitter user's public timeline, public list, favorite tweets, or a custom search term, phrase, or hashtag.
 
-**Implmentation**: You can display any of your Twitter feeds on your website via the "Tweeple Twitter Feed" widget or the `[tweeple_feed]` shortcode. -- [See Usage Instructions](http://wordpress.org/plugins/tweeple/installation/).
+**Implementation**: You can display any of your Twitter feeds on your website via the "Tweeple Twitter Feed" widget or the `[tweeple_feed]` shortcode. -- [See Usage Instructions](http://wordpress.org/plugins/tweeple/installation/).
 
 = Contributing =
 
@@ -115,6 +115,10 @@ Note: We have safeguard implemented that does not allow you to set this less tha
 6. If you're using a Theme Blvd theme, the widget will integrate as your old Theme Blvd Twitter widget did.
 
 == Changelog ==
+
+= 0.2.0 =
+
+* Improved saving and handling notices for Authentication settings page.
 
 = 0.1.0 =
 

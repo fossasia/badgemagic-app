@@ -9,6 +9,7 @@ class Tweeple_Admin {
 	private $parent;
 	private $base;
 	private $access_id;
+	private $sanitized = false;
 
 	/**
 	 * Constructor
@@ -31,6 +32,7 @@ class Tweeple_Admin {
 		add_action( 'admin_init', array( $this, 'save_feed' ) );
 		add_action( 'admin_init', array( $this, 'delete_feeds' ) );
 		add_action( 'admin_init', array( $this, 'delete_feed_cache' ) );
+		add_action( 'current_screen', array( $this, 'access_notice' ) );
 	}
 
 	/**
@@ -44,6 +46,8 @@ class Tweeple_Admin {
 
 	/**
 	 * Get basename used by WP for page hook.
+	 *
+	 * @since 0.1.0
 	 */
 	public function get_base() {
 		return $this->base;
@@ -55,6 +59,8 @@ class Tweeple_Admin {
 
 	/**
 	 * Include admin page's CSS/JS
+	 *
+	 * @since 0.1.0
 	 */
 	public function assets( $hook ) {
 		if( $hook == $this->base ) {
@@ -76,6 +82,8 @@ class Tweeple_Admin {
 
 	/**
 	 * Register admin page with WP
+	 *
+	 * @since 0.1.0
 	 */
 	public function add_page() {
 
@@ -94,6 +102,8 @@ class Tweeple_Admin {
 
 	/**
 	 * Display admin page wrapper.
+	 *
+	 * @since 0.1.0
 	 */
 	public function display_page() {
 
@@ -150,6 +160,8 @@ class Tweeple_Admin {
 
 	/**
 	 * Get table of a custom post type.
+	 *
+	 * @since 0.1.0
 	 */
 	private function posts_table( $post_type, $columns, $manual_delete = null ) {
 
@@ -324,6 +336,8 @@ class Tweeple_Admin {
 
 	/**
 	 * Get form for adding and editing a feed.
+	 *
+	 * @since 0.1.0
 	 */
 	function feed_config( $id = 0, $value = array() ) {
 
@@ -699,6 +713,8 @@ class Tweeple_Admin {
 
 	/**
 	 * Save and sanitize meta data for tweeple_feed post.
+	 *
+	 * @since 0.1.0
 	 */
 	public function save_feed_meta( $post_id, $settings ) {
 
@@ -763,6 +779,50 @@ class Tweeple_Admin {
 			update_post_meta( $post_id, $key, $value );
 
 		}
+	}
+
+	/**
+	 * Display notice if "Authorization" settings
+	 * haven't been setup yet.
+	 *
+	 * @since 0.2.0
+	 */
+	public function access_notice() {
+
+		// Make sure it's our admin page.
+		$current = get_current_screen();
+		if( $current->base != $this->base )
+			return;
+
+		$is_valid = true;
+		$settings = get_option( $this->access_id );
+
+		if( ! $settings )
+			$is_valid = false;
+
+		// Ok, so the settings exist, but were all of them stored?
+		if( $is_valid ) {
+			$options = array( 'consumer_key', 'consumer_secret', 'user_token', 'user_secret' );
+			foreach( $options as $option ) {
+				if( empty( $settings[$option] ) ) {
+					$is_valid = false;
+					break;
+				}
+			}
+		}
+
+		// If everything is still valid, we
+		// can get out of here.
+		if( $is_valid )
+			return;
+
+		// BUT, if we're still here, it means settings haven't
+		// been setup right.
+		$link = sprintf( '<a href="%s">%s</a>', admin_url( $this->parent.'?page=tweeple&tab=authentication' ), __('authentication settings', 'tweeple') );
+		$message = sprintf( __( 'Before any feeds can pull from Twitter, you need to setup all %s.', 'tweeple' ), $link );
+
+		add_settings_error( 'tweeple_feed_manage', 'save_options', $message, 'error' );
+		add_settings_error( 'tweeple_feed_config', 'save_options', $message, 'error' );
 	}
 
 	/*--------------------------------------------*/
@@ -1036,9 +1096,23 @@ class Tweeple_Admin {
 	 */
 	function validate_access( $input ) {
 
+		// Dump Twitter feed caches
+		if( ! $this->sanitized ) {
+
+			$tweeple = Tweeple::get_instance();
+			$feeds = $tweeple->get_feeds();
+
+			foreach( $feeds as $key => $value )
+				delete_transient( 'tweeple_'.$key );
+
+		}
+
 		// Clear options
 		if( isset( $input['clear'] ) ) {
-			add_settings_error( $this->access_id, 'save_options', __( 'Options cleared.', 'tweeple' ), 'error fade' );
+
+			if( ! $this->sanitized ) // Avoid duplicates
+				add_settings_error( $this->access_id, 'save_options', __( 'Options cleared.', 'tweeple' ), 'error fade' );
+
 			return null;
 		}
 
@@ -1047,7 +1121,11 @@ class Tweeple_Admin {
 			$clean[$key] = wp_kses( $value, array() );
 
 		// Add success message
-		add_settings_error( $this->access_id, 'save_options', __( 'Options saved.', 'tweeple' ), 'updated fade' );
+		if( ! $this->sanitized ) // Avoid duplicates
+			add_settings_error( $this->access_id, 'save_options', __( 'Options saved.', 'tweeple' ), 'updated fade' );
+
+		// Check for future duplicate passes.
+		$this->sanitized = true;
 
 		return $clean;
 	}

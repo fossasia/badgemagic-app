@@ -176,9 +176,12 @@ class Tweeple_Feed {
      */
     public function set_feed() {
 
+        $tweets = array();
+
         // Get tweets from Twitter. This could result in
         // errors, so we're doing it above our error checking.
-        $tweets = $this->get_tweets();
+        if( ! $this->error )
+            $tweets = $this->get_tweets();
 
         // Check for error
         if( $this->error )
