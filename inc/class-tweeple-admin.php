@@ -258,12 +258,15 @@ class Tweeple_Admin {
 
 						case 'cache' :
 							$output .= '<td class="cache">';
+							$output .= '<div class="cache-overlay">';
 
 							if( ! get_transient( 'tweeple_'.$post->ID ) )
 								$output .= '<span class="inactive"></span>';
 
 							$url = admin_url( $this->parent.'?page=tweeple&tab=feeds&tweeple=cache&id='.esc_attr($post->ID).'&_wpnonce='.$nonce );
 							$output .= sprintf( '<a href="%s" data-id="%s" title="%s" class="clear-cache">%s</a>', $url, esc_attr( $post->ID ), __( 'Delete current cache', 'tweeple' ), __( 'Delete current cache', 'tweeple' ) );
+
+							$output .= '</div><!-- .cache-overlay (end) -->';
 							break;
 
 						case 'feed_type' :

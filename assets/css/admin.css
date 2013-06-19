@@ -59,11 +59,11 @@
 	width: 70px;
 	text-align: center;
 }
-#tweeple .widefat .cache {
+#tweeple .cache-overlay {
 	position: relative;
 	text-align: center;
 }
-#tweeple .widefat .cache .inactive {
+#tweeple .cache-overlay .inactive {
 	background: #f9f9f9;
 	display: block;
 	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
@@ -77,7 +77,7 @@
 	bottom: 0;
 	left: 0;
 }
-#tweeple .widefat .clear-cache {
+#tweeple .clear-cache {
 	background: url(../images/icon-delete.png);
 	display: inline-block;
 	margin-top: 10px;
