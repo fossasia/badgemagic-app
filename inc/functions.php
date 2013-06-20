@@ -108,6 +108,86 @@ function tweeple_tweet_timestamp_fancy( $tweet ) {
 	// Final time stamp
 	$timestamp = sprintf( '<span class="tweet-stamp">%s</span> <span class="tweet-author">%s %s</span>', $time_link, __( 'via', 'tweeple' ), $author_link );
 
-	echo '<div class="tweet-time">'.$timestamp.'</div>';
+	echo '<div class="tweet-time tweet-meta">'.$timestamp.'</div>';
 
+}
+
+/**
+ * Default display for "Tweet" element for Theme
+ * Blvd Layout Builder.
+ *
+ * @since 0.4.0
+ */
+function tweeple_tweet_element_default( $feed, $options ) {
+	echo tweeple_get_tweet_element_default( $feed, $options );
+}
+
+/**
+ * Get default display for "Tweet" element for Theme
+ * Blvd Layout Builder.
+ *
+ * @since 0.4.0
+ */
+function tweeple_get_tweet_element_default( $feed, $options ) {
+
+	if( ! defined( 'TB_FRAMEWORK_VERSION' ) || ! defined( 'TB_BUILDER_PLUGIN_VERSION' ) )
+		return;
+
+	if( ! $feed['tweets'] )
+		return __('No tweets to display.', 'tweeple');
+
+	$icon = $options['icon'];
+
+	// Convert older icon option for those updating.
+	if( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ) {
+		switch( $icon ) {
+			case 'message' :
+				$icon = 'comment';
+				break;
+			case 'alert' :
+				$icon = 'warning';
+				break;
+		}
+	}
+
+	$wrap_class = 'tb-tweet-wrapper';
+	if( $icon )
+		$wrap_class .= ' has-icon';
+
+	$output = '';
+	$count = 1;
+	$max = apply_filters( 'tweeple_tweet_element_max_count', 1 ); // @todo Possibly make option later
+
+	foreach( $feed['tweets'] as $tweet ) {
+
+		if( $count > $max )
+			break;
+
+		$output .= sprintf( '<div class="%s">', $wrap_class );
+
+		if( $icon )
+			$output .= sprintf( '<div class="tweet-icon"><i class="icon-%s"></i></div>', $icon );
+
+		$text = apply_filters( 'tweeple_tweet_text', $tweet['text'], $tweet, $feed );
+		$output .= sprintf( '<div class="tweet-text tweet-content">%s</div>', $text );
+
+		if( $feed['time'] == 'yes' ) {
+
+			ob_start();
+			tweeple_tweet_timestamp_fancy( $tweet );
+			$timestamp = ob_get_clean();
+
+			if( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '<' ) )
+				$output .= sprintf( '<span style="font-size:1rem;">%s</span>', $timestamp ); // Inline styles, barf. Oh, what I do for you, backwards compat.
+			else
+				$output .= $timestamp;
+
+		}
+
+		$output .= '</div><!-- .tb-tweet-wrapper (end) -->';
+
+		$count++;
+	}
+
+	return $output;
 }

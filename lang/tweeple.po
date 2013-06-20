@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Tweeple\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-06-19 09:58-1000\n"
-"PO-Revision-Date: 2013-06-19 09:58-1000\n"
+"POT-Creation-Date: 2013-06-20 14:20-1000\n"
+"PO-Revision-Date: 2013-06-20 14:20-1000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -357,7 +357,7 @@ msgid "Options saved."
 msgstr ""
 
 #: ../inc/class-tweeple-feed-widget.php:32
-#: ../inc/class-tweeple.php:179
+#: ../inc/class-tweeple.php:183
 msgid "No Twitter feed ID given."
 msgstr ""
 
@@ -413,11 +413,78 @@ msgstr ""
 msgid "Twitter sent back an error. Error code: %s"
 msgstr ""
 
-#: ../inc/class-tweeple.php:103
+#: ../inc/class-tweeple-theme-blvd.php:82
+msgid "Tweet"
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:87
+msgid "Shows the most recent tweet from a Tweeple Twitter feed."
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:98
+#, php-format
+msgid "The \"Tweet\" element works with the %s plugin you've installed. Use it for a large display of the most recent tweet from one of your Twitter feeds setup at Tools > Tweeple."
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:106
+msgid "Twitter Feed"
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:107
+msgid "Select from the Twitter Feeds you've created at <em>Tools > Tweeple</em>."
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:117
+#: ../inc/class-tweeple-theme-blvd.php:128
+msgid "Icon"
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:118
+msgid "Enter any Font Awesome icon ID; this icon will then display next to the Tweet. Set this option blank to not use any icon. Examples: twitter, pencil, warning-sign, etc."
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:129
+msgid "Select the icon you'd like shown before the Tweet."
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:133
+msgid "Twitter Icon"
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:134
+msgid "Generic Message Bubble"
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:135
+msgid "Alert Symbol"
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:143
+msgid "Responsive Visibility "
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:144
+msgid "Select any resolutions you'd like to <em>hide</em> this element on. This is optional, but can be utilized to deliver different content to different devices.<br><br><em>Example: Hide an element on tablets and mobile devices & then create a second element that's hidden only on standard screen resolutions to take its place.</em>"
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:147
+msgid "Hide on Standard Resolutions"
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:148
+msgid "Hide on Tablets"
+msgstr ""
+
+#: ../inc/class-tweeple-theme-blvd.php:149
+msgid "Hide on Mobile Devices"
+msgstr ""
+
+#: ../inc/class-tweeple.php:107
 msgid "Manage Feeds"
 msgstr ""
 
 #: ../inc/functions.php:22
+#: ../inc/functions.php:137
 msgid "No tweets to display."
 msgstr ""
 

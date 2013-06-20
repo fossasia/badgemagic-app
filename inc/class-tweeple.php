@@ -50,6 +50,7 @@ class Tweeple {
         include_once( TWEEPLE_PLUGIN_DIR . '/inc/class-tweeple-admin.php' );
         include_once( TWEEPLE_PLUGIN_DIR . '/inc/class-tweeple-feed-widget.php' );
         include_once( TWEEPLE_PLUGIN_DIR . '/inc/class-tweeple-feed.php' );
+        include_once( TWEEPLE_PLUGIN_DIR . '/inc/class-tweeple-theme-blvd.php' );
         include_once( TWEEPLE_PLUGIN_DIR . '/inc/functions.php' );
 
         // Register text domain for localization
@@ -70,6 +71,9 @@ class Tweeple {
         // Frontend
         add_action( 'widgets_init', array( $this, 'register_widgets' ) );
         add_shortcode( 'tweeple_feed', array( $this, 'feed_shortcode' ) );
+
+        // Theme Blvd Integration
+        Tweeple_Theme_Blvd::get_instance();
 
     }
 
