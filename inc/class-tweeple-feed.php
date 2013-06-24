@@ -9,6 +9,7 @@ class Tweeple_Feed {
     private $feed_id = 0;
     private $feed_type = '';
     private $do_cache = true;
+    private $do_entities = false;
     private $access = array();
     private $feed_post = null;
     private $feed = null;
@@ -22,8 +23,9 @@ class Tweeple_Feed {
      */
     public function __construct( $feed_id = 0 ) {
 
-    	$this->feed_id = $feed_id;
+        $this->feed_id = intval( $feed_id );
         $this->do_cache = apply_filters( 'tweeple_do_cache', true );
+        $this->do_entities = apply_filters( 'tweeple_do_entities', false );
 
     	// First check for cache.
     	if( $this->do_cache ) {
@@ -192,19 +194,23 @@ class Tweeple_Feed {
 
             // Setup feed array
             $this->feed = array(
-                'id'                => $this->feed_id,
-                'type'              => $this->feed_type,
-                'name'              => $this->feed_post->post_title,
-                'screen_name'       => get_post_meta( $this->feed_id, 'screen_name', true ),
-                'slug'              => get_post_meta( $this->feed_id, 'slug', true ),
-                'owner_screen_name' => get_post_meta( $this->feed_id, 'owner_screen_name', true ),
-                'search'            => get_post_meta( $this->feed_id, 'search', true ),
-                'result_type'       => get_post_meta( $this->feed_id, 'result_type', true ),
-                'exclude_retweets'  => get_post_meta( $this->feed_id, 'exclude_retweets', true ),
-                'exclude_replies'   => get_post_meta( $this->feed_id, 'exclude_replies', true ),
-                'time'              => get_post_meta( $this->feed_id, 'time', true ),
-                'count'             => get_post_meta( $this->feed_id, 'count', true ),
-                'tweets'            => null
+                'info' => array(
+                    'id'                => $this->feed_id,
+                    'type'              => $this->feed_type,
+                    'name'              => $this->feed_post->post_title,
+                ),
+                'options' => array(
+                    'screen_name'       => get_post_meta( $this->feed_id, 'screen_name', true ),
+                    'slug'              => get_post_meta( $this->feed_id, 'slug', true ),
+                    'owner_screen_name' => get_post_meta( $this->feed_id, 'owner_screen_name', true ),
+                    'search'            => get_post_meta( $this->feed_id, 'search', true ),
+                    'result_type'       => get_post_meta( $this->feed_id, 'result_type', true ),
+                    'exclude_retweets'  => get_post_meta( $this->feed_id, 'exclude_retweets', true ),
+                    'exclude_replies'   => get_post_meta( $this->feed_id, 'exclude_replies', true ),
+                    'time'              => get_post_meta( $this->feed_id, 'time', true ),
+                    'count'             => get_post_meta( $this->feed_id, 'count', true ), // Display count, NOT raw count.
+                ),
+                'tweets'                => null
             );
 
             // Get response from Twitter
@@ -239,10 +245,6 @@ class Tweeple_Feed {
         // Establish tmhOAuth wrap with access credientials
         $twitter = new tmhOAuth( $this->access );
 
-        // General options
-        $exclude_retweets = get_post_meta( $this->feed_id, 'exclude_retweets', true );
-        $exclude_replies = get_post_meta( $this->feed_id, 'exclude_replies', true );
-
         // Start request params
         $params = array();
         $resource = '';
@@ -253,17 +255,15 @@ class Tweeple_Feed {
             case 'user_timeline' :
 
                 $screen_name = get_post_meta( $this->feed_id, 'screen_name', true );
-                $include_rts = $exclude_retweets == 'yes' ? false : true;
-                $exclude_replies = $exclude_replies == 'yes' ? true : false;
 
                 if( ! $screen_name ) {
                     $this->error = __('No Twitter username given.', 'tweeple');
                     return;
                 }
 
+                $params['include_rts'] = true;
+                $params['exclude_replies'] = false;
                 $params['screen_name'] = $screen_name;
-                $params['include_rts'] = $include_rts;
-                $params['exclude_replies'] = $exclude_replies;
                 $resource = 'statuses/user_timeline';
 
                 break;
@@ -284,7 +284,6 @@ class Tweeple_Feed {
 
                 $params['q'] = urlencode( $search );
                 $params['result_type'] = $result_type;
-                $params['include_entities'] = true;
                 $resource = 'search/tweets';
 
                 break;
@@ -293,16 +292,15 @@ class Tweeple_Feed {
 
                 $slug = get_post_meta( $this->feed_id, 'slug', true );
                 $screen_name = get_post_meta( $this->feed_id, 'owner_screen_name', true );
-                $include_rts = $exclude_retweets == 'yes' ? false : true;
 
                 if( ! $slug || ! $screen_name ) {
                     $this->error = __('No list slug and/or owner username given.', 'tweeple');
                     return;
                 }
 
+                $params['include_rts'] = true;
                 $params['slug'] = $slug;
                 $params['owner_screen_name'] = $screen_name;
-                $params['include_rts'] = $include_rts;
                 $resource = 'lists/statuses';
 
                 break;
@@ -322,11 +320,16 @@ class Tweeple_Feed {
                 break;
         }
 
-        // Set number of tweets to pull
-        $count = intval( get_post_meta( $this->feed_id, 'count', true ) );
-        $limit = apply_filters( 'tweeple_count_limit', 30 );
-        if( $count < 1 || $count > $limit )
-            $count = 3; // Default fallback count
+        // Entities
+        if( $this->do_entities )
+            $params['include_entities'] = true;
+
+        // Set number of tweets to pull before any of Tweeple's
+        // parsing, like excluding @replies and retweets.
+        $count = intval( get_post_meta( $this->feed_id, 'raw_count', true ) );
+        $raw_limit = apply_filters( 'tweeple_raw_count_limit', 30 );
+        if( $count < 1 || $count > $raw_limit )
+            $count = 10; // Default fallback raw count
 
         $params['count'] = $count;
 
@@ -339,12 +342,20 @@ class Tweeple_Feed {
 
         // If code was not 200, it means we'll have some sort of error.
         if( $code != 200 ) {
-            if( $code == 401 ) {
-                $this->error = __( 'Twitter error: Authentication credentials were missing or incorrect.', 'tweeple' );
-            } else {
-                $link = sprintf( '<a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank">%s</a>', $code );
-                $this->error = sprintf( __('Twitter sent back an error. Error code: %s', 'tweeple'), $link );
-            }
+
+            $link = sprintf( '<a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank">%s</a>', $code );
+
+            if( $code == 0 )
+                $this->error = sprintf( __( 'Security Error from tmhOAuth.', 'tweeple' ), $link );
+            else if( $code == 401 )
+                $this->error = sprintf( __( '%s Unauthorized: Authentication credentials were missing or incorrect.', 'tweeple' ), $link );
+            else if( $code == 404 )
+                $this->error = sprintf( __( '%s Not Found: The URI requested is invalid or the resource requested, such as a user, does not exists.', 'tweeple' ), $link );
+            else if( $code == 429 )
+                $this->error = sprintf( __( '%s Too Many Requests: Your application\'s rate limit has been exhausted for the resource.', 'tweeple' ), $link );
+            else
+                $this->error = sprintf( __( 'Twitter sent back an error. Error code: %s', 'tweeple'), $link );
+
             return null;
         }
 
@@ -365,6 +376,13 @@ class Tweeple_Feed {
     	$tweets = json_decode( $tweets, true );
         $this->raw_feed = $tweets; // Store raw feed
 
+        $limit = get_post_meta( $this->feed_id, 'count', true );
+        if( ! $limit )
+            $limit = 3;
+
+        $exclude_retweets = get_post_meta( $this->feed_id, 'exclude_retweets', true );
+        $exclude_replies = get_post_meta( $this->feed_id, 'exclude_replies', true );
+
         if( $this->feed_type == 'search' )
             $tweets = $tweets['statuses'];
 
@@ -374,19 +392,41 @@ class Tweeple_Feed {
         // Run through raw tweets
     	foreach( $tweets as $tweet ) {
 
-            // Process retweet
-            if( $this->feed_type == 'user_timeline' && isset( $tweet['retweeted_status'] ) )
-                $tweet = $tweet['retweeted_status'];
+            // Check for display limit
+            if( $counter > $limit )
+                break;
 
-            // Add Tweet
-    		$new_tweets[] = array(
+            // Retweet (user timeline and lists)
+            if( ( $this->feed_type == 'user_timeline' || $this->feed_type == 'list' ) && isset( $tweet['retweeted_status'] ) ) {
+                if( $exclude_retweets == 'yes' )
+                    continue; // Skip onto the next tweet
+                else
+                    $tweet = $tweet['retweeted_status'];
+            }
+
+            // @Replies (user timeline)
+            if( $this->feed_type == 'user_timeline' && $exclude_replies == 'yes' )
+                if( strpos( $tweet['text'], '@' ) == 0 )
+                    continue; // Skip onto the next tweet
+
+            // Build new Tweet
+            $new_tweet = array(
                 'id_str'                    => $tweet['id_str'],
                 'text'                      => $tweet['text'],
                 'time'                      => $tweet['created_at'],
                 'author'                    => $tweet['user']['screen_name'],
                 'profile_image_url'         => $tweet['user']['profile_image_url'],
-                'profile_image_url_https'   => $tweet['user']['profile_image_url_https']
+                'profile_image_url_https'   => $tweet['user']['profile_image_url_https'],
+                'retweet_count'             => $tweet['retweet_count'],
+                'favorite_count'            => $tweet['favorite_count'],
+                'source'                    => $tweet['source'],
+                'lang'                      => $tweet['lang']
             );
+
+            if( $this->do_entities && isset( $tweet['entities'] ) )
+                $new_tweet['entities'] = $tweet['entities'];
+
+            $new_tweets[] = $new_tweet;
 
     		$counter++;
     	}

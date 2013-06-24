@@ -8,11 +8,7 @@ jQuery(document).ready(function($){
 	/**
 	 * Setup Feed configuration form.
 	 */
-	var form = $('#feed-config'),
-		type = form.find('.feed-type-wrap select').val();
-
-	form.find('.toggle').hide()
-	form.find('.toggle-'+type).show();
+	var form = $('#feed-config');
 
 	form.find('.feed-type-wrap select').change(function(){
 		var new_type = $(this).val();

@@ -355,7 +355,8 @@ class Tweeple_Admin {
 			'exclude_replies'	=> 'no',			// Exclude @replies? (timeline only)
 			'time'				=> 'yes',			// Display time?
 			'count'				=> '3',				// Num of tweets to pull
-			'cache'				=> '7200' 			// 2 hours
+			'cache'				=> '7200', 			// 2 hours
+			'raw_count'			=> '10' 			// Raw tweet count from response before any parsing
 		));
 		$value = wp_parse_args( $value, $defaults );
 
@@ -366,6 +367,9 @@ class Tweeple_Admin {
 			$name = '';
 
 		settings_errors( 'tweeple_feed_config' );
+
+		$learn_more = __('Learn More', 'tweeple' );
+		$feed_type = $value['feed_type'];
 		?>
 		<form id="feed-config" action="" method="post">
 
@@ -379,16 +383,16 @@ class Tweeple_Admin {
 
 				<div class="feed-type-wrap">
 					<select name="feed_type">
-						<option value="user_timeline" <?php selected( 'user_timeline', $value['feed_type'] ); ?>>
+						<option value="user_timeline" <?php selected( 'user_timeline', $feed_type ); ?>>
 							<?php _e( 'Twitter user\'s timeline', 'tweeple' ); ?>
 						</option>
-						<option value="list" <?php selected( 'list', $value['feed_type'] ); ?>>
+						<option value="list" <?php selected( 'list', $feed_type ); ?>>
 							<?php _e( 'Twitter user\'s public list', 'tweeple' ); ?>
 						</option>
-						<option value="favorites" <?php selected( 'favorites', $value['feed_type'] ); ?>>
+						<option value="favorites" <?php selected( 'favorites', $feed_type ); ?>>
 							<?php _e( 'Twitter user\'s favorite tweets', 'tweeple' ); ?>
 						</option>
-						<option value="search" <?php selected( 'search', $value['feed_type'] ); ?>>
+						<option value="search" <?php selected( 'search', $feed_type ); ?>>
 							<?php _e( 'Search term or hashtag', 'tweeple' ); ?>
 						</option>
 					</select>
@@ -403,10 +407,10 @@ class Tweeple_Admin {
 
 				<div class="postbox inner-section">
 
-					<h3 class="toggle toggle-user_timeline"><?php _e('Twitter User\'s Timeline', 'tweeple'); ?></h3>
-					<h3 class="toggle toggle-list"><?php _e('Twitter User\'s Public List', 'tweeple'); ?></h3>
-					<h3 class="toggle toggle-favorites"><?php _e('Twitter User\'s Favorites', 'tweeple'); ?></h3>
-					<h3 class="toggle toggle-search"><?php _e('Search Term or Hashtag', 'tweeple'); ?></h3>
+					<h3 class="toggle toggle-user_timeline <?php $this->hide_section( 'user_timeline', $feed_type ); ?>"><?php _e('Twitter User\'s Timeline', 'tweeple'); ?></h3>
+					<h3 class="toggle toggle-list <?php $this->hide_section( 'list', $feed_type ); ?>"><?php _e('Twitter User\'s Public List', 'tweeple'); ?></h3>
+					<h3 class="toggle toggle-favorites <?php $this->hide_section( 'favorites', $feed_type ); ?>"><?php _e('Twitter User\'s Favorites', 'tweeple'); ?></h3>
+					<h3 class="toggle toggle-search <?php $this->hide_section( 'search', $feed_type ); ?>"><?php _e('Search Term or Hashtag', 'tweeple'); ?></h3>
 
 					<div class="section col-wrap">
 						<div class="col-left">
@@ -424,7 +428,7 @@ class Tweeple_Admin {
 						</div>
 					</div><!-- .section (end) -->
 
-					<div class="section col-wrap toggle toggle-user_timeline toggle-favorites">
+					<div class="section col-wrap toggle toggle-user_timeline toggle-favorites <?php $this->hide_section( array('user_timeline', 'favorites'), $feed_type ); ?>">
 						<div class="col-left">
 							<div class="col-inner control">
 								<h4><?php _e('Twitter Username', 'tweeple'); ?></h4>
@@ -440,7 +444,7 @@ class Tweeple_Admin {
 						</div>
 					</div><!-- .section (end) -->
 
-					<div class="section col-wrap toggle toggle-list">
+					<div class="section col-wrap toggle toggle-list <?php $this->hide_section( array('list'), $feed_type ); ?>">
 						<div class="col-left">
 							<div class="col-inner control">
 								<h4><?php _e('List Slug', 'tweeple'); ?></h4>
@@ -456,7 +460,7 @@ class Tweeple_Admin {
 						</div>
 					</div><!-- .section (end) -->
 
-					<div class="section col-wrap toggle toggle-list">
+					<div class="section col-wrap toggle toggle-list <?php $this->hide_section( array('list'), $feed_type ); ?>">
 						<div class="col-left">
 							<div class="col-inner control">
 								<h4><?php _e('List Owner\'s Username', 'tweeple'); ?></h4>
@@ -472,7 +476,7 @@ class Tweeple_Admin {
 						</div>
 					</div><!-- .section (end) -->
 
-					<div class="section col-wrap toggle toggle-search">
+					<div class="section col-wrap toggle toggle-search <?php $this->hide_section( array('search'), $feed_type ); ?>">
 						<div class="col-left">
 							<div class="col-inner control">
 								<h4><?php _e('Search Term', 'tweeple'); ?></h4>
@@ -488,7 +492,7 @@ class Tweeple_Admin {
 						</div>
 					</div><!-- .section (end) -->
 
-					<div class="section col-wrap toggle toggle-search">
+					<div class="section col-wrap toggle toggle-search <?php $this->hide_section( array('search'), $feed_type ); ?>">
 						<div class="col-left">
 							<div class="col-inner control">
 								<h4><?php _e('Search Results Type', 'tweeple'); ?></h4>
@@ -514,10 +518,10 @@ class Tweeple_Admin {
 						</div>
 					</div><!-- .section (end) -->
 
-					<div class="section col-wrap toggle toggle-user_timeline toggle-list">
+					<div class="section col-wrap toggle toggle-user_timeline toggle-list <?php $this->hide_section( array('user_timeline', 'list'), $feed_type ); ?>">
 						<div class="col-left">
 							<div class="col-inner control">
-								<h4><?php _e('Exclude Retweets?', 'tweeple'); ?></h4>
+								<h4><?php _e('Exclude retweets?', 'tweeple'); ?></h4>
 								<select name="exclude_retweets">
 									<option value="yes" <?php selected( 'yes', $value['exclude_retweets'] ); ?>>
 										<?php _e( 'Yes', 'tweeple' ); ?>
@@ -531,13 +535,13 @@ class Tweeple_Admin {
 						<div class="col-right">
 							<div class="col-inner">
 								<div class="desc">
-									<p><?php _e('Select if you\'d like re-tweets excluded from the list of tweets or not.', 'tweeple'); ?></p>
+									<p><?php _e('Select if you\'d like retweets excluded from the list of tweets or not.', 'tweeple'); ?></p>
 								</div>
 							</div>
 						</div>
 					</div><!-- .section (end) -->
 
-					<div class="section col-wrap toggle toggle-user_timeline">
+					<div class="section col-wrap toggle toggle-user_timeline <?php $this->hide_section( array('user_timeline'), $feed_type ); ?>">
 						<div class="col-left">
 							<div class="col-inner control">
 								<h4><?php _e('Exclude @replies?', 'tweeple'); ?></h4>
@@ -563,7 +567,7 @@ class Tweeple_Admin {
 					<div class="section col-wrap">
 						<div class="col-left">
 							<div class="col-inner control">
-								<h4><?php _e('Display time of each tweet?', 'tweeple'); ?></h4>
+								<h4><?php _e('Display Tweet details?', 'tweeple'); ?></h4>
 								<select name="time">
 									<option value="yes" <?php selected( 'yes', $value['time'] ); ?>>
 										<?php _e( 'Yes', 'tweeple' ); ?>
@@ -577,7 +581,10 @@ class Tweeple_Admin {
 						<div class="col-right">
 							<div class="col-inner">
 								<div class="desc">
-									<p><?php _e('Select whether or not you\'d like the timestamp displayed below each tweet or not.', 'tweeple'); ?></p>
+									<p>
+										<?php _e('Display a timestamp for the Tweet, or whatever your current theme has setup to be displayed for each Tweet\'s meta.', 'tweeple'); ?><br />
+										<?php printf( '<a href="https://github.com/themeblvd/Tweeple/wiki/How-to-create-your-own-meta-display-for-tweets">%s</a>', $learn_more ); ?>
+									</p>
 								</div>
 							</div>
 						</div>
@@ -586,7 +593,7 @@ class Tweeple_Admin {
 					<div class="section col-wrap">
 						<div class="col-left">
 							<div class="col-inner control">
-								<h4><?php _e('Tweet Limit', 'tweeple'); ?></h4>
+								<h4><?php _e('Tweet Display Limit', 'tweeple'); ?></h4>
 								<select name="count">
 									<?php
 									$limit = apply_filters( 'tweeple_count_limit', 20 );
@@ -601,7 +608,7 @@ class Tweeple_Admin {
 						<div class="col-right">
 							<div class="col-inner">
 								<div class="desc">
-									<p><?php _e('Set a limit on the number of tweets retrieved.', 'tweeple'); ?></p>
+									<p><?php _e( 'Select how many Tweets you\'d like displayed for this feed.', 'tweeple' ); ?></p>
 								</div>
 							</div>
 						</div>
@@ -617,7 +624,7 @@ class Tweeple_Admin {
 
 					<h3><?php _e('Performance', 'tweeple'); ?></h3>
 
-					<div class="col-wrap">
+					<div class="section col-wrap">
 						<div class="col-left">
 							<div class="col-inner control">
 								<h4><?php _e('Cache Time', 'tweeple'); ?></h4>
@@ -627,11 +634,42 @@ class Tweeple_Admin {
 						<div class="col-right">
 							<div class="col-inner">
 								<div class="desc">
-									<p><?php _e('Enter the number of seconds to wait between pulling data from Twitter. For example, "7200" will be two hours.', 'tweeple'); ?></p>
+									<p>
+										<?php _e( 'Enter the number of seconds to wait between pulling data from Twitter. For example, "7200" will be two hours.', 'tweeple' ); ?><br />
+										<?php printf( '<a href="https://github.com/themeblvd/Tweeple/wiki/Caching">%s</a>', $learn_more ); ?>
+									</p>
 								</div>
 							</div>
 						</div>
 					</div>
+
+					<div class="section col-wrap">
+						<div class="col-left">
+							<div class="col-inner control">
+								<h4><?php _e('Raw Tweet Count', 'tweeple'); ?></h4>
+								<select name="raw_count">
+									<?php
+									$raw_limit = apply_filters( 'tweeple_raw_count_limit', 30 );
+									$current = intval( esc_attr( $value['raw_count'] ) );
+									for( $i = 1; $i <= $raw_limit; $i++ ) {
+										printf( '<option value="%s" %s>%s</option>', $i, selected( $i, $current, false ), $i );
+									}
+									?>
+								</select>
+							</div>
+						</div>
+						<div class="col-right">
+							<div class="col-inner">
+								<div class="desc">
+									<p>
+										<?php _e( 'Select the raw number of Tweets to pull from Twitter before doing any parsing, like excluding @replies and retweets.', 'tweeple' ); ?><br />
+										<?php printf( '<a href="https://github.com/themeblvd/Tweeple/wiki/Tweet-Limit">%s</a>', $learn_more ); ?>
+									</p>
+								</div>
+							</div>
+						</div>
+					</div>
+
 				</div><!-- .postbox (end) -->
 
 				<!-- PERFORMANCE (end) -->
@@ -648,7 +686,30 @@ class Tweeple_Admin {
 	}
 
 	/**
+	 * Get form for adding and editing a feed.
+	 *
+	 * @since 0.1.0
+	 *
+	 * @param mixed $section_types Current section's types, could be single string or array
+	 * @param string $feed_type Current type of feed
+	 */
+	function hide_section( $section_type, $feed_type ) {
+
+		if( is_array( $section_type ) ) {
+			if( ! in_array( $feed_type, $section_type ) )
+				echo 'hide';
+			return;
+		}
+
+		if( $section_type != $feed_type )
+			echo 'hide';
+
+	}
+
+	/**
 	 * Save feed on form submissions.
+	 *
+	 * @since 0.1.0
 	 */
 	public function save_feed() {
 
@@ -706,6 +767,7 @@ class Tweeple_Admin {
 			'count'				=> $_POST['count'],
 			'time'				=> $_POST['time'],
 			'cache'				=> $_POST['cache'],
+			'raw_count'			=> $_POST['raw_count']
 		);
 		$this->save_feed_meta( $post_id, $settings );
 
@@ -735,7 +797,18 @@ class Tweeple_Admin {
 		$yes_no = apply_filters( 'tweeple_yes_no_options', array( 'exclude_replies', 'exclude_retweets', 'time' ) );
 
 		// Maximum count limit for number of tweets pulled
-		$limit = apply_filters( 'tweeple_count_limit', 30 );
+		$raw_limit = apply_filters( 'tweeple_raw_count_limit', 30 );
+		$display_limit = apply_filters( 'tweeple_count_limit', 20 );
+
+		// Raw Count
+		$raw_count = intval( $settings['raw_count'] );
+		if( $raw_count < 1 || $raw_count > $raw_limit )
+			$settings['raw_count'] = 10; // Default fallback count
+
+		// Display Count
+		$display_count = intval( $settings['count'] );
+		if( $display_count < 1 || $display_count > $display_limit || $display_count > $settings['raw_count'] )
+			$settings['count'] = $settings['raw_count'];
 
 		foreach( $settings as $key => $value ){
 
@@ -758,13 +831,6 @@ class Tweeple_Admin {
 			// Verify Yes/No type select options
 			if( in_array( $key, $yes_no ) && ( $value != 'yes' && $value != 'no' ) )
 				$value = 'no';
-
-			// Verify number of tweets
-			if( $key == 'count' ) {
-				$value = intval( $value );
-				if( $value < 1 || $value > $limit )
-					$value = 3; // Default fallback count
-			}
 
 			// Verify cache time. Don't allow user to set
 			// cache time less than once a minute.
@@ -974,7 +1040,8 @@ class Tweeple_Admin {
 			'exclude_replies'	=> get_post_meta( $post_id, 'exclude_replies', true ),
 			'time'				=> get_post_meta( $post_id, 'time', true ),
 			'count'				=> get_post_meta( $post_id, 'count', true ),
-			'cache'				=> get_post_meta( $post_id, 'cache', true )
+			'cache'				=> get_post_meta( $post_id, 'cache', true ),
+			'raw_count'			=> get_post_meta( $post_id, 'raw_count', true )
 		);
 
 		$this->feed_config( $post_id, $settings );

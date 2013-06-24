@@ -161,17 +161,13 @@ class Tweeple_Theme_Blvd {
     public function tweet_element( $id, $options ) {
 
     	// Get Twitter Feed
-		$tweeple_feed = new Tweeple_Feed( $options['feed_id'] );
-		$feed = $tweeple_feed->get_feed();
+		$feed = tweeple_get_feed( $options['feed_id'] );
+        $tweets = tweeple_get_tweets( $feed );
 
-		// Check for error
-        $tweeple = Tweeple::get_instance();
-        $error = $tweeple->feed_error( $feed );
-
-        if( $error  )
-            printf( '<p>%s</p>', $error );
+        if( ! tweeple_error( $feed )  )
+            do_action( 'tweeple_display_tweet_element', $tweets, $feed['options'], $options, $id );
         else
-            do_action( 'tweeple_display_tweet_element', $feed, $options, $id );
+            printf( '<p>%s</p>', tweeple_error( $feed ) );
 
     }
 }
@@ -183,6 +179,8 @@ class Tweeple_Theme_Blvd {
  * @since 0.4.0
  */
 function themeblvd_tweet( $id, $options ) {
-	$tweeple = Tweeple_Theme_Blvd::get_instance();
-	$tweeple->tweet_element( $id, $options );
+    $tweeple = Tweeple_Theme_Blvd::get_instance();
+    ob_start();
+    $tweeple->tweet_element( $id, $options );
+    return ob_get_clean();
 }

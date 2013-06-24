@@ -1,9 +1,9 @@
 msgid ""
 msgstr ""
-"Project-Id-Version: Tweeple\n"
+"Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-06-20 14:20-1000\n"
-"PO-Revision-Date: 2013-06-20 14:20-1000\n"
+"POT-Creation-Date: 2013-06-24 13:48-1000\n"
+"PO-Revision-Date: 2013-06-24 13:48-1000\n"
 "Last-Translator: \n"
 "Language-Team: \n"
 "MIME-Version: 1.0\n"
@@ -26,8 +26,8 @@ msgid "Hide Values"
 msgstr ""
 
 #: ../inc/class-tweeple-admin.php:75
-#: ../inc/class-tweeple-admin.php:1027
-#: ../inc/class-tweeple-admin.php:1048
+#: ../inc/class-tweeple-admin.php:1094
+#: ../inc/class-tweeple-admin.php:1115
 msgid "Show Values"
 msgstr ""
 
@@ -94,265 +94,277 @@ msgstr ""
 msgid "No items have been created yet. Click the Add tab above to get started."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:383
+#: ../inc/class-tweeple-admin.php:371
+msgid "Learn More"
+msgstr ""
+
+#: ../inc/class-tweeple-admin.php:387
 msgid "Twitter user's timeline"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:386
+#: ../inc/class-tweeple-admin.php:390
 msgid "Twitter user's public list"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:389
+#: ../inc/class-tweeple-admin.php:393
 msgid "Twitter user's favorite tweets"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:392
+#: ../inc/class-tweeple-admin.php:396
 msgid "Search term or hashtag"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:396
+#: ../inc/class-tweeple-admin.php:400
 msgid "Select the type of Twitter feed."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:406
+#: ../inc/class-tweeple-admin.php:410
 msgid "Twitter User's Timeline"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:407
+#: ../inc/class-tweeple-admin.php:411
 msgid "Twitter User's Public List"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:408
+#: ../inc/class-tweeple-admin.php:412
 msgid "Twitter User's Favorites"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:409
+#: ../inc/class-tweeple-admin.php:413
 msgid "Search Term or Hashtag"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:414
+#: ../inc/class-tweeple-admin.php:418
 msgid "Feed Name"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:421
+#: ../inc/class-tweeple-admin.php:425
 msgid "Enter your own user-friendly name to associate with this Twitter feed. Example: My Twitter Feed"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:430
+#: ../inc/class-tweeple-admin.php:434
 msgid "Twitter Username"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:437
+#: ../inc/class-tweeple-admin.php:441
 msgid "Enter the username of a Twitter account.<br />Example: ThemeBlvd"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:446
+#: ../inc/class-tweeple-admin.php:450
 msgid "List Slug"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:453
+#: ../inc/class-tweeple-admin.php:457
 msgid "Enter the slug for a Twitter list.<br />Example: mylist"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:462
+#: ../inc/class-tweeple-admin.php:466
 msgid "List Owner's Username"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:469
+#: ../inc/class-tweeple-admin.php:473
 msgid "Enter the username of the Twitter account the above list belongs to. Example: ThemeBlvd"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:478
+#: ../inc/class-tweeple-admin.php:482
 msgid "Search Term"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:485
+#: ../inc/class-tweeple-admin.php:489
 msgid "Enter a search term to pull tweets from Twitter. This can be simple phrase, word, or hashtag. Example: #cats"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:494
+#: ../inc/class-tweeple-admin.php:498
 msgid "Search Results Type"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:497
+#: ../inc/class-tweeple-admin.php:501
 msgid "Most Popular"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:500
+#: ../inc/class-tweeple-admin.php:504
 msgid "Most Recent"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:503
+#: ../inc/class-tweeple-admin.php:507
 msgid "Mixed"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:511
+#: ../inc/class-tweeple-admin.php:515
 msgid "Select the type of results to return for the above search query."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:520
-msgid "Exclude Retweets?"
+#: ../inc/class-tweeple-admin.php:524
+msgid "Exclude retweets?"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:523
-#: ../inc/class-tweeple-admin.php:546
-#: ../inc/class-tweeple-admin.php:569
+#: ../inc/class-tweeple-admin.php:527
+#: ../inc/class-tweeple-admin.php:550
+#: ../inc/class-tweeple-admin.php:573
 msgid "Yes"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:526
-#: ../inc/class-tweeple-admin.php:549
-#: ../inc/class-tweeple-admin.php:572
+#: ../inc/class-tweeple-admin.php:530
+#: ../inc/class-tweeple-admin.php:553
+#: ../inc/class-tweeple-admin.php:576
 msgid "No"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:534
-msgid "Select if you'd like re-tweets excluded from the list of tweets or not."
+#: ../inc/class-tweeple-admin.php:538
+msgid "Select if you'd like retweets excluded from the list of tweets or not."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:543
+#: ../inc/class-tweeple-admin.php:547
 msgid "Exclude @replies?"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:557
+#: ../inc/class-tweeple-admin.php:561
 msgid "Select if you'd like @replies excluded from the list of tweets or not."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:566
-msgid "Display time of each tweet?"
+#: ../inc/class-tweeple-admin.php:570
+msgid "Display Tweet details?"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:580
-msgid "Select whether or not you'd like the timestamp displayed below each tweet or not."
+#: ../inc/class-tweeple-admin.php:585
+msgid "Display a timestamp for the Tweet, or whatever your current theme has setup to be displayed for each Tweet's meta."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:589
-msgid "Tweet Limit"
+#: ../inc/class-tweeple-admin.php:596
+msgid "Tweet Display Limit"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:604
-msgid "Set a limit on the number of tweets retrieved."
+#: ../inc/class-tweeple-admin.php:611
+msgid "Select how many Tweets you'd like displayed for this feed."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:618
+#: ../inc/class-tweeple-admin.php:625
 msgid "Performance"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:623
+#: ../inc/class-tweeple-admin.php:630
 msgid "Cache Time"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:630
+#: ../inc/class-tweeple-admin.php:638
 msgid "Enter the number of seconds to wait between pulling data from Twitter. For example, \"7200\" will be two hours."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:641
-msgid "Update Twitter Feed"
-msgstr ""
-
-#: ../inc/class-tweeple-admin.php:641
-msgid "Add Twitter Feed"
+#: ../inc/class-tweeple-admin.php:649
+msgid "Raw Tweet Count"
 msgstr ""
 
 #: ../inc/class-tweeple-admin.php:665
+msgid "Select the raw number of Tweets to pull from Twitter before doing any parsing, like excluding @replies and retweets."
+msgstr ""
+
+#: ../inc/class-tweeple-admin.php:679
+msgid "Update Twitter Feed"
+msgstr ""
+
+#: ../inc/class-tweeple-admin.php:679
+msgid "Add Twitter Feed"
+msgstr ""
+
+#: ../inc/class-tweeple-admin.php:726
 msgid "Twitter feed updated."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:684
+#: ../inc/class-tweeple-admin.php:745
 msgid "Twitter feed created."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:824
+#: ../inc/class-tweeple-admin.php:890
 msgid "authentication settings"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:825
+#: ../inc/class-tweeple-admin.php:891
 #, php-format
 msgid "Before any feeds can pull from Twitter, you need to setup all %s."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:845
+#: ../inc/class-tweeple-admin.php:911
 msgid "Feed Title"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:849
+#: ../inc/class-tweeple-admin.php:915
 msgid "Feed ID"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:853
+#: ../inc/class-tweeple-admin.php:919
 msgid "Feed Type"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:857
+#: ../inc/class-tweeple-admin.php:923
 msgid "Cache"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:904
+#: ../inc/class-tweeple-admin.php:970
 msgid "Selected Twitter feeds deleted."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:914
+#: ../inc/class-tweeple-admin.php:980
 msgid "Twtter feed deleted."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:940
+#: ../inc/class-tweeple-admin.php:1006
 msgid "Cache cleared for Tweeter feed."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:961
+#: ../inc/class-tweeple-admin.php:1027
 msgid "No valid Twitter Feed found to edit."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1021
+#: ../inc/class-tweeple-admin.php:1088
 #, php-format
 msgid "In order to access Twitter API, you'll need to login to Twitter and create an application at %s. After you've done this, enter your OAuth settings and access token below."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1022
+#: ../inc/class-tweeple-admin.php:1089
 msgid "See FAQ"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1022
+#: ../inc/class-tweeple-admin.php:1089
 msgid "Watch Video"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1026
+#: ../inc/class-tweeple-admin.php:1093
 msgid "OAuth Settings"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1031
+#: ../inc/class-tweeple-admin.php:1098
 msgid "Consumer key"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1038
+#: ../inc/class-tweeple-admin.php:1105
 msgid "Consumer secret"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1047
+#: ../inc/class-tweeple-admin.php:1114
 msgid "Access Token"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1052
+#: ../inc/class-tweeple-admin.php:1119
 msgid "Access token"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1059
+#: ../inc/class-tweeple-admin.php:1126
 msgid "Access secret"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1068
+#: ../inc/class-tweeple-admin.php:1135
 msgid "Save Options"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1069
+#: ../inc/class-tweeple-admin.php:1136
 msgid "Clear Options"
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1117
+#: ../inc/class-tweeple-admin.php:1184
 msgid "Options cleared."
 msgstr ""
 
-#: ../inc/class-tweeple-admin.php:1128
+#: ../inc/class-tweeple-admin.php:1195
 msgid "Options saved."
 msgstr ""
 
@@ -361,38 +373,38 @@ msgstr ""
 msgid "No Twitter feed ID given."
 msgstr ""
 
-#: ../inc/class-tweeple-feed-widget.php:88
+#: ../inc/class-tweeple-feed-widget.php:86
 msgid "Title:"
 msgstr ""
 
-#: ../inc/class-tweeple-feed-widget.php:92
+#: ../inc/class-tweeple-feed-widget.php:90
 msgid "Twitter Feed:"
 msgstr ""
 
-#: ../inc/class-tweeple-feed-widget.php:101
+#: ../inc/class-tweeple-feed-widget.php:99
 msgid "You haven't created any Twitter feeds yet. Go to Tools > Tweeple to create one!"
 msgstr ""
 
-#: ../inc/class-tweeple-feed.php:73
+#: ../inc/class-tweeple-feed.php:75
 #, php-format
 msgid "Raw feed not available. Clear the cache transient \"%s\" in order to access raw feed."
 msgstr ""
 
-#: ../inc/class-tweeple-feed.php:98
+#: ../inc/class-tweeple-feed.php:100
 msgid "No developer access for Twitter given."
 msgstr ""
 
-#: ../inc/class-tweeple-feed.php:123
+#: ../inc/class-tweeple-feed.php:125
 #, php-format
 msgid "Missing authorization options: %s"
 msgstr ""
 
-#: ../inc/class-tweeple-feed.php:148
+#: ../inc/class-tweeple-feed.php:150
 msgid "Invalid feed ID given; Twitter feed does not exist."
 msgstr ""
 
 #: ../inc/class-tweeple-feed.php:260
-#: ../inc/class-tweeple-feed.php:315
+#: ../inc/class-tweeple-feed.php:313
 msgid "No Twitter username given."
 msgstr ""
 
@@ -400,15 +412,30 @@ msgstr ""
 msgid "No search term given."
 msgstr ""
 
-#: ../inc/class-tweeple-feed.php:299
+#: ../inc/class-tweeple-feed.php:297
 msgid "No list slug and/or owner username given."
 msgstr ""
 
-#: ../inc/class-tweeple-feed.php:343
-msgid "Twitter error: Authentication credentials were missing or incorrect."
+#: ../inc/class-tweeple-feed.php:349
+msgid "Security Error from tmhOAuth."
 msgstr ""
 
-#: ../inc/class-tweeple-feed.php:346
+#: ../inc/class-tweeple-feed.php:351
+#, php-format
+msgid "%s Unauthorized: Authentication credentials were missing or incorrect."
+msgstr ""
+
+#: ../inc/class-tweeple-feed.php:353
+#, php-format
+msgid "%s Not Found: The URI requested is invalid or the resource requested, such as a user, does not exists."
+msgstr ""
+
+#: ../inc/class-tweeple-feed.php:355
+#, php-format
+msgid "%s Too Many Requests: Your application's rate limit has been exhausted for the resource."
+msgstr ""
+
+#: ../inc/class-tweeple-feed.php:357
 #, php-format
 msgid "Twitter sent back an error. Error code: %s"
 msgstr ""
@@ -483,12 +510,12 @@ msgstr ""
 msgid "Manage Feeds"
 msgstr ""
 
-#: ../inc/functions.php:22
-#: ../inc/functions.php:137
+#: ../inc/functions.php:26
+#: ../inc/functions.php:156
 msgid "No tweets to display."
 msgstr ""
 
-#: ../inc/functions.php:109
+#: ../inc/functions.php:128
 msgid "via"
 msgstr ""
 

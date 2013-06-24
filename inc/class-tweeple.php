@@ -182,28 +182,27 @@ class Tweeple {
         if( empty( $atts['id'] ) )
             return __( 'No Twitter feed ID given.', 'tweeple' );
 
-        // Get Twitter Feed
-        $tweeple_feed = new Tweeple_Feed( $atts['id'] );
-        $feed = $tweeple_feed->get_feed();
+        // Get new Twitter feed, or cached result
+        $feed = tweeple_get_feed( $atts['id'] );
 
-        // Check for error
-        $error = $this->feed_error( $feed );
+        // Get Tweets
+        $tweets = tweeple_get_tweets( $feed ); // @todo Could incorporate feed merging in the future here. tweeple_get_tweets( array( $feed1, $feed2, $feed3 ) )
 
         // Start output
         $output  = '<div class="tweeple tweeple-feed tweeple-feed-shortcode">';
         $output .= '<div class="tweeple-inner">';
 
-        if( $error  ) {
-
-            // Display error
-            $output .= sprintf( '<p>%s</p>', $error );
-
-        } else {
+        if( ! tweeple_error( $feed ) ) {
 
             // We are a go! Display shortcode.
             ob_start();
-            do_action( 'tweeple_display_shortcode', $feed );
+            do_action( 'tweeple_display_shortcode', $tweets, $feed['options'], $feed['info'] );
             $output .= ob_get_clean();
+
+        } else {
+
+            // Display error
+            $output .= sprintf( '<p>%s</p>', tweeple_error( $feed ) );
 
         }
 
@@ -211,18 +210,5 @@ class Tweeple {
         $output .= '</div><!-- .tweeple-feed-shortcode (end) -->';
 
         return apply_filters( 'tweeple_feed_shortcode', $output, $atts['id'], $feed );
-    }
-
-    /**
-     * Check a feed for errors
-     *
-     * @since 0.1.0
-     */
-    public function feed_error( $feed ) {
-
-        if( ! empty( $feed['error'] ) )
-            return $feed['error'];
-
-        return null;
     }
 }

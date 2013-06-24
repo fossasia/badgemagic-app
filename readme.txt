@@ -2,7 +2,7 @@
 Author URI: http://www.themeblvd.com
 Contributors: themeblvd
 Tags: twitter, api, status, tweets, list, favorites, tmhOAuth, Theme Blvd, themeblvd, Jason Bobich
-Stable Tag: 0.4.0
+Stable Tag: 0.5.0
 Tested up to: 3.6
 
 Setup Twitter feeds to pull a user's public timeline, public list, favorite tweets, or a custom search term, phrase, or hashtag.
@@ -34,6 +34,10 @@ If you're currently using a Theme Blvd theme, you probably noticed that the Them
 If you'd like to keep our Twitter functionality, you'll want to use this plugin as a replacement. Using this plugin's "Tweeple Twitter Feed" widget with your current Theme Blvd theme should give you an almost identical result on the frontend of your website as the old widget gave you.
 
 *Note: As future theme updates come out, you will see that we've moved much of the theme's functionality like [custom layouts](http://wordpress.org/plugins/theme-blvd-layout-builder/), [sliders](http://wordpress.org/plugins/theme-blvd-sliders/), [shortcodes](http://wordpress.org/plugins/theme-blvd-shortcodes/), [widgets](http://wordpress.org/plugins/theme-blvd-widget-pack/), etc, to plugins, and the Twitter functionality is no different. So Tweeple will hopefully be your answer, moving forward, as we roll things along.*
+
+= Credits =
+
+* [tmhOAuth](https://github.com/themattharris/tmhOAuth), An OAuth 1.0A library written in PHP. By [Matt Harris](https://twitter.com/themattharris).
 
 == Installation ==
 
@@ -115,6 +119,21 @@ Note: We have safeguard implemented that does not allow you to set this less tha
 6. If you're using a Theme Blvd theme, the widget will integrate as your old Theme Blvd Twitter widget did.
 
 == Changelog ==
+
+= 0.5.0 =
+
+* **Clear your Twitter feed caches, at Tools > Tweeple > Twitter Feeds, after this update.**
+* Separated out "Tweet Display Limit" with new "Raw Tweet Count" performance option for number of Tweets. -- So, if you're excluding retweets or @replies, you'll want your raw Tweet count to be higher than your display limit.
+* Expanded cached feeds to include `retweet_count`, `favorite_count`, `source`, and `lang` for your custom templating.
+* Added `tweeple_do_entities` boolean filter for advanced users to add entities to feeds for custom templating.
+* Fixed `#hashtag` links in Tweets not linking correctly to Twitter search.
+* Tweet "Time" in admin is now "Details" for better referencing.
+* Action hook `tweeple_tweet_time` changed to `tweeple_tweet_meta` and hooked functions also use term "meta" instead of "time".
+* Started library of helper functions that can be used for templating -- See */inc/functions.php*
+* Developers can now merge multiple Twitter feeds, keeping Tweets all arranged chronilogically. -- [See code example](https://github.com/themeblvd/Tweeple/wiki/Merging-multiple-Twitter-feeds)
+* Fixed "Tweet" element from last update in Theme Blvd framework v2-2.2.
+* Minor improvements to error handling for end-user when fetching from Twitter.
+* Minor improvements to Add/Edit Twitter feeds form.
 
 = 0.4.0 =
 
