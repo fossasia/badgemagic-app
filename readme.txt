@@ -2,7 +2,7 @@
 Author URI: http://www.themeblvd.com
 Contributors: themeblvd
 Tags: twitter, api, status, tweets, list, favorites, tmhOAuth, Theme Blvd, themeblvd, Jason Bobich
-Stable Tag: 0.5.0
+Stable Tag: 0.6.0
 Tested up to: 3.6
 
 Setup Twitter feeds to pull a user's public timeline, public list, favorite tweets, or a custom search term, phrase, or hashtag.
@@ -119,6 +119,10 @@ Note: We have safeguard implemented that does not allow you to set this less tha
 6. If you're using a Theme Blvd theme, the widget will integrate as your old Theme Blvd Twitter widget did.
 
 == Changelog ==
+
+= 0.6.0 =
+
+* Fixed "Exclude @replies" bug that resulted from 0.5 update.
 
 = 0.5.0 =
 

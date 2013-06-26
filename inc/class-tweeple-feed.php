@@ -406,7 +406,7 @@ class Tweeple_Feed {
 
             // @Replies (user timeline)
             if( $this->feed_type == 'user_timeline' && $exclude_replies == 'yes' )
-                if( strpos( $tweet['text'], '@' ) == 0 )
+                if( substr( $tweet['text'], 0, 1 ) == '@' )
                     continue; // Skip onto the next tweet
 
             // Build new Tweet
