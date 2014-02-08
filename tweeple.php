@@ -2,12 +2,12 @@
 /*
 Plugin Name: Tweeple
 Description: Setup Twitter feeds to pull a user's public timeline, public list, favorite tweets, or a custom search term, phrase, or hashtag.
-Version: 0.6.0
+Version: 0.7.0
 Author: Theme Blvd
 Author URI: http://themeblvd.com
 License: GPL2
 
-    Copyright 2013  Theme Blvd
+    Copyright 2014  Theme Blvd
 
     This program is free software; you can redistribute it and/or modify
     it under the terms of the GNU General Public License version 2,
@@ -25,7 +25,7 @@ License: GPL2
 
 */
 
-define( 'TWEEPLE_PLUGIN_VERSION', '0.6.0' );
+define( 'TWEEPLE_PLUGIN_VERSION', '0.7.0' );
 define( 'TWEEPLE_PLUGIN_DIR', dirname( __FILE__ ) );
 define( 'TWEEPLE_PLUGIN_URI', plugins_url( '' , __FILE__ ) );
 define( 'TWEEPLE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );

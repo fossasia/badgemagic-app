@@ -412,7 +412,7 @@ class Tweeple_Feed {
             // Build new Tweet
             $new_tweet = array(
                 'id_str'                    => $tweet['id_str'],
-                'text'                      => $tweet['text'],
+                'text'                      => utf8_encode($tweet['text']),
                 'time'                      => $tweet['created_at'],
                 'author'                    => $tweet['user']['screen_name'],
                 'profile_image_url'         => $tweet['user']['profile_image_url'],
