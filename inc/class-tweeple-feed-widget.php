@@ -28,7 +28,7 @@ class Tweeple_Feed_Widget extends WP_Widget {
 		extract( $args );
 
 		// Check for missing feed id.
-		if( empty( $instance['feed_id'] ) ) {
+		if ( empty( $instance['feed_id'] ) ) {
 			echo __( 'No Twitter feed ID given.', 'tweeple' );
 			return;
 		}
@@ -43,13 +43,13 @@ class Tweeple_Feed_Widget extends WP_Widget {
 		echo $before_widget;
 
 		$title = apply_filters( 'widget_title', $instance['title'] );
-		if( ! empty( $title ) )
+		if ( ! empty( $title ) )
 			echo $before_title.$title.$after_title;
 
 		echo '<div class="tweeple tweeple-feed tweeple-feed-widget">';
         echo '<div class="tweeple-inner">';
 
-        if( ! tweeple_error( $feed ) ) {
+        if ( ! tweeple_error( $feed ) ) {
 
         	// We are a go! Display widget.
             do_action( 'tweeple_display_widget', $tweets, $feed['options'], $feed['info'] );
@@ -88,7 +88,7 @@ class Tweeple_Feed_Widget extends WP_Widget {
 		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id('feed_id'); ?>"><?php _e( 'Twitter Feed:', 'tweeple' ); ?></label>
-			<?php if( count( $feeds ) > 0 ) : ?>
+			<?php if ( count( $feeds ) > 0 ) : ?>
 				<select class="widefat" id="<?php echo $this->get_field_id('feed_id'); ?>" name="<?php echo $this->get_field_name('feed_id'); ?>">
 					<?php
 					foreach( $feeds as $key => $value )

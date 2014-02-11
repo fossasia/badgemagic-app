@@ -28,11 +28,11 @@ class Tweeple_Feed {
         $this->do_entities = apply_filters( 'tweeple_do_entities', false );
 
     	// First check for cache.
-    	if( $this->do_cache ) {
+    	if ( $this->do_cache ) {
 
             $cache = get_transient( 'tweeple_'.$feed_id );
 
-        	if( $cache ) {
+        	if ( $cache ) {
                 $this->feed = $cache;
         		return;
         	}
@@ -42,12 +42,14 @@ class Tweeple_Feed {
         $this->set_access();
 
         // Set feed post object
-        if( ! $this->error  )
+        if ( ! $this->error  ) {
             $this->set_feed_post();
+        }
 
         // Set type of Twitter feed
-        if( ! $this->error  )
+        if ( ! $this->error  ) {
             $this->set_feed_type();
+        }
 
         // Setup new Twitter feed
         $this->set_feed();
@@ -71,8 +73,9 @@ class Tweeple_Feed {
      */
     public function get_raw_feed() {
 
-        if( ! $this->raw_feed )
+        if ( ! $this->raw_feed ) {
             return array( 'error' => sprintf(__('Raw feed not available. Clear the cache transient "%s" in order to access raw feed.'), 'tweeple_'.$this->feed_id ) );
+        }
 
         return $this->raw_feed;
     }
@@ -96,7 +99,7 @@ class Tweeple_Feed {
         // Get "Authorization" options from DB
         $access = get_option( 'tweeple_access' );
 
-        if( ! $access ) {
+        if ( ! $access ) {
             $this->error = __('No developer access for Twitter given.', 'tweeple');
             return;
         }
@@ -109,19 +112,23 @@ class Tweeple_Feed {
         // Check for any missing info
         $missing = array();
 
-        if( ! $consumer_key )
+        if ( ! $consumer_key ) {
             $missing[] = 'consumer_key';
+        }
 
-        if( ! $consumer_secret )
+        if ( ! $consumer_secret ) {
             $missing[] = 'consumer_secret';
+        }
 
-        if( ! $user_token )
+        if ( ! $user_token ) {
             $missing[] = 'user_token';
+        }
 
-        if( ! $user_secret )
+        if ( ! $user_secret ) {
             $missing[] = 'user_secret';
+        }
 
-        if( count( $missing ) > 0 ) {
+        if ( count( $missing ) > 0 ) {
             $this->error = sprintf( __('Missing authorization options: %s', 'tweeple'), implode(', ', $missing ) );
             return;
         }
@@ -146,8 +153,9 @@ class Tweeple_Feed {
 
         $this->feed_post = get_post( $this->feed_id );
 
-        if( ! $this->feed_post )
+        if ( ! $this->feed_post ) {
             $this->error = __( 'Invalid feed ID given; Twitter feed does not exist.', 'tweeple' );
+        }
 
     }
 
@@ -162,8 +170,9 @@ class Tweeple_Feed {
 
         $types = apply_filters( 'tweeple_feed_types', array( 'user_timeline', 'search', 'list', 'favorites' ) );
 
-        if( ! in_array( $this->feed_type, $types ) )
+        if ( ! in_array( $this->feed_type, $types ) ) {
             $this->feed_type = $types[0];
+        }
 
     }
 
@@ -182,15 +191,17 @@ class Tweeple_Feed {
 
         // Get tweets from Twitter. This could result in
         // errors, so we're doing it above our error checking.
-        if( ! $this->error )
+        if ( ! $this->error ) {
             $tweets = $this->get_tweets();
+        }
 
         // Check for error
-        if( $this->error )
+        if ( $this->error ) {
             $this->feed = array( 'error' => $this->error );
+        }
 
         // If there was no error, setup feed.
-        if( ! $this->feed ) {
+        if ( ! $this->feed ) {
 
             // Setup feed array
             $this->feed = array(
@@ -214,18 +225,20 @@ class Tweeple_Feed {
             );
 
             // Get response from Twitter
-            if( count( $tweets ) > 0 )
+            if ( count( $tweets ) > 0 ) {
                 $this->feed['tweets'] = $tweets;
+            }
 
         }
 
         // Caching
-        if( $this->do_cache ) {
+        if ( $this->do_cache ) {
 
             // Setup the time the feed will be cached.
             $cache_time = intval( esc_attr( get_post_meta( $this->feed_id, 'cache', true ) ) );
-            if( ! $cache_time )
+            if ( ! $cache_time ) {
                 $cache_time = 7200; // 2 hours
+            }
 
             // Cache it.
             set_transient( 'tweeple_'.$this->feed_id, $this->feed, $cache_time );
@@ -249,14 +262,14 @@ class Tweeple_Feed {
         $params = array();
         $resource = '';
 
-        switch( $this->feed_type ) {
+        switch ( $this->feed_type ) {
 
             // User timeline
             case 'user_timeline' :
 
                 $screen_name = get_post_meta( $this->feed_id, 'screen_name', true );
 
-                if( ! $screen_name ) {
+                if ( ! $screen_name ) {
                     $this->error = __('No Twitter username given.', 'tweeple');
                     return;
                 }
@@ -274,10 +287,12 @@ class Tweeple_Feed {
                 $search = get_post_meta( $this->feed_id, 'search', true );
                 $result_types = apply_filters( 'tweeple_result_types', array( 'mixed', 'popular', 'recent' ) );
                 $result_type = get_post_meta( $this->feed_id, 'result_type', true );
-                if( ! in_array( $result_type, $result_types ) )
-                    $result_type = 'mixed';
 
-                if( ! $search ) {
+                if ( ! in_array( $result_type, $result_types ) ) {
+                    $result_type = 'mixed';
+                }
+
+                if ( ! $search ) {
                     $this->error = __('No search term given.', 'tweeple');
                     return;
                 }
@@ -293,7 +308,7 @@ class Tweeple_Feed {
                 $slug = get_post_meta( $this->feed_id, 'slug', true );
                 $screen_name = get_post_meta( $this->feed_id, 'owner_screen_name', true );
 
-                if( ! $slug || ! $screen_name ) {
+                if ( ! $slug || ! $screen_name ) {
                     $this->error = __('No list slug and/or owner username given.', 'tweeple');
                     return;
                 }
@@ -309,7 +324,7 @@ class Tweeple_Feed {
 
                 $screen_name = get_post_meta( $this->feed_id, 'screen_name', true );
 
-                if( ! $screen_name ) {
+                if ( ! $screen_name ) {
                     $this->error = __('No Twitter username given.', 'tweeple');
                     return;
                 }
@@ -321,15 +336,18 @@ class Tweeple_Feed {
         }
 
         // Entities
-        if( $this->do_entities )
+        if ( $this->do_entities ) {
             $params['include_entities'] = true;
+        }
 
         // Set number of tweets to pull before any of Tweeple's
         // parsing, like excluding @replies and retweets.
         $count = intval( get_post_meta( $this->feed_id, 'raw_count', true ) );
         $raw_limit = apply_filters( 'tweeple_raw_count_limit', 30 );
-        if( $count < 1 || $count > $raw_limit )
+
+        if ( $count < 1 || $count > $raw_limit ) {
             $count = 10; // Default fallback raw count
+        }
 
         $params['count'] = $count;
 
@@ -341,20 +359,21 @@ class Tweeple_Feed {
         $code = $twitter->request( 'GET', $twitter->url(sprintf('1.1/%s', $resource)), $params );
 
         // If code was not 200, it means we'll have some sort of error.
-        if( $code != 200 ) {
+        if ( $code != 200 ) {
 
             $link = sprintf( '<a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank">%s</a>', $code );
 
-            if( $code == 0 )
+            if ( $code == 0 ) {
                 $this->error = sprintf( __( 'Security Error from tmhOAuth.', 'tweeple' ), $link );
-            else if( $code == 401 )
+            } else if ( $code == 401 ) {
                 $this->error = sprintf( __( '%s Unauthorized: Authentication credentials were missing or incorrect.', 'tweeple' ), $link );
-            else if( $code == 404 )
+            } else if ( $code == 404 ) {
                 $this->error = sprintf( __( '%s Not Found: The URI requested is invalid or the resource requested, such as a user, does not exists.', 'tweeple' ), $link );
-            else if( $code == 429 )
+            } else if ( $code == 429 ) {
                 $this->error = sprintf( __( '%s Too Many Requests: Your application\'s rate limit has been exhausted for the resource.', 'tweeple' ), $link );
-            else
+            } else {
                 $this->error = sprintf( __( 'Twitter sent back an error. Error code: %s', 'tweeple'), $link );
+            }
 
             return null;
         }
@@ -377,42 +396,49 @@ class Tweeple_Feed {
         $this->raw_feed = $tweets; // Store raw feed
 
         $limit = get_post_meta( $this->feed_id, 'count', true );
-        if( ! $limit )
+
+        if ( ! $limit ) {
             $limit = 3;
+        }
 
         $exclude_retweets = get_post_meta( $this->feed_id, 'exclude_retweets', true );
         $exclude_replies = get_post_meta( $this->feed_id, 'exclude_replies', true );
 
-        if( $this->feed_type == 'search' )
+        if ( $this->feed_type == 'search' ) {
             $tweets = $tweets['statuses'];
+        }
 
         // Start new feed
         $new_tweets = array();
 
         // Run through raw tweets
-    	foreach( $tweets as $tweet ) {
+    	foreach ( $tweets as $tweet ) {
 
             // Check for display limit
-            if( $counter > $limit )
+            if ( $counter > $limit ) {
                 break;
+            }
 
             // Retweet (user timeline and lists)
-            if( ( $this->feed_type == 'user_timeline' || $this->feed_type == 'list' ) && isset( $tweet['retweeted_status'] ) ) {
-                if( $exclude_retweets == 'yes' )
+            if ( ( $this->feed_type == 'user_timeline' || $this->feed_type == 'list' ) && isset( $tweet['retweeted_status'] ) ) {
+                if ( $exclude_retweets == 'yes' ) {
                     continue; // Skip onto the next tweet
-                else
+                } else {
                     $tweet = $tweet['retweeted_status'];
+                }
             }
 
             // @Replies (user timeline)
-            if( $this->feed_type == 'user_timeline' && $exclude_replies == 'yes' )
-                if( substr( $tweet['text'], 0, 1 ) == '@' )
+            if ( $this->feed_type == 'user_timeline' && $exclude_replies == 'yes' ) {
+                if ( substr( $tweet['text'], 0, 1 ) == '@' ) {
                     continue; // Skip onto the next tweet
+                }
+            }
 
             // Build new Tweet
             $new_tweet = array(
                 'id_str'                    => $tweet['id_str'],
-                'text'                      => utf8_encode($tweet['text']),
+                'text'                      => $tweet['text'],
                 'time'                      => $tweet['created_at'],
                 'author'                    => $tweet['user']['screen_name'],
                 'profile_image_url'         => $tweet['user']['profile_image_url'],
@@ -423,8 +449,15 @@ class Tweeple_Feed {
                 'lang'                      => $tweet['lang']
             );
 
-            if( $this->do_entities && isset( $tweet['entities'] ) )
+            // UTF-8 encoding
+            $encode = get_post_meta( $this->feed_id, 'encode', true );
+            if ( $encode != 'no' ) {
+                $new_tweet['text'] = utf8_encode( $new_tweet['text'] );
+            }
+
+            if ( $this->do_entities && isset( $tweet['entities'] ) ) {
                 $new_tweet['entities'] = $tweet['entities'];
+            }
 
             $new_tweets[] = $new_tweet;
 

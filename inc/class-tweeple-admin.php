@@ -63,7 +63,7 @@ class Tweeple_Admin {
 	 * @since 0.1.0
 	 */
 	public function assets( $hook ) {
-		if( $hook == $this->base ) {
+		if ( $hook == $this->base ) {
 
 			wp_enqueue_script( 'tweeple_admin', TWEEPLE_PLUGIN_URI.'/assets/js/admin.js', array('jquery'), TWEEPLE_PLUGIN_VERSION );
 
@@ -117,18 +117,18 @@ class Tweeple_Admin {
  				<?php screen_icon( 'tweeple' ); ?>
 
 				<h2 class="nav-tab-wrapper tweeple-nav-tab-wrapper">
-					<a href="<?php echo admin_url( $this->parent.'?page=tweeple&tab=feeds' ); ?>" class="nav-tab<?php if($active == 'feeds') echo ' nav-tab-active'; ?>">
+					<a href="<?php echo admin_url( $this->parent.'?page=tweeple&tab=feeds' ); ?>" class="nav-tab<?php if ($active == 'feeds') echo ' nav-tab-active'; ?>">
 						<?php _e('Twitter Feeds', 'tweeple'); ?>
 					</a>
-					<?php if( $active == 'edit' ) : ?>
-						<a href="<?php echo admin_url( $this->parent.'?page=tweeple&tab=edit&id='.$_GET['id'] ); ?>" class="nav-tab<?php if($active == 'edit') echo ' nav-tab-active'; ?>">
+					<?php if ( $active == 'edit' ) : ?>
+						<a href="<?php echo admin_url( $this->parent.'?page=tweeple&tab=edit&id='.$_GET['id'] ); ?>" class="nav-tab<?php if ($active == 'edit') echo ' nav-tab-active'; ?>">
 							<?php _e('Edit Feed', 'tweeple'); ?>
 						</a>
 					<?php endif; ?>
-					<a href="<?php echo admin_url( $this->parent.'?page=tweeple&tab=add_feed' ); ?>" class="nav-tab<?php if($active == 'add_feed') echo ' nav-tab-active'; ?>">
+					<a href="<?php echo admin_url( $this->parent.'?page=tweeple&tab=add_feed' ); ?>" class="nav-tab<?php if ($active == 'add_feed') echo ' nav-tab-active'; ?>">
 						<?php _e('Add Feed', 'tweeple'); ?>
 					</a>
-					<a href="<?php echo admin_url( $this->parent.'?page=tweeple&tab=authentication' ); ?>" class="nav-tab<?php if($active == 'authentication') echo ' nav-tab-active'; ?>">
+					<a href="<?php echo admin_url( $this->parent.'?page=tweeple&tab=authentication' ); ?>" class="nav-tab<?php if ($active == 'authentication') echo ' nav-tab-active'; ?>">
 						<?php _e('Authentication', 'tweeple'); ?>
 					</a>
 				</h2>
@@ -212,7 +212,7 @@ class Tweeple_Admin {
 
 		// Table body
 		$output .= '<tbody>';
-		if( ! empty( $posts ) ) {
+		if ( ! empty( $posts ) ) {
 
 			$num = count( $columns ) + 1; // number of columns + the checkbox column
 
@@ -248,9 +248,10 @@ class Tweeple_Admin {
 						case 'meta' :
 							$output .= '<td class="post-meta-'.esc_attr($column['config']).'">';
 							$meta = get_post_meta( $post->ID, $column['config'], true );
-							if( isset( $column['inner'] ) ) {
-								if( isset( $meta[$column['inner']] ) )
+							if ( isset( $column['inner'] ) ) {
+								if ( isset( $meta[$column['inner']] ) ) {
 									$output .= esc_html( $meta[$column['inner']] );
+								}
 							} else {
 								$output .= esc_html( $meta );
 							}
@@ -260,8 +261,9 @@ class Tweeple_Admin {
 							$output .= '<td class="cache">';
 							$output .= '<div class="cache-overlay">';
 
-							if( ! get_transient( 'tweeple_'.$post->ID ) )
+							if ( ! get_transient( 'tweeple_'.$post->ID ) ) {
 								$output .= '<span class="inactive"></span>';
+							}
 
 							$url = admin_url( $this->parent.'?page=tweeple&tab=feeds&tweeple=cache&id='.esc_attr($post->ID).'&_wpnonce='.$nonce );
 							$output .= sprintf( '<a href="%s" data-id="%s" title="%s" class="clear-cache">%s</a>', $url, esc_attr( $post->ID ), __( 'Delete current cache', 'tweeple' ), __( 'Delete current cache', 'tweeple' ) );
@@ -274,25 +276,27 @@ class Tweeple_Admin {
 
 							$type = get_post_meta( $post->ID, 'feed_type', true );
 
-							if( $type == 'user_timeline' ){
+							if ( $type == 'user_timeline' ) {
 
 								$screen_name = get_post_meta( $post->ID, 'screen_name', true );
 
-								if( $screen_name )
+								if ( $screen_name ) {
 									$output .= sprintf( '@%s', esc_html( $screen_name ) );
-								else
+								} else {
 									$output .= sprintf( '<em>%s</em>', __('This feed is missing a username.', 'tweeple') );
+								}
 
-							} else if( $type == 'search' ) {
+							} else if ( $type == 'search' ) {
 
 								$search = get_post_meta( $post->ID, 'search', true );
 
-								if( $search ) {
+								if ( $search ) {
 
-									if( strpos( $search, '#' ) !== false )
+									if ( strpos( $search, '#' ) !== false ) {
 										$output .= sprintf( '%s <a href="https://twitter.com/search?q=%s" class="hashtag" target="_blank">%s</a>', __('Trending at', 'tweeple'), urlencode( esc_attr( $search ) ), esc_html( $search ) );
-									else
+									} else {
 										$output .= sprintf( '%s "%s"', __( 'Search for', 'tweeple' ), esc_html( $search ) );
+									}
 
 								} else {
 
@@ -300,24 +304,26 @@ class Tweeple_Admin {
 
 								}
 
-							} else if( $type == 'list' ) {
+							} else if ( $type == 'list' ) {
 
 								$list = get_post_meta( $post->ID, 'slug', true );
 								$screen_name = get_post_meta( $post->ID, 'owner_screen_name', true );
 
-								if( $screen_name && $list )
+								if ( $screen_name && $list ) {
 									$output .= sprintf( 'List "%s" from %s', esc_attr( $list ), esc_attr( $screen_name ) );
-								else
+								} else {
 									$output .= sprintf( '<em>%s</em>', __('This feed is missing a list slug and/or owner username.', 'tweeple') );
+								}
 
-							} else if( $type == 'favorites' ) {
+							} else if ( $type == 'favorites' ) {
 
 								$screen_name = get_post_meta( $post->ID, 'screen_name', true );
 
-								if( $screen_name )
+								if ( $screen_name ) {
 									$output .= sprintf( "%s's favorites", esc_attr( $screen_name ) );
-								else
+								} else {
 									$output .= sprintf( '<em>%s</em>', __('This feed is missing a username.', 'tweeple') );
+								}
 
 							}
 							break;
@@ -355,16 +361,18 @@ class Tweeple_Admin {
 			'exclude_replies'	=> 'no',			// Exclude @replies? (timeline only)
 			'time'				=> 'yes',			// Display time?
 			'count'				=> '3',				// Num of tweets to pull
+			'encode'			=> 'yes',			// Whether to UTF-8 encode tweets or not
 			'cache'				=> '7200', 			// 2 hours
 			'raw_count'			=> '10' 			// Raw tweet count from response before any parsing
 		));
 		$value = wp_parse_args( $value, $defaults );
 
 		$post = get_post( $id );
-		if( $post )
+		if ( $post ) {
 			$name = $post->post_title;
-		else
+		} else {
 			$name = '';
+		}
 
 		settings_errors( 'tweeple_feed_config' );
 
@@ -598,7 +606,7 @@ class Tweeple_Admin {
 									<?php
 									$limit = apply_filters( 'tweeple_count_limit', 20 );
 									$current = intval( esc_attr( $value['count'] ) );
-									for( $i = 1; $i <= $limit; $i++ ) {
+									for ( $i = 1; $i <= $limit; $i++ ) {
 										printf( '<option value="%s" %s>%s</option>', $i, selected( $i, $current, false ), $i );
 									}
 									?>
@@ -609,6 +617,29 @@ class Tweeple_Admin {
 							<div class="col-inner">
 								<div class="desc">
 									<p><?php _e( 'Select how many Tweets you\'d like displayed for this feed.', 'tweeple' ); ?></p>
+								</div>
+							</div>
+						</div>
+					</div><!-- .section (end) -->
+
+					<div class="section col-wrap">
+						<div class="col-left">
+							<div class="col-inner control">
+								<h4><?php _e('UTF-8 Text Encoding', 'tweeple'); ?></h4>
+								<select name="encode">
+									<option value="yes" <?php selected( 'yes', $value['encode'] ); ?>>
+										<?php _e( 'Yes', 'tweeple' ); ?>
+									</option>
+									<option value="no" <?php selected( 'no', $value['encode'] ); ?>>
+										<?php _e( 'No', 'tweeple' ); ?>
+									</option>
+								</select>
+							</div>
+						</div>
+						<div class="col-right">
+							<div class="col-inner">
+								<div class="desc">
+									<p><?php _e( 'If you\'re having problems displaying characters or words in your language, try disabling UTF-8 encoding.', 'tweeple' ); ?></p>
 								</div>
 							</div>
 						</div>
@@ -651,7 +682,7 @@ class Tweeple_Admin {
 									<?php
 									$raw_limit = apply_filters( 'tweeple_raw_count_limit', 30 );
 									$current = intval( esc_attr( $value['raw_count'] ) );
-									for( $i = 1; $i <= $raw_limit; $i++ ) {
+									for ( $i = 1; $i <= $raw_limit; $i++ ) {
 										printf( '<option value="%s" %s>%s</option>', $i, selected( $i, $current, false ), $i );
 									}
 									?>
@@ -695,14 +726,18 @@ class Tweeple_Admin {
 	 */
 	function hide_section( $section_type, $feed_type ) {
 
-		if( is_array( $section_type ) ) {
-			if( ! in_array( $feed_type, $section_type ) )
+		if ( is_array( $section_type ) ) {
+
+			if ( ! in_array( $feed_type, $section_type ) ) {
 				echo 'hide';
+			}
+
 			return;
 		}
 
-		if( $section_type != $feed_type )
+		if ( $section_type != $feed_type ) {
 			echo 'hide';
+		}
 
 	}
 
@@ -714,19 +749,21 @@ class Tweeple_Admin {
 	public function save_feed() {
 
 		// Verify this is our form.
-		if( ! isset( $_POST['tweeple_feed_id'] ) )
+		if ( ! isset( $_POST['tweeple_feed_id'] ) ) {
 			return;
+		}
 
 		// Verify security nonce on our form.
-		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'tweeple_feed_config' ) )
+		if ( ! wp_verify_nonce( $_POST['_wpnonce'], 'tweeple_feed_config' ) ) {
 			return;
+		}
 
 		$name = wp_kses( $_POST['name'], array() );
 		$post_id = intval($_POST['tweeple_feed_id']);
 		$message = $name.' '.__('Twitter feed updated.', 'tweeple');
 
 		// If post ID is 0, it means this is new feed.
-		if( $post_id == 0 ) {
+		if ( $post_id == 0 ) {
 
 			// Setup arguments for new feed post.
 			$args = array(
@@ -766,6 +803,7 @@ class Tweeple_Admin {
 			'exclude_replies'	=> $_POST['exclude_replies'],
 			'count'				=> $_POST['count'],
 			'time'				=> $_POST['time'],
+			'encode'			=> $_POST['encode'],
 			'cache'				=> $_POST['cache'],
 			'raw_count'			=> $_POST['raw_count']
 		);
@@ -784,8 +822,9 @@ class Tweeple_Admin {
 	public function save_feed_meta( $post_id, $settings ) {
 
 		// Verify a settings array was passed into sanitize
-		if( ! is_array( $settings ) )
+		if ( ! is_array( $settings ) ) {
 			return;
+		}
 
 		// Accepted feed types
 		$feed_types = apply_filters( 'tweeple_feed_types', array( 'user_timeline', 'search', 'list', 'favorites' ) );
@@ -802,43 +841,52 @@ class Tweeple_Admin {
 
 		// Raw Count
 		$raw_count = intval( $settings['raw_count'] );
-		if( $raw_count < 1 || $raw_count > $raw_limit )
+
+		if ( $raw_count < 1 || $raw_count > $raw_limit ) {
 			$settings['raw_count'] = 10; // Default fallback count
+		}
 
 		// Display Count
 		$display_count = intval( $settings['count'] );
-		if( $display_count < 1 || $display_count > $display_limit || $display_count > $settings['raw_count'] )
-			$settings['count'] = $settings['raw_count'];
 
-		foreach( $settings as $key => $value ){
+		if ( $display_count < 1 || $display_count > $display_limit || $display_count > $settings['raw_count'] ) {
+			$settings['count'] = $settings['raw_count'];
+		}
+
+		foreach ( $settings as $key => $value ){
 
 			// Strip out anything bad.
 			$value = wp_kses( $value, array() );
 
 			// Make sure user doesn't put "@" sign in front
 			// of Twitter username.
-			if( $key == 'screen_name' )
+			if ( $key == 'screen_name' ) {
 				$value = str_replace('@', '', $value);
+			}
 
 			// Verify feed type
-			if( $key == 'feed_type' && ! in_array( $value, $feed_types ) )
+			if ( $key == 'feed_type' && ! in_array( $value, $feed_types ) ) {
 				$value = $feed_types[0];
+			}
 
 			// Verify search result types
-			if( $key == 'result_type' && ! in_array( $value, $result_types ) )
+			if ( $key == 'result_type' && ! in_array( $value, $result_types ) ) {
 				$value = $result_types[0];
+			}
 
 			// Verify Yes/No type select options
-			if( in_array( $key, $yes_no ) && ( $value != 'yes' && $value != 'no' ) )
+			if ( in_array( $key, $yes_no ) && ( $value != 'yes' && $value != 'no' ) ) {
 				$value = 'no';
+			}
 
 			// Verify cache time. Don't allow user to set
 			// cache time less than once a minute.
-			if( $key == 'cache' ) {
+			if ( $key == 'cache' ) {
 				$value = intval( $value );
 				$minimum = apply_filters( 'tweeple_cache_time_minimum', 60 );
-				if( $value < $minimum )
+				if ( $value < $minimum ) {
 					$value = $minimum;
+				}
 			}
 
 			// Allow extended sanitization
@@ -860,20 +908,22 @@ class Tweeple_Admin {
 
 		// Make sure it's our admin page.
 		$current = get_current_screen();
-		if( $current->base != $this->base )
+		if ( $current->base != $this->base ) {
 			return;
+		}
 
 		$is_valid = true;
 		$settings = get_option( $this->access_id );
 
-		if( ! $settings )
+		if ( ! $settings ) {
 			$is_valid = false;
+		}
 
 		// Ok, so the settings exist, but were all of them stored?
-		if( $is_valid ) {
+		if ( $is_valid ) {
 			$options = array( 'consumer_key', 'consumer_secret', 'user_token', 'user_secret' );
-			foreach( $options as $option ) {
-				if( empty( $settings[$option] ) ) {
+			foreach ( $options as $option ) {
+				if ( empty( $settings[$option] ) ) {
 					$is_valid = false;
 					break;
 				}
@@ -882,8 +932,9 @@ class Tweeple_Admin {
 
 		// If everything is still valid, we
 		// can get out of here.
-		if( $is_valid )
+		if ( $is_valid ) {
 			return;
+		}
 
 		// BUT, if we're still here, it means settings haven't
 		// been setup right.
@@ -947,24 +998,28 @@ class Tweeple_Admin {
 	public function delete_feeds() {
 
 		// Verify this is our form.
-		if( ! isset( $_POST['_tweeple_feed_manage_nonce'] ) )
+		if ( ! isset( $_POST['_tweeple_feed_manage_nonce'] ) ) {
 			return;
+		}
 
 		// Verify security nonce on our form.
-		if ( ! wp_verify_nonce( $_POST['_tweeple_feed_manage_nonce'], 'tweeple_feed_manage' ) )
+		if ( ! wp_verify_nonce( $_POST['_tweeple_feed_manage_nonce'], 'tweeple_feed_manage' ) ) {
 			return;
+		}
 
 		// Bulk action
-		if( isset( $_POST['posts'] ) && is_array( $_POST['posts'] ) ) {
+		if ( isset( $_POST['posts'] ) && is_array( $_POST['posts'] ) ) {
 
 			// Don't do anything if we're not deleting posts
 			// or no posts were passed.
-			if( $_POST['action'] != 'trash' )
+			if ( $_POST['action'] != 'trash' ) {
 				return;
+			}
 
 			// Loop through post ID's and delete them.
-			foreach( $_POST['posts'] as $post_id )
+			foreach( $_POST['posts'] as $post_id ) {
 				wp_delete_post( $post_id ); // Can still be retrieved from trash
+			}
 
 			// Display message
 			add_settings_error( 'tweeple_feed_manage', 'tweeple_feed_manage', __( 'Selected Twitter feeds deleted.', 'tweeple' ), 'error fade' );
@@ -973,8 +1028,9 @@ class Tweeple_Admin {
 		}
 
 		// Delete single post
-		if( isset( $_POST['delete-post'] ) )
+		if ( isset( $_POST['delete-post'] ) ) {
 			wp_delete_post( $_POST['delete-post'] ); // Can still be retrieved from trash
+		}
 
 		// Add message
 		add_settings_error( 'tweeple_feed_manage', 'tweeple_feed_manage', __( 'Twtter feed deleted.', 'tweeple' ), 'error fade' );
@@ -988,16 +1044,19 @@ class Tweeple_Admin {
 	public function delete_feed_cache() {
 
 		// Verfiy this is our action
-		if( ! isset( $_GET['tweeple'] ) || $_GET['tweeple'] != 'cache' )
+		if ( ! isset( $_GET['tweeple'] ) || $_GET['tweeple'] != 'cache' ) {
 			return;
+		}
 
 		// Verify security nonce on our form
-		if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'tweeple_cache' ) )
+		if ( ! wp_verify_nonce( $_GET['_wpnonce'], 'tweeple_cache' ) ) {
 			return;
+		}
 
 		// Make sure a post ID greater than 0 was passed
-		if( ! isset( $_GET['id'] ) || intval( $_GET['id'] ) <= 0 )
+		if ( ! isset( $_GET['id'] ) || intval( $_GET['id'] ) <= 0 ) {
 			return;
+		}
 
 		// Delete transient
 		delete_transient( 'tweeple_'.$_GET['id'] );
@@ -1022,7 +1081,7 @@ class Tweeple_Admin {
 		$post = get_post($post_id);
 
 		// Check for valid post
-		if( ! $post ) {
+		if ( ! $post ) {
 			echo '<div class="error settings-error">';
 			echo '<p><strong>'.__('No valid Twitter Feed found to edit.', 'tweeple').'</strong></p>';
 			echo '</div>';
@@ -1040,6 +1099,7 @@ class Tweeple_Admin {
 			'exclude_replies'	=> get_post_meta( $post_id, 'exclude_replies', true ),
 			'time'				=> get_post_meta( $post_id, 'time', true ),
 			'count'				=> get_post_meta( $post_id, 'count', true ),
+			'encode'			=> get_post_meta( $post_id, 'encode', true ),
 			'cache'				=> get_post_meta( $post_id, 'cache', true ),
 			'raw_count'			=> get_post_meta( $post_id, 'raw_count', true )
 		);
@@ -1167,7 +1227,7 @@ class Tweeple_Admin {
 	function validate_access( $input ) {
 
 		// Dump Twitter feed caches
-		if( ! $this->sanitized ) {
+		if ( ! $this->sanitized ) {
 
 			$tweeple = Tweeple::get_instance();
 			$feeds = $tweeple->get_feeds();
@@ -1178,21 +1238,25 @@ class Tweeple_Admin {
 		}
 
 		// Clear options
-		if( isset( $input['clear'] ) ) {
+		if ( isset( $input['clear'] ) ) {
 
-			if( ! $this->sanitized ) // Avoid duplicates
+			// Avoid duplicates
+			if ( ! $this->sanitized ) {
 				add_settings_error( $this->access_id, 'save_options', __( 'Options cleared.', 'tweeple' ), 'error fade' );
+			}
 
 			return null;
 		}
 
 		// Sanitize
-		foreach( $input as $key => $value )
+		foreach( $input as $key => $value ) {
 			$clean[$key] = wp_kses( $value, array() );
+		}
 
-		// Add success message
-		if( ! $this->sanitized ) // Avoid duplicates
+		// Add success message, Avoid duplicates
+		if ( ! $this->sanitized ) {
 			add_settings_error( $this->access_id, 'save_options', __( 'Options saved.', 'tweeple' ), 'updated fade' );
+		}
 
 		// Check for future duplicate passes.
 		$this->sanitized = true;

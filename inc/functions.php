@@ -22,8 +22,9 @@ function tweeple_get_display_default( $tweets, $options = array() ) {
 	$output = '';
 
 	// Some basic error checking.
-	if( ! $tweets || ! is_array( $tweets ) || count( $tweets ) < 1 )
+	if ( ! $tweets || ! is_array( $tweets ) || count( $tweets ) < 1 ) {
 		return __('No tweets to display.', 'tweeple');
+	}
 
 	$output .= '<ul class="tweets">';
 
@@ -36,8 +37,9 @@ function tweeple_get_display_default( $tweets, $options = array() ) {
 		$text = apply_filters( 'tweeple_tweet_text', $tweet['text'], $tweet, $tweets, $options );
 		$output .= sprintf( '<div class="tweet-text">%s</div>', $text );
 
-		if( tweeple_show_tweet_meta( $options ) )
+		if ( tweeple_show_tweet_meta( $options ) ) {
 			$output .= sprintf( '<div class="tweet-meta tweet-time">%s</div>', tweeple_get_tweet_meta( $tweet ) );
+		}
 
 		$output .= '</div><!-- .tweet-wrap (end) -->';
 		$output .= '</li>';
@@ -149,17 +151,19 @@ function tweeple_tweet_element_default( $tweets, $feed_options, $element_options
  */
 function tweeple_get_tweet_element_default( $tweets, $feed_options, $element_options ) {
 
-	if( ! defined( 'TB_FRAMEWORK_VERSION' ) )
+	if ( ! defined( 'TB_FRAMEWORK_VERSION' ) ) {
 		return;
+	}
 
-	if( ! $tweets )
+	if ( ! $tweets ) {
 		return __('No tweets to display.', 'tweeple');
+	}
 
 	$icon = $element_options['icon'];
 
 	// Convert older icon option for those updating.
-	if( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ) {
-		switch( $icon ) {
+	if ( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ) {
+		switch ( $icon ) {
 			case 'message' :
 				$icon = 'comment';
 				break;
@@ -170,34 +174,37 @@ function tweeple_get_tweet_element_default( $tweets, $feed_options, $element_opt
 	}
 
 	$wrap_class = 'tb-tweet-wrapper';
-	if( $icon )
+	if ( $icon ) {
 		$wrap_class .= ' has-icon';
+	}
 
 	$output = '';
 	$count = 1;
 	$max = apply_filters( 'tweeple_tweet_element_max_count', 1 ); // @todo Possibly make option later
 
-	foreach( $tweets as $tweet ) {
+	foreach ( $tweets as $tweet ) {
 
-		if( $count > $max )
+		if ( $count > $max )
 			break;
 
 		$output .= sprintf( '<div class="%s">', $wrap_class );
 
-		if( $icon )
+		if ( $icon ) {
 			$output .= sprintf( '<div class="tweet-icon"><i class="icon-%s"></i></div>', $icon );
+		}
 
 		$text = apply_filters( 'tweeple_tweet_text', $tweet['text'], $tweet, $feed_options );
 		$output .= sprintf( '<div class="tweet-text tweet-content">%s</div>', $text );
 
-		if( tweeple_show_tweet_meta( $feed_options ) ) {
+		if ( tweeple_show_tweet_meta( $feed_options ) ) {
 
 			$meta = tweeple_get_tweet_meta_fancy( $tweet );
 
-			if( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '<' ) )
+			if ( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '<' ) ) {
 				$output .= sprintf( '<span style="font-size:1rem;">%s</span>', $meta ); // Inline styles, barf. Oh, what I do for you, backwards compat.
-			else
+			} else {
 				$output .= $meta;
+			}
 
 		}
 
@@ -223,8 +230,9 @@ function tweeple_get_tweet_element_default( $tweets, $feed_options, $element_opt
  */
 function tweeple_error( $feed ) {
 
-	if( ! empty( $feed['error'] ) )
+	if ( ! empty( $feed['error'] ) ) {
 		return $feed['error'];
+	}
 
 	return null;
 }
@@ -252,30 +260,33 @@ function tweeple_get_feed( $feed_id ) {
  */
 function tweeple_get_tweets( $feeds ) {
 
-	if( ! is_array( $feeds ) )
+	if ( ! is_array( $feeds ) ) {
 		return null;
+	}
 
 	// If this is a single Twitter feed
-	if( isset( $feeds['tweets'] ) ) {
-		if( is_array( $feeds['tweets'] ) )
+	if ( isset( $feeds['tweets'] ) ) {
+		if ( is_array( $feeds['tweets'] ) ) {
 			return $feeds['tweets'];
-		else
+		} else {
 			return array();
+		}
 	}
 
 	// If this is a single Twitter feed, but for
 	// some reason, passed in a bigger array
-	if( count( $feeds ) == 1 ) {
-		if( isset( $feeds[0]['tweets'] ) && is_array( $feeds[0]['tweets'] ) )
+	if ( count( $feeds ) == 1 ) {
+		if ( isset( $feeds[0]['tweets'] ) && is_array( $feeds[0]['tweets'] ) ) {
 			return $feeds[0]['tweets'];
-		else
+		} else {
 			return array();
+		}
 	}
 
 	// Merge multiple Twitter feeds
 	$tweets = array();
-	foreach( $feeds as $feed ) {
-		if( isset( $feed['tweets'] ) && is_array( $feed['tweets'] ) ) {
+	foreach ( $feeds as $feed ) {
+		if ( isset( $feed['tweets'] ) && is_array( $feed['tweets'] ) ) {
 			$tweets = array_merge( $tweets, $feed['tweets'] );
 		}
 	}
@@ -333,8 +344,9 @@ function tweeple_get_tweet_meta( $tweet ) {
  */
 function tweeple_show_tweet_meta( $feed ) {
 
-	if( isset( $feed['time'] ) && $feed['time'] == 'yes' )
+	if ( isset( $feed['time'] ) && $feed['time'] == 'yes' ) {
 		return true;
+	}
 
 	return false;
 }

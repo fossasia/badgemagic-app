@@ -21,7 +21,7 @@ class Tweeple_Theme_Blvd {
      * @since 0.4.0
      */
     public static function get_instance() {
-        if( self::$instance == null ) {
+        if ( self::$instance == null ) {
             self::$instance = new self;
         }
         return self::$instance;
@@ -49,7 +49,7 @@ class Tweeple_Theme_Blvd {
      */
     public function registered_elements( $elements ) {
 
-    	if( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ) {
+    	if ( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ) {
     		unset( $elements['tweet'] );
     		$elements[] = 'tweeple_tweet';
     	}
@@ -69,7 +69,7 @@ class Tweeple_Theme_Blvd {
     	// Before TB framework version 2.2, we're overriding the "Tweet"
     	// element, but after that, we're creating a new element.
     	$id = 'tweet';
-    	if( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ){
+    	if ( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ){
     		$id = 'tweeple_tweet';
     		unset( $elements['tweet'] );
     	}
@@ -90,7 +90,7 @@ class Tweeple_Theme_Blvd {
 		// Options
 		$elements[$id]['options'] = array();
 
-		if( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ) {
+		if ( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ) {
 
 			// Info type option not styled in builder prior to framework v2.2
 			$elements[$id]['options']['slider_desc'] = array(
@@ -110,7 +110,7 @@ class Tweeple_Theme_Blvd {
 			'options'	=> $tweeple->get_feeds()
 		);
 
-		if( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ) {
+		if ( version_compare( TB_FRAMEWORK_VERSION, '2.2.0', '>=' ) ) {
 
 			$elements[$id]['options']['icon'] = array(
 		    	'id' 		=> 'icon',
@@ -164,10 +164,11 @@ class Tweeple_Theme_Blvd {
 		$feed = tweeple_get_feed( $options['feed_id'] );
         $tweets = tweeple_get_tweets( $feed );
 
-        if( ! tweeple_error( $feed )  )
+        if ( ! tweeple_error( $feed )  ) {
             do_action( 'tweeple_display_tweet_element', $tweets, $feed['options'], $options, $id );
-        else
+        } else {
             printf( '<p>%s</p>', tweeple_error( $feed ) );
+        }
 
     }
 }

@@ -26,7 +26,7 @@ class Tweeple {
      * @since 0.1.0
      */
     public static function get_instance() {
-        if( self::$instance == null ) {
+        if ( self::$instance == null ) {
             self::$instance = new self;
         }
         return self::$instance;
@@ -40,11 +40,13 @@ class Tweeple {
     private function __construct() {
 
         // Library files
-        if( ! class_exists( 'tmhOAuth' ) )
+        if ( ! class_exists( 'tmhOAuth' ) ) {
             include_once( TWEEPLE_PLUGIN_DIR . '/lib/tmhOAuth/tmhOAuth.php' );
+        }
 
-        if( ! class_exists( 'tmhUtilities' ) )
+        if ( ! class_exists( 'tmhUtilities' ) ) {
             include_once( TWEEPLE_PLUGIN_DIR . '/lib/tmhOAuth/tmhUtilities.php' );
+        }
 
         // Plugin files
         include_once( TWEEPLE_PLUGIN_DIR . '/inc/class-tweeple-admin.php' );
@@ -63,7 +65,7 @@ class Tweeple {
         add_action( 'init', array( $this, 'register_post_types' ) );
 
         // Admin
-        if( is_admin() ) {
+        if ( is_admin() ) {
             $this->admin = new Tweeple_Admin();
             add_filter( 'plugin_action_links_'.TWEEPLE_PLUGIN_BASENAME, array( $this, 'settings_link' ) );
         }
@@ -152,12 +154,14 @@ class Tweeple {
         $posts = get_posts( $args );
 
         // Did we get any posts?
-        if( ! $posts )
+        if ( ! $posts ) {
             return $feeds;
+        }
 
         // Format into simple array as Feed ID => Name
-        foreach( $posts as $post )
+        foreach ( $posts as $post ) {
             $feeds[$post->ID] = $post->post_title;
+        }
 
         return $feeds;
     }
@@ -179,8 +183,9 @@ class Tweeple {
     public function feed_shortcode( $atts ) {
 
         // Check for missing feed id.
-        if( empty( $atts['id'] ) )
+        if ( empty( $atts['id'] ) ) {
             return __( 'No Twitter feed ID given.', 'tweeple' );
+        }
 
         // Get new Twitter feed, or cached result
         $feed = tweeple_get_feed( $atts['id'] );
@@ -192,7 +197,7 @@ class Tweeple {
         $output  = '<div class="tweeple tweeple-feed tweeple-feed-shortcode">';
         $output .= '<div class="tweeple-inner">';
 
-        if( ! tweeple_error( $feed ) ) {
+        if ( ! tweeple_error( $feed ) ) {
 
             // We are a go! Display shortcode.
             ob_start();
