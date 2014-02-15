@@ -1,4 +1,9 @@
 /* Page Setup */
+.tb-screen-icon {
+	float: left;
+	width: 50px;
+	height: 40px;
+}
 #icon-tweeple {
 	background: url(../images/icon.png);
 	margin: 5px 5px 0 0;
@@ -64,7 +69,7 @@
 	text-align: center;
 }
 #tweeple .cache-overlay .inactive {
-	background: #f9f9f9;
+	background: #ffffff;
 	display: block;
 	-ms-filter: "progid:DXImageTransform.Microsoft.Alpha(Opacity=80)";
 	filter: alpha(opacity=80);
