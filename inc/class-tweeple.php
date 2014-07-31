@@ -187,27 +187,37 @@ class Tweeple {
             return __( 'No Twitter feed ID given.', 'tweeple' );
         }
 
-        // Get new Twitter feed, or cached result
-        $feed = tweeple_get_feed( $atts['id'] );
+        $atts['id'] = str_replace( ' ', '', $atts['id'] );
+        $ids = explode( ',', $atts['id'] );
+
+        $feeds = array();
+
+        foreach ( $ids as $id ) {
+            $feeds[] = tweeple_get_feed( $id );
+        }
 
         // Get Tweets
-        $tweets = tweeple_get_tweets( $feed ); // @todo Could incorporate feed merging in the future here. tweeple_get_tweets( array( $feed1, $feed2, $feed3 ) )
+        $tweets = tweeple_get_tweets( $feeds );
 
         // Start output
         $output  = '<div class="tweeple tweeple-feed tweeple-feed-shortcode">';
         $output .= '<div class="tweeple-inner">';
 
-        if ( ! tweeple_error( $feed ) ) {
+        // Errror checking
+        $error = '';
+
+        foreach ( $feeds as $feed ) {
+            if ( tweeple_error( $feed ) ) {
+                $error = sprintf( '<p>%s</p>', tweeple_error( $feed ) );
+            }
+        }
+
+        if ( ! $error ) {
 
             // We are a go! Display shortcode.
             ob_start();
             do_action( 'tweeple_display_shortcode', $tweets, $feed['options'], $feed['info'] );
             $output .= ob_get_clean();
-
-        } else {
-
-            // Display error
-            $output .= sprintf( '<p>%s</p>', tweeple_error( $feed ) );
 
         }
 

@@ -2,7 +2,7 @@
 /*
 Plugin Name: Tweeple
 Description: Setup Twitter feeds to pull a user's public timeline, public list, favorite tweets, or a custom search term, phrase, or hashtag.
-Version: 0.9.1
+Version: 0.9.2
 Author: Theme Blvd
 Author URI: http://themeblvd.com
 License: GPL2
@@ -25,7 +25,7 @@ License: GPL2
 
 */
 
-define( 'TWEEPLE_PLUGIN_VERSION', '0.9.1' );
+define( 'TWEEPLE_PLUGIN_VERSION', '0.9.2' );
 define( 'TWEEPLE_PLUGIN_DIR', dirname( __FILE__ ) );
 define( 'TWEEPLE_PLUGIN_URI', plugins_url( '' , __FILE__ ) );
 define( 'TWEEPLE_PLUGIN_BASENAME', plugin_basename( __FILE__ ) );
@@ -50,7 +50,10 @@ add_action( 'plugins_loaded', 'tweeple_init' );
  */
 function tweeple_hooks(){
 
-    // Filter the text of a tweet.
+    // Remove characters and symbols that won't display in website
+    add_filter( 'tweeple_tweet_text', 'tweeple_tweet_clean' );
+
+    // Filter the text of a tweet
     add_filter( 'tweeple_tweet_text', 'tweeple_tweet_text_default' );
 
     // Display Widget

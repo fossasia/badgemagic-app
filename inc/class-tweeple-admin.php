@@ -114,7 +114,7 @@ class Tweeple_Admin {
 		<div id="tweeple">
 			<div class="wrap">
 
- 				<?php screen_icon( 'tweeple' ); ?>
+ 				<div class="tb-screen-icon" id="icon-tweeple"></div>
 
 				<h2 class="nav-tab-wrapper tweeple-nav-tab-wrapper">
 					<a href="<?php echo admin_url( $this->parent.'?page=tweeple&tab=feeds' ); ?>" class="nav-tab<?php if ($active == 'feeds') echo ' nav-tab-active'; ?>">
@@ -1155,14 +1155,14 @@ class Tweeple_Admin {
 					<div class="col-wrap">
 						<div class="col-left">
 							<div class="col-inner control">
-								<h4><?php _e('Consumer key', 'tweeple'); ?></h4>
+								<h4><?php _e('API key &mdash; <em>formerly "Consumer key"</em>', 'tweeple'); ?></h4>
 								<input class="field" name="<?php echo $this->access_id; ?>[consumer_key]" value="<?php echo esc_attr( $settings['consumer_key'] ); ?>" type="password" />
 								<input class="field hide" value="<?php echo esc_attr( $settings['consumer_key'] ); ?>" type="text" />
 							</div>
 						</div>
 						<div class="col-right">
 							<div class="col-inner control">
-								<h4><?php _e('Consumer secret', 'tweeple'); ?></h4>
+								<h4><?php _e('API secret &mdash; <em>formerly "Consumer secret"</em>', 'tweeple'); ?></h4>
 								<input class="field" name="<?php echo $this->access_id; ?>[consumer_secret]" value="<?php echo esc_attr( $settings['consumer_secret'] ); ?>" type="password" />
 								<input class="field hide" value="<?php echo esc_attr( $settings['consumer_secret'] ); ?>" type="text" />
 							</div>

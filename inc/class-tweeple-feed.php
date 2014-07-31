@@ -86,6 +86,24 @@ class Tweeple_Feed {
      * @since 0.1.0
      */
     public function get_feed() {
+
+        // If tweets were UTF8-encoded when stored, we need to decode
+        if ( ! empty( $this->feed['tweets'] ) && is_array( $this->feed['tweets'] ) ) {
+            if ( ! empty( $this->feed['options']['encode'] ) && $this->feed['options']['encode'] == 'yes' ) {
+
+                $tweets = array();
+
+                foreach ( $this->feed['tweets'] as $key => $value ) {
+                    if ( ! empty( $value['text'] ) ) {
+                        $value['text'] = utf8_decode($value['text']);
+                    }
+                    $tweets[$key] = $value;
+                }
+
+                $this->feed['tweets'] = $tweets;
+            }
+        }
+
         return $this->feed;
     }
 
@@ -220,6 +238,7 @@ class Tweeple_Feed {
                     'exclude_replies'   => get_post_meta( $this->feed_id, 'exclude_replies', true ),
                     'time'              => get_post_meta( $this->feed_id, 'time', true ),
                     'count'             => get_post_meta( $this->feed_id, 'count', true ), // Display count, NOT raw count.
+                    'encode'            => get_post_meta( $this->feed_id, 'encode', true )
                 ),
                 'tweets'                => null
             );
@@ -451,6 +470,7 @@ class Tweeple_Feed {
 
             // UTF-8 encoding
             $encode = get_post_meta( $this->feed_id, 'encode', true );
+
             if ( $encode != 'no' ) {
                 $new_tweet['text'] = utf8_encode( $new_tweet['text'] );
             }
