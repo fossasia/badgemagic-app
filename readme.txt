@@ -73,8 +73,8 @@ Create an application, and then create a user token for that application.
 
 After you're done, you'll need to put in the following information to Tweeple at *WP Admin > Tools > Tweeple > Authentication*:
 
-* Consumer key
-* Consumer secret
+* API key — *formerly “Consumer key”*
+* API secret — *formerly “Consumer secret”*
 * Access token
 * Access secret
 
