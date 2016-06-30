@@ -1,0 +1,3 @@
+[submodule "lib/loklak_php_api"]
+	path = lib/loklak_php_api
+	url = https://github.com/loklak/loklak_php_api
