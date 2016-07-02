@@ -1144,6 +1144,25 @@ class Tweeple_Admin {
 
 			<div class="metabox-holder">
 
+				<div class="postbox inner-section">
+					<h3><?php _e('Loklak API Settings', 'tweeple'); ?></h3>
+					<a href="#" class="button-secondary security-toggle show-values"><?php _e('Show Values', 'tweeple'); ?></a>
+					<div class="col-wrap">
+						<div class="col-left">
+							<div class="col-inner control">
+								<input class="check" id="tweeple_loklak_api" <?php checked( $settings['loklak_api'], 'on' ); ?> name="<?php echo $this->access_id; ?>[loklak_api]"  type="checkbox" />
+							</div>
+						</div>
+						<div class="col-right">
+							<div class="col-inner">
+								<div class="desc">
+									<p><?php _e('Use anonymous API of <a href="http://loklak.org/">loklak.org</a> and get plugin data<br/> through loklak (no registration and authentication required).<br/> <a href="http://loklak.org/">Find out more</a>', 'tweeple'); ?></p>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div><!-- .postbox (end) -->
+
 				<div class="authentication-help">
 					<p><?php printf(__('In order to access Twitter API, you\'ll need to login to Twitter and create an application at %s. After you\'ve done this, enter your OAuth settings and access token below.', 'tweeple'), '<a href="https://dev.twitter.com/apps" target="_blank">dev.twitter.com/apps</a>'); ?></p>
 					<p><a href="http://wordpress.org/plugins/tweeple/faq/" target="_blank"><?php _e('See FAQ', 'tweeple'); ?></a> | <a href="https://vimeo.com/68603403" target="_blank"><?php _e('Watch Video', 'tweeple'); ?></a></p>

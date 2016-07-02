@@ -129,6 +129,10 @@
 	top: 4px;
 	right: 4px;
 }
+#tweeple #tweeple_loklak_api {
+   	padding-top: 30px;
+    text-align: center;
+}
 
 /* HiDPI support */
 @media 	only screen and (-webkit-min-device-pixel-ratio: 1.5),
