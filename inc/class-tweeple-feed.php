@@ -386,31 +386,39 @@ class Tweeple_Feed {
         $params = apply_filters( 'tweeple_request_params', $params, $this->feed_type );
         $resource = apply_filters( 'tweeple_request_resource', $resource, $this->feed_type );
 
-        // Fetch from Twitter
-        $code = $twitter->request( 'GET', $twitter->url(sprintf('1.1/%s', $resource)), $params );
+        // Fetch from Loklak/Twitter
+        if ( ! $loklak_api ) {
+            $code = $twitter->request( 'GET', $twitter->url(sprintf('1.1/%s', $resource)), $params );
 
-        // If code was not 200, it means we'll have some sort of error.
-        if ( $code != 200 ) {
+            // If code was not 200, it means we'll have some sort of error.
+            if ( $code != 200 ) {
 
-            $link = sprintf( '<a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank">%s</a>', $code );
+                $link = sprintf( '<a href="https://dev.twitter.com/docs/error-codes-responses" target="_blank">%s</a>', $code );
 
-            if ( $code == 0 ) {
-                $this->error = sprintf( __( 'Security Error from tmhOAuth.', 'tweeple' ), $link );
-            } else if ( $code == 401 ) {
-                $this->error = sprintf( __( '%s Unauthorized: Authentication credentials were missing or incorrect.', 'tweeple' ), $link );
-            } else if ( $code == 404 ) {
-                $this->error = sprintf( __( '%s Not Found: The URI requested is invalid or the resource requested, such as a user, does not exists.', 'tweeple' ), $link );
-            } else if ( $code == 429 ) {
-                $this->error = sprintf( __( '%s Too Many Requests: Your application\'s rate limit has been exhausted for the resource.', 'tweeple' ), $link );
-            } else {
-                $this->error = sprintf( __( 'Twitter sent back an error. Error code: %s', 'tweeple'), $link );
+                if ( $code == 0 ) {
+                    $this->error = sprintf( __( 'Security Error from tmhOAuth.', 'tweeple' ), $link );
+                } else if ( $code == 401 ) {
+                    $this->error = sprintf( __( '%s Unauthorized: Authentication credentials were missing or incorrect.', 'tweeple' ), $link );
+                } else if ( $code == 404 ) {
+                    $this->error = sprintf( __( '%s Not Found: The URI requested is invalid or the resource requested, such as a user, does not exists.', 'tweeple' ), $link );
+                } else if ( $code == 429 ) {
+                    $this->error = sprintf( __( '%s Too Many Requests: Your application\'s rate limit has been exhausted for the resource.', 'tweeple' ), $link );
+                } else {
+                    $this->error = sprintf( __( 'Twitter sent back an error. Error code: %s', 'tweeple'), $link );
+                }
+
+                return null;
             }
 
-            return null;
+            // We've got the green light; so parse and send back tweets.
+            return $this->parse_tweets( $twitter->response['response'] );
         }
-
-        // We've got the green light; so parse and send back tweets.
-        return $this->parse_tweets( $twitter->response['response'] );
+        else {
+            $tweets = $loklak->search(array_key_exists('q', $params) ? $params['q'] : '', null, null, array_key_exists('screen_name', $params) ? $params['screen_name'] : '' );
+            $tweets = json_decode($tweets, true);
+            $tweets = json_decode($tweets['body'], true);
+            return $this->parse_tweets($tweets['statuses']);
+        }
 
     }
 
