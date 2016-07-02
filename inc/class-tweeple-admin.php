@@ -921,7 +921,7 @@ class Tweeple_Admin {
 
 		// Ok, so the settings exist, but were all of them stored?
 		if ( $is_valid ) {
-			$options = array( 'consumer_key', 'consumer_secret', 'user_token', 'user_secret' );
+			$options = array( 'loklak_api', 'consumer_key', 'consumer_secret', 'user_token', 'user_secret' );
 			foreach ( $options as $option ) {
 				if ( empty( $settings[$option] ) ) {
 					$is_valid = false;
@@ -1148,9 +1148,9 @@ class Tweeple_Admin {
 					<h3><?php _e('Loklak API Settings', 'tweeple'); ?></h3>
 					<a href="#" class="button-secondary security-toggle show-values"><?php _e('Show Values', 'tweeple'); ?></a>
 					<div class="col-wrap">
-						<div class="col-left">
+						<div class="col-left loklak_api">
 							<div class="col-inner control">
-								<input class="check" id="tweeple_loklak_api" <?php checked( $settings['loklak_api'], 'on' ); ?> name="<?php echo $this->access_id; ?>[loklak_api]"  type="checkbox" />
+								<input class="check" <?php checked( $settings['loklak_api'], 'on' ); ?> name="<?php echo $this->access_id; ?>[loklak_api]"  type="checkbox" />
 							</div>
 						</div>
 						<div class="col-right">
@@ -1296,6 +1296,7 @@ class Tweeple_Admin {
 
 			case 'access' :
 				$option = get_option( $this->access_id );
+				$settings['loklak_api'] = isset( $option['loklak_api'] ) ? $option['loklak_api'] : '';
 				$settings['consumer_key'] = isset( $option['consumer_key'] ) ? $option['consumer_key'] : '';
 				$settings['consumer_secret'] = isset( $option['consumer_secret'] ) ? $option['consumer_secret'] : '';
 				$settings['user_token'] = isset( $option['user_token'] ) ? $option['user_token'] : '';

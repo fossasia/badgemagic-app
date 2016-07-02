@@ -11,6 +11,7 @@ class Tweeple_Feed {
     private $do_cache = true;
     private $do_entities = false;
     private $access = array();
+    private $loklak_access = array();
     private $feed_post = null;
     private $feed = null;
     private $raw_feed = null;
@@ -38,7 +39,7 @@ class Tweeple_Feed {
         	}
         }
 
-        // Setup access credentials to Twitter
+        // Setup access credentials to Loklak/Twitter
         $this->set_access();
 
         // Set feed post object
@@ -51,8 +52,8 @@ class Tweeple_Feed {
             $this->set_feed_type();
         }
 
-        // Setup new Twitter feed
-        $this->set_feed();
+        // Setup new Tweet feed
+        $this->set_feed( ! ( empty($this->loklak_access) ? true: false ) );
 
     }
 
@@ -121,7 +122,7 @@ class Tweeple_Feed {
             $this->error = __('No developer access for Twitter given.', 'tweeple');
             return;
         }
-
+        $loklak_api = isset( $access['loklak_api'] ) ? $access['loklak_api'] : '';
         $consumer_key = isset( $access['consumer_key'] ) ? $access['consumer_key'] : '';
         $consumer_secret = isset( $access['consumer_secret'] ) ? $access['consumer_secret'] : '';
         $user_token = isset( $access['user_token'] ) ? $access['user_token'] : '';
@@ -130,34 +131,42 @@ class Tweeple_Feed {
         // Check for any missing info
         $missing = array();
 
-        if ( ! $consumer_key ) {
-            $missing[] = 'consumer_key';
-        }
+        if ( ! $loklak_api ) {
+            if ( ! $consumer_key ) {
+                $missing[] = 'consumer_key';
+            }
 
-        if ( ! $consumer_secret ) {
-            $missing[] = 'consumer_secret';
-        }
+            if ( ! $consumer_secret ) {
+                $missing[] = 'consumer_secret';
+            }
 
-        if ( ! $user_token ) {
-            $missing[] = 'user_token';
-        }
+            if ( ! $user_token ) {
+                $missing[] = 'user_token';
+            }
 
-        if ( ! $user_secret ) {
-            $missing[] = 'user_secret';
-        }
+            if ( ! $user_secret ) {
+                $missing[] = 'user_secret';
+            }
 
-        if ( count( $missing ) > 0 ) {
-            $this->error = sprintf( __('Missing authorization options: %s', 'tweeple'), implode(', ', $missing ) );
-            return;
-        }
+            if ( count( $missing ) > 0 ) {
+                $this->error = sprintf( __('Missing authorization options: %s', 'tweeple'), implode(', ', $missing ) );
+                return;
+            }
 
-        // Set object's dev access to Twitter
-        $this->access = array(
-            'consumer_key'      => $consumer_key,
-            'consumer_secret'   => $consumer_secret,
-            'user_token'        => $user_token,
-            'user_secret'       => $user_secret
-        );
+            // Set object's dev access to Twitter
+            $this->access = array(
+                'consumer_key'      => $consumer_key,
+                'consumer_secret'   => $consumer_secret,
+                'user_token'        => $user_token,
+                'user_secret'       => $user_secret
+            );
+        }
+        else {
+            // Set object's dev access to Loklak
+            $this->loklak_access = array(
+                'loklak_api'        => $loklak_api
+            );
+        }
     }
 
     /**
@@ -203,14 +212,14 @@ class Tweeple_Feed {
      *
      * @since 0.1.0
      */
-    public function set_feed() {
+    public function set_feed($loklak_api) {
 
         $tweets = array();
 
-        // Get tweets from Twitter. This could result in
+        // Get tweets from Loklak/Twitter. This could result in
         // errors, so we're doing it above our error checking.
         if ( ! $this->error ) {
-            $tweets = $this->get_tweets();
+            $tweets = $this->get_tweets($loklak_api);
         }
 
         // Check for error
@@ -272,10 +281,13 @@ class Tweeple_Feed {
      *
      * @since 0.1.0
      */
-    public function get_tweets() {
+    public function get_tweets($loklak_api) {
 
+        if($loklak_api)
+            $loklak = new Loklak( $this->loklak_access );
         // Establish tmhOAuth wrap with access credientials
-        $twitter = new tmhOAuth( $this->access );
+        else
+            $twitter = new tmhOAuth( $this->access );
 
         // Start request params
         $params = array();
