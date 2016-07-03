@@ -1150,7 +1150,7 @@ class Tweeple_Admin {
 					<div class="col-wrap">
 						<div class="col-left loklak_api">
 							<div class="col-inner control">
-								<input class="check" <?php checked( $settings['loklak_api'], 'on' ); ?> name="<?php echo $this->access_id; ?>[loklak_api]"  type="checkbox" />
+								<input class="check" id="tw_loklak_api" <?php checked( $settings['loklak_api'], 'on' ); ?> name="<?php echo $this->access_id; ?>[loklak_api]"  type="checkbox" />
 							</div>
 						</div>
 						<div class="col-right">
@@ -1175,15 +1175,15 @@ class Tweeple_Admin {
 						<div class="col-left">
 							<div class="col-inner control">
 								<h4><?php _e('API key &mdash; <em>formerly "Consumer key"</em>', 'tweeple'); ?></h4>
-								<input class="field" name="<?php echo $this->access_id; ?>[consumer_key]" value="<?php echo esc_attr( $settings['consumer_key'] ); ?>" type="password" />
-								<input class="field hide" value="<?php echo esc_attr( $settings['consumer_key'] ); ?>" type="text" />
+								<input class="field" id="tw_consumer_key" name="<?php echo $this->access_id; ?>[consumer_key]" value="<?php echo esc_attr( $settings['consumer_key'] ); ?>" type="password" />
+								<input class="field hide" id="tw_consumer_key" value="<?php echo esc_attr( $settings['consumer_key'] ); ?>" type="text" />
 							</div>
 						</div>
 						<div class="col-right">
 							<div class="col-inner control">
 								<h4><?php _e('API secret &mdash; <em>formerly "Consumer secret"</em>', 'tweeple'); ?></h4>
-								<input class="field" name="<?php echo $this->access_id; ?>[consumer_secret]" value="<?php echo esc_attr( $settings['consumer_secret'] ); ?>" type="password" />
-								<input class="field hide" value="<?php echo esc_attr( $settings['consumer_secret'] ); ?>" type="text" />
+								<input class="field" id="tw_consumer_secret" name="<?php echo $this->access_id; ?>[consumer_secret]" value="<?php echo esc_attr( $settings['consumer_secret'] ); ?>" type="password" />
+								<input class="field hide" id="tw_consumer_secret" value="<?php echo esc_attr( $settings['consumer_secret'] ); ?>" type="text" />
 							</div>
 						</div>
 					</div>
@@ -1196,15 +1196,15 @@ class Tweeple_Admin {
 						<div class="col-left">
 							<div class="col-inner control">
 								<h4><?php _e('Access token', 'tweeple'); ?></h4>
-								<input class="field" name="<?php echo $this->access_id; ?>[user_token]" value="<?php echo esc_attr( $settings['user_token'] ); ?>" type="password" />
-								<input class="field hide" value="<?php echo esc_attr( $settings['user_token'] ); ?>" type="text" />
+								<input class="field" id="tw_user_token" name="<?php echo $this->access_id; ?>[user_token]" value="<?php echo esc_attr( $settings['user_token'] ); ?>" type="password" />
+								<input class="field hide" id="tw_user_token" value="<?php echo esc_attr( $settings['user_token'] ); ?>" type="text" />
 							</div>
 						</div>
 						<div class="col-right">
 							<div class="col-inner control">
 								<h4><?php _e('Access secret', 'tweeple'); ?></h4>
-								<input class="field" name="<?php echo $this->access_id; ?>[user_secret]" value="<?php echo esc_attr( $settings['user_secret'] ); ?>" type="password" />
-								<input class="field hide" value="<?php echo esc_attr( $settings['user_secret'] ); ?>" type="text" />
+								<input class="field" id="tw_user_secret" name="<?php echo $this->access_id; ?>[user_secret]" value="<?php echo esc_attr( $settings['user_secret'] ); ?>" type="password" />
+								<input class="field hide" id="tw_user_secret" value="<?php echo esc_attr( $settings['user_secret'] ); ?>" type="text" />
 							</div>
 						</div>
 					</div>

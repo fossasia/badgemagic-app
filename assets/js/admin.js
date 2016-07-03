@@ -90,4 +90,24 @@ jQuery(document).ready(function($){
 	    return false;
 	});
 
+	if($("#tw_loklak_api").prop('checked')){
+		tw_update_twitter_auth(true);
+	}
+
+	$("#tw_loklak_api").live('change', function() {
+    	if($(this).is(':checked')){
+	    	tw_update_twitter_auth(true);
+	    }
+	    else {
+	    	tw_update_twitter_auth(false);
+	    }
+	});
+
+	function tw_update_twitter_auth(arg) {
+	    $("#tw_consumer_key").prop('disabled', arg);
+		$("#tw_consumer_secret").prop('disabled', arg);
+		$("#tw_user_token").prop('disabled', arg);
+		$("#tw_user_secret").prop('disabled', arg);
+	}
+
 });
