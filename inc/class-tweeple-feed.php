@@ -282,7 +282,6 @@ class Tweeple_Feed {
      * @since 0.1.0
      */
     public function get_tweets($loklak_api) {
-
         if($loklak_api)
             $loklak = new Loklak( );
         // Establish tmhOAuth wrap with access credientials
@@ -414,12 +413,10 @@ class Tweeple_Feed {
             return $this->parse_tweets( $twitter->response['response'] );
         }
         else {
-            print_r($params);
             $tweets = $loklak->search(array_key_exists('q', $params) ? $params['q'] : '', null, null, array_key_exists('screen_name', $params) ? $params['screen_name'] : '', array_key_exists('count', $params) ? $params['count'] : null );
             
             $tweets = json_decode($tweets, true);
             $tweets = json_decode($tweets['body'], true);
-            print_r($tweets);
             return $this->parse_tweets(json_encode($tweets['statuses']));
         }
 
@@ -445,8 +442,9 @@ class Tweeple_Feed {
 
         $exclude_retweets = get_post_meta( $this->feed_id, 'exclude_retweets', true );
         $exclude_replies = get_post_meta( $this->feed_id, 'exclude_replies', true );
+        $loklak_api = array_key_exists('loklak_api', $this->loklak_access) ? $this->loklak_access['loklak_api'] : false;
 
-        if ( $this->feed_type == 'search' ) {
+        if ( $this->feed_type == 'search' && ! $loklak_api ) {
             $tweets = $tweets['statuses'];
         }
 
@@ -486,7 +484,7 @@ class Tweeple_Feed {
                 'profile_image_url'         => $loklak_api ? $tweet['user']['profile_image_url_https'] : $tweet['user']['profile_image_url'],
                 'profile_image_url_https'   => $tweet['user']['profile_image_url_https'],
                 'retweet_count'             => $tweet['retweet_count'],
-                'favorite_count'            => $loklak_api ? $tweet['favourite_count'] : $tweet['favorite_count'],
+                'favorite_count'            => $loklak_api ? $tweet['favourites_count'] : $tweet['favorite_count'],
                 'source'                    => $loklak_api ? $tweet['source_type'] : $tweet['source'],
                 'lang'                      => $loklak_api ? '' : $tweet['lang']
             );
