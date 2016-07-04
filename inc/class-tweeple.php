@@ -48,6 +48,10 @@ class Tweeple {
             include_once( TWEEPLE_PLUGIN_DIR . '/lib/tmhOAuth/tmhUtilities.php' );
         }
 
+        if( ! class_exists( 'Loklak')) {
+            include_once( TWEEPLE_PLUGIN_DIR . '/lib/loklak_php_api/loklak.php' );
+        }
+
         // Plugin files
         include_once( TWEEPLE_PLUGIN_DIR . '/inc/class-tweeple-admin.php' );
         include_once( TWEEPLE_PLUGIN_DIR . '/inc/class-tweeple-feed-widget.php' );
