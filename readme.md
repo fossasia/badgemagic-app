@@ -1,4 +1,5 @@
 === Tweeple ===
+
 Author URI: http://www.themeblvd.com
 Contributors: themeblvd
 Tags: twitter, api, status, tweets, list, favorites, tmhOAuth, Theme Blvd, themeblvd, Jason Bobich
@@ -42,7 +43,7 @@ If you'd like to keep our Twitter functionality, you'll want to use this plugin 
 
 1. Upload `tweeple` folder to the `/wp-content/plugins/` directory
 2. Activate the plugin through the 'Plugins' menu in WordPress
-3. Go to *Tools > Tweeple* to setup your Twitter API authentication and mange your Twitter feeds.
+3. Go to *Tools > Tweeple* to setup loklak API or your Twitter API authentication and mange your Twitter feeds.
 
 *NOTE: This plugin does NOT require a theme with Theme Blvd framework. This is a plugin for all tweeple!*
 
@@ -111,11 +112,28 @@ Note: We have safeguard implemented that does not allow you to set this less tha
 == Screenshots ==
 
 1. Manage the Twitter feeds you've created.
+
+	![Feeds](./assets/images/screenshot-1.png)
+
 2. Edit a Twitter feed.
+
+	![Edit Feed](./assets/images/screenshot-2.png)
+
 3. Grab your application credentials from dev.twitter.com and put them in the plugin's Authorization settings.
+
+	![Credentials](./assets/images/screenshot-3.png)
+
 4. Use the "Tweeple Twitter Feed" widget to display tweets in one of your widget areas.
+
+	![Widget area](./assets/images/screenshot-4.png)
+
 5. Should fit naturally into most themes with no frontend styling added by the plugin.
+
+	![Styling](./assets/images/screenshot-5.png)
+
 6. If you're using a Theme Blvd theme, the widget will integrate as your old Theme Blvd Twitter widget did.
+	
+	![Theme](./assets/images/screenshot-6.png)
 
 == Changelog ==
 
