@@ -22,14 +22,6 @@ Please talk to us on the badge-magic [Gitter channel here](https://gitter.im/fos
 There are a number of devices with Bluetooth on the market. As far as we can tell they are mostly from the same manufacturer. When you get a device ensure it comes with Bluetooth. There are devices that don't support Bluetooth. These are not supported in the app currently.
 * Get one from the [FOSSASIA Shop here](https://fossasia.com/product/led-badge/)
 
-## Screenshots of Android App
-
-| <!-- -->    | <!-- -->    | <!-- -->    |
-|-------------|-------------|-------------|
-| <img src="./fastlane/metadata/ios/en-US/images/phoneScreenshots/screen-1.png" width="288" /> <img src="./docs/images/screen-1-hard.png" width="288" /> | <img src="./fastlane/metadata/ios/en-US/images/phoneScreenshots/screen-2.png" width="288" /> <img src="./docs/images/screen-2-hard.png" width="288" /> | <img src="./fastlane/metadata/ios/en-US/images/phoneScreenshots/screen-3.png" width="288" /> <img src="./docs/images/screen-3-hard.png" width="288" /> |
-| <!-- -->    | <!-- -->    | <!-- -->    |
-| <img src="./fastlane/metadata/ios/en-US/images/phoneScreenshots/screen-4.png" width="288" /> <img src="./docs/images/screen-4-hard.png" width="288" /> | <img src="./fastlane/metadata/ios/en-US/images/phoneScreenshots/screen-5.png" width="288" /> <img src="./docs/images/screen-5-hard.png" width="288" /> | <img src="./fastlane/metadata/ios/en-US/images/phoneScreenshots/screen-6.png" width="288" /> <img src="./docs/images/screen-6-hard.png" width="288" /> |
-
 ## Reverse-Engineering Bluetooth LE Devices
 
 Security in Bluetooth LE devices is optional, and many cheap products you can find on the market are not secured at all. This applies to our Bluetooth LED Badge. While this could lead to some privacy issues, this can also be a source of fun, especially when you want to use an LED Badge in a different way. It also makes it easy for us to get started with the development of a Free and Open Source ios app. 
