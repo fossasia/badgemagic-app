@@ -1,0 +1,11 @@
+os: osx
+osx_image: xcode11.3
+language: objective-c
+
+cache: bundler
+
+before_cache:
+  - bundle update fastlane
+
+script:
+  - bundle exec fastlane gym --skip_codesigning --skip_archive --skip_package_ipa
