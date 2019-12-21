@@ -1,7 +1,7 @@
 <img height="200px" src="./docs/images/app_icon.png" align="right" />
 
 # Badge Magic
-[![Build Status](https://travis-ci.org/fossasia/badge-magic-ios.svg?branch=development)](https://travis-ci.org/fossasia/badge-magic-ios) [![Join the chat at https://gitter.im/fossasia/badge-magic](https://badges.gitter.im/fossasia/badge-magic.svg)](https://gitter.im/fossasia/badge-magic)
+[![Build Status](https://travis-ci.com/fossasia/badge-magic-ios.svg?branch=master)](https://travis-ci.org/fossasia/badge-magic-ios) [![Join the chat at https://gitter.im/fossasia/badge-magic](https://badges.gitter.im/fossasia/badge-magic.svg)](https://gitter.im/fossasia/badge-magic)
 
 **Magically Create Text and Draw Cliparts on LED Name Badges using Bluetooth**
 
