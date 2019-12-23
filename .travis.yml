@@ -2,10 +2,17 @@ os: osx
 osx_image: xcode11.3
 language: objective-c
 
-cache: bundler
-
 before_cache:
-  - bundle update fastlane
+  - brew cleanup
+
+cache:
+  bundler: true
+  directories:
+    - $HOME/Library/Caches/Homebrew
+
+after_install:
+  - brew install swiftlint
 
 script:
+  - bundle exec fastlane run swiftlint strict:"true"
   - bundle exec fastlane gym --skip_codesigning --skip_archive --skip_package_ipa

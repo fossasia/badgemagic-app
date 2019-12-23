@@ -10,6 +10,6 @@ import Foundation
 import CoreBluetooth
 
 struct Constants {
-    static let SERVICE_UUID = CBUUID.init(string: "0000FEE0-0000-1000-8000-00805F9B34FB")
-    static let CHARACTERISTIC_UUID = CBUUID.init(string: "FEE1")
+    static let SERVICEUUID = CBUUID.init(string: "0000FEE0-0000-1000-8000-00805F9B34FB")
+    static let CHARACTERISTICUUID = CBUUID.init(string: "FEE1")
 }

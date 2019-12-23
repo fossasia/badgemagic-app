@@ -10,10 +10,7 @@ import Foundation
 import SwiftUI
 
 extension Color {
-    public static var primary_red: Color {
-        Color("primaryred", bundle: nil)
+    public static var primaryRed: Color {
+        Color("primaryRed", bundle: nil)
     }
-    
 }
-
-
