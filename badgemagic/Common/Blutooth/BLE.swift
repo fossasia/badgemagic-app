@@ -29,33 +29,30 @@ open class BLE: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate, Observ
         switch central.state {
         case .unsupported:
             print("BLE is Unsupported")
-            break
         case .unauthorized:
             print("BLE is Unauthorized")
-            break
         case .unknown:
             print("BLE is Unknown")
-            break
         case .resetting:
             print("BLE is Resetting")
-            break
         case .poweredOff:
             print("BLE is Powered Off")
-            break
         case .poweredOn:
             if !self.centralManager.isScanning, self.scannedBLEDevices == nil {
-                print("Central scanning for", Constants.SERVICE_UUID);
-                self.centralManager.scanForPeripherals(withServices: [Constants.SERVICE_UUID], options: [CBCentralManagerScanOptionAllowDuplicatesKey: true])
+                print("Central scanning for", Constants.SERVICEUUID)
+                self.centralManager.scanForPeripherals(
+                    withServices: [Constants.SERVICEUUID],
+                    options: [CBCentralManagerScanOptionAllowDuplicatesKey: true]
+                )
 
                 self.scanTimer.invalidate()
                 self.scanTimer = Timer.scheduledTimer(withTimeInterval: 15, repeats: false, block: stopScanning)
             }
-            break
         @unknown default:
             print("Unknown State")
         }
         if central.state != .poweredOn {
-            return;
+            return
         }
     }
 
@@ -67,7 +64,11 @@ open class BLE: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate, Observ
         }
     }
 
-    public func centralManager(_ central: CBCentralManager, didDiscover peripheral: CBPeripheral, advertisementData: [String: Any], rssi RSSI: NSNumber) {
+    public func centralManager(_ central: CBCentralManager,
+        didDiscover peripheral: CBPeripheral,
+        advertisementData: [String: Any],
+        rssi RSSI: NSNumber) {
+
         print("Peripheral Name: \(String(describing: peripheral.name))  RSSI: \(String(RSSI.doubleValue))")
         self.stopScanning(timer: self.scanTimer)
         self.peripheral = peripheral
@@ -79,7 +80,7 @@ open class BLE: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate, Observ
     public func centralManager(_ central: CBCentralManager, didConnect peripheral: CBPeripheral) {
         if peripheral == self.peripheral {
             print("Connected to your BLE Board")
-            peripheral.discoverServices([Constants.SERVICE_UUID])
+            peripheral.discoverServices([Constants.SERVICEUUID])
         }
     }
 
@@ -87,20 +88,18 @@ open class BLE: NSObject, CBPeripheralDelegate, CBCentralManagerDelegate, Observ
         guard error == nil else { print(error!); return }
 
         if let services = peripheral.services {
-            for service in services {
-                if service.uuid == Constants.SERVICE_UUID {
-                    print("BLE Service found")
-                    peripheral.discoverCharacteristics([Constants.CHARACTERISTIC_UUID], for: service)
-                    return
-                }
+            for service in services where service.uuid == Constants.SERVICEUUID {
+                print("BLE Service found")
+                peripheral.discoverCharacteristics([Constants.CHARACTERISTICUUID], for: service)
+                return
             }
         }
     }
 
-    public func peripheral(_ peripheral: CBPeripheral, didDiscoverCharacteristicsFor service: CBService, error: Error?) {
+    public func peripheral(_ peripheral: CBPeripheral,
+        didDiscoverCharacteristicsFor service: CBService, error: Error?) {
         guard error == nil else { print(error!); return }
 
         print("BLE service characteristic found")
-        // TODO: Send Data to BLE
     }
 }

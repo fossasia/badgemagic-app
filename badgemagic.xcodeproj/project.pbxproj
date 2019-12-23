@@ -31,7 +31,7 @@
 		04FBA34F23AE761100D7F56A /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		04FBA35223AE761100D7F56A /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		04FBA35423AE761100D7F56A /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		E1800D1F23B10077008C0FE3 /* BorderedViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BorderedViewModifier.swift; sourceTree = "<group>"; };
+		E1800D1F23B10077008C0FE3 /* BorderedViewModifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BorderedViewModifier.swift; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.xcfilelist; };
 		E1800D2323B100A6008C0FE3 /* KeyboardFollower.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardFollower.swift; sourceTree = "<group>"; };
 		E1800D2723B10100008C0FE3 /* Color.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Color.swift; sourceTree = "<group>"; };
 		E1800D2B23B1012D008C0FE3 /* SettingsForm.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsForm.swift; sourceTree = "<group>"; };
@@ -52,6 +52,7 @@
 		0470699723B00C0C005433B7 /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				04B758AA23B14B530048D851 /* Application */,
 				0470699823B00C1C005433B7 /* Constants */,
 				0470699923B00C23005433B7 /* Blutooth */,
 			);
@@ -83,6 +84,14 @@
 			path = "Supporting Files";
 			sourceTree = "<group>";
 		};
+		04B758AA23B14B530048D851 /* Application */ = {
+			isa = PBXGroup;
+			children = (
+				04FBA34623AE760F00D7F56A /* AppDelegate.swift */,
+			);
+			path = Application;
+			sourceTree = "<group>";
+		};
 		04FBA33A23AE760F00D7F56A = {
 			isa = PBXGroup;
 			children = (
@@ -102,10 +111,8 @@
 		04FBA34523AE760F00D7F56A /* badgemagic */ = {
 			isa = PBXGroup;
 			children = (
-				E1800D1E23B10055008C0FE3 /* Models */,
 				E1800D1D23B10050008C0FE3 /* Views */,
 				E1800D1C23B10045008C0FE3 /* Utils */,
-				04FBA34623AE760F00D7F56A /* AppDelegate.swift */,
 				0470699723B00C0C005433B7 /* Common */,
 				04FBA34C23AE761100D7F56A /* Assets.xcassets */,
 				04973D6423AE77FD008E75E6 /* Supporting Files */,
@@ -139,13 +146,6 @@
 				E1800D2523B100DB008C0FE3 /* Extensions */,
 			);
 			path = Views;
-			sourceTree = "<group>";
-		};
-		E1800D1E23B10055008C0FE3 /* Models */ = {
-			isa = PBXGroup;
-			children = (
-			);
-			path = Models;
 			sourceTree = "<group>";
 		};
 		E1800D2523B100DB008C0FE3 /* Extensions */ = {
@@ -191,6 +191,7 @@
 				04FBA33F23AE760F00D7F56A /* Sources */,
 				04FBA34023AE760F00D7F56A /* Frameworks */,
 				04FBA34123AE760F00D7F56A /* Resources */,
+				04B758AB23B14D4A0048D851 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -246,6 +247,26 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		04B758AB23B14D4A0048D851 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint >/dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		04FBA33F23AE760F00D7F56A /* Sources */ = {
