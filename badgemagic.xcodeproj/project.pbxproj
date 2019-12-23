@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0470699423B00BCE005433B7 /* BLE.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0470699323B00BCE005433B7 /* BLE.swift */; };
+		0470699623B00BF9005433B7 /* Constants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0470699523B00BF9005433B7 /* Constants.swift */; };
 		04FBA34723AE760F00D7F56A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FBA34623AE760F00D7F56A /* AppDelegate.swift */; };
 		04FBA34923AE760F00D7F56A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FBA34823AE760F00D7F56A /* SceneDelegate.swift */; };
 		04FBA34B23AE760F00D7F56A /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04FBA34A23AE760F00D7F56A /* ContentView.swift */; };
@@ -16,6 +18,8 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0470699323B00BCE005433B7 /* BLE.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BLE.swift; sourceTree = "<group>"; };
+		0470699523B00BF9005433B7 /* Constants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Constants.swift; sourceTree = "<group>"; };
 		04FBA34323AE760F00D7F56A /* badgemagic.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = badgemagic.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		04FBA34623AE760F00D7F56A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		04FBA34823AE760F00D7F56A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -37,6 +41,31 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0470699723B00C0C005433B7 /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				0470699823B00C1C005433B7 /* Constants */,
+				0470699923B00C23005433B7 /* Blutooth */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		0470699823B00C1C005433B7 /* Constants */ = {
+			isa = PBXGroup;
+			children = (
+				0470699523B00BF9005433B7 /* Constants.swift */,
+			);
+			path = Constants;
+			sourceTree = "<group>";
+		};
+		0470699923B00C23005433B7 /* Blutooth */ = {
+			isa = PBXGroup;
+			children = (
+				0470699323B00BCE005433B7 /* BLE.swift */,
+			);
+			path = Blutooth;
+			sourceTree = "<group>";
+		};
 		04973D6423AE77FD008E75E6 /* Supporting Files */ = {
 			isa = PBXGroup;
 			children = (
@@ -66,6 +95,7 @@
 			isa = PBXGroup;
 			children = (
 				04FBA34623AE760F00D7F56A /* AppDelegate.swift */,
+				0470699723B00C0C005433B7 /* Common */,
 				04FBA34A23AE760F00D7F56A /* ContentView.swift */,
 				04FBA34C23AE761100D7F56A /* Assets.xcassets */,
 				04973D6423AE77FD008E75E6 /* Supporting Files */,
@@ -154,9 +184,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0470699623B00BF9005433B7 /* Constants.swift in Sources */,
 				04FBA34723AE760F00D7F56A /* AppDelegate.swift in Sources */,
 				04FBA34923AE760F00D7F56A /* SceneDelegate.swift in Sources */,
 				04FBA34B23AE760F00D7F56A /* ContentView.swift in Sources */,
+				0470699423B00BCE005433B7 /* BLE.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
