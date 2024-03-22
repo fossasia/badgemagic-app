@@ -2,7 +2,7 @@
   "expo": {
     "name": "Badge Magic",
     "slug": "BadgeMagic",
-    "version": "1.0.0",
+    "version": "0.1.0",
     "owner": "deployed.pl",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
