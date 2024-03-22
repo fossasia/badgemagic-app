@@ -3274,7 +3274,6 @@ __metadata:
   resolution: "badgemagic@workspace:."
   dependencies:
     "@babel/core": "npm:^7.20.0"
-    "@expo/config-plugins": "npm:~7.8.0"
     "@types/react": "npm:~18.2.45"
     base64-js: "npm:^1.5.1"
     dpld-ble: ./libs/dpld-ble-0.1.0.tgz
@@ -4124,14 +4123,14 @@ __metadata:
 
 "dpld-ble@file:./libs/dpld-ble-0.1.0.tgz::locator=badgemagic%40workspace%3A.":
   version: 0.1.0
-  resolution: "dpld-ble@file:./libs/dpld-ble-0.1.0.tgz#./libs/dpld-ble-0.1.0.tgz::hash=2db084&locator=badgemagic%40workspace%3A."
+  resolution: "dpld-ble@file:./libs/dpld-ble-0.1.0.tgz#./libs/dpld-ble-0.1.0.tgz::hash=e63ea9&locator=badgemagic%40workspace%3A."
   dependencies:
     "@expo/config-plugins": "npm:^7.8.4"
   peerDependencies:
     expo: "*"
     react: "*"
     react-native: "*"
-  checksum: 47a5e503b43351592e7e2efba4f5e79816966fb8be142f4cff40f850338dade15dbfd9551b0deccd1029a17069b210a1fea247d9986fd07d4669a466a50af1c6
+  checksum: e10fe48f7fb52dae535e630dd0a2e12064b8dae20f3c5a2225169f7bfdf14b452207bd99d42fd08eb1c10e07fd367dafc16e0d765f9b8faa5781778c316f3607
   languageName: node
   linkType: hard
 

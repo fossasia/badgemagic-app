@@ -23,19 +23,13 @@
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.deployed.badgemagic"
     },
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      [
-        "dpld-ble",
-        {
-          "bluetoothAlwaysPermission": "Allow BadgeMagic app to connect to the badge using bluetooth"
-        }
-      ]
-    ],
+    "plugins": ["dpld-ble"],
     "extra": {
       "eas": {
         "projectId": "72a09882-37a3-41f8-ac84-43f747626b9b"
