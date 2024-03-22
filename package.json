@@ -4,15 +4,20 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "ios": "expo start --ios",
+    "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web"
   },
   "dependencies": {
+    "@expo/config-plugins": "~7.8.0",
+    "base64-js": "^1.5.1",
+    "dpld-ble": "./libs/dpld-ble-0.1.0.tgz",
     "expo": "~50.0.14",
+    "expo-dev-client": "~3.3.11",
     "expo-status-bar": "~1.11.1",
     "react": "18.2.0",
-    "react-native": "0.73.6"
+    "react-native": "0.73.6",
+    "react-native-safe-area-context": "4.8.2"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
