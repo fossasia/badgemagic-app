@@ -14,6 +14,12 @@
     "production": {}
   },
   "submit": {
-    "production": {}
+    "production": {
+      "ios": {
+        "ascAppId": "6479915342",
+        "appleTeamId": "545QWS65LM",
+        "bundleIdentifier": "com.deployed.badgemagic"
+      }
+    }
   }
 }
