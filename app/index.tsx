@@ -1,32 +1,26 @@
-import { StatusBar } from "expo-status-bar";
-import {
-  ActivityIndicator,
-  Button,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
-import * as Ble from "dpld-ble";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { getPackets } from "@/utils/payload";
-import { sendPackets } from "@/utils/bluetooth";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import {useCallback, useEffect, useState} from 'react';
+import {ActivityIndicator, StyleSheet, Text, TextInput, View} from 'react-native';
 
-type BadgeMagic = {
+import * as Ble from 'dpld-ble';
+import {StatusBar} from 'expo-status-bar';
+import {Button} from 'react-native-paper';
+import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
+
+import {sendPackets} from '@/utils/bluetooth';
+import {getPackets} from '@/utils/payload';
+
+interface BadgeMagic {
   name?: string;
   id: string;
-};
+}
 
-const BADGE_MAGIC_ADVERTISING_NAME = "LSLED";
+const BADGE_MAGIC_ADVERTISING_NAME = 'LSLED';
 
-export default function App() {
-  const [text, setText] = useState("");
+export default function Home(): JSX.Element {
+  const [text, setText] = useState('');
   const [scanning, setScanning] = useState(false);
-  const [error, setError] = useState<string>();
-  const [discoveredBadges, setDiscoveredBadges] = useState<
-    Record<string, BadgeMagic>
-  >({});
+
+  const [discoveredBadges, setDiscoveredBadges] = useState<Record<string, BadgeMagic>>({});
   const [connectedBadge, setConnectedBadge] = useState<BadgeMagic>();
 
   const scanForBadges = useCallback(() => {
@@ -41,7 +35,7 @@ export default function App() {
 
   useEffect(() => {
     const discoverySub = Ble.addPeripheralDiscoveredListener((peripheral) => {
-      console.log("Discovered badge", peripheral);
+      console.log('Discovered badge', peripheral);
 
       if (peripheral.name !== BADGE_MAGIC_ADVERTISING_NAME) {
         return;
@@ -63,7 +57,7 @@ export default function App() {
     });
 
     const connectionSub = Ble.addPeripheralConnectedListener((peripheral) => {
-      console.log("Connected to badge", peripheral);
+      console.log('Connected to badge', peripheral);
       setConnectedBadge(peripheral);
     });
 
@@ -77,13 +71,13 @@ export default function App() {
 
   useEffect(() => {
     const discoveredBadgesList = Object.values(discoveredBadges);
-    if (!connectedBadge && discoveredBadgesList.length > 0) {
-      const badge = discoveredBadgesList[0];
+    const badge = discoveredBadgesList[0];
+    if (badge) {
       Ble.connect(badge.id);
     }
   }, [discoveredBadges, connectedBadge]);
 
-  const handleSendToBadge = async () => {
+  const handleSendToBadge = async (): Promise<void> => {
     if (!connectedBadge) {
       return;
     }
@@ -107,11 +101,9 @@ export default function App() {
           <Text>Enter text:</Text>
           <TextInput value={text} style={styles.input} onChangeText={setText} />
           {connectedBadge ? (
-            <Button
-              title="Send to badge"
-              disabled={scanning}
-              onPress={handleSendToBadge}
-            />
+            <Button disabled={scanning} onPress={handleSendToBadge}>
+              Send to badge
+            </Button>
           ) : (
             <Text>No badge connected...</Text>
           )}
@@ -124,11 +116,9 @@ export default function App() {
               <Text>Scanning...</Text>
             </View>
           ) : (
-            <Button
-              title="Scan for badges"
-              disabled={scanning}
-              onPress={scanForBadges}
-            />
+            <Button disabled={scanning} onPress={scanForBadges}>
+              Scan for badges
+            </Button>
           )}
         </View>
       </SafeAreaView>
@@ -139,17 +129,15 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
   },
   inputContainer: {
     flex: 4,
     rowGap: 8,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   divider: {
     height: StyleSheet.hairlineWidth,
-    backgroundColor: "#d3d3d3",
   },
   input: {
     width: 300,
@@ -160,7 +148,7 @@ const styles = StyleSheet.create({
   },
   scanContainer: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });

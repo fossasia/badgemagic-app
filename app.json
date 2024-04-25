@@ -12,9 +12,7 @@
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
-    "assetBundlePatterns": [
-      "**/*"
-    ],
+    "assetBundlePatterns": ["**/*"],
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.deployed.badgemagic"
@@ -29,7 +27,7 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": ["dpld-ble"],
+    "plugins": ["dpld-ble", "expo-router"],
     "extra": {
       "eas": {
         "projectId": "72a09882-37a3-41f8-ac84-43f747626b9b"

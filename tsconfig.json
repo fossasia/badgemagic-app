@@ -4,6 +4,8 @@
     "strict": true,
     "jsx": "react-native",
     "baseUrl": ".",
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
     "paths": {
       "@/*": ["src/*"]
     }
