@@ -1,88 +1,39 @@
-import {useCallback, useEffect, useState} from 'react';
-import {ActivityIndicator, StyleSheet, Text, TextInput, View} from 'react-native';
+import {useState} from 'react';
+import {StyleSheet, View} from 'react-native';
 
-import * as Ble from 'dpld-ble';
 import {StatusBar} from 'expo-status-bar';
-import {Button} from 'react-native-paper';
+import {useForm, FormProvider} from 'react-hook-form';
 import {SafeAreaProvider, SafeAreaView} from 'react-native-safe-area-context';
 
+import {AppButton} from '@/components/AppButton';
+import {BadgeForm} from '@/components/BadgeForm';
+import {BadgeScanning} from '@/components/BadgeScanning';
+import {type BadgeConfigFormData} from '@/models/BadgeForm.model';
+import {type BadgeMagic} from '@/models/BadgeMagic.model';
 import {sendPackets} from '@/utils/bluetooth';
 import {getPackets} from '@/utils/payload';
 
-interface BadgeMagic {
-  name?: string;
-  id: string;
-}
+const DefaultFormData: BadgeConfigFormData = {
+  text: '',
+  effects: {
+    flash: false,
+    marquee: false,
+    invertLed: false,
+  },
+};
 
-const BADGE_MAGIC_ADVERTISING_NAME = 'LSLED';
-
-export default function Home(): JSX.Element {
-  const [text, setText] = useState('');
+const Home = (): JSX.Element => {
   const [scanning, setScanning] = useState(false);
-
-  const [discoveredBadges, setDiscoveredBadges] = useState<Record<string, BadgeMagic>>({});
   const [connectedBadge, setConnectedBadge] = useState<BadgeMagic>();
 
-  const scanForBadges = useCallback(() => {
-    setDiscoveredBadges({});
-    Ble.startScan();
-    setScanning(true);
-    setTimeout(() => {
-      Ble.stopScan();
-      setScanning(false);
-    }, 3000);
-  }, [setScanning]);
+  const methods = useForm<BadgeConfigFormData>({defaultValues: DefaultFormData});
 
-  useEffect(() => {
-    const discoverySub = Ble.addPeripheralDiscoveredListener((peripheral) => {
-      console.log('Discovered badge', peripheral);
-
-      if (peripheral.name !== BADGE_MAGIC_ADVERTISING_NAME) {
-        return;
-      }
-
-      setDiscoveredBadges((prev) => {
-        if (prev[peripheral.id]) {
-          return prev;
-        }
-
-        return {
-          ...prev,
-          [peripheral.id]: {
-            name: peripheral.name,
-            id: peripheral.id,
-          },
-        };
-      });
-    });
-
-    const connectionSub = Ble.addPeripheralConnectedListener((peripheral) => {
-      console.log('Connected to badge', peripheral);
-      setConnectedBadge(peripheral);
-    });
-
-    scanForBadges();
-
-    return () => {
-      discoverySub.remove();
-      connectionSub.remove();
-    };
-  }, [scanForBadges]);
-
-  useEffect(() => {
-    const discoveredBadgesList = Object.values(discoveredBadges);
-    const badge = discoveredBadgesList[0];
-    if (badge) {
-      Ble.connect(badge.id);
-    }
-  }, [discoveredBadges, connectedBadge]);
-
-  const handleSendToBadge = async (): Promise<void> => {
+  const handleSendToBadge = async (data: BadgeConfigFormData): Promise<void> => {
     if (!connectedBadge) {
       return;
     }
-
-    const packets = getPackets(text);
+    console.log(data);
+    const packets = getPackets(data);
 
     try {
       await sendPackets(connectedBadge.id, packets);
@@ -97,58 +48,41 @@ export default function Home(): JSX.Element {
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <StatusBar style="auto" />
-        <View style={styles.inputContainer}>
-          <Text>Enter text:</Text>
-          <TextInput value={text} style={styles.input} onChangeText={setText} />
-          {connectedBadge ? (
-            <Button disabled={scanning} onPress={handleSendToBadge}>
+        <FormProvider {...methods}>
+          <BadgeForm />
+          <View style={styles.buttonsContainer}>
+            <AppButton
+              disabled={scanning || !connectedBadge}
+              onPress={methods.handleSubmit(handleSendToBadge)}>
               Send to badge
-            </Button>
-          ) : (
-            <Text>No badge connected...</Text>
-          )}
-        </View>
-        <View style={styles.divider} />
-        <View style={styles.scanContainer}>
-          {scanning ? (
-            <View>
-              <ActivityIndicator size="large" />
-              <Text>Scanning...</Text>
-            </View>
-          ) : (
-            <Button disabled={scanning} onPress={scanForBadges}>
-              Scan for badges
-            </Button>
-          )}
-        </View>
+            </AppButton>
+            <BadgeScanning
+              setScanning={setScanning}
+              connectedBadge={connectedBadge}
+              scanning={scanning}
+              setConnectedBadge={setConnectedBadge}
+            />
+          </View>
+        </FormProvider>
       </SafeAreaView>
     </SafeAreaProvider>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    paddingHorizontal: 16,
   },
-  inputContainer: {
-    flex: 4,
-    rowGap: 8,
-    justifyContent: 'center',
+  buttonsContainer: {
+    position: 'absolute',
+    bottom: 40,
+    gap: 8,
+    left: 20,
     alignItems: 'center',
-  },
-  divider: {
-    height: StyleSheet.hairlineWidth,
-  },
-  input: {
-    width: 300,
-    fontSize: 20,
-    borderRadius: 30,
-    borderWidth: StyleSheet.hairlineWidth,
-    padding: 10,
-  },
-  scanContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: 'space-between',
+    flexDirection: 'row',
   },
 });
+
+export default Home;

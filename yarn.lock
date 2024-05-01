@@ -4154,10 +4154,13 @@ __metadata:
     lint-staged: "npm:^15.2.2"
     prettier: "npm:^3.2.5"
     react: "npm:18.2.0"
+    react-hook-form: "npm:^7.51.3"
     react-native: "npm:0.73.6"
+    react-native-pager-view: "npm:^6.3.1"
     react-native-paper: "npm:^5.12.3"
     react-native-safe-area-context: "npm:^4.10.1"
     react-native-screens: "npm:~3.29.0"
+    react-native-tab-view: "npm:^3.5.2"
     typescript: "npm:5.3"
   languageName: unknown
   linkType: soft
@@ -9895,6 +9898,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"react-hook-form@npm:^7.51.3":
+  version: 7.51.3
+  resolution: "react-hook-form@npm:7.51.3"
+  peerDependencies:
+    react: ^16.8.0 || ^17 || ^18
+  checksum: dd7dfc8514df19a13b7647b3faebdcb1329723afb52454626496eeaa657323d42bab12dc85e6b77d758a166c6427fa87f13c5bd9f5f78666c682e8263117e297
+  languageName: node
+  linkType: hard
+
 "react-is@npm:^16.12.0 || ^17.0.0 || ^18.0.0, react-is@npm:^18.0.0":
   version: 18.2.0
   resolution: "react-is@npm:18.2.0"
@@ -9913,6 +9925,16 @@ __metadata:
   version: 17.0.2
   resolution: "react-is@npm:17.0.2"
   checksum: 2bdb6b93fbb1820b024b496042cce405c57e2f85e777c9aabd55f9b26d145408f9f74f5934676ffdc46f3dcff656d78413a6e43968e7b3f92eea35b3052e9053
+  languageName: node
+  linkType: hard
+
+"react-native-pager-view@npm:^6.3.1":
+  version: 6.3.1
+  resolution: "react-native-pager-view@npm:6.3.1"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+  checksum: eecdf17d91545390222eaafb13e722bf9e53cf9835bd84e9dd4d5f73890cc8425cef7c38471f86959f0faafda8c3ce12ffcd9b39194070419b93dcc4ec60af15
   languageName: node
   linkType: hard
 
@@ -9952,6 +9974,19 @@ __metadata:
     react: "*"
     react-native: "*"
   checksum: 90c32eb5452007f64c2f56412c671de98b4b89f09cf09cc7a7dca1cb23b1ac6de9bc726c67e774c7cb68dbd05bb329c053c1c2f071f534ad4e27d9d60be76eb0
+  languageName: node
+  linkType: hard
+
+"react-native-tab-view@npm:^3.5.2":
+  version: 3.5.2
+  resolution: "react-native-tab-view@npm:3.5.2"
+  dependencies:
+    use-latest-callback: "npm:^0.1.5"
+  peerDependencies:
+    react: "*"
+    react-native: "*"
+    react-native-pager-view: "*"
+  checksum: f243afcb1ee49642f6d13039725634cd3cc4205cef611b27fc305d99a0064566fbaabeea8ef12367fbf4c13095f5b48e20b517ad3885ced3827fd57c6190e3e4
   languageName: node
   linkType: hard
 

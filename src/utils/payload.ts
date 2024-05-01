@@ -1,11 +1,11 @@
 import Base64 from 'base64-js';
 
+import {type BadgeConfigFormData} from '@/models/BadgeForm.model';
+
 import {ByteArrayUtils} from './ByteArrayUtils';
 import {ALLOWED_CHARACTERS, LETTERS_HEX_BITMAPS, type SupportedLetter} from './constants';
 
 const HEADER = '77616E670000';
-const FLASH = '00';
-const MARQUEE = '00';
 const MODES = '00' + '00' + '00' + '00' + '00' + '00' + '00' + '00';
 
 // const SIZES =
@@ -43,8 +43,8 @@ const MAX_BITMAPS_NUMBER = 8;
 //   PAYLOAD +
 //   PADDING3;
 
-export function getPackets(text: string): string[] {
-  const hexString = buildDataHexString(text);
+export function getPackets(data: BadgeConfigFormData): string[] {
+  const hexString = buildDataHexString(data);
   const chunks = splitHexStringIntoChunks(hexString);
 
   return chunks
@@ -52,15 +52,26 @@ export function getPackets(text: string): string[] {
     .map((bytes) => Base64.fromByteArray(bytes));
 }
 
-function buildDataHexString(letters: string): string {
-  const payload = getLetterBitmaps(letters).join('');
-  const size = getSize(letters);
+function buildDataHexString(data: BadgeConfigFormData): string {
+  const {text, effects} = data;
+  const payload = getLetterBitmaps(text).join('');
+  const size = getSize(text);
   const timestamp = getTimestamp();
+  const marquee = getMarqueeValue(effects.marquee);
+  const flash = getFlashValue(effects.flash);
 
   return (
-    HEADER + FLASH + MARQUEE + MODES + size + PADDING1 + timestamp + PADDING2 + SEPARATOR + payload
+    HEADER + flash + marquee + MODES + size + PADDING1 + timestamp + PADDING2 + SEPARATOR + payload
   );
 }
+
+const getMarqueeValue = (isMarrquee: boolean): string => {
+  return isMarrquee ? '01' : '00';
+};
+
+const getFlashValue = (isFlash: boolean): string => {
+  return isFlash ? '01' : '00';
+};
 
 function getLetterBitmaps(letters: string): string[] {
   const hexBitmaps: string[] = [];
