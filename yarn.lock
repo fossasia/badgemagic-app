@@ -2736,6 +2736,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@react-native-community/slider@npm:^4.5.2":
+  version: 4.5.2
+  resolution: "@react-native-community/slider@npm:4.5.2"
+  checksum: 0aeef9ce4ccb1e8995e49efbe244edf68b4a6274845d8d4fefa07cf7b1bd2d3d43c6a7dc1e8a300fe18ae768c350dcd99d3c2ee88a74f854341d85c24140f80f
+  languageName: node
+  linkType: hard
+
 "@react-native/assets-registry@npm:0.73.1, @react-native/assets-registry@npm:~0.73.1":
   version: 0.73.1
   resolution: "@react-native/assets-registry@npm:0.73.1"
@@ -4129,6 +4136,7 @@ __metadata:
     "@babel/core": "npm:^7.20.0"
     "@eslint/eslintrc": "npm:^3.0.2"
     "@eslint/js": "npm:^9.1.1"
+    "@react-native-community/slider": "npm:^4.5.2"
     "@trivago/prettier-plugin-sort-imports": "npm:^4.3.0"
     "@types/react": "npm:~18.2.45"
     "@typescript-eslint/eslint-plugin": "npm:^6.4.0"

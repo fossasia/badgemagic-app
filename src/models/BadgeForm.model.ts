@@ -5,4 +5,5 @@ export interface BadgeConfigFormData {
     marquee: boolean;
     invertLed: boolean;
   };
+  speed: number;
 }

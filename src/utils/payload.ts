@@ -6,7 +6,6 @@ import {ByteArrayUtils} from './ByteArrayUtils';
 import {ALLOWED_CHARACTERS, LETTERS_HEX_BITMAPS, type SupportedLetter} from './constants';
 
 const HEADER = '77616E670000';
-const MODES = '00' + '00' + '00' + '00' + '00' + '00' + '00' + '00';
 
 // const SIZES =
 //   "0001" + "0000" + "0000" + "0000" + "0000" + "0000" + "0000" + "0000";
@@ -53,15 +52,15 @@ export function getPackets(data: BadgeConfigFormData): string[] {
 }
 
 function buildDataHexString(data: BadgeConfigFormData): string {
-  const {text, effects} = data;
+  const {text, effects, speed} = data;
   const payload = getLetterBitmaps(text).join('');
   const size = getSize(text);
   const timestamp = getTimestamp();
   const marquee = getMarqueeValue(effects.marquee);
   const flash = getFlashValue(effects.flash);
-
+  const modes = `${speed}0` + '00' + '00' + '00' + '00' + '00' + '00' + '00';
   return (
-    HEADER + flash + marquee + MODES + size + PADDING1 + timestamp + PADDING2 + SEPARATOR + payload
+    HEADER + flash + marquee + modes + size + PADDING1 + timestamp + PADDING2 + SEPARATOR + payload
   );
 }
 

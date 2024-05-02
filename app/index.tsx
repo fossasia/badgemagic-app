@@ -20,6 +20,7 @@ const DefaultFormData: BadgeConfigFormData = {
     marquee: false,
     invertLed: false,
   },
+  speed: 0,
 };
 
 const Home = (): JSX.Element => {

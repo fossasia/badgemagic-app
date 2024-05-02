@@ -18,6 +18,7 @@
     ]
   },
   "dependencies": {
+    "@react-native-community/slider": "^4.5.2",
     "base64-js": "^1.5.1",
     "dpld-ble": "./libs/dpld-ble-0.1.1.tgz",
     "eslint-config-prettier": "^9.1.0",

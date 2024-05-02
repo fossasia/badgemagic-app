@@ -10,15 +10,14 @@ import {tabRoutes} from '@/utils/tabRoutes';
 import {type BadgeConfigFormData} from '../models/BadgeForm.model';
 import {BadgeConfigTabBar} from './BadgeConfigTabBar';
 import {Effects} from './Effects';
+import {SpeedSlider} from './Speed';
 
 const Animations = (): JSX.Element => <Text>Nothing implemented 00</Text>;
-
-const Speed = (): JSX.Element => <Text>Nothing implemented 01</Text>;
 
 const renderScene = SceneMap({
   effects: Effects,
   animations: Animations,
-  speed: Speed,
+  speed: SpeedSlider,
 });
 
 export const BadgeForm = (): JSX.Element => {
