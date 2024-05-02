@@ -52,13 +52,15 @@ export function getPackets(data: BadgeConfigFormData): string[] {
 }
 
 function buildDataHexString(data: BadgeConfigFormData): string {
-  const {text, effects, speed} = data;
+  const {text, effects, speed, animation} = data;
+
   const payload = getLetterBitmaps(text).join('');
   const size = getSize(text);
   const timestamp = getTimestamp();
   const marquee = getMarqueeValue(effects.marquee);
   const flash = getFlashValue(effects.flash);
-  const modes = `${speed}0` + '00' + '00' + '00' + '00' + '00' + '00' + '00';
+  const modes = `${speed}${animation}` + '00' + '00' + '00' + '00' + '00' + '00' + '00';
+
   return (
     HEADER + flash + marquee + modes + size + PADDING1 + timestamp + PADDING2 + SEPARATOR + payload
   );

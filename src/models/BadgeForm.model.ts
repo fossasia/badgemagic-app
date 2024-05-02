@@ -1,3 +1,5 @@
+import {type Animations} from '@/utils/animations';
+
 export interface BadgeConfigFormData {
   text: string;
   effects: {
@@ -5,5 +7,6 @@ export interface BadgeConfigFormData {
     marquee: boolean;
     invertLed: boolean;
   };
+  animation: Animations;
   speed: number;
 }
