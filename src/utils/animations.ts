@@ -17,7 +17,7 @@ export enum Animations {
   PICTURE = 5,
   LASER = 6,
   ANIMATION = 7,
-  RIGHT = 8,
+  RIGHT = 0,
 }
 
 export const animations = [

@@ -25,7 +25,7 @@ const AppStack = (): JSX.Element => {
           fontWeight: 'bold',
         },
       }}>
-      <Stack.Screen name="index" options={{}} />
+      <Stack.Screen name="index" options={{title: 'Badge Magic'}} />
     </Stack>
   );
 };
