@@ -30,15 +30,16 @@ The implementation in the ios app consists of manipulating bits. That may be tri
 
 ## Running / Development
 
-To run the project on iOS you need installed XCode and have a phisical device.
+To run the project on iOS you need installed XCode and have a physical device since simulators don't support bluetooth..
 
-- Generate the native part of the app using the command:
+- Build the app using. following commad (It will generate `ios` directory containing native part of the app):
   ```bash
     yarn ios --configuration=Debug --device
   ```
-- Open `BadgeMagic.xcworkspace` in Xcode, then in the 'Signing and Capabilities' section, set up Development Team and Bundle Identifier.
-- Check if the physical build destination is set up on the physical device (this may be useful to remove Push Notifications). If you have a different Apple ID between Xcode and your device, you need to allow the device to accept the Apple ID in Settings -> Device Management.
-- If you still can't open the app, try deleting the `ios\.xcode.env.local` file. It may help :) [Bug description] (https://github.com/facebook/react-native/issues/39903#issuecomment-1847591269).
+- Using XCode open `BadgeMagic.xcworkspace` located inside generated `ios` directory, then in the 'Signing and Capabilities' section, set up Development Team (Your personal one) and Bundle Identifier (you can add suffix with your name - it serves only for local development).
+- Check if the physical build destination is set up on the physical device (it may be necessary to remove Push Notifications).
+- If you still can't build the app, try deleting the `ios\.xcode.env.local` file. It may help :) [Bug description] (https://github.com/facebook/react-native/issues/39903#issuecomment-1847591269).
+- If you can't open app after installing in on you iPhone then probably you have a different Apple ID between Xcode and your iPhone. Please open Device Management settings and allow your Phone to run the app
 
 ## Branch Policy
 
