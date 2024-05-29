@@ -1,5 +1,5 @@
 import {useState} from 'react';
-import {StyleSheet, View, useWindowDimensions, Text} from 'react-native';
+import {StyleSheet, View, useWindowDimensions} from 'react-native';
 
 import {useFormContext} from 'react-hook-form';
 import {SceneMap, TabView} from 'react-native-tab-view';
@@ -8,11 +8,10 @@ import {AppInput} from '@/components/AppInput';
 import {tabRoutes} from '@/utils/tabRoutes';
 
 import {type BadgeConfigFormData} from '../models/BadgeForm.model';
+import {Animations} from './Animations';
 import {BadgeConfigTabBar} from './BadgeConfigTabBar';
 import {Effects} from './Effects';
 import {SpeedSlider} from './Speed';
-
-const Animations = (): JSX.Element => <Text>Nothing implemented 00</Text>;
 
 const renderScene = SceneMap({
   effects: Effects,

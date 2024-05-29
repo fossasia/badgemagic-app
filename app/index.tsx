@@ -10,10 +10,11 @@ import {BadgeForm} from '@/components/BadgeForm';
 import {BadgeScanning} from '@/components/BadgeScanning';
 import {type BadgeConfigFormData} from '@/models/BadgeForm.model';
 import {type BadgeMagic} from '@/models/BadgeMagic.model';
+import {Animations} from '@/utils/animations';
 import {sendPackets} from '@/utils/bluetooth';
 import {getPackets} from '@/utils/payload';
 
-const DefaultFormData: BadgeConfigFormData = {
+const DefaultBagdeConfigFormData: BadgeConfigFormData = {
   text: '',
   effects: {
     flash: false,
@@ -21,13 +22,14 @@ const DefaultFormData: BadgeConfigFormData = {
     invertLed: false,
   },
   speed: 0,
+  animation: Animations.RIGHT,
 };
 
 const Home = (): JSX.Element => {
   const [scanning, setScanning] = useState(false);
   const [connectedBadge, setConnectedBadge] = useState<BadgeMagic>();
 
-  const methods = useForm<BadgeConfigFormData>({defaultValues: DefaultFormData});
+  const methods = useForm<BadgeConfigFormData>({defaultValues: DefaultBagdeConfigFormData});
 
   const handleSendToBadge = async (data: BadgeConfigFormData): Promise<void> => {
     if (!connectedBadge) {
@@ -79,7 +81,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 40,
     gap: 8,
-    left: 20,
+    left: 40,
     alignItems: 'center',
     justifyContent: 'space-between',
     flexDirection: 'row',
