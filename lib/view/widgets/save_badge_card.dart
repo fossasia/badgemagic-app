@@ -1,6 +1,7 @@
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badgeview_provider.dart';
 import 'package:badgemagic/providers/cardsprovider.dart';
@@ -15,6 +16,7 @@ class SaveBadgeCard extends StatelessWidget {
   final Future<void> Function() refreshBadgesCallback;
   final FileHelper file = FileHelper();
   final Converters converters = Converters();
+  final ToastUtils toastUtils = ToastUtils();
 
   SaveBadgeCard({
     super.key,
@@ -137,6 +139,7 @@ class SaveBadgeCard extends StatelessWidget {
                       await _showDeleteDialog(context).then((value) async {
                         if (value == true) {
                           file.deleteFile(badgeData.key);
+                          toastUtils.showToast("Badge Deleted Successfully");
                           await refreshBadgesCallback();
                         }
                       });

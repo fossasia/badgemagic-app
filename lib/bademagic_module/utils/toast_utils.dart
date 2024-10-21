@@ -1,5 +1,6 @@
 import 'package:badgemagic/providers/cardsprovider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 
 class ToastUtils {
@@ -9,7 +10,7 @@ class ToastUtils {
   void showToast(String message) {
     ScaffoldMessenger.of(contextProvider.getContext()!).showSnackBar(
       SnackBar(
-        margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10),
         elevation: 10,
         duration: const Duration(seconds: 1),
         content: Row(

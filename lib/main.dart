@@ -37,6 +37,7 @@ class MyApp extends StatelessWidget {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
+            colorSchemeSeed: Colors.white,
             useMaterial3: true,
           ),
           initialRoute: '/',

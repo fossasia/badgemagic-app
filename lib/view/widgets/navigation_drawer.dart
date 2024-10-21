@@ -11,6 +11,7 @@ class BMDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     DrawBadgeProvider badgeProvider = Provider.of(context);
     return Drawer(
+      backgroundColor: Colors.white,
       child: ListView(
         padding: EdgeInsets.zero,
         children: <Widget>[

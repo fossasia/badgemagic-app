@@ -1,3 +1,4 @@
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -12,6 +13,9 @@ class SaveBadgeDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    ToastUtils toastUtils = ToastUtils();
+    TextEditingController badgeNameController = TextEditingController();
+    badgeNameController.text = DateTime.now().toString();
     BadgeMessageProvider badgeMessageProvider = BadgeMessageProvider();
     return Dialog(
       shape: RoundedRectangleBorder(
@@ -20,7 +24,9 @@ class SaveBadgeDialog extends StatelessWidget {
       child: Container(
         height: 150.h, // Increase height for TextField space
         width: 300.w, // Increased width
-        padding: const EdgeInsets.all(10), // Added padding for better layout
+        padding: EdgeInsets.symmetric(
+            horizontal: 20.w,
+            vertical: 10.h), // Added padding for better layout
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -44,7 +50,7 @@ class SaveBadgeDialog extends StatelessWidget {
             const SizedBox(
                 height: 10), // Space between file name and text field
             TextField(
-              controller: textController,
+              controller: badgeNameController,
               autofocus: true,
               onTap: () {
                 // Select all text when the TextField is tapped
@@ -78,6 +84,8 @@ class SaveBadgeDialog extends StatelessWidget {
                 TextButton(
                     onPressed: () {
                       badgeMessageProvider.saveBadgeData(textController.text);
+                      toastUtils.showToast("Badge Saved Successfully");
+                      Navigator.pop(context);
                     },
                     child: const Text(
                       'Save',

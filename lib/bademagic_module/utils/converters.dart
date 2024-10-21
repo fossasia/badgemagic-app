@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
@@ -65,6 +66,7 @@ class Converters {
 
   void savedBadgeAnimation(Map<String, dynamic> data) {
     //set the animations and the modes from the json file
+    logger.i(Speed.getIntValue(Speed.fromHex(data['messages'][0]['speed'])));
     cardData.setOuterValue(
         Speed.getIntValue(Speed.fromHex(data['messages'][0]['speed'])) + 1);
     cardData.setAnimationIndex(

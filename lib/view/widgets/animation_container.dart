@@ -1,7 +1,7 @@
-import 'package:flutter/material.dart';
 import 'package:badgemagic/providers/cardsprovider.dart';
-import 'package:provider/provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class AniContainer extends StatefulWidget {
   final String animation;
@@ -25,8 +25,8 @@ class _AniContainerState extends State<AniContainer> {
     CardProvider animationCardState = Provider.of<CardProvider>(context);
 
     return Container(
-      margin: EdgeInsets.all(5.w),
-      height: 60.h,
+      margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
+      height: 50.h,
       width: 110.w,
       child: GestureDetector(
         onTap: () {
@@ -43,9 +43,12 @@ class _AniContainerState extends State<AniContainer> {
             children: [
               Image.asset(
                 widget.animation,
-                height: 20.h,
+                height: 30.h,
               ),
-              Text(widget.aniName),
+              Text(
+                widget.aniName,
+                style: TextStyle(fontSize: 9.sp),
+              ),
             ],
           ),
         ),

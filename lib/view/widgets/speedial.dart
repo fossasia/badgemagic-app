@@ -1,19 +1,20 @@
-import 'package:flutter/material.dart';
-import 'package:badgemagic/providers/cardsprovider.dart';
-import 'package:provider/provider.dart';
 import 'dart:math';
+
+import 'package:badgemagic/providers/cardsprovider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:provider/provider.dart';
 
 class InnerDialPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = min(size.width / 2, size.height / 2) * 0.9;
+    final radius = min(size.width / 2, size.height / 2) * 0.6;
 
     final paint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 12.w;
+      ..strokeWidth = 1.w;
 
     canvas.drawCircle(center, radius, paint);
   }
@@ -38,13 +39,13 @@ class RadialDialPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = min(size.width / 2, size.height / 2) * 0.8;
+    final radius = min(size.width / 2, size.height / 2) * 0.7;
 
     final paint = Paint()
       ..color = Colors.grey.shade300
       ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 12.w;
+      ..strokeCap = StrokeCap.square
+      ..strokeWidth = 6.w;
 
     const startAngle = 3 * pi / 4;
 
@@ -59,8 +60,8 @@ class RadialDialPainter extends CustomPainter {
     final progressPaint = Paint()
       ..color = Colors.red
       ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round
-      ..strokeWidth = 12.w;
+      ..strokeCap = StrokeCap.square
+      ..strokeWidth = 9.w;
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -94,11 +95,11 @@ class InnerPointerPainter extends CustomPainter {
     final radius = min(size.width / 2, size.height / 2) * 0.4;
 
     final pointerAngle = 3 * pi / 4 + 6 * pi / 4 * (value / max);
-    final pointerLength = radius + 25.w;
+    final pointerLength = radius + 15.w;
 
     final pointerPaint = Paint()
       ..color = color
-      ..strokeCap = StrokeCap.round
+      ..strokeCap = StrokeCap.square
       ..strokeWidth = 4.w;
 
     final pointerStart = Offset(
@@ -205,15 +206,15 @@ class _RadialDialState extends State<RadialDial> {
             color: Colors.red,
           ),
           child: SizedBox(
-            width: 230.w,
-            height: 250.h,
+            width: 200.w,
+            height: 210.h,
           ),
         ),
         CustomPaint(
           painter: InnerDialPainter(),
           child: Container(
             color: Colors.transparent,
-            width: 150.w,
+            width: 180.w,
           ),
         ),
         GestureDetector(
@@ -232,7 +233,7 @@ class _RadialDialState extends State<RadialDial> {
               color: Colors.red,
             ),
             child: SizedBox(
-              width: 140.w,
+              width: 120.w,
               height: 140.h,
             ),
           ),
@@ -241,7 +242,7 @@ class _RadialDialState extends State<RadialDial> {
           child: Text(
             (outerValueProvider.getOuterValue()).toString(),
             style: TextStyle(
-              fontSize: 60.sp,
+              fontSize: 40.sp,
               fontWeight: FontWeight.w600,
               color: const Color.fromRGBO(113, 113, 113, 1),
             ),

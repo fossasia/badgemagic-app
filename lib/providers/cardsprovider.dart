@@ -1,10 +1,12 @@
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/providers/badgeview_provider.dart';
+import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class CardProvider extends ChangeNotifier {
   DrawBadgeProvider badgeViewProvider = GetIt.instance<DrawBadgeProvider>();
+  InlineImageProvider imageProvider = GetIt.instance<InlineImageProvider>();
   ImageUtils imageUtils = ImageUtils();
   int outerValue = 1;
   List<int> effectsIndex = [0, 0, 0];

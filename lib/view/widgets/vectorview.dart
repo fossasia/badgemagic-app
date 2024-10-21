@@ -33,11 +33,13 @@ class _VectorGridViewState extends State<VectorGridView> {
               ),
               surfaceTintColor: Colors.white,
               color: Colors.white,
-              elevation: 5,
+              elevation: 2,
               child: Padding(
-                  padding: const EdgeInsets.all(10.0),
+                  padding: const EdgeInsets.all(5.0),
                   child: Image.memory(
-                      inlineImageProvider.imageCache[keys[index]]!)),
+                    inlineImageProvider.imageCache[keys[index]]!,
+                    scale: 0.1,
+                  )),
             ));
       },
       itemCount: keys.length,
