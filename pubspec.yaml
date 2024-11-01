@@ -38,7 +38,7 @@ dependencies:
   provider: ^6.1.2
   flutter_blue_plus: ^1.33.5
   logger: ^2.3.0
-  flutter_svg: ^2.0.10+1
+  flutter_svg: ^2.0.11
   get_it: ^8.0.0
   flutter_screenutil: ^5.9.3
   extended_text_field: ^16.0.0
