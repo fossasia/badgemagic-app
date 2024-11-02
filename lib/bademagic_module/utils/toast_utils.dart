@@ -1,14 +1,12 @@
-import 'package:badgemagic/providers/cardsprovider.dart';
+import 'package:badgemagic/bademagic_module/utils/global_context.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get_it/get_it.dart';
 
 class ToastUtils {
-  CardProvider contextProvider = GetIt.instance<CardProvider>();
-
+  final context = GlobalContextProvider.instance.context!;
   // Create a toast message
   void showToast(String message) {
-    ScaffoldMessenger.of(contextProvider.getContext()!).showSnackBar(
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10),
         elevation: 10,

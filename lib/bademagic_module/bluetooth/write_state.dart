@@ -5,10 +5,9 @@ import 'completed_state.dart';
 
 class WriteState extends NormalBleState {
   final BluetoothDevice device;
+  final DataTransferManager manager;
 
-  DataTransferManager manager = DataTransferManager();
-
-  WriteState({required this.device});
+  WriteState({required this.manager, required this.device});
 
   @override
   Future<BleState?> processState() async {

@@ -21,7 +21,7 @@ class _EffectsTabState extends State<EffectTab> {
 
   @override
   Widget build(BuildContext context) {
-    return const Row(
+    return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         EffectContainer(
@@ -57,23 +57,23 @@ class AnimationTab extends StatefulWidget {
 class _AnimationTabState extends State<AnimationTab> {
   @override
   Widget build(BuildContext context) {
-    return const Column(
+    return Column(
       children: [
         Row(
           children: [
             AniContainer(
               animation: aniLeft,
-              aniName: 'Left',
+              animationName: 'Left',
               index: 0,
             ),
             AniContainer(
               animation: aniRight,
-              aniName: 'Right',
+              animationName: 'Right',
               index: 1,
             ),
             AniContainer(
               animation: aniUp,
-              aniName: 'Up',
+              animationName: 'Up',
               index: 2,
             ),
           ],
@@ -82,17 +82,17 @@ class _AnimationTabState extends State<AnimationTab> {
           children: [
             AniContainer(
               animation: aniDown,
-              aniName: 'Down',
+              animationName: 'Down',
               index: 3,
             ),
             AniContainer(
               animation: aniFixed,
-              aniName: 'Fixed',
+              animationName: 'Fixed',
               index: 4,
             ),
             AniContainer(
               animation: aniFixed,
-              aniName: 'Snowflake',
+              animationName: 'Snowflake',
               index: 5,
             ),
           ],
@@ -101,17 +101,17 @@ class _AnimationTabState extends State<AnimationTab> {
           children: [
             AniContainer(
               animation: aniPicture,
-              aniName: 'Picture',
+              animationName: 'Picture',
               index: 6,
             ),
             AniContainer(
               animation: animation,
-              aniName: 'Animation',
+              animationName: 'Animation',
               index: 7,
             ),
             AniContainer(
               animation: aniLaser,
-              aniName: 'Laser',
+              animationName: 'Laser',
               index: 8,
             ),
           ],

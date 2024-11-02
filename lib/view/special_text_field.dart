@@ -1,4 +1,3 @@
-import 'package:badgemagic/providers/cardsprovider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +10,6 @@ class InlineImageText extends SpecialText {
       : super(InlineImageText.flag, '>>', textStyle);
   static const String flag = '<<';
   final int? start;
-  CardProvider cardData = GetIt.instance.get<CardProvider>();
   @override
   InlineSpan finishText() {
     final String key = toString();

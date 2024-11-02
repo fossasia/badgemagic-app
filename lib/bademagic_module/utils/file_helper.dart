@@ -1,16 +1,18 @@
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
-import 'package:share_plus/share_plus.dart';
+
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
 class FileHelper {
@@ -142,6 +144,7 @@ class FileHelper {
   // Read all files, parse the 2D lists, and add to cache
   Future<void> loadImageCacheFromFiles() async {
     generateClipartCache();
+    getBadgeDataFiles();
     final directory = await getApplicationDocumentsDirectory();
     final List<FileSystemEntity> files = directory.listSync();
 
@@ -217,7 +220,7 @@ class FileHelper {
     try {
       // Get the document directory path
       final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/$filename.json';
+      final filePath = '${directory.path}/$filename';
 
       // Check if the file exists
       File file = File(filePath);
@@ -245,6 +248,7 @@ class FileHelper {
             // Write the updated JSON string back to the file
             await file.writeAsString(updatedJsonString, mode: FileMode.write);
             logger.i('Text field updated in $filePath');
+            await getBadgeDataFiles();
           } else {
             logger.i('No message found to update.');
           }
@@ -262,8 +266,6 @@ class FileHelper {
   Future<void> saveBadgeData(Data data, String filename, bool invert) async {
     try {
       Map<String, dynamic> jsonData = data.toJson();
-      //JSON data: {messages: [{text: [00E060606C76666666E600, 0018180038181818183C00, 0018180038181818183C00], flash: true, marquee: true, speed: 0x00, mode: 0x00}]
-      //add the invert value also in the messages in data
       jsonData['messages'][0]['invert'] = invert;
       logger.d('JSON data: $jsonData');
       // Convert Data object to JSON string
@@ -276,14 +278,15 @@ class FileHelper {
       // Save JSON string to the file
       File file = File(filePath);
       await file.writeAsString(jsonString);
+      imageCacheProvider.savedBadgeCache
+          .add(MapEntry("$filename.json", jsonData));
       logger.i('Data saved to $filePath');
     } catch (e) {
       logger.i('Error saving data: $e');
     }
   }
 
-  Future<List<MapEntry<String, Map<String, dynamic>>>>
-      getBadgeDataFiles() async {
+  Future<void> getBadgeDataFiles() async {
     final directory = await getApplicationDocumentsDirectory();
     final List<FileSystemEntity> files = directory.listSync();
     List<MapEntry<String, Map<String, dynamic>>> badgeDataList = [];
@@ -307,7 +310,7 @@ class FileHelper {
         }
       }
     }
-    return badgeDataList;
+    imageCacheProvider.savedBadgeCache = badgeDataList;
   }
 
 //function that takes JsonSData and returns the Data object
@@ -389,9 +392,7 @@ class FileHelper {
           throw Exception("Invalid Badge Data");
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('No file selected')),
-        );
+        ToastUtils().showToast('No file selected');
         return false;
       }
     } catch (e) {

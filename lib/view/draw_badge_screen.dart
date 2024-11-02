@@ -1,52 +1,67 @@
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+import 'package:badgemagic/bademagic_module/utils/global_context.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/providers/badgeview_provider.dart';
+import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/virtualbadge/view/draw_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
 class DrawBadge extends StatefulWidget {
   final String? filename;
   final bool? isSavedCard;
   final bool? isSavedClipart;
+  final List<List<int>>? badgeGrid;
   const DrawBadge(
       {super.key,
       this.filename,
       this.isSavedCard = false,
-      this.isSavedClipart = false});
+      this.isSavedClipart = false,
+      this.badgeGrid});
 
   @override
   State<DrawBadge> createState() => _DrawBadgeState();
 }
 
 class _DrawBadgeState extends State<DrawBadge> {
+  var drawToggle = DrawBadgeProvider();
+
   @override
-  void initState() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeLeft,
-    ]);
-    super.initState();
+  void didChangeDependencies() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      GlobalContextProvider.instance.setContext(context);
+    });
+    super.didChangeDependencies();
+    _setLandscapeOrientation();
   }
 
   @override
   void dispose() {
+    _resetOrientation();
+    super.dispose();
+  }
+
+  void _setLandscapeOrientation() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+    ]);
+  }
+
+  void _resetOrientation() {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    DrawBadgeProvider drawToggle =
-        Provider.of<DrawBadgeProvider>(context, listen: false);
     FileHelper fileHelper = FileHelper();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     return CommonScaffold(
@@ -63,7 +78,12 @@ class _DrawBadgeState extends State<DrawBadge> {
               border: Border.all(color: Colors.black),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: const BMBadge(),
+            child: BMBadge(
+              providerInit: (provider) => drawToggle = provider,
+              badgeGrid: widget.badgeGrid
+                  ?.map((e) => e.map((e) => e == 1).toList())
+                  .toList(),
+            ),
           ),
           SizedBox(
             height: 55.h,
@@ -142,8 +162,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                       Converters.convertBitmapToLEDHex(badgeGrid, false);
                   widget.isSavedCard!
                       ? fileHelper.updateBadgeText(
-                          widget.filename!
-                              .substring(0, widget.filename!.length - 5),
+                          widget.filename!,
                           hexString,
                         )
                       : widget.isSavedClipart!
@@ -151,6 +170,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                               widget.filename!, badgeGrid)
                           : fileHelper.saveImage(drawToggle.getDrawViewGrid());
                   fileHelper.generateClipartCache();
+                  ToastUtils().showToast("Clipart Saved Successfully");
                 },
                 child: const Column(
                   children: [

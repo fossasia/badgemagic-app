@@ -1,6 +1,6 @@
 import 'dart:math';
 
-import 'package:badgemagic/providers/cardsprovider.dart';
+import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -144,7 +144,8 @@ class _RadialDialState extends State<RadialDial> {
 
   @override
   Widget build(BuildContext context) {
-    CardProvider outerValueProvider = Provider.of<CardProvider>(context);
+    SpeedDialProvider outerValueProvider =
+        Provider.of<SpeedDialProvider>(context, listen: false);
 
     void updateOuterValue(double angle) {
       const startAngle = 155 * pi / 270;
@@ -161,7 +162,7 @@ class _RadialDialState extends State<RadialDial> {
       final clampedSection = section.clamp(1, numSections);
 
       setState(() {
-        outerValueProvider.setOuterValue(clampedSection.toInt());
+        outerValueProvider.setDialValue(clampedSection.toInt());
       });
     }
 

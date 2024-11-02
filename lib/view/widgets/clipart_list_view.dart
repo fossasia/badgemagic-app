@@ -2,12 +2,10 @@ import 'dart:typed_data';
 
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
-import 'package:badgemagic/providers/badgeview_provider.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
 class SavedClipartListView extends StatelessWidget {
   final Map<String, List<List<int>>?> images;
@@ -24,7 +22,6 @@ class SavedClipartListView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    DrawBadgeProvider draw = Provider.of<DrawBadgeProvider>(context);
     return ListView.builder(
       itemCount: images.length, // Number of images
       itemBuilder: (context, index) {
@@ -41,14 +38,6 @@ class SavedClipartListView extends StatelessWidget {
           ),
           child: Row(
             children: [
-              // Padding(
-              //   padding: EdgeInsets.all(10.dg),
-              //   child: Image.memory(
-              //     scale: 0.5,
-              //     images.values.elementAt(index)!,
-              //   ),
-              // ),
-              //use future builder to load the image
               Padding(
                 padding: EdgeInsets.all(10.dg),
                 child: FutureBuilder<Uint8List?>(
@@ -77,16 +66,11 @@ class SavedClipartListView extends StatelessWidget {
               ),
               IconButton(
                   onPressed: () {
-                    //map the 2D list of int to the 2D list of bool
-                    List<List<bool>> grid = images.values
-                        .elementAt(index)!
-                        .map((e) => e.map((e) => e == 1).toList())
-                        .toList();
-                    draw.updateDrawViewGrid(grid);
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => DrawBadge(
                               filename: fileName,
                               isSavedClipart: true,
+                              badgeGrid: images.values.elementAt(index),
                             )));
                   },
                   icon: const Icon(Icons.edit)),

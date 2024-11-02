@@ -2,9 +2,9 @@ import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/badgeview_provider.dart';
-import 'package:badgemagic/providers/cardsprovider.dart';
+import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,8 @@ import 'package:provider/provider.dart';
 
 class SaveBadgeCard extends StatelessWidget {
   final MapEntry<String, Map<String, dynamic>> badgeData;
-  final Future<void> Function() refreshBadgesCallback;
+  final Future<void> Function(MapEntry<String, Map<String, dynamic>>)
+      refreshBadgesCallback;
   final FileHelper file = FileHelper();
   final Converters converters = Converters();
   final ToastUtils toastUtils = ToastUtils();
@@ -26,10 +27,7 @@ class SaveBadgeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    CardProvider cardProvider = Provider.of<CardProvider>(context);
     BadgeMessageProvider badge = BadgeMessageProvider();
-    DrawBadgeProvider drawBadgeProvider =
-        Provider.of<DrawBadgeProvider>(context);
     return Container(
       width: 370.w,
       padding: EdgeInsets.all(6.dg),
@@ -72,80 +70,88 @@ class SaveBadgeCard extends StatelessWidget {
                   ),
                 ),
               ),
-              Row(
-                mainAxisSize: MainAxisSize.min, // Keep the row compact
-                children: [
-                  IconButton(
-                    icon: Image.asset(
-                      "assets/icons/t_play.png",
-                      height: 20,
-                      color: Colors.black,
+              Consumer<SavedBadgeProvider>(
+                builder: (context, provider, widget) => Row(
+                  mainAxisSize: MainAxisSize.min, // Keep the row compact
+                  children: [
+                    IconButton(
+                      icon: Image.asset(
+                        "assets/icons/t_play.png",
+                        height: 20,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        provider.savedBadgeAnimation(
+                            badgeData.value,
+                            Provider.of<AnimationBadgeProvider>(context,
+                                listen: false));
+                      },
                     ),
-                    onPressed: () {
-                      converters.savedBadgeAnimation(badgeData.value);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.edit,
-                      color: Colors.black,
+                    IconButton(
+                      icon: const Icon(
+                        Icons.edit,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        List<List<int>> data = hexStringToBool(file
+                                .jsonToData(badgeData.value)
+                                .messages[0]
+                                .text
+                                .join())
+                            .map((e) => e.map((e) => e ? 1 : 0).toList())
+                            .toList();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => DrawBadge(
+                              filename: badgeData.key,
+                              isSavedCard: true,
+                              badgeGrid: data,
+                            ),
+                          ),
+                        );
+                      },
                     ),
-                    onPressed: () {
-                      drawBadgeProvider.updateDrawViewGrid(hexStringToBool(file
-                          .jsonToData(badgeData.value)
-                          .messages[0]
-                          .text
-                          .join()));
-                      Navigator.of(context).push(MaterialPageRoute(
-                          builder: (context) => DrawBadge(
-                                filename: badgeData.key,
-                                isSavedCard: true,
-                              )));
-                      // Navigator.pushNamed(context, '/drawBadge',
-                      //     arguments: badgeData);
-                    },
-                  ),
-                  IconButton(
-                    icon: Image.asset(
-                      "assets/icons/t_updown.png",
-                      height: 24.h,
-                      color: Colors.black,
+                    IconButton(
+                      icon: Image.asset(
+                        "assets/icons/t_updown.png",
+                        height: 24.h,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        logger.d("BadgeData: ${badgeData.value}");
+                        //We can Acrtually call a method to generate the data just by transffering the JSON data
+                        //so we would not necessarily need the Providers.
+                        badge.checkAndTransfer(null, null, null, null, null,
+                            badgeData.value, true);
+                      },
                     ),
-                    onPressed: () {
-                      logger.d("BadgeData: ${badgeData.value}");
-                      cardProvider.setSavedBadgeDataMap(badgeData.value);
-                      cardProvider.setIsSavedBadgeData(true);
-                      badge.checkAndTransfer();
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.share,
-                      color: Colors.black,
+                    IconButton(
+                      icon: const Icon(
+                        Icons.share,
+                        color: Colors.black,
+                      ),
+                      onPressed: () {
+                        file.shareBadgeData(badgeData.key);
+                      },
                     ),
-                    onPressed: () {
-                      file.shareBadgeData(badgeData.key);
-                    },
-                  ),
-                  IconButton(
-                    icon: const Icon(
-                      Icons.delete,
-                      color: Colors.black,
+                    IconButton(
+                      icon: const Icon(
+                        Icons.delete,
+                        color: Colors.black,
+                      ),
+                      onPressed: () async {
+                        //add a dialog for confirmation before deleting
+                        await _showDeleteDialog(context).then((value) async {
+                          if (value == true) {
+                            file.deleteFile(badgeData.key);
+                            toastUtils.showToast("Badge Deleted Successfully");
+                            await refreshBadgesCallback(badgeData);
+                          }
+                        });
+                      },
                     ),
-                    onPressed: () async {
-                      // file.deleteFile(badgeData.key);
-                      // refreshBadgesCallback();
-                      //add a dialog for confirmation before deleting
-                      await _showDeleteDialog(context).then((value) async {
-                        if (value == true) {
-                          file.deleteFile(badgeData.key);
-                          toastUtils.showToast("Badge Deleted Successfully");
-                          await refreshBadgesCallback();
-                        }
-                      });
-                    },
-                  ),
-                ],
+                  ],
+                ),
               ),
             ],
           ),

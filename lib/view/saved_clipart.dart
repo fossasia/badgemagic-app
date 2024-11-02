@@ -1,5 +1,6 @@
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+import 'package:badgemagic/bademagic_module/utils/global_context.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/view/widgets/clipart_list_view.dart';
@@ -23,6 +24,9 @@ class _SavedClipartState extends State<SavedClipart> {
 
   @override
   void initState() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      GlobalContextProvider.instance.setContext(context);
+    });
     super.initState();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,

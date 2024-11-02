@@ -1,18 +1,31 @@
-import 'package:badgemagic/providers/badgeview_provider.dart';
+import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/virtualbadge/view/draw_badge_paint.dart';
 import 'package:flutter/material.dart';
-import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 class BMBadge extends StatefulWidget {
-  const BMBadge({super.key});
+  final void Function(DrawBadgeProvider provider)? providerInit;
+  final List<List<bool>>? badgeGrid;
+  const BMBadge({super.key, this.providerInit, this.badgeGrid});
 
   @override
   State<BMBadge> createState() => _BMBadgeState();
 }
 
 class _BMBadgeState extends State<BMBadge> {
-  DrawBadgeProvider cellStateToggle = GetIt.instance<DrawBadgeProvider>();
+  var drawProvider = DrawBadgeProvider();
+
+  @override
+  void initState() {
+    if (widget.providerInit != null) {
+      widget.providerInit!(drawProvider);
+    }
+    if (widget.badgeGrid != null) {
+      drawProvider.updateDrawViewGrid(widget.badgeGrid!);
+    }
+    super.initState();
+  }
+
   static const int rows = 11;
   static const int cols = 44;
 
@@ -26,18 +39,22 @@ class _BMBadgeState extends State<BMBadge> {
     int row = (localPosition.dy / cellHeight).clamp(0, rows - 1).toInt();
 
     setState(() {
-      cellStateToggle.setDrawViewGrid(row, col);
+      drawProvider.setDrawViewGrid(row, col);
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    final grid = Provider.of<DrawBadgeProvider>(context).getDrawViewGrid();
-    return GestureDetector(
-        onPanUpdate: _handlePanUpdate,
-        child: CustomPaint(
-          size: const Size(400, 480),
-          painter: DrawBadgePaint(grid: grid),
-        ));
+    return ChangeNotifierProvider(
+      create: (context) => drawProvider,
+      child: GestureDetector(
+          onPanUpdate: _handlePanUpdate,
+          child: Consumer<DrawBadgeProvider>(
+            builder: (context, value, child) => CustomPaint(
+              size: const Size(400, 480),
+              painter: DrawBadgePaint(grid: value.getDrawViewGrid()),
+            ),
+          )),
+    );
   }
 }

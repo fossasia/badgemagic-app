@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 class BadgeListView extends StatelessWidget {
   final Future<List<MapEntry<String, Map<String, dynamic>>>> futureBadges;
-  final Future<void> Function()
+  final Future<void> Function(MapEntry<String, Map<String, dynamic>>)
       refreshBadgesCallback; // Add callback for refreshing badges
 
   const BadgeListView(

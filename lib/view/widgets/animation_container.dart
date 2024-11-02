@@ -1,28 +1,37 @@
-import 'package:badgemagic/providers/cardsprovider.dart';
+import 'package:badgemagic/badge_animation/animation_abstract.dart';
+import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 class AniContainer extends StatefulWidget {
   final String animation;
-  final String aniName;
+  final String animationName;
   final int index;
 
-  const AniContainer({
-    super.key,
-    required this.animation,
-    required this.aniName,
-    required this.index,
-  });
+  const AniContainer(
+      {super.key,
+      required this.animation,
+      required this.animationName,
+      required this.index});
 
   @override
   State<AniContainer> createState() => _AniContainerState();
 }
 
 class _AniContainerState extends State<AniContainer> {
+  BadgeAnimation? badgeAnimation;
+
+  @override
+  void initState() {
+    badgeAnimation = animationMap[widget.index];
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
-    CardProvider animationCardState = Provider.of<CardProvider>(context);
+    AnimationBadgeProvider animationCardState =
+        Provider.of<AnimationBadgeProvider>(context);
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
@@ -30,11 +39,11 @@ class _AniContainerState extends State<AniContainer> {
       width: 110.w,
       child: GestureDetector(
         onTap: () {
-          animationCardState.setAnimationIndex(widget.index);
+          animationCardState.setAnimationMode(badgeAnimation);
         },
         child: Card(
           surfaceTintColor: Colors.white,
-          color: animationCardState.getAnimationIndex() == widget.index
+          color: animationCardState.isAnimationActive(badgeAnimation)
               ? Colors.red
               : Colors.white,
           elevation: 5,
@@ -46,7 +55,7 @@ class _AniContainerState extends State<AniContainer> {
                 height: 30.h,
               ),
               Text(
-                widget.aniName,
+                widget.animationName,
                 style: TextStyle(fontSize: 9.sp),
               ),
             ],

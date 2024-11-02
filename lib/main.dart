@@ -1,5 +1,3 @@
-import 'package:badgemagic/providers/badgeview_provider.dart';
-import 'package:badgemagic/providers/cardsprovider.dart';
 import 'package:badgemagic/providers/getitlocator.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
@@ -15,12 +13,8 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MultiProvider(
     providers: [
-      ChangeNotifierProvider<CardProvider>(
-          create: (context) => getIt<CardProvider>()),
       ChangeNotifierProvider<InlineImageProvider>(
           create: (context) => getIt<InlineImageProvider>()),
-      ChangeNotifierProvider<DrawBadgeProvider>(
-          create: (context) => getIt<DrawBadgeProvider>()),
     ],
     child: const MyApp(),
   ));

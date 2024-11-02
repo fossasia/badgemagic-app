@@ -1,6 +1,14 @@
 abstract class BadgeEffect {
-  List<int> effectsIndex = [0, 0, 0];
-  BadgeEffect(this.effectsIndex);
   void processEffect(int animationIndex, List<List<bool>> canvas,
-      List<int> effectsIndex, int badgeHeight, int badgeWidth);
+      int badgeHeight, int badgeWidth);
+
+  // Override equality to be implemented by subclasses
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other.runtimeType == runtimeType && other.hashCode == hashCode;
+  }
+
+  @override
+  int get hashCode => runtimeType.hashCode;
 }

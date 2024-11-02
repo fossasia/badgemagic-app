@@ -10,14 +10,25 @@ class InlineImageProvider extends ChangeNotifier {
   //boolean variable to check for isCacheInitialized
   bool isCacheInitialized = false;
 
+  List<MapEntry<String, Map<String, dynamic>>> savedBadgeCache = [];
+
   //set of available keys
   Set<int> availableKeys = {};
+
+  bool isSavedBadgeData = false;
 
   //list of vectors
   List<String> vectors = [];
 
   //cache for storing cliparts
   Map<String, List<List<int>>?> clipartsCache = {};
+
+  void setIsSavedBadgeData(bool value) {
+    isSavedBadgeData = value;
+    notifyListeners();
+  }
+
+  bool getIsSavedBadgeData() => isSavedBadgeData;
 
   //uses the AssetManifest class to load the list of assets
   Future<void> initVectors() async {
@@ -53,6 +64,14 @@ class InlineImageProvider extends ChangeNotifier {
 
   //selected index of the vector from the list
   late int selectedVector;
+
+  BuildContext? context;
+
+  void setContext(BuildContext context) {
+    this.context = context;
+  }
+
+  BuildContext? get getContext => context;
 
   //Map to store the cache of the images generated
   //Image caches are generated at the splash screen

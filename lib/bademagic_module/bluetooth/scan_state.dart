@@ -1,10 +1,14 @@
 import 'dart:async';
 import 'package:badgemagic/bademagic_module/bluetooth/connect_state.dart';
+import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
 import 'base_ble_state.dart';
 
 class ScanState extends NormalBleState {
+  final DataTransferManager manager;
+  ScanState({required this.manager});
+
   @override
   Future<BleState?> processState() async {
     StreamSubscription<List<ScanResult>>? subscription;
@@ -27,8 +31,10 @@ class ScanState extends NormalBleState {
               if (foundDevice != null) {
                 toast.showToast('Device found. Connecting...');
                 isCompleted = true;
-                nextStateCompleter
-                    .complete(ConnectState(scanResult: foundDevice!));
+                nextStateCompleter.complete(ConnectState(
+                  scanResult: foundDevice!,
+                  manager: manager,
+                ));
               }
             }
           }
