@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/badge_animation/ani_animation.dart';
@@ -151,22 +150,22 @@ class AnimationBadgeProvider extends ChangeNotifier {
     return isActive;
   }
 
-  void badgeAnimation(String message, Converters converters) async {
+  void badgeAnimation(
+      String message, Converters converters, bool isInverted) async {
     if (message == "") {
       //geerate a 2d list with all values as 0
       List<List<bool>> image =
           List.generate(11, (i) => List.generate(44, (j) => false));
       setNewGrid(image);
     } else {
-      List<String> hexString = await converters.messageTohex(message);
+      List<String> hexString =
+          await converters.messageTohex(message, isInverted);
       List<List<bool>> binaryArray = hexStringToBool(hexString.join());
       setNewGrid(binaryArray);
     }
   }
 
   void renderGrid(List<List<bool>> newGrid) {
-    // logger.i(
-    //     "Rendering grid ${getNewGrid().map((e) => e.map((e) => e ? 1 : 0).toList()).toList()}");
     int badgeWidth = _paintGrid[0].length;
     int badgeHeight = _paintGrid.length;
 

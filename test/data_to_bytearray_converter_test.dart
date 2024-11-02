@@ -38,14 +38,14 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     var data = Data(messages: [
-      Message(text: await converters.messageTohex('Hii'), flash: true),
-      Message(text: await converters.messageTohex('Hii'), flash: true),
-      Message(text: await converters.messageTohex('Hii'), flash: false),
-      Message(text: await converters.messageTohex('Hii'), flash: false),
-      Message(text: await converters.messageTohex('Hii'), flash: true),
-      Message(text: await converters.messageTohex('Hii'), flash: false),
-      Message(text: await converters.messageTohex('Hii'), flash: true),
-      Message(text: await converters.messageTohex('Hii'), flash: false)
+      Message(text: await converters.messageTohex('Hii', false), flash: true),
+      Message(text: await converters.messageTohex('Hii', false), flash: true),
+      Message(text: await converters.messageTohex('Hii', false), flash: false),
+      Message(text: await converters.messageTohex('Hii', false), flash: false),
+      Message(text: await converters.messageTohex('Hii', false), flash: true),
+      Message(text: await converters.messageTohex('Hii', false), flash: false),
+      Message(text: await converters.messageTohex('Hii', false), flash: true),
+      Message(text: await converters.messageTohex('Hii', false), flash: false)
     ]);
 
     var result = converter.convert(data);
@@ -58,7 +58,7 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     var data = Data(messages: [
-      Message(text: await converters.messageTohex('Hii'), marquee: false)
+      Message(text: await converters.messageTohex('Hii', false), marquee: false)
     ]);
 
     var result = converter.convert(data);
@@ -72,14 +72,17 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     var data = Data(messages: [
-      Message(text: await converters.messageTohex('Hii'), marquee: true),
-      Message(text: await converters.messageTohex('Hii'), marquee: true),
-      Message(text: await converters.messageTohex('Hii'), marquee: false),
-      Message(text: await converters.messageTohex('Hii'), marquee: false),
-      Message(text: await converters.messageTohex('Hii'), marquee: true),
-      Message(text: await converters.messageTohex('Hii'), marquee: false),
-      Message(text: await converters.messageTohex('Hii'), marquee: true),
-      Message(text: await converters.messageTohex('Hii'), marquee: false)
+      Message(text: await converters.messageTohex('Hii', false), marquee: true),
+      Message(text: await converters.messageTohex('Hii', false), marquee: true),
+      Message(
+          text: await converters.messageTohex('Hii', false), marquee: false),
+      Message(
+          text: await converters.messageTohex('Hii', false), marquee: false),
+      Message(text: await converters.messageTohex('Hii', false), marquee: true),
+      Message(
+          text: await converters.messageTohex('Hii', false), marquee: false),
+      Message(text: await converters.messageTohex('Hii', false), marquee: true),
+      Message(text: await converters.messageTohex('Hii', false), marquee: false)
     ]);
 
     var result = converter.convert(data);
@@ -94,31 +97,31 @@ void main() {
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     Data data = Data(messages: [
       Message(
-          text: await converters.messageTohex('Hii'),
+          text: await converters.messageTohex('Hii', false),
           speed: Speed.one,
           mode: Mode.right),
       Message(
-          text: await converters.messageTohex('Hii'),
+          text: await converters.messageTohex('Hii', false),
           speed: Speed.two,
           mode: Mode.left),
       Message(
-          text: await converters.messageTohex('Hii'),
+          text: await converters.messageTohex('Hii', false),
           speed: Speed.three,
           mode: Mode.up),
       Message(
-          text: await converters.messageTohex('Hii'),
+          text: await converters.messageTohex('Hii', false),
           speed: Speed.four,
           mode: Mode.fixed),
       Message(
-          text: await converters.messageTohex('Hii'),
+          text: await converters.messageTohex('Hii', false),
           speed: Speed.six,
           mode: Mode.laser),
       Message(
-          text: await converters.messageTohex('Hii'),
+          text: await converters.messageTohex('Hii', false),
           speed: Speed.seven,
           mode: Mode.snowflake),
       Message(
-          text: await converters.messageTohex('Hii'),
+          text: await converters.messageTohex('Hii', false),
           speed: Speed.eight,
           mode: Mode.picture),
     ]);
@@ -135,14 +138,15 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     Data data = Data(messages: [
-      Message(text: await converters.messageTohex('A')),
-      Message(text: await converters.messageTohex('...')),
+      Message(text: await converters.messageTohex('A', false)),
+      Message(text: await converters.messageTohex('...', false)),
       Message(
-          text: await converters.messageTohex('abcdefghijklmnopqrstuvwxyz')),
-      Message(text: await converters.messageTohex('_' * 500)),
-      Message(text: await converters.messageTohex('É')),
-      Message(text: await converters.messageTohex('ÇÇÇÇÇabc')),
-      Message(text: await converters.messageTohex('')),
+          text: await converters.messageTohex(
+              'abcdefghijklmnopqrstuvwxyz', false)),
+      Message(text: await converters.messageTohex('_' * 500, false)),
+      Message(text: await converters.messageTohex('É', false)),
+      Message(text: await converters.messageTohex('ÇÇÇÇÇabc', false)),
+      Message(text: await converters.messageTohex('', false)),
     ]);
 
     List<List<int>> result = converter.convert(data);
@@ -171,8 +175,8 @@ void main() {
     Converters converters = Converters();
 
     DataToByteArrayConverter converter = DataToByteArrayConverter();
-    var data =
-        Data(messages: [Message(text: await converters.messageTohex('A'))]);
+    var data = Data(
+        messages: [Message(text: await converters.messageTohex('A', false))]);
 
     var result = converter.convert(data);
     expect(result[2].sublist(0, 6), [0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
@@ -196,8 +200,8 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     Data data = Data(messages: [
-      Message(text: await converters.messageTohex('AB')),
-      Message(text: await converters.messageTohex('ÈC')),
+      Message(text: await converters.messageTohex('AB', false)),
+      Message(text: await converters.messageTohex('ÈC', false)),
     ]);
 
     List<List<int>> result = converter.convert(data);
@@ -213,17 +217,17 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     // Given
-    final data1 =
-        Data(messages: [Message(text: await converters.messageTohex('A'))]);
+    final data1 = Data(
+        messages: [Message(text: await converters.messageTohex('A', false))]);
     final data2 = Data(messages: [
-      Message(text: await converters.messageTohex('B')),
-      Message(text: await converters.messageTohex('BBB'))
+      Message(text: await converters.messageTohex('B', false)),
+      Message(text: await converters.messageTohex('BBB', false))
     ]);
     final data3 = Data(messages: [
-      Message(text: await converters.messageTohex('C')),
-      Message(text: await converters.messageTohex('CCC')),
-      Message(text: await converters.messageTohex('CCCCC')),
-      Message(text: await converters.messageTohex('CCCCCCCC'))
+      Message(text: await converters.messageTohex('C', false)),
+      Message(text: await converters.messageTohex('CCC', false)),
+      Message(text: await converters.messageTohex('CCCCC', false)),
+      Message(text: await converters.messageTohex('CCCCCCCC', false))
     ]);
 
     // When

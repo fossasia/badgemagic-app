@@ -122,7 +122,7 @@ class SaveBadgeCard extends StatelessWidget {
                         //We can Acrtually call a method to generate the data just by transffering the JSON data
                         //so we would not necessarily need the Providers.
                         badge.checkAndTransfer(null, null, null, null, null,
-                            badgeData.value, true);
+                            null, badgeData.value, true);
                       },
                     ),
                     IconButton(
