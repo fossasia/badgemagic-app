@@ -42,7 +42,7 @@ dependencies:
   get_it: ^8.0.2
   flutter_screenutil: ^5.9.3
   extended_text_field: ^16.0.0
-  path_provider: ^2.1.4
+  path_provider: ^2.1.5
   uuid: ^4.5.0
   share_plus: ^10.0.3
   file_picker: ^8.1.3
