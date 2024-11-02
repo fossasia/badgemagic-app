@@ -1,3 +1,6 @@
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 const homeScreenTitleKey = "bm_hm_title";
 const drawBadgeScreen = "bm_db_screen";
 const savedClipartScreen = "bm_sc_screen";
@@ -28,4 +31,13 @@ int aniSpeedStrategy(int speedLevel) {
   int speedInMicroseconds = aniBaseSpeed.inMicroseconds -
       (speedLevel * aniBaseSpeed.inMicroseconds ~/ 8);
   return speedInMicroseconds;
+}
+
+Future<void> openUrl(String url) async {
+  final Uri uri = Uri.parse(url);
+  if (!await canLaunchUrl(uri)) {
+    ToastUtils().showErrorToast('Failed to launch url please try again');
+  } else {
+    await launchUrl(uri);
+  }
 }

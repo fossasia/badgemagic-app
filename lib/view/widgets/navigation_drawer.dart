@@ -1,4 +1,6 @@
+import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class BMDrawer extends StatelessWidget {
   const BMDrawer({super.key});
@@ -43,7 +45,11 @@ class BMDrawer extends StatelessWidget {
                 Navigator.popUntil(context, ModalRoute.withName('/'));
               } else {
                 // Otherwise, navigate to HomeScreen
-                Navigator.pushNamed(context, '/');
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/',
+                  (route) => route.isFirst,
+                );
               }
             },
           ),
@@ -200,11 +206,7 @@ class BMDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/buyBadge',
-                (route) => route.isFirst,
-              );
+              openUrl('https://badgemagic.fossasia.org/shop/');
             },
           ),
           ListTile(
@@ -223,11 +225,9 @@ class BMDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/share',
-                (route) => route.isFirst,
-              );
+              //share the playstore url of the app with a text
+              Share.share(
+                  'Badge Magic is an Android app to control LED name badges. This app provides features to portray names, graphics and simple animations on LED badges.You can also download it from below link https://play.google.com/store/apps/details?id=org.fossasia.badgemagic ');
             },
           ),
           ListTile(
@@ -246,11 +246,8 @@ class BMDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/rateUs',
-                (route) => route.isFirst,
-              );
+              openUrl(
+                  'https://play.google.com/store/apps/details?id=org.fossasia.badgemagic');
             },
           ),
           ListTile(
@@ -270,11 +267,7 @@ class BMDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/feedback',
-                (route) => route.isFirst,
-              );
+              openUrl('https://github.com/fossasia/badgemagic-android/issues');
             },
           ),
           ListTile(
@@ -294,11 +287,7 @@ class BMDrawer extends StatelessWidget {
             ),
             onTap: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(
-                context,
-                '/privacyPolicy',
-                (route) => route.isFirst,
-              );
+              openUrl('https://badgemagic.fossasia.org/privacy/');
             },
           ),
         ],
