@@ -43,6 +43,7 @@ class _HomeScreenState extends State<HomeScreen>
       GetIt.instance<InlineImageProvider>();
   bool isPrefixIconClicked = false;
   int textfieldLength = 0;
+  bool isDialInteracting = false;
 
   @override
   void initState() {
@@ -61,9 +62,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _controllerListner() {
-    animationProvider.badgeAnimation(
-        inlineImageProvider.getController().text, Converters());
     inlineImageProvider.controllerListener();
+    animationProvider.badgeAnimation(inlineImageProvider.getController().text,
+        Converters(), animationProvider.isEffectActive(InvertLEDEffect()));
   }
 
   @override
@@ -100,8 +101,6 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  ScrollPhysics scrollphysics = ScrollPhysics();
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -128,7 +127,9 @@ class _HomeScreenState extends State<HomeScreen>
               child: Stack(
                 children: [
                   SingleChildScrollView(
-                    physics: scrollphysics,
+                    physics: isDialInteracting
+                        ? const NeverScrollableScrollPhysics()
+                        : const AlwaysScrollableScrollPhysics(),
                     child: Column(
                       children: [
                         SizedBox(
@@ -204,7 +205,20 @@ class _HomeScreenState extends State<HomeScreen>
                             physics: const NeverScrollableScrollPhysics(),
                             controller: _tabController,
                             children: [
-                              RadialDial(),
+                              GestureDetector(
+                                  onPanDown: (_) {
+                                    // Enter interaction mode to stop main scrolling
+                                    setState(() => isDialInteracting = true);
+                                  },
+                                  onPanCancel: () {
+                                    // Exit interaction mode if interaction is cancelled
+                                    setState(() => isDialInteracting = false);
+                                  },
+                                  onPanEnd: (_) {
+                                    // Re-enable main scroll when done interacting
+                                    setState(() => isDialInteracting = false);
+                                  },
+                                  child: RadialDial()),
                               AnimationTab(),
                               EffectTab(),
                             ],
@@ -271,6 +285,8 @@ class _HomeScreenState extends State<HomeScreen>
                                               .isEffectActive(FlashEffect()),
                                           animationProvider
                                               .isEffectActive(MarqueeEffect()),
+                                          animationProvider.isEffectActive(
+                                              InvertLEDEffect()),
                                           speedDialProvider.getOuterValue(),
                                           modeValueMap[animationProvider
                                               .getAnimationIndex()],

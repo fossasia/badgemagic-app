@@ -44,9 +44,9 @@ class BadgeMessageProvider {
   FileHelper fileHelper = FileHelper();
   Converters converters = Converters();
 
-  Future<Data> getBadgeData(
-      String text, bool flash, bool marq, Speed speed, Mode mode) async {
-    List<String> message = await converters.messageTohex(text);
+  Future<Data> getBadgeData(String text, bool flash, bool marq, Speed speed,
+      Mode mode, bool isInverted) async {
+    List<String> message = await converters.messageTohex(text, isInverted);
     Data data = Data(messages: [
       Message(
         text: message,
@@ -59,13 +59,19 @@ class BadgeMessageProvider {
     return data;
   }
 
-  Future<Data> generateData(String? text, bool? flash, bool? marq, Speed? speed,
-      Mode? mode, Map<String, dynamic>? jsonData) async {
+  Future<Data> generateData(
+      String? text,
+      bool? flash,
+      bool? marq,
+      bool? inverted,
+      Speed? speed,
+      Mode? mode,
+      Map<String, dynamic>? jsonData) async {
     if (jsonData != null) {
       return fileHelper.jsonToData(jsonData);
     } else {
       return getBadgeData(text ?? '', flash ?? false, marq ?? false,
-          speed ?? Speed.one, mode ?? Mode.left);
+          speed ?? Speed.one, mode ?? Mode.left, inverted ?? false);
     }
   }
 
@@ -84,6 +90,7 @@ class BadgeMessageProvider {
       String? text,
       bool? flash,
       bool? marq,
+      bool? isInverted,
       int? speed,
       Mode? mode,
       Map<String, dynamic>? jsonData,
@@ -105,7 +112,7 @@ class BadgeMessageProvider {
         data = fileHelper.jsonToData(jsonData);
       } else {
         data = await generateData(
-            text, flash, marq, speedMap[speed], mode, jsonData);
+            text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
       }
       DataTransferManager manager = DataTransferManager(data);
       await transferData(manager);

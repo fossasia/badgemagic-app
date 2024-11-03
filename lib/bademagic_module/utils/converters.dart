@@ -16,7 +16,7 @@ class Converters {
 
   int controllerLength = 0;
 
-  Future<List<String>> messageTohex(String message) async {
+  Future<List<String>> messageTohex(String message, bool isInverted) async {
     List<String> hexStrings = [];
     for (int x = 0; x < message.length; x++) {
       if (message[x] == '<' && message[min(x + 5, message.length - 1)] == '>') {
@@ -42,6 +42,11 @@ class Converters {
         }
       }
     }
+    if (isInverted) {
+      hexStrings = invertHex(hexStrings.join()).split('');
+      hexStrings = padHexString(hexStrings);
+    }
+    logger.d("Hex strings: $hexStrings");
     return hexStrings;
   }
 
@@ -148,5 +153,29 @@ class Converters {
       allHexs.add(lineHex.toString()); // Store completed hexadecimal line
     }
     return allHexs; // Return list of hexadecimal strings
+  }
+
+  static String invertHex(String hex) {
+    StringBuffer invertedHex = StringBuffer();
+    for (int i = 0; i < hex.length; i++) {
+      String invertedHexDigit =
+          (~int.parse(hex[i], radix: 16) & 0xF).toRadixString(16).toUpperCase();
+      invertedHex.write(invertedHexDigit);
+    }
+    return invertedHex.toString();
+  }
+
+  List<String> padHexString(List<String> hexString) {
+    List<List<int>> hexArray = hexStringToBool(hexString.join()).map((e) {
+      return e.map((e) => e ? 1 : 0).toList();
+    }).toList();
+
+    //add 1 at the satrt and end of each row in the 2D list
+    for (int i = 0; i < hexArray.length; i++) {
+      hexArray[i].insert(0, 1);
+      hexArray[i].add(1);
+    }
+
+    return convertBitmapToLEDHex(hexArray, false);
   }
 }

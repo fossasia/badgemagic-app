@@ -50,7 +50,8 @@ class SavedBadgeProvider extends ChangeNotifier {
     Data data = await getBadgeData(
       message,
       isFlash, //needs aniEffectProvider
-      isMarquee, //needs Anieffect provider
+      isMarquee,
+      isInvert, //needs Anieffect provider
       speedMap[speed] ?? Speed.one, //needs speed dial provider
       modeValueMap[animation]!,
     );
@@ -58,9 +59,9 @@ class SavedBadgeProvider extends ChangeNotifier {
         data, filename, isInvert); //needs AniEffectProvider
   }
 
-  Future<Data> getBadgeData(
-      String text, bool flash, bool marq, Speed speed, Mode mode) async {
-    List<String> message = await converters.messageTohex(text);
+  Future<Data> getBadgeData(String text, bool flash, bool marq, bool isInverted,
+      Speed speed, Mode mode) async {
+    List<String> message = await converters.messageTohex(text, isInverted);
     Data data = Data(messages: [
       Message(
         text: message,

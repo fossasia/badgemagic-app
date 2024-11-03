@@ -11,11 +11,5 @@ class InvertLEDEffect extends BadgeEffect {
 
   @override
   void processEffect(int animationIndex, List<List<bool>> canvas,
-      int badgeHeight, int badgeWidth) {
-    for (int i = 0; i < badgeHeight; i++) {
-      for (int j = 0; j < badgeWidth; j++) {
-        canvas[i][j] = !canvas[i][j];
-      }
-    }
-  }
+      int badgeHeight, int badgeWidth) {}
 }

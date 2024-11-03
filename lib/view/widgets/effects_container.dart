@@ -1,6 +1,8 @@
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
+import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/badge_effect/badgeeffectabstract.dart';
+import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
+import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -31,6 +33,8 @@ class _EffectContainerState extends State<EffectContainer> {
 
   @override
   Widget build(BuildContext context) {
+    InlineImageProvider imageProvider =
+        Provider.of<InlineImageProvider>(context, listen: false);
     AnimationBadgeProvider effectCardState =
         Provider.of<AnimationBadgeProvider>(context);
 
@@ -43,8 +47,8 @@ class _EffectContainerState extends State<EffectContainer> {
           effectCardState.isEffectActive(badgeEffect)
               ? effectCardState.removeEffect(badgeEffect)
               : effectCardState.addEffect(badgeEffect);
-          logger.i(
-              'EffectContainer: onTap : ${widget.effectName} : ${effectCardState.isEffectActive(badgeEffect)}');
+          effectCardState.badgeAnimation(imageProvider.getController().text,
+              Converters(), effectCardState.isEffectActive(InvertLEDEffect()));
         },
         child: Card(
           surfaceTintColor: Colors.white,

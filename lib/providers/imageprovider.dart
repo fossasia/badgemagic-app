@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:ui' as ui;
+
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
