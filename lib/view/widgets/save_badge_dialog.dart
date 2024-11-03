@@ -41,15 +41,18 @@ class SaveBadgeDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            const Text(
-              'Save Badge',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
+            Expanded(
+              flex: 1,
+              child: const Text(
+                'Save Badge',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
             ),
-            const SizedBox(
-                height: 10), // Space between title and file name text
+            // const SizedBox(
+            //     height: 10), // Space between title and file name text
             const Text(
               'File Name',
               style: TextStyle(

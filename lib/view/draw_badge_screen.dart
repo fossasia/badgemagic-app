@@ -68,27 +68,31 @@ class _DrawBadgeState extends State<DrawBadge> {
       title: 'BadgeMagic',
       body: Column(
         children: [
-          Container(
-            margin: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
-            padding: EdgeInsets.all(10.dg),
-            height: 400.h,
-            width: 500.w,
-            decoration: BoxDecoration(
-              color: Colors.black,
-              border: Border.all(color: Colors.black),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: BMBadge(
-              providerInit: (provider) => drawToggle = provider,
-              badgeGrid: widget.badgeGrid
-                  ?.map((e) => e.map((e) => e == 1).toList())
-                  .toList(),
+          Expanded(
+            flex: 1,
+            child: Container(
+              margin: EdgeInsets.symmetric(vertical: 20.h, horizontal: 10.w),
+              padding: EdgeInsets.all(10.dg),
+              height: 400.h,
+              width: 500.w,
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(color: Colors.black),
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: BMBadge(
+                providerInit: (provider) => drawToggle = provider,
+                badgeGrid: widget.badgeGrid
+                    ?.map((e) => e.map((e) => e == 1).toList())
+                    .toList(),
+              ),
             ),
           ),
           SizedBox(
             height: 55.h,
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
               TextButton(
                 onPressed: () {
