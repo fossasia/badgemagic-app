@@ -13,8 +13,12 @@ class InlineImageText extends SpecialText {
   @override
   InlineSpan finishText() {
     final String key = toString();
-
     // Parse the index from the placeholder text
+    if (!key.contains('>>') || key.indexOf('>>') > 6) {
+      textData.setBackSpacePressed(true);
+    } else {
+      textData.setBackSpacePressed(false);
+    }
     final int index = int.parse(key.substring(2, key.length - 2));
     Object vectorIndex = index;
     var keyAt = textData.imageCache.keys.toList()[index];
@@ -27,6 +31,7 @@ class InlineImageText extends SpecialText {
         imageHeight: 20.h,
         actualText: key,
         start: start!,
+        semanticLabel: 'Inline Image',
         fit: BoxFit.contain);
   }
 }

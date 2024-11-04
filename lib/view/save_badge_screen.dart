@@ -33,15 +33,17 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
 
   @override
   void initState() {
+    _setOrientation();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       GlobalContextProvider.instance.setContext(context);
     });
     super.initState();
+  }
+
+  void _setOrientation() {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
     ]);
   }
 
@@ -63,6 +65,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         ),
       ],
       child: CommonScaffold(
+        index: 2,
         actions: [
           TextButton(
               onPressed: () {

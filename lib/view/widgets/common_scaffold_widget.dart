@@ -5,6 +5,7 @@ class CommonScaffold extends StatelessWidget {
   final String title;
   final Widget body;
   final Key? scaffoldKey;
+  final int index;
   final List<Widget>? actions;
 
   const CommonScaffold(
@@ -12,7 +13,8 @@ class CommonScaffold extends StatelessWidget {
       required this.body,
       required this.title,
       this.scaffoldKey,
-      this.actions});
+      this.actions,
+      required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +43,9 @@ class CommonScaffold extends StatelessWidget {
           if (actions != null) ...actions!,
         ],
       ),
-      drawer: const BMDrawer(),
+      drawer: BMDrawer(
+        selectedIndex: index,
+      ),
       body: body,
     );
   }

@@ -40,7 +40,6 @@ class _DrawBadgeState extends State<DrawBadge> {
 
   @override
   void dispose() {
-    _resetOrientation();
     super.dispose();
   }
 
@@ -51,29 +50,19 @@ class _DrawBadgeState extends State<DrawBadge> {
     ]);
   }
 
-  void _resetOrientation() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-    ]);
-  }
-
   @override
   Widget build(BuildContext context) {
     FileHelper fileHelper = FileHelper();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
     return CommonScaffold(
+      index: 1,
       title: 'BadgeMagic',
       body: Column(
         children: [
           Expanded(
-            flex: 1,
             child: Container(
-              margin: EdgeInsets.symmetric(vertical: 20.h, horizontal: 10.w),
+              margin: EdgeInsets.symmetric(vertical: 20.h, horizontal: 20.w),
               padding: EdgeInsets.all(10.dg),
-              height: 400.h,
+              height: 390.h,
               width: 500.w,
               decoration: BoxDecoration(
                 color: Colors.black,
@@ -87,9 +76,6 @@ class _DrawBadgeState extends State<DrawBadge> {
                     .toList(),
               ),
             ),
-          ),
-          SizedBox(
-            height: 55.h,
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,

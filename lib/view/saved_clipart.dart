@@ -24,21 +24,24 @@ class _SavedClipartState extends State<SavedClipart> {
 
   @override
   void initState() {
+    _setOrientation();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       GlobalContextProvider.instance.setContext(context);
     });
     super.initState();
+  }
+
+  void _setOrientation() {
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
     ]);
   }
 
   @override
   Widget build(BuildContext context) {
     return CommonScaffold(
+      index: 3,
       key: const Key(savedClipartScreen),
       title: "Saved Clipart",
       body: imageprovider.clipartsCache.isEmpty

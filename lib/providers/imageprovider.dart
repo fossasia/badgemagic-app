@@ -16,6 +16,15 @@ class InlineImageProvider extends ChangeNotifier {
   //set of available keys
   Set<int> availableKeys = {};
 
+  bool isBackSpacePressed = false;
+
+  void setBackSpacePressed(bool value) {
+    isBackSpacePressed = value;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      notifyListeners();
+    });
+  }
+
   bool isSavedBadgeData = false;
 
   //list of vectors
@@ -121,16 +130,26 @@ class InlineImageProvider extends ChangeNotifier {
   }
 
   void controllerListener() {
-    // Assuming controllerLength is meant to be message.text.length
+    int cursorPosition = message.selection.baseOffset;
+    if (cursorPosition < 0) {
+      return;
+    }
+    logger.i(
+        'message in controller: ${message.text} Cursor position: $cursorPosition');
     int textLength = message.text.length;
-
-    // Check if the text length is sufficient to contain the pattern
-    if (textLength >= 4) {
-      // Check if the last character is '>' and the character four positions back is '<'
-      if (message.text[textLength - 1] == '>' &&
-          message.text[textLength - 4] == '<') {
-        // Delete the pattern by keeping the text before the pattern
-        message.text = message.text.substring(0, textLength - 5);
+    if (textLength >= 5) {
+      if (cursorPosition == textLength) {
+        if (message.text[textLength - 1] == '>' &&
+            message.text[textLength - 4] == '<') {
+          message.text = message.text.substring(0, textLength - 5);
+        }
+      } else {
+        if (message.text[cursorPosition - 1] == '>' &&
+            message.text[cursorPosition - 4] == '<' &&
+            isBackSpacePressed) {
+          message.text = message.text.substring(0, cursorPosition - 5) +
+              message.text.substring(cursorPosition + 1);
+        }
       }
     }
   }

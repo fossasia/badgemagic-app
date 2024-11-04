@@ -1,5 +1,6 @@
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -16,8 +17,22 @@ class SettingsScreenState extends State<SettingsScreen> {
   final List<String> badges = ['LSLED', 'VBLAB'];
 
   @override
+  void initState() {
+    _setOrientation();
+    super.initState();
+  }
+
+  void _setOrientation() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
+  }
+
+  @override
   Widget build(BuildContext context) {
     return CommonScaffold(
+      index: 4,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
 import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
 
 class DrawBadgePaint extends CustomPainter {
   final List<List<bool>> grid;

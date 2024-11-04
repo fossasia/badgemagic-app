@@ -69,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
-    _resetOrientation();
     animationProvider.stopAnimation();
     inlineImageProvider.getController().removeListener(_controllerListner);
     _tabController.dispose();
@@ -80,15 +79,6 @@ class _HomeScreenState extends State<HomeScreen>
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
-    ]);
-  }
-
-  void _resetOrientation() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
     ]);
   }
 
@@ -122,6 +112,7 @@ class _HomeScreenState extends State<HomeScreen>
       child: DefaultTabController(
           length: 3,
           child: CommonScaffold(
+            index: 0,
             title: 'BadgeMagic',
             body: SafeArea(
               child: Stack(

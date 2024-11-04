@@ -3,7 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 
 class BMDrawer extends StatelessWidget {
-  const BMDrawer({super.key});
+  final int selectedIndex;
+  const BMDrawer({super.key, required this.selectedIndex});
 
   @override
   Widget build(BuildContext context) {
@@ -27,12 +28,16 @@ class BMDrawer extends StatelessWidget {
             ),
           ),
           ListTile(
+            focusColor: Colors.grey[350],
             dense: true,
-            leading: const Icon(Icons.edit),
-            title: const Text(
+            leading: Icon(
+              Icons.edit,
+              color: selectedIndex == 0 ? Colors.red : Colors.black,
+            ),
+            title: Text(
               'Create Badges',
               style: TextStyle(
-                color: Colors.black,
+                color: selectedIndex == 0 ? Colors.red : Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -58,13 +63,13 @@ class BMDrawer extends StatelessWidget {
             leading: Image.asset(
               "assets/icons/signature.png",
               height: 18,
-              color: Colors.black,
+              color: selectedIndex == 1 ? Colors.red : Colors.black,
             ),
-            title: const Text(
+            title: Text(
               'Draw Clipart',
               style: TextStyle(
                 fontWeight: FontWeight.bold,
-                color: Colors.black,
+                color: selectedIndex == 1 ? Colors.red : Colors.black,
                 fontSize: 14,
               ),
             ),
@@ -82,12 +87,12 @@ class BMDrawer extends StatelessWidget {
             leading: Image.asset(
               "assets/icons/r_save.png",
               height: 18,
-              color: Colors.black,
+              color: selectedIndex == 2 ? Colors.red : Colors.black,
             ),
-            title: const Text(
+            title: Text(
               'Saved Badges',
               style: TextStyle(
-                color: Colors.black,
+                color: selectedIndex == 2 ? Colors.red : Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -106,12 +111,12 @@ class BMDrawer extends StatelessWidget {
             leading: Image.asset(
               "assets/icons/r_save.png",
               height: 18,
-              color: Colors.black,
+              color: selectedIndex == 3 ? Colors.red : Colors.black,
             ),
-            title: const Text(
+            title: Text(
               'Saved Cliparts',
               style: TextStyle(
-                color: Colors.black,
+                color: selectedIndex == 3 ? Colors.red : Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -130,12 +135,12 @@ class BMDrawer extends StatelessWidget {
             leading: Image.asset(
               "assets/icons/setting.png",
               height: 18,
-              color: Colors.black,
+              color: selectedIndex == 4 ? Colors.red : Colors.black,
             ),
-            title: const Text(
+            title: Text(
               'Settings',
               style: TextStyle(
-                color: Colors.black,
+                color: selectedIndex == 4 ? Colors.red : Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -154,12 +159,12 @@ class BMDrawer extends StatelessWidget {
             leading: Image.asset(
               "assets/icons/r_team.png",
               height: 18,
-              color: Colors.black,
+              color: selectedIndex == 5 ? Colors.red : Colors.black,
             ),
-            title: const Text(
+            title: Text(
               'About Us',
               style: TextStyle(
-                color: Colors.black,
+                color: selectedIndex == 5 ? Colors.red : Colors.black,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
