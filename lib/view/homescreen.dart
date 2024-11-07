@@ -132,35 +132,26 @@ class _HomeScreenState extends State<HomeScreen>
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(10.r),
                             elevation: 4,
-                            child: KeyboardListener(
-                              focusNode: FocusNode(),
-                              autofocus: true,
-                              onKeyEvent: (value) => {
-                                if (value.logicalKey ==
-                                    LogicalKeyboardKey.backspace)
-                                  {inlineImageProvider.handleDelete()}
-                              },
-                              child: ExtendedTextField(
-                                onChanged: (value) {},
-                                controller: inlineImageProvider.getController(),
-                                specialTextSpanBuilder:
-                                    MySpecialTextSpanBuilder(),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.r),
-                                  ),
-                                  prefixIcon: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isPrefixIconClicked =
-                                            !isPrefixIconClicked;
-                                      });
-                                    },
-                                    icon: const Icon(Icons.tag_faces_outlined),
-                                  ),
-                                  focusedBorder: const OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.red),
-                                  ),
+                            child: ExtendedTextField(
+                              onChanged: (value) {},
+                              controller: inlineImageProvider.getController(),
+                              specialTextSpanBuilder:
+                                  MySpecialTextSpanBuilder(),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                prefixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isPrefixIconClicked =
+                                          !isPrefixIconClicked;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.tag_faces_outlined),
+                                ),
+                                focusedBorder: const OutlineInputBorder(
+                                  borderSide: BorderSide(color: Colors.red),
                                 ),
                               ),
                             ),
