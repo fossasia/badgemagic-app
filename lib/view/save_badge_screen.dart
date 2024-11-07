@@ -65,7 +65,6 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         ),
       ],
       child: CommonScaffold(
-        index: 2,
         actions: [
           TextButton(
               onPressed: () {

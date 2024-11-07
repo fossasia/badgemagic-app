@@ -54,7 +54,6 @@ class _DrawBadgeState extends State<DrawBadge> {
   Widget build(BuildContext context) {
     FileHelper fileHelper = FileHelper();
     return CommonScaffold(
-      index: 1,
       title: 'BadgeMagic',
       body: Column(
         children: [

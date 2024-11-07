@@ -41,7 +41,6 @@ class _SavedClipartState extends State<SavedClipart> {
   @override
   Widget build(BuildContext context) {
     return CommonScaffold(
-      index: 3,
       key: const Key(savedClipartScreen),
       title: "Saved Clipart",
       body: imageprovider.clipartsCache.isEmpty

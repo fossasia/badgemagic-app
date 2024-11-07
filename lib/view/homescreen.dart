@@ -147,7 +147,6 @@ class _HomeScreenState extends State<HomeScreen>
       child: DefaultTabController(
           length: 3,
           child: CommonScaffold(
-            index: 0,
             title: 'BadgeMagic',
             body: SafeArea(
               child: Stack(

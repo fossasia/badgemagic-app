@@ -30,7 +30,6 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
   @override
   Widget build(BuildContext context) {
     return CommonScaffold(
-      index: 5,
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
