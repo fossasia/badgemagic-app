@@ -128,29 +128,4 @@ class InlineImageProvider extends ChangeNotifier {
     message.selection = TextSelection.fromPosition(
         TextPosition(offset: cursorPos + placeholder.length));
   }
-
-  void controllerListener() {
-    int cursorPosition = message.selection.baseOffset;
-    if (cursorPosition < 0) {
-      return;
-    }
-    logger.i(
-        'message in controller: ${message.text} Cursor position: $cursorPosition');
-    int textLength = message.text.length;
-    if (textLength >= 5) {
-      if (cursorPosition == textLength) {
-        if (message.text[textLength - 1] == '>' &&
-            message.text[textLength - 4] == '<') {
-          message.text = message.text.substring(0, textLength - 5);
-        }
-      } else {
-        if (message.text[cursorPosition - 1] == '>' &&
-            message.text[cursorPosition - 4] == '<' &&
-            isBackSpacePressed) {
-          message.text = message.text.substring(0, cursorPosition - 5) +
-              message.text.substring(cursorPosition + 1);
-        }
-      }
-    }
-  }
 }

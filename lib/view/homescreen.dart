@@ -43,10 +43,14 @@ class _HomeScreenState extends State<HomeScreen>
       GetIt.instance<InlineImageProvider>();
   bool isPrefixIconClicked = false;
   int textfieldLength = 0;
+  String previousText = '';
+  final TextEditingController inlineimagecontroller =
+      GetIt.instance.get<InlineImageProvider>().getController();
   bool isDialInteracting = false;
 
   @override
   void initState() {
+    inlineimagecontroller.addListener(handleTextChange);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       GlobalContextProvider.instance.setContext(context);
     });
@@ -61,14 +65,45 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: 3, vsync: this);
   }
 
+  void handleTextChange() {
+    final currentText = inlineimagecontroller.text;
+    final selection = inlineimagecontroller.selection;
+
+    if (previousText.length > currentText.length) {
+      final deletionIndex = selection.baseOffset;
+
+      final regex = RegExp(r'<<\d+>>');
+      final matches = regex.allMatches(previousText);
+
+      bool placeholderDeleted = false;
+
+      for (final match in matches) {
+        if (deletionIndex > match.start && deletionIndex < match.end) {
+          inlineimagecontroller.text =
+              previousText.replaceRange(match.start, match.end, '');
+          inlineimagecontroller.selection =
+              TextSelection.collapsed(offset: match.start);
+          placeholderDeleted = true;
+          break;
+        }
+      }
+
+      if (!placeholderDeleted) {
+        previousText = inlineimagecontroller.text;
+      }
+    } else {
+      previousText = currentText;
+    }
+  }
+
   void _controllerListner() {
-    inlineImageProvider.controllerListener();
     animationProvider.badgeAnimation(inlineImageProvider.getController().text,
         Converters(), animationProvider.isEffectActive(InvertLEDEffect()));
   }
 
   @override
   void dispose() {
+    inlineimagecontroller.removeListener(handleTextChange);
     animationProvider.stopAnimation();
     inlineImageProvider.getController().removeListener(_controllerListner);
     _tabController.dispose();
@@ -134,9 +169,8 @@ class _HomeScreenState extends State<HomeScreen>
                             elevation: 4,
                             child: ExtendedTextField(
                               onChanged: (value) {},
-                              controller: inlineImageProvider.getController(),
-                              specialTextSpanBuilder:
-                                  MySpecialTextSpanBuilder(),
+                              controller: inlineimagecontroller,
+                              specialTextSpanBuilder: ImageBuilder(),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.r),

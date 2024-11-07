@@ -4,50 +4,61 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 
-class InlineImageText extends SpecialText {
+class InlineImage extends SpecialText {
   InlineImageProvider textData = GetIt.instance.get<InlineImageProvider>();
-  InlineImageText(TextStyle? textStyle, {this.start})
-      : super(InlineImageText.flag, '>>', textStyle);
+  InlineImage(TextStyle? textStyle, {this.start})
+      : super(InlineImage.flag, '>>', textStyle);
   static const String flag = '<<';
   final int? start;
+
   @override
   InlineSpan finishText() {
     final String key = toString();
-    // Parse the index from the placeholder text
-    if (!key.contains('>>') || key.indexOf('>>') > 6) {
-      textData.setBackSpacePressed(true);
-    } else {
-      textData.setBackSpacePressed(false);
-    }
-    final int index = int.parse(key.substring(2, key.length - 2));
-    Object vectorIndex = index;
-    var keyAt = textData.imageCache.keys.toList()[index];
-    if (keyAt is List) {
-      vectorIndex = keyAt;
-    }
 
-    return ImageSpan(MemoryImage(textData.imageCache[vectorIndex]!),
-        imageWidth: 25.w,
-        imageHeight: 20.h,
-        actualText: key,
-        start: start!,
-        semanticLabel: 'Inline Image',
-        fit: BoxFit.contain);
+    if (key.length > 4 && key.startsWith('<<') && key.endsWith('>>')) {
+      try {
+        final int index = int.parse(key.substring(2, key.length - 2));
+        var vectorIndex = textData.imageCache.keys.toList()[index];
+
+        final image = textData.imageCache[vectorIndex];
+        if (image != null) {
+          return ImageSpan(
+            MemoryImage(image),
+            imageWidth: 25.w,
+            imageHeight: 20.h,
+            actualText: key,
+            start: start!,
+            fit: BoxFit.contain,
+          );
+        } else {
+          throw Exception("Image not found in cache.");
+        }
+      } catch (e) {
+        return TextSpan(
+          text: key,
+          style: textStyle,
+        );
+      }
+    } else {
+      return TextSpan(
+        text: key,
+        style: textStyle,
+      );
+    }
   }
 }
 
-class MySpecialTextSpanBuilder extends SpecialTextSpanBuilder {
-  int pos = 0;
+class ImageBuilder extends SpecialTextSpanBuilder {
   @override
   SpecialText? createSpecialText(String flag,
       {TextStyle? textStyle,
       SpecialTextGestureTapCallback? onTap,
       int? index,
       int? start}) {
-    if (flag.indexOf('<<', pos) != -1) {
-      return InlineImageText(
+    if (flag.contains(InlineImage.flag)) {
+      return InlineImage(
         textStyle,
-        start: pos,
+        start: 999999999999999999,
       );
     }
     return null;
