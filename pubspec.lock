@@ -491,10 +491,10 @@ packages:
     dependency: "direct main"
     description:
       name: share_plus
-      sha256: "3af2cda1752e5c24f2fc04b6083b40f013ffe84fb90472f30c6499a9213d5442"
+      sha256: "9c9bafd4060728d7cdb2464c341743adbd79d327cb067ec7afb64583540b47c8"
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.1"
+    version: "10.1.2"
   share_plus_platform_interface:
     dependency: transitive
     description:
