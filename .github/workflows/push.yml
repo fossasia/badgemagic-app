@@ -149,10 +149,10 @@ jobs:
           bundle config path vendor/bundle
           bundle install --jobs 4 --retry 3
       
-      - name: Push app in closed testing track
+      - name: Push app in open testing track
         if: ${{ github.repository == 'fossasia/badgemagic-android' }}
         run: |
-          bundle exec fastlane uploadToClosedTesting
+          bundle exec fastlane uploadToOpenTesting
           if [[ $? -ne 0 ]]; then
               exit 1
           fi
