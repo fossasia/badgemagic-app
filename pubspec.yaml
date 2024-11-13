@@ -44,7 +44,7 @@ dependencies:
   extended_text_field: ^16.0.0
   path_provider: ^2.1.5
   uuid: ^4.5.0
-  go_router: ^14.4.1
+  go_router: ^14.6.0
   share_plus: ^10.1.2
   file_picker: ^8.1.4
   google_fonts: ^6.2.1
