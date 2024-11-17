@@ -59,9 +59,11 @@ class _EffectContainerState extends State<EffectContainer> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                widget.effect,
-                height: 60.h,
+              Flexible(
+                child: Image.asset(
+                  widget.effect,
+                  fit: BoxFit.contain,
+                ),
               ),
               Text(widget.effectName),
             ],

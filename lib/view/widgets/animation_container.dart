@@ -50,9 +50,11 @@ class _AniContainerState extends State<AniContainer> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Image.asset(
-                widget.animation,
-                height: 30.h,
+              Flexible(
+                child: Image.asset(
+                  widget.animation,
+                  fit: BoxFit.contain,
+                ),
               ),
               Text(
                 widget.animationName,
