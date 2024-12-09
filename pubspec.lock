@@ -106,10 +106,10 @@ packages:
     dependency: "direct dev"
     description:
       name: dart_style
-      sha256: "7856d364b589d1f08986e140938578ed36ed948581fbc3bc9aef1805039ac5ab"
+      sha256: "64b717484993e85315d0c04081b6fca9ef8bac8c2cb794b2e15810250b335913"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.7"
+    version: "3.0.0"
   extended_text_field:
     dependency: "direct main"
     description:
