@@ -114,10 +114,10 @@ packages:
     dependency: "direct main"
     description:
       name: extended_text_field
-      sha256: "49d86de318dbee44304d38cfdf3b42d40daaba5c6090c58ccb1eda35fea92e61"
+      sha256: "3996195c117c6beb734026a7bc0ba80d7e4e84e4edd4728caa544d8209ab4d7d"
       url: "https://pub.dev"
     source: hosted
-    version: "16.0.1"
+    version: "16.0.2"
   extended_text_library:
     dependency: transitive
     description:
