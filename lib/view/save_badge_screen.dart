@@ -1,6 +1,5 @@
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/global_context.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -34,9 +33,6 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
   @override
   void initState() {
     _setOrientation();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      GlobalContextProvider.instance.setContext(context);
-    });
     super.initState();
   }
 

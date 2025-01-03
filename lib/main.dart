@@ -9,6 +9,7 @@ import 'package:badgemagic/view/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'globals/globals.dart' as globals;
 
 void main() {
   setupLocator();
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
       designSize: const Size(360, 690),
       builder: (context, child) {
         return MaterialApp(
+          scaffoldMessengerKey: globals.scaffoldMessengerKey,
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorSchemeSeed: Colors.white,

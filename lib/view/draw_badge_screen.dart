@@ -1,6 +1,5 @@
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/global_context.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
@@ -31,9 +30,6 @@ class _DrawBadgeState extends State<DrawBadge> {
 
   @override
   void didChangeDependencies() {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      GlobalContextProvider.instance.setContext(context);
-    });
     super.didChangeDependencies();
     _setLandscapeOrientation();
   }

@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/global_context.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
@@ -52,9 +51,6 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void initState() {
     inlineimagecontroller.addListener(handleTextChange);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      GlobalContextProvider.instance.setContext(context);
-    });
     _setPortraitOrientation();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       inlineImageProvider.setContext(context);
