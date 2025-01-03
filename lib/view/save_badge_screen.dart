@@ -64,22 +64,24 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         index: 2,
         actions: [
           TextButton(
-              onPressed: () {
-                fileHelper.importBadgeData(context).then((value) {
-                  if (value) {
-                    logger.d('value: $value');
-                    toastUtils.showToast('Badge imported successfully');
-                    fileHelper.getBadgeDataFiles();
-                  }
-                });
+              onPressed: () async {
+                final value = await fileHelper.importBadgeData(context);
+                if (value) {
+                  logger.d('value: $value');
+                  toastUtils.showToast('Badge imported successfully');
+                  await fileHelper.getBadgeDataFiles();
+                  setState(() {});
+                }
               },
               child: const Text(
                 'Import',
                 style: TextStyle(color: Colors.white),
               ))
         ],
-        body: imageProvider.savedBadgeCache.isEmpty
-            ? Center(
+        body: Consumer<InlineImageProvider>(
+          builder: (context, provider, child) {
+            if (provider.savedBadgeCache.isEmpty) {
+              return Center(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -109,20 +111,24 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                     ),
                   ],
                 ),
-              )
-            : Column(
+              );
+            } else {
+              return Column(
                 children: [
                   AnimationBadge(),
                   BadgeListView(
-                    futureBadges: Future.value(imageProvider.savedBadgeCache),
+                    futureBadges: Future.value(provider.savedBadgeCache),
                     refreshBadgesCallback: (value) {
-                      imageProvider.savedBadgeCache.remove(value);
+                      provider.savedBadgeCache.remove(value);
                       setState(() {});
                       return Future.value();
                     },
                   ),
                 ],
-              ),
+              );
+            }
+          },
+        ),
         title: 'Badge Magic',
         key: const Key(savedBadgeScreen),
       ),
