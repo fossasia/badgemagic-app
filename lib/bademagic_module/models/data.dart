@@ -25,6 +25,10 @@ class Data {
 
     var messagesFromJson = json['messages'] as List;
 
+    if (messagesFromJson.any((message) => message == null)) {
+      throw Exception('Invalid JSON: "messages" list contains null values');
+    }
+
     List<Message> messageList =
         messagesFromJson.map((message) => Message.fromJson(message)).toList();
 
