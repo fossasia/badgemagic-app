@@ -43,8 +43,13 @@ class Message {
       throw Exception('Invalid JSON: "text" must be a list');
     }
 
+    final textList = json['text'] as List;
+    if (textList.any((element) => element == null)) {
+      throw Exception('Invalid JSON: "text" list cannot contain null elements');
+    }
+
     return Message(
-      text: List<String>.from(json['text']),
+      text: List<String>.from(textList),
       flash: (json['flash'] as bool?) ?? false,
       marquee: (json['marquee'] as bool?) ?? false,
       speed: Speed.fromHex(
