@@ -1,9 +1,11 @@
 import 'dart:ui' as ui;
 import 'dart:ui';
+
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image/image.dart' as img;
 
 class ImageUtils {
   late double originalHeight;
@@ -222,5 +224,36 @@ class ImageUtils {
       }
     }
     return Converters.convertBitmapToLEDHex(pixelArray, true);
+  }
+
+  List<String> convertGifFramesToLEDHex(Uint8List gifBytes) {
+    final gifImage = img.decodeGif(gifBytes);
+    if (gifImage == null) {
+      throw Exception('Failed to decode GIF');
+    }
+
+    List<String> hexFrames = [];
+
+    for (final frame in gifImage.frames) {
+      img.Image image = img.copyResize(frame, width: 48, height: 11);
+      image = img.grayscale(image);
+
+      List<List<int>> imageData = [];
+
+      for (int y = 0; y < image.height; y++) {
+        List<int> row = [];
+
+        for (int x = 0; x < image.width; x++) {
+          img.Pixel pixel = image.getPixel(x, y);
+          int value = img.getLuminance(pixel) > 128 ? 1 : 0;
+          row.add(value);
+        }
+        imageData.add(row);
+      }
+
+      hexFrames.addAll(Converters.convertBitmapToLEDHex(imageData, false));
+    }
+
+    return hexFrames;
   }
 }
