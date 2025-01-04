@@ -27,6 +27,26 @@ class Message {
 
   // Convert JSON to Message object
   factory Message.fromJson(Map<String, dynamic> json) {
+    if (json is! Map) {
+      throw Exception('Invalid JSON: "messages" must contain a map');
+    }
+
+    if (!json.containsKey('text')) {
+      throw Exception('Invalid JSON: Message missing "text" key');
+    }
+
+    if (!json.containsKey('speed')) {
+      throw Exception('Invalid JSON: Message missing "speed" key');
+    }
+
+    if (!json.containsKey('mode')) {
+      throw Exception('Invalid JSON: Message missing "mode" key');
+    }
+
+    if (json['text'] is! List) {
+      throw Exception('Invalid JSON: "text" must be a list');
+    }
+
     return Message(
       text: List<String>.from(json['text']),
       flash: json['flash'] as bool,
