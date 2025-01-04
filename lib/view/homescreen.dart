@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
@@ -147,207 +148,181 @@ class _HomeScreenState extends State<HomeScreen>
             index: 0,
             title: 'BadgeMagic',
             body: SafeArea(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    physics: isDialInteracting
-                        ? const NeverScrollableScrollPhysics()
-                        : const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      children: [
-                        SizedBox(
-                          height: 120.h,
-                        ),
-                        Container(
-                          margin: EdgeInsets.all(15.w),
-                          child: Material(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(10.r),
-                            elevation: 4,
-                            child: ExtendedTextField(
-                              onChanged: (value) {},
-                              controller: inlineimagecontroller,
-                              specialTextSpanBuilder: ImageBuilder(),
-                              decoration: InputDecoration(
-                                hintText: errorVal,
-                                hintStyle: TextStyle(color: Colors.red),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                ),
-                                prefixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      isPrefixIconClicked =
-                                          !isPrefixIconClicked;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.tag_faces_outlined),
-                                ),
-                                focusedBorder: const OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.red),
-                                ),
-                              ),
+              child: SingleChildScrollView(
+                physics: isDialInteracting
+                    ? const NeverScrollableScrollPhysics()
+                    : const AlwaysScrollableScrollPhysics(),
+                child: Column(
+                  children: [
+                    AnimationBadge(),
+                    Container(
+                      margin: EdgeInsets.all(15.w),
+                      child: Material(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(10.r),
+                        elevation: 4,
+                        child: ExtendedTextField(
+                          onChanged: (value) {},
+                          controller: inlineimagecontroller,
+                          specialTextSpanBuilder: ImageBuilder(),
+                          decoration: InputDecoration(
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.r),
+                            ),
+                            prefixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isPrefixIconClicked = !isPrefixIconClicked;
+                                });
+                              },
+                              icon: const Icon(Icons.tag_faces_outlined),
+                            ),
+                            focusedBorder: const OutlineInputBorder(
+                              borderSide: BorderSide(color: Colors.red),
                             ),
                           ),
                         ),
-                        Visibility(
-                            visible: isPrefixIconClicked,
-                            child: Container(
-                                height: 150.h,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                  color: Colors.grey.shade100,
-                                ),
-                                margin: EdgeInsets.symmetric(horizontal: 15.w),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 10.h, horizontal: 10.w),
-                                child: VectorGridView())),
-                        TabBar(
-                          indicatorSize: TabBarIndicatorSize.label,
-                          labelColor: Colors.black,
-                          unselectedLabelColor: Colors.grey,
-                          indicatorColor: Colors.red,
-                          controller: _tabController,
-                          splashFactory: InkRipple.splashFactory,
-                          overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                            (Set<WidgetState> states) {
-                              if (states.contains(WidgetState.pressed)) {
-                                return Colors.grey[300];
-                              }
-                              return null;
-                            },
-                          ),
-                          tabs: const [
-                            Tab(text: 'Speed'),
-                            Tab(text: 'Animation'),
-                            Tab(text: 'Effects'),
-                          ],
-                        ),
-                        SizedBox(
-                          height: 180.h, // Adjust the height dynamically
-                          child: TabBarView(
-                            physics: const NeverScrollableScrollPhysics(),
-                            controller: _tabController,
+                      ),
+                    ),
+                    Visibility(
+                        visible: isPrefixIconClicked,
+                        child: Container(
+                            height: 150.h,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.r),
+                              color: Colors.grey.shade100,
+                            ),
+                            margin: EdgeInsets.symmetric(horizontal: 15.w),
+                            padding: EdgeInsets.symmetric(
+                                vertical: 10.h, horizontal: 10.w),
+                            child: VectorGridView())),
+                    TabBar(
+                      indicatorSize: TabBarIndicatorSize.label,
+                      labelColor: Colors.black,
+                      unselectedLabelColor: Colors.grey,
+                      indicatorColor: Colors.red,
+                      controller: _tabController,
+                      splashFactory: InkRipple.splashFactory,
+                      overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                        (Set<WidgetState> states) {
+                          if (states.contains(WidgetState.pressed)) {
+                            return Colors.grey[300];
+                          }
+                          return null;
+                        },
+                      ),
+                      tabs: const [
+                        Tab(text: 'Speed'),
+                        Tab(text: 'Animation'),
+                        Tab(text: 'Effects'),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 180.h, // Adjust the height dynamically
+                      child: TabBarView(
+                        physics: const NeverScrollableScrollPhysics(),
+                        controller: _tabController,
+                        children: [
+                          GestureDetector(
+                              onPanDown: (_) {
+                                // Enter interaction mode to stop main scrolling
+                                setState(() => isDialInteracting = true);
+                              },
+                              onPanCancel: () {
+                                // Exit interaction mode if interaction is cancelled
+                                setState(() => isDialInteracting = false);
+                              },
+                              onPanEnd: (_) {
+                                // Re-enable main scroll when done interacting
+                                setState(() => isDialInteracting = false);
+                              },
+                              child: RadialDial()),
+                          AnimationTab(),
+                          EffectTab(),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 20.h),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               GestureDetector(
-                                  onPanDown: (_) {
-                                    // Enter interaction mode to stop main scrolling
-                                    setState(() => isDialInteracting = true);
-                                  },
-                                  onPanCancel: () {
-                                    // Exit interaction mode if interaction is cancelled
-                                    setState(() => isDialInteracting = false);
-                                  },
-                                  onPanEnd: (_) {
-                                    // Re-enable main scroll when done interacting
-                                    setState(() => isDialInteracting = false);
-                                  },
-                                  child: RadialDial()),
-                              AnimationTab(),
-                              EffectTab(),
+                                onTap: () {
+                                  logger.i(
+                                      'Save button clicked, showing dialog : ${animationProvider.isEffectActive(FlashEffect())}');
+                                  showDialog(
+                                      context: this.context,
+                                      builder: (context) {
+                                        return SaveBadgeDialog(
+                                          speed: speedDialProvider,
+                                          animationProvider: animationProvider,
+                                          textController: inlineImageProvider
+                                              .getController(),
+                                          isInverse:
+                                              animationProvider.isEffectActive(
+                                                  InvertLEDEffect()),
+                                        );
+                                      });
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 33.w, vertical: 8.h),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(2.r),
+                                    color: Colors.grey.shade400,
+                                  ),
+                                  child: const Text('Save'),
+                                ),
+                              ),
                             ],
                           ),
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              padding: EdgeInsets.symmetric(vertical: 20.h),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      logger.i(
-                                          'Save button clicked, showing dialog : ${animationProvider.isEffectActive(FlashEffect())}');
-                                      inlineimagecontroller.text == ""
-                                          ? setState(() {
-                                              errorVal =
-                                                  "Please fill out this field";
-                                            })
-                                          : {
-                                              setState(() {
-                                                errorVal = "";
-                                              }),
-                                              showDialog(
-                                                  context: this.context,
-                                                  builder: (context) {
-                                                    return SaveBadgeDialog(
-                                                      speed: speedDialProvider,
-                                                      animationProvider:
-                                                          animationProvider,
-                                                      textController:
-                                                          inlineImageProvider
-                                                              .getController(),
-                                                      isInverse: animationProvider
-                                                          .isEffectActive(
-                                                              InvertLEDEffect()),
-                                                    );
-                                                  })
-                                            };
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 33.w, vertical: 8.h),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(2.r),
-                                        color: Colors.grey.shade400,
-                                      ),
-                                      child: const Text('Save'),
-                                    ),
+                        SizedBox(
+                          width: 100.w,
+                        ),
+                        Container(
+                          padding: EdgeInsets.symmetric(vertical: 20.h),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              GestureDetector(
+                                onTap: () {
+                                  badgeData.checkAndTransfer(
+                                      inlineImageProvider.getController().text,
+                                      animationProvider
+                                          .isEffectActive(FlashEffect()),
+                                      animationProvider
+                                          .isEffectActive(MarqueeEffect()),
+                                      animationProvider
+                                          .isEffectActive(InvertLEDEffect()),
+                                      speedDialProvider.getOuterValue(),
+                                      modeValueMap[animationProvider
+                                          .getAnimationIndex()],
+                                      null,
+                                      false);
+                                },
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20.w, vertical: 8.h),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(2.r),
+                                    color: Colors.grey.shade400,
                                   ),
-                                ],
+                                  child: const Text('Transfer'),
+                                ),
                               ),
-                            ),
-                            SizedBox(
-                              width: 100.w,
-                            ),
-                            Container(
-                              padding: EdgeInsets.symmetric(vertical: 20.h),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  GestureDetector(
-                                    onTap: () {
-                                      badgeData.checkAndTransfer(
-                                          inlineImageProvider
-                                              .getController()
-                                              .text,
-                                          animationProvider
-                                              .isEffectActive(FlashEffect()),
-                                          animationProvider
-                                              .isEffectActive(MarqueeEffect()),
-                                          animationProvider.isEffectActive(
-                                              InvertLEDEffect()),
-                                          speedDialProvider.getOuterValue(),
-                                          modeValueMap[animationProvider
-                                              .getAnimationIndex()],
-                                          null,
-                                          false);
-                                    },
-                                    child: Container(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 20.w, vertical: 8.h),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(2.r),
-                                        color: Colors.grey.shade400,
-                                      ),
-                                      child: const Text('Transfer'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        )
+                            ],
+                          ),
+                        ),
                       ],
-                    ),
-                  ),
-                  AnimationBadge(),
-                ],
+                    )
+                  ],
+                ),
               ),
             ),
             scaffoldKey: const Key(homeScreenTitleKey),
