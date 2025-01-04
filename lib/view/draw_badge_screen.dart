@@ -145,7 +145,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                       .map((e) => e.map((e) => e ? 1 : 0).toList())
                       .toList();
                   List<String> hexString =
-                      Converters.convertBitmapToLEDHex(badgeGrid, false);
+                      Converters.convertBitmapToLEDHex(badgeGrid, true);
                   widget.isSavedCard!
                       ? fileHelper.updateBadgeText(
                           widget.filename!,

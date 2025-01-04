@@ -52,8 +52,7 @@ class Converters {
 
   //function to convert the bitmap to the LED hex format
   //it takes the 2D list of pixels and converts it to the LED hex format
-  static List<String> convertBitmapToLEDHex(
-      List<List<int>> image, bool isDrawn) {
+  static List<String> convertBitmapToLEDHex(List<List<int>> image, bool trim) {
     // Determine the height and width of the image
     int height = image.length;
     int width = image.isNotEmpty ? image[0].length : 0;
@@ -67,7 +66,7 @@ class Converters {
       for (int i = 0; i < height; i++) {
         sum += image[i][j]; // Sum up pixel values in each column
       }
-      if (sum == 0) {
+      if (sum == 0 && trim) {
         // If column sum is zero, mark all pixels in that column as -1
         for (int i = 0; i < height; i++) {
           image[i][j] = -1;
@@ -86,7 +85,7 @@ class Converters {
         sum += image[i]
             [j]; // Sum up pixel values in each column (from right to left)
       }
-      if (sum == 0) {
+      if (sum == 0 && trim) {
         // If column sum is zero, mark all pixels in that column as -1
         for (int i = 0; i < height; i++) {
           image[i][j] = -1;
@@ -176,6 +175,6 @@ class Converters {
       hexArray[i].add(1);
     }
 
-    return convertBitmapToLEDHex(hexArray, false);
+    return convertBitmapToLEDHex(hexArray, true);
   }
 }

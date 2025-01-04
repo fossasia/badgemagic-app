@@ -221,6 +221,6 @@ class ImageUtils {
         }
       }
     }
-    return Converters.convertBitmapToLEDHex(pixelArray, false);
+    return Converters.convertBitmapToLEDHex(pixelArray, true);
   }
 }

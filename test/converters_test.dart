@@ -25,7 +25,7 @@ void main() {
       [0, 1]
     ];
 
-    List<String> result = Converters.convertBitmapToLEDHex(image, false);
+    List<String> result = Converters.convertBitmapToLEDHex(image, true);
 
     expect(result, ["1008"]);
   });
