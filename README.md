@@ -72,6 +72,49 @@ Please read FOSSASIA's [Best Practices](https://blog.fossasia.org/open-source-de
 * Before you join development, please set up the project on your local machine, run it and go through the application completely. Press on any button you can find and see where it leads to. Explore.
 * If you would like to work on an issue, drop in a comment at the issue. If it is already assigned to someone, but there is no sign of any work being done, please free to drop in a comment and start working on it.
 
+## Dev Container usage
+
+Opening this repository in VSCode, GitHub Codespaces or another supported editor/IDE will allow the repository to be opened in a [Dev Container](https://containers.dev/).
+
+The Dev Container contains all necessary dependencies and tools required to build, run and debug flutter applications.
+
+### How to connect via `adb`
+
+:warning: In case `adb` is already installed and running on the host it may need to be stopped before continuing.
+
+This Dev Container allows several different methods of connecting to a device via `adb`:
+
+#### Entirely from inside the container (USB pass-through)
+
+:information_source: **Windows** and **MacOS** need a working **USB/IP** setup. Read more in the official [Docker Desktop documentation](https://docs.docker.com/desktop/features/usbip/) and in this [blog post](https://blog.golioth.io/usb-docker-windows-macos/).
+
+The Dev Container bind-mounts `/dev/bus/usb/` and sets the correct access controls for a seamless integration.  \
+Enable [USB debugging](https://developer.android.com/tools/adb#Enabling) on your phone and try to find it via:
+
+```bash
+adb devices
+```
+If it shows up, everything is ready and you can run `flutter run` to push a development version of the app onto your device.
+
+#### Using the host's `adb` server
+
+If `adb` is already installed on the host, the tools in the Dev Container can be configured to use the host's `adb` server:
+
+1. Ensure the `adb` server is listening on **all interfaces**
+    1. If that is not the case, kill and restart it: `adb kill-server && adb -a server` (the `-a` instructs it to listen on all interfaces).
+1. Set or export the following environment variable before executing `adb` or `flutter run`: `ADB_SERVER_SOCKET=tcp:host.docker.internal:5037`
+1. You should now be able to list the devices connected via USB to the host
+
+#### Wireless connection
+
+Android 11 and higher support wireless debugging. Check out the [documentation](https://developer.android.com/tools/adb#wireless-android11-command-line) for more information.  \
+For this mode it is required that both the workstation and the device are on the **same network**.
+
+:information_source: This also works when developing inside **GitHub Codespaces**. In that case you can bring your device and the Codespace onto the same network by installing WireGuard, Tailscale or another overlay/mesh network on both the Codespace and your device.
+
+Enable Wireless debugging as per the [documentation](https://developer.android.com/tools/adb#wireless-android11-command-line), then **pair** `adb pair <IP>:<PORT>` and **connect** `adb connect <IP>:<PORT>` and you should be able to find your device via `adb devices`.
+
+
 ## LICENSE
 
 The application is licensed under the [Apache License 2.0](/LICENSE). Copyright is owned by FOSSASIA and its contributors.
