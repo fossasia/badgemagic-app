@@ -1,9 +1,9 @@
 {
-  // "image": "ghcr.io/fossasia/flutter-devcontainer:latest",
+  "image": "ghcr.io/fossasia/badgemagic-app/flutter-devcontainer:latest",
   // Or build locally
-  "build": {
-    "dockerfile": "Dockerfile"
-  },
+  // "build": {
+  //   "dockerfile": "Dockerfile"
+  // },
   "runArgs": [
     "--add-host",
     "host.docker.internal:host-gateway",
