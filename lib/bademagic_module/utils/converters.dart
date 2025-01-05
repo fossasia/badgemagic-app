@@ -25,7 +25,14 @@ class Converters {
         if (key is List) {
           String filename = key[0];
           List<dynamic>? decodedData = await fileHelper.readFromFile(filename);
-          final List<List<dynamic>> image = decodedData!.cast<List<dynamic>>();
+
+          // Handling the potential null case for decodedData
+          if (decodedData == null) {
+            // Optionally handle the null case, e.g., throw an exception, return a default value, or log the error.
+            throw Exception('Decoded data is null for the file: $filename');
+          }
+
+          final List<List<dynamic>> image = decodedData.cast<List<dynamic>>();
           List<List<int>> imageData =
               image.map((list) => list.cast<int>()).toList();
           hexStrings += convertBitmapToLEDHex(imageData, true);
@@ -50,8 +57,7 @@ class Converters {
     return hexStrings;
   }
 
-  //function to convert the bitmap to the LED hex format
-  //it takes the 2D list of pixels and converts it to the LED hex format
+  // Function to convert the bitmap to the LED hex format
   static List<String> convertBitmapToLEDHex(
       List<List<int>> image, bool isDrawn) {
     // Determine the height and width of the image
@@ -170,7 +176,7 @@ class Converters {
       return e.map((e) => e ? 1 : 0).toList();
     }).toList();
 
-    //add 1 at the satrt and end of each row in the 2D list
+    // Add 1 at the start and end of each row in the 2D list
     for (int i = 0; i < hexArray.length; i++) {
       hexArray[i].insert(0, 1);
       hexArray[i].add(1);

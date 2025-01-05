@@ -41,9 +41,9 @@ class SaveBadgeDialog extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Expanded(
+            const Expanded(
               flex: 1,
-              child: const Text(
+              child: Text(
                 'Save Badge',
                 style: TextStyle(
                   fontWeight: FontWeight.bold,

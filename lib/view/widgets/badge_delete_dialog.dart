@@ -26,11 +26,11 @@ class DeleteBadgeDialog extends StatelessWidget {
             ),
             Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 20,
                 ),
-                Icon(Icons.delete, color: Colors.black),
-                SizedBox(
+                const Icon(Icons.delete, color: Colors.black),
+                const SizedBox(
                   width: 10,
                 ),
                 Text(
@@ -47,7 +47,7 @@ class DeleteBadgeDialog extends StatelessWidget {
             ),
             Row(
               children: [
-                SizedBox(
+                const SizedBox(
                   width: 20,
                 ),
                 Text('Are you sure want to delete this badge?',

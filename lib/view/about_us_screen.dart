@@ -53,7 +53,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
                     children: [
-                      SizedBox(
+                      const SizedBox(
                         height: 25,
                       ),
                       Center(
@@ -74,40 +74,47 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                             fontSize: 12),
                       ),
                       const SizedBox(height: 16),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'Developed by',
-                            style: GoogleFonts.sora(
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          GestureDetector(
-                            onTap: () => openUrl(
-                                'https://github.com/fossasia/badge-magic-android'),
-                            child: Text(
-                              'FOSSASIA contributors',
-                              style: GoogleFonts.sora(
-                                  fontWeight: FontWeight.w500,
-                                  color: Colors.red,
-                                  decoration: TextDecoration.underline),
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Flexible(
+                              child: Text(
+                                'Developed by',
+                                style: GoogleFonts.sora(
+                                    fontWeight: FontWeight.w500,
+                                    color: Colors.grey),
+                              ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(
+                              width: 10,
+                            ),
+                            Flexible(
+                              child: GestureDetector(
+                                onTap: () => openUrl(
+                                    'https://github.com/fossasia/badge-magic-android'),
+                                child: Text(
+                                  'FOSSASIA contributors',
+                                  style: GoogleFonts.sora(
+                                      fontWeight: FontWeight.w500,
+                                      color: Colors.red,
+                                      decoration: TextDecoration.underline),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
                     color: Colors.white,
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         blurRadius: 1,
                         color: Colors.grey,
@@ -119,7 +126,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(left: 12.0, top: 12.0),
+                      padding: const EdgeInsets.only(left: 12.0, top: 12.0),
                       child: Text(
                         'Contact With Us',
                         style: GoogleFonts.sora(
@@ -151,13 +158,13 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                   ],
                 ),
               ),
-              SizedBox(
+              const SizedBox(
                 height: 10,
               ),
               Container(
                 decoration: BoxDecoration(
                     color: Colors.white,
-                    boxShadow: [
+                    boxShadow: const [
                       BoxShadow(
                         blurRadius: 1,
                         color: Colors.grey,

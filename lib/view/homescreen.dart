@@ -170,7 +170,7 @@ class _HomeScreenState extends State<HomeScreen>
                               specialTextSpanBuilder: ImageBuilder(),
                               decoration: InputDecoration(
                                 hintText: errorVal,
-                                hintStyle: TextStyle(color: Colors.red),
+                                hintStyle: const TextStyle(color: Colors.red),
                                 border: OutlineInputBorder(
                                   borderRadius: BorderRadius.circular(10.r),
                                 ),

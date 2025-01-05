@@ -22,7 +22,7 @@ class LicenseDialogContainer extends StatelessWidget {
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
+            const SizedBox(
               width: 16,
             ),
             Text(
@@ -39,7 +39,7 @@ class LicenseDialogContainer extends StatelessWidget {
           ],
         ),
         Padding(
-          padding: EdgeInsets.only(left: 16.0),
+          padding: const EdgeInsets.only(left: 16.0),
           child: GestureDetector(
             onTap: () => openUrl(url),
             child: Text(
@@ -83,7 +83,7 @@ void showLicenseDialog(BuildContext context) {
     context: context,
     builder: (BuildContext context) {
       return Dialog(
-        insetPadding: EdgeInsets.all(8),
+        insetPadding: const EdgeInsets.all(8),
         backgroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
@@ -94,9 +94,9 @@ void showLicenseDialog(BuildContext context) {
             children: [
               Container(
                 padding: const EdgeInsets.only(left: 16.0, top: 16, bottom: 8),
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   color: Colors.white,
-                  borderRadius: const BorderRadius.only(
+                  borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(10.0),
                     topRight: Radius.circular(10.0),
                   ),
@@ -117,7 +117,7 @@ void showLicenseDialog(BuildContext context) {
                 child: InteractiveViewer(
                   minScale: 1.0,
                   maxScale: 5.0,
-                  child: SingleChildScrollView(
+                  child: const SingleChildScrollView(
                     child: Padding(
                       padding: EdgeInsets.all(8.0),
                       child: Column(
