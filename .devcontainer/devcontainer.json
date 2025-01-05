@@ -1,0 +1,31 @@
+{
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "runArgs": [
+    "--add-host",
+    "host.docker.internal:host-gateway",
+    "--device-cgroup-rule",
+    "c 189:* rmw"
+  ],
+  "mounts": [
+    {
+      "source": "/dev/bus/usb",
+      "target": "/dev/bus/usb",
+      "type": "bind"
+    }
+  ],
+  "postAttachCommand": [
+    "bash",
+    "-c",
+    "sudo chmod 0666 /dev/bus/usb/*/* && flutter pub get"
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Dart-Code.dart-code",
+        "Dart-Code.flutter"
+      ]
+    }
+  }
+}
