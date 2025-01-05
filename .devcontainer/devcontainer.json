@@ -1,4 +1,6 @@
 {
+  // "image": "ghcr.io/fossasia/flutter-devcontainer:latest",
+  // Or build locally
   "build": {
     "dockerfile": "Dockerfile"
   },

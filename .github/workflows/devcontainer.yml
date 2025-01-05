@@ -1,0 +1,32 @@
+name: Build Dev Container
+
+on:
+  schedule:
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+jobs:
+  devcontainer:
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Lowercase repository owner
+        run: echo "REPO_OWNER_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ env.REPO_OWNER_LOWER }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Pre-build dev container image
+        uses: devcontainers/ci@v0.3
+        with:
+          imageName: ghcr.io/${{ env.REPO_OWNER_LOWER }}/flutter-devcontainer
+          imageTag: latest
+          cacheFrom: ghcr.io/${{ env.REPO_OWNER_LOWER }}/flutter-devcontainer:latest
+          push: always
