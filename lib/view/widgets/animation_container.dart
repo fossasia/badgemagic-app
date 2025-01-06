@@ -1,4 +1,5 @@
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -35,7 +36,7 @@ class _AniContainerState extends State<AniContainer> {
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
-      height: 50.h,
+      height: 65.h,
       width: 110.w,
       child: GestureDetector(
         onTap: () {
@@ -44,17 +45,14 @@ class _AniContainerState extends State<AniContainer> {
         child: Card(
           surfaceTintColor: Colors.white,
           color: animationCardState.isAnimationActive(badgeAnimation)
-              ? Colors.red
-              : Colors.white,
+              ? colorAccent
+              : drawerHeaderTitle,
           elevation: 5,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
-                child: Image.asset(
-                  widget.animation,
-                  fit: BoxFit.contain,
-                ),
+                child: Image.asset(widget.animation, fit: BoxFit.fill),
               ),
               Text(
                 widget.animationName,

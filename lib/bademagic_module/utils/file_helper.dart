@@ -366,34 +366,49 @@ class FileHelper {
       // Open file picker to select a JSON file
       FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
-        allowedExtensions: ['json'], // Only allow JSON files
+        allowedExtensions: ['json', 'gif'],
       );
 
-      if (result != null && result.files.isNotEmpty) {
-        // Get the selected file
-        File file = File(result.files.single.path!);
-
-        // Read the content of the file
-        String jsonContent = await file.readAsString();
-
-        // Parse the JSON data
-        Map<String, dynamic> importedBadge = jsonDecode(jsonContent);
-        logger.d('Imported badge: $importedBadge');
-        // Validate the structure of the JSON if necessary
-        if (importedBadge.containsKey('messages')) {
-          // Save the imported badge file to your application's directory
-          final directory = await getApplicationDocumentsDirectory();
-          final filePath = '${directory.path}/${result.files.single.name}';
-          logger.d('Importing badge to: $filePath');
-          File newFile = File(filePath);
-          await newFile.writeAsString(jsonContent);
-          return true;
-        } else {
-          throw Exception("Invalid Badge Data");
-        }
-      } else {
+      if (result == null || result.files.isEmpty) {
         ToastUtils().showToast('No file selected');
         return false;
+      }
+
+      File file = File(result.files.single.path!);
+
+      if (file.path.toLowerCase().endsWith('.gif')) {
+        final fileName = file.uri.pathSegments.last.replaceAll('.gif', '.json');
+
+        final hexFrames =
+            imageUtils.convertGifFramesToLEDHex(await file.readAsBytes());
+
+        Data data = Data.fromJson({
+          "messages": [
+            {
+              "text": hexFrames,
+              "flash": false,
+              "marquee": false,
+              "speed": "0x70",
+              "mode": "0x05"
+            }
+          ],
+        });
+
+        await _writeToFile(fileName, jsonEncode(data.toJson()));
+
+        logger.d('Imported badge: $fileName, data: $data');
+
+        return true;
+      } else if (file.path.toLowerCase().endsWith('.json')) {
+        Data data = Data.fromJson(jsonDecode(await file.readAsString()));
+
+        await _writeToFile(result.files.single.name, jsonEncode(data.toJson()));
+
+        logger.d('Imported badge to: ${result.files.single.name}, data: $data');
+
+        return true;
+      } else {
+        throw Exception('Only .gif and .json are supported!');
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(

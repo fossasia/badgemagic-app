@@ -2,6 +2,7 @@ import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
@@ -169,7 +170,7 @@ class SaveBadgeCard extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: 10.w, vertical: 4.h),
                           decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: colorPrimary,
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Row(
@@ -195,7 +196,7 @@ class SaveBadgeCard extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: 12.w, vertical: 4.h),
                           decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: colorPrimary,
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Row(
@@ -219,7 +220,7 @@ class SaveBadgeCard extends StatelessWidget {
                           padding: EdgeInsets.symmetric(
                               horizontal: 12.w, vertical: 4.h),
                           decoration: BoxDecoration(
-                            color: Colors.red,
+                            color: colorPrimary,
                             borderRadius: BorderRadius.circular(100),
                           ),
                           child: Row(
@@ -242,7 +243,7 @@ class SaveBadgeCard extends StatelessWidget {
                   padding:
                       EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: colorPrimary,
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: Row(
@@ -273,7 +274,7 @@ class SaveBadgeCard extends StatelessWidget {
                   padding:
                       EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
                   decoration: BoxDecoration(
-                    color: Colors.red,
+                    color: colorPrimary,
                     borderRadius: BorderRadius.circular(100),
                   ),
                   child: Text(

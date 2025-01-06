@@ -1,3 +1,4 @@
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/view/widgets/navigation_drawer.dart';
 import 'package:flutter/material.dart';
 
@@ -33,7 +34,7 @@ class CommonScaffold extends StatelessWidget {
             ),
           );
         }),
-        backgroundColor: Colors.red,
+        backgroundColor: colorPrimary,
         title: Text(
           key: scaffoldKey,
           title,
