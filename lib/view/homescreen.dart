@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen>
           length: 3,
           child: CommonScaffold(
             index: 0,
-            title: 'BadgeMagic',
+            title: 'Badge Magic',
             body: SafeArea(
               child: SingleChildScrollView(
                 physics: isDialInteracting
@@ -158,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen>
                     Container(
                       margin: EdgeInsets.all(15.w),
                       child: Material(
-                        color: Colors.white,
+                        color: drawerHeaderTitle,
                         borderRadius: BorderRadius.circular(10.r),
                         elevation: 4,
                         child: ExtendedTextField(
@@ -177,8 +177,10 @@ class _HomeScreenState extends State<HomeScreen>
                               },
                               icon: const Icon(Icons.tag_faces_outlined),
                             ),
-                            focusedBorder: const OutlineInputBorder(
-                              borderSide: BorderSide(color: Colors.red),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(10.r)),
+                              borderSide: BorderSide(color: colorPrimary),
                             ),
                           ),
                         ),
@@ -190,23 +192,23 @@ class _HomeScreenState extends State<HomeScreen>
                             height: 150.h,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10.r),
-                              color: Colors.grey.shade100,
+                              color: dividerColor,
                             ),
                             margin: EdgeInsets.symmetric(horizontal: 15.w),
                             padding: EdgeInsets.symmetric(
                                 vertical: 10.h, horizontal: 10.w),
                             child: VectorGridView())),
                     TabBar(
-                      indicatorSize: TabBarIndicatorSize.label,
+                      indicatorSize: TabBarIndicatorSize.tab,
                       labelColor: Colors.black,
-                      unselectedLabelColor: Colors.grey,
-                      indicatorColor: Colors.red,
+                      unselectedLabelColor: mdGrey400,
+                      indicatorColor: colorPrimary,
                       controller: _tabController,
                       splashFactory: InkRipple.splashFactory,
                       overlayColor: WidgetStateProperty.resolveWith<Color?>(
                         (Set<WidgetState> states) {
                           if (states.contains(WidgetState.pressed)) {
-                            return Colors.grey[300];
+                            return dividerColor;
                           }
                           return null;
                         },
@@ -218,7 +220,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ],
                     ),
                     SizedBox(
-                      height: 180.h, // Adjust the height dynamically
+                      height: 250.h, // Adjust the height dynamically
                       child: TabBarView(
                         physics: const NeverScrollableScrollPhysics(),
                         controller: _tabController,
@@ -274,7 +276,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       horizontal: 33.w, vertical: 8.h),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(2.r),
-                                    color: Colors.grey.shade400,
+                                    color: mdGrey400,
                                   ),
                                   child: const Text('Save'),
                                 ),
@@ -311,7 +313,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       horizontal: 20.w, vertical: 8.h),
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(2.r),
-                                    color: Colors.grey.shade400,
+                                    color: mdGrey400,
                                   ),
                                   child: const Text('Transfer'),
                                 ),

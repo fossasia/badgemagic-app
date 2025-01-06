@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -42,7 +43,7 @@ class RadialDialPainter extends CustomPainter {
     final radius = min(size.width / 2, size.height / 2) * 0.7;
 
     final paint = Paint()
-      ..color = Colors.grey.shade300
+      ..color = dividerColor
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.square
       ..strokeWidth = 6.w;
@@ -58,7 +59,7 @@ class RadialDialPainter extends CustomPainter {
     );
 
     final progressPaint = Paint()
-      ..color = Colors.red
+      ..color = colorAccent
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.square
       ..strokeWidth = 9.w;
@@ -204,7 +205,7 @@ class _RadialDialState extends State<RadialDial> {
           painter: RadialDialPainter(
             value: outerValueProvider.getOuterValue().toDouble(),
             max: maxValue,
-            color: Colors.red,
+            color: colorAccent,
           ),
           child: SizedBox(
             width: 200.w,
@@ -231,7 +232,7 @@ class _RadialDialState extends State<RadialDial> {
             painter: InnerPointerPainter(
               value: outerValueProvider.getOuterValue().toDouble(),
               max: maxValue,
-              color: Colors.red,
+              color: colorAccent,
             ),
             child: SizedBox(
               width: 120.w,

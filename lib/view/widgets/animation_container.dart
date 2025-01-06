@@ -35,7 +35,7 @@ class _AniContainerState extends State<AniContainer> {
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
-      height: 50.h,
+      height: 65.h,
       width: 110.w,
       child: GestureDetector(
         onTap: () {
@@ -51,10 +51,7 @@ class _AniContainerState extends State<AniContainer> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
-                child: Image.asset(
-                  widget.animation,
-                  fit: BoxFit.contain,
-                ),
+                child: Image.asset(widget.animation, fit: BoxFit.fill),
               ),
               Text(
                 widget.animationName,
