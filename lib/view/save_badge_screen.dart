@@ -75,7 +75,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
               },
               child: const Text(
                 'Import',
-                style: TextStyle(color: Colors.white),
+                style: TextStyle(color: drawerHeaderTitle),
               ))
         ],
         body: Consumer<InlineImageProvider>(

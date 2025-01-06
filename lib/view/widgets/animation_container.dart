@@ -1,4 +1,5 @@
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -44,8 +45,8 @@ class _AniContainerState extends State<AniContainer> {
         child: Card(
           surfaceTintColor: Colors.white,
           color: animationCardState.isAnimationActive(badgeAnimation)
-              ? Colors.red
-              : Colors.white,
+              ? colorAccent
+              : drawerHeaderTitle,
           elevation: 5,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,

@@ -91,14 +91,14 @@ class _DrawBadgeState extends State<DrawBadge> {
                             Icon(
                               Icons.edit,
                               color: drawToggle.getIsDrawing()
-                                  ? Colors.red
+                                  ? colorPrimary
                                   : Colors.black,
                             ),
                             Text(
                               'Draw',
                               style: TextStyle(
                                 color: drawToggle.isDrawing
-                                    ? Colors.red
+                                    ? colorPrimary
                                     : Colors.black,
                               ),
                             )
@@ -117,14 +117,14 @@ class _DrawBadgeState extends State<DrawBadge> {
                               Icons.delete,
                               color: drawToggle.isDrawing
                                   ? Colors.black
-                                  : Colors.red,
+                                  : colorPrimary,
                             ),
                             Text(
                               'Erase',
                               style: TextStyle(
                                 color: drawToggle.isDrawing
                                     ? Colors.black
-                                    : Colors.red,
+                                    : colorPrimary,
                               ),
                             )
                           ],

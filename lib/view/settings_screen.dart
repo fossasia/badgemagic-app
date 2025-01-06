@@ -1,3 +1,4 @@
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -53,7 +54,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 child: DropdownButton<String>(
                   value: selectedLanguage,
                   isExpanded: true,
-                  icon: Icon(Icons.arrow_drop_down, color: Colors.grey[700]),
+                  icon: Icon(Icons.arrow_drop_down, color: mdGrey400),
                   onChanged: (String? newValue) {
                     setState(() {
                       selectedLanguage = newValue!;
@@ -86,7 +87,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                 child: DropdownButton<String>(
                   value: selectedBadge,
                   isExpanded: true,
-                  icon: Icon(Icons.arrow_drop_down, color: Colors.grey[700]),
+                  icon: Icon(Icons.arrow_drop_down, color: mdGrey400),
                   onChanged: (String? newValue) {
                     setState(() {
                       selectedBadge = newValue!;
