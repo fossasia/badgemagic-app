@@ -191,11 +191,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Release Drafter
+        id: run-release-drafter
         uses: release-drafter/release-drafter@v6
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           version: ${{ needs.common.outputs.VERSION_NAME }}
+
+      - name: Create and Upload Assets
+        run: |
+          echo "${{ needs.common.outputs.VERSION_CODE }}" > ./versionCode.txt
+          git clone --branch=apk https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} apk
+          gh release upload ${{ steps.run-release-drafter.outputs.tag_name }} apk/badge-magic-flutter_app-release.apk ./versionCode.txt --clobber
 
   screenshots:
     name: Screenshots (Android)

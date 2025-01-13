@@ -1,0 +1,61 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  ANDROID_EMULATOR_API: 34
+  ANDROID_EMULATOR_ARCH: x86_64
+
+jobs:
+  release:
+    if: ${{ github.repository == 'fossasia/badgemagic-app' }}
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Download repository
+        uses: actions/checkout@v4
+
+      - name: Download Assets
+        id: download-assets
+        run: |
+          gh release download ${{ github.event.release.tag_name }} --pattern '*.txt'
+          read -r version_code < versionCode.txt
+          echo "VERSION_CODE=$version_code" >> $GITHUB_OUTPUT
+
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Android Screenshot Workflow
+        uses: ./.github/actions/screenshot-android
+        with:
+          ANDROID_EMULATOR_API: ${{ env.ANDROID_EMULATOR_API }}
+          ANDROID_EMULATOR_ARCH: ${{ env.ANDROID_EMULATOR_ARCH }}
+
+      - name: Update Fastlane Metadata
+        run: |
+          cd ./android
+          git clone --branch=fastlane-android --depth=1 https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} fastlane
+          cd fastlane
+          
+          echo "${{ github.event.release.body }}" > metadata/android/en-US/changelogs/${{ steps.download-assets.outputs.VERSION_CODE }}.txt
+          
+          rm -rf metadata/android/en-US/images/phoneScreenshots/*
+          cp -r ../../screenshots/. metadata/android/en-US/images/phoneScreenshots/
+          
+          # Force push to fastlane branch
+          git checkout --orphan temporary
+          git add --all .
+          git commit -am "[Auto] Update metadata for versionCode: ${{ steps.download-assets.outputs.VERSION_CODE }} ($(date +%Y-%m-%d.%H:%M:%S))"
+          git branch -D fastlane-android
+          git branch -m fastlane-android
+          git push --force origin fastlane-android
+
+      - name: Push version to production
+        run: |
+          fastlane promoteToProduction version_code:${{ steps.download-assets.outputs.VERSION_CODE }}
+          if [[ $? -ne 0 ]]; then
+              exit 1
+          fi
