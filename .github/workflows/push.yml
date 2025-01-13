@@ -192,7 +192,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Run Release Drafter
         id: run-release-drafter
