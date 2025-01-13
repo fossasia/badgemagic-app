@@ -5,6 +5,7 @@ on:
     branches: ["flutter_app"]
 
 env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   ANDROID_EMULATOR_API: 34
   ANDROID_EMULATOR_ARCH: x86_64
 
