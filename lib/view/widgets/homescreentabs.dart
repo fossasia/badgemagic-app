@@ -26,6 +26,7 @@ class _EffectsTabState extends State<EffectTab> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SizedBox(height: 15.h,),
+
         EffectContainer(
           effect: effInvert,
           effectName: 'Invert',
