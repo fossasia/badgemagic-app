@@ -2,6 +2,7 @@ import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/view/widgets/animation_container.dart';
 import 'package:badgemagic/view/widgets/effects_container.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 //effects tab to show effects that the user can select
 class EffectTab extends StatefulWidget {
@@ -24,6 +25,7 @@ class _EffectsTabState extends State<EffectTab> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: 15.h,),
         EffectContainer(
           effect: effInvert,
           effectName: 'Invert',
@@ -59,6 +61,7 @@ class _AnimationTabState extends State<AnimationTab> {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        SizedBox(height: 15.h,),
         Row(
           children: [
             AniContainer(

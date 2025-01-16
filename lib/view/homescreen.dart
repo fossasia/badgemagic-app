@@ -189,13 +189,12 @@ class _HomeScreenState extends State<HomeScreen>
                     Visibility(
                         visible: isPrefixIconClicked,
                         child: Container(
-                            height: 150.h,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.r),
                                 color: backCircleColor),
                             margin: EdgeInsets.symmetric(horizontal: 15.w),
                             padding: EdgeInsets.symmetric(
-                                vertical: 10.h, horizontal: 10.w),
+                                vertical: 5.h, horizontal: 5.w),
                             child: VectorGridView())),
                     TabBar(
                       indicatorSize: TabBarIndicatorSize.tab,
@@ -272,19 +271,19 @@ class _HomeScreenState extends State<HomeScreen>
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: 33.w, vertical: 8.h),
+                                      horizontal: 35.w, vertical: 8.h),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(2.r),
-                                    color: mdGrey400,
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    color: colorAccent,
                                   ),
-                                  child: const Text('Save'),
+                                  child: const Text('Save', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),),
                                 ),
                               ),
                             ],
                           ),
                         ),
                         SizedBox(
-                          width: 100.w,
+                          width: 75.w,
                         ),
                         Container(
                           padding: EdgeInsets.symmetric(vertical: 20.h),
@@ -311,10 +310,14 @@ class _HomeScreenState extends State<HomeScreen>
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 20.w, vertical: 8.h),
                                   decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(2.r),
-                                    color: mdGrey400,
-                                  ),
-                                  child: const Text('Transfer'),
+                                borderRadius: BorderRadius.circular(10.r),
+                          color: Colors.white, // White background
+                          border: Border.all(
+                            color: colorAccent, // Accent color border
+                            width: 2.0, // Border width
+                          ),
+                        ),
+                                  child: const Text('Transfer', style: TextStyle(color: colorAccent, fontWeight: FontWeight.bold),),
                                 ),
                               ),
                             ],

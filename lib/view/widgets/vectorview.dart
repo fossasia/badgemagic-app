@@ -18,9 +18,9 @@ class _VectorGridViewState extends State<VectorGridView> {
     return GridView.builder(
       shrinkWrap: true,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 7,
-        crossAxisSpacing: 5,
-        mainAxisSpacing: 5,
+        crossAxisCount: 8,
+        crossAxisSpacing: 3,
+        mainAxisSpacing: 3,
       ),
       itemBuilder: (context, index) {
         return GestureDetector(
