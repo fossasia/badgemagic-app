@@ -189,10 +189,10 @@ class _HomeScreenState extends State<HomeScreen>
                     Visibility(
                         visible: isPrefixIconClicked,
                         child: Container(
-                            height: 150.h,
+                            height: 170.h,
                             decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.r),
-                                color: backCircleColor),
+                                color: Colors.grey[200]),
                             margin: EdgeInsets.symmetric(horizontal: 15.w),
                             padding: EdgeInsets.symmetric(
                                 vertical: 10.h, horizontal: 10.w),
