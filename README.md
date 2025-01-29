@@ -13,6 +13,8 @@ The Badge Magic Android app lets you create moving text and draw clipart for LED
 <a href='https://apps.apple.com/us/app/badge-magic/id6740176888'><img align='center' height='55' src='./docs/images/appstore_badge.svg'></a>
 <a href='https://play.google.com/store/apps/details?id=org.fossasia.badgemagic'><img align='center' height='55' src='./docs/images/google_play_badge.png'></a>
 <a href='https://f-droid.org/en/packages/org.fossasia.badgemagic/'><img align='center' alt='Get it on F-Droid' src='./docs/images/fdroid_badge.png' height="55"/></a>
+<a href='https://f-droid.org/en/packages/org.fossasia.badgemagic/'><img align='center' alt='Get it on F-Droid' src='./docs/images/Download_on_the_App_Store_Badge_US-UK_blk_092917.png
+' height="55"/></a>
 
 ## Download
 
