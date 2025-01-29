@@ -1,0 +1,54 @@
+name: "iOS Screenshots Workflow"
+
+inputs:
+  IPHONE_DEVICE_MODEL:
+    description: 'Model of the iPhone device to be used when running tests'
+    required: false
+    default: iPhone 16 Pro Max
+  IPAD_DEVICE_MODEL:
+    description: 'Model of the iPad device to be used when running tests'
+    required: false
+    default: iPad Pro 13-inch (M4)
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        cache: true
+
+    - name: Update Podfile
+      shell: bash
+      run: |
+        cd ./iOS
+        flutter pub get
+        pod install --repo-update
+
+    - name: Create iPhone Simulator
+      uses: futureware-tech/simulator-action@v4
+      with:
+        model: ${{ inputs.IPHONE_DEVICE_MODEL }}
+        wait_for_boot: true
+
+    - name: Create iPad Simulator
+      uses: futureware-tech/simulator-action@v4
+      with:
+        model: ${{ inputs.IPAD_DEVICE_MODEL }}
+        wait_for_boot: true
+
+    - name: Capture iPhone Screenshots
+      shell: bash
+      run: |
+        flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ inputs.IPHONE_DEVICE_MODEL }}"
+
+    - name: Capture iPad Screenshots
+      shell: bash
+      run: |
+        flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ inputs.IPAD_DEVICE_MODEL }}"
+
+    - name: Upload Screenshots
+      uses: actions/upload-artifact@v4
+      with:
+        name: iOS Screenshots
+        path: screenshots/*

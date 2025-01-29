@@ -10,7 +10,7 @@ Future<void> pumpUntilFound(
   bool timerDone = false;
   final timer = Timer(timeout, () => timerDone = true);
   while (timerDone != true) {
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     final found = tester.any(finder);
     if (found) {

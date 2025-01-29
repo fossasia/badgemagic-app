@@ -37,10 +37,6 @@ class _BMDrawerState extends State<BMDrawer> {
             aspectRatio: 16 / 9,
             child: const DrawerHeader(
               decoration: BoxDecoration(
-                image: DecorationImage(
-                  image: AssetImage('assets/icons/drawer_headre.PNG'),
-                  fit: BoxFit.cover,
-                ),
                 color: Colors.red,
               ),
               child: Center(

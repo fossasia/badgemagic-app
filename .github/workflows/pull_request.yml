@@ -2,11 +2,13 @@ name: Badge Magic PR CI
 
 on:
   pull_request:
-    branches: ["flutter_app"]
+    branches: [ "flutter_app" ]
 
 env:
   ANDROID_EMULATOR_API: 34
   ANDROID_EMULATOR_ARCH: x86_64
+  IPHONE_DEVICE_MODEL: iPhone 16 Pro Max
+  IPAD_DEVICE_MODEL: iPad Pro 13-inch (M4)
 
 jobs:
   common:
@@ -48,7 +50,7 @@ jobs:
       - name: iOS Workflow
         uses: ./.github/actions/ios
 
-  screenshots:
+  screenshots-android:
     name: Screenshots (Android)
     runs-on: ubuntu-latest
     steps:
@@ -59,4 +61,16 @@ jobs:
         with:
           ANDROID_EMULATOR_API: ${{ env.ANDROID_EMULATOR_API }}
           ANDROID_EMULATOR_ARCH: ${{ env.ANDROID_EMULATOR_ARCH }}
+
+  screenshots-ios:
+    name: Screenshots (iOS)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: iOS Screenshot Workflow
+        uses: ./.github/actions/screenshot-ios
+        with:
+          IPHONE_DEVICE_MODEL: ${{ env.IPHONE_DEVICE_MODEL }}
+          IPAD_DEVICE_MODEL: ${{ env.IPAD_DEVICE_MODEL }}
       

@@ -7,7 +7,8 @@ Future<void> main() async {
   await integrationDriver(
     onScreenshot: (String screenshotName, List<int> screenshotBytes,
         [Map<String, Object?>? args]) async {
-      final filePath = 'screenshots/$screenshotName.png';
+      final timeStamp = DateTime.now().millisecondsSinceEpoch.toString();
+      final filePath = 'screenshots/$screenshotName-$timeStamp.png';
       print('Writing screenshot to $filePath');
 
       final File image = await File(filePath).create(recursive: true);
