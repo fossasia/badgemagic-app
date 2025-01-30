@@ -53,4 +53,21 @@ platform :ios do
       groups: 'External Testing Group'
     )
   end
+
+  desc "Promote a new build to production"
+  lane :promoteToProduction do | options |
+    puts "Promoting to production"
+    if options[:build_number]
+      deliver(
+        api_key_path: './fastlane.json',
+        build_number: options[:build_number],
+        submit_for_review: true,
+        automatic_release: true,
+        force: true,
+        skip_binary_upload: true
+      )
+    else
+      UI.user_error!("You must provide a build_number option when promoting a version to production.")
+    end
+  end
 end
