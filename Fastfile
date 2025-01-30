@@ -1,10 +1,10 @@
 default_platform(:android)
 platform :android do
     lane :uploadToOpenTesting do
-        upload_to_play_store(track: "beta",aab:"../build/app/outputs/bundle/release/app-release.aab")
+        upload_to_play_store(track: "beta",aab:"../build/app/outputs/bundle/release/app-release.aab",skip_upload_screenshots: true)
     end
     lane :uploadToClosedTesting do
-        upload_to_play_store(track: "alpha",aab:"../build/app/outputs/bundle/release/app-release.aab")
+        upload_to_play_store(track: "alpha",aab:"../build/app/outputs/bundle/release/app-release.aab",skip_upload_screenshots: true)
     end
     lane :promoteToProduction do | options |
         if options[:version_code]
