@@ -315,10 +315,10 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: daf3ff5570f55396b2d2c9bf8136d7db3a8acf208ac0cef92a3ae2beb9a81550
+      sha256: "9b736a9fa879d8ad6df7932cbdcc58237c173ab004ef90d8377923d7ad731eaa"
       url: "https://pub.dev"
     source: hosted
-    version: "14.7.1"
+    version: "14.7.2"
   google_fonts:
     dependency: "direct main"
     description:
