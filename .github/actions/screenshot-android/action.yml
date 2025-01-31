@@ -71,6 +71,9 @@ runs:
       if: ${{ github.event_name != 'pull_request' }}
       shell: bash
       run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        
         cd ./android
         git clone --branch=fastlane-android --depth=1 https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} fastlane
         cd fastlane
