@@ -29,7 +29,11 @@ void main() async {
       final drawBadgeScreenTitle = find.byKey(const ValueKey(drawBadgeScreen));
 
       await pumpUntilFound(tester, homeScreenTitle);
-      await binding.takeScreenshot('01');
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      await binding.takeScreenshot('home_screen');
 
       final animationTabText = find.text('Animation');
       await tester.tap(animationTabText);
@@ -54,7 +58,7 @@ void main() async {
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
-      await binding.takeScreenshot('02');
+      await binding.takeScreenshot('text_badge');
 
       await tester.tap(inputField);
       await tester.pumpAndSettle();
@@ -89,7 +93,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('03');
+      await binding.takeScreenshot('emoji_badge');
 
       final invertEffectContainer = find.text('Invert');
       await tester.tap(invertEffectContainer);
@@ -97,7 +101,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('04');
+      await binding.takeScreenshot('inverted_emoji_badge');
 
       await tester.tap(invertEffectContainer);
       await tester.pumpAndSettle();
@@ -114,7 +118,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('05');
+      await binding.takeScreenshot('saved_badges');
 
       state = tester.firstState(find.byType(Scaffold));
       state.openDrawer();
@@ -126,7 +130,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('06');
+      await binding.takeScreenshot('draw_badge');
     });
   });
 }

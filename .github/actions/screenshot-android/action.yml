@@ -65,7 +65,26 @@ runs:
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         script: |
-          flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d emulator
+          DEVICE_NAME="Pixel 6" flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d emulator
+
+    - name: Update Fastlane Metadata
+      if: ${{ github.event_name != 'pull_request' }}
+      shell: bash
+      run: |
+        cd ./android
+        git clone --branch=fastlane-android --depth=1 https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} fastlane
+        cd fastlane
+        
+        rm -rf metadata/android/en-US/images/phoneScreenshots/*
+        cp -r ../../screenshots/. metadata/android/en-US/images/phoneScreenshots/
+        
+        # Force push to fastlane branch
+        git checkout --orphan temporary
+        git add --all .
+        git commit -am "[Auto] Update screenshots for versionCode: ${{ steps.download-assets.outputs.VERSION_CODE }} ($(date +%Y-%m-%d.%H:%M:%S))"
+        git branch -D fastlane-android
+        git branch -m fastlane-android
+        git push --force origin fastlane-android
 
     - name: Upload Screenshots
       uses: actions/upload-artifact@v4

@@ -40,12 +40,31 @@ runs:
     - name: Capture iPhone Screenshots
       shell: bash
       run: |
-        flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ inputs.IPHONE_DEVICE_MODEL }}"
+        DEVICE_NAME="${{ inputs.IPHONE_DEVICE_MODEL }}" flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ inputs.IPHONE_DEVICE_MODEL }}"
 
     - name: Capture iPad Screenshots
       shell: bash
       run: |
-        flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ inputs.IPAD_DEVICE_MODEL }}"
+        DEVICE_NAME="${{ inputs.IPAD_DEVICE_MODEL }}" flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ inputs.IPAD_DEVICE_MODEL }}"
+
+    - name: Update Fastlane Metadata
+      if: ${{ github.event_name != 'pull_request' }}
+      shell: bash
+      run: |
+        cd ./iOS
+        git clone --branch=fastlane-ios --depth=1 https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} fastlane
+        cd fastlane
+        
+        rm -rf screenshots/*
+        cp -r ../../screenshots/. screenshots/
+        
+        # Force push to fastlane branch
+        git checkout --orphan temporary
+        git add --all .
+        git commit -am "[Auto] Update screenshots for versionCode: ${{ steps.download-assets.outputs.VERSION_CODE }} ($(date +%Y-%m-%d.%H:%M:%S))"
+        git branch -D fastlane-ios
+        git branch -m fastlane-ios
+        git push --force origin fastlane-ios
 
     - name: Upload Screenshots
       uses: actions/upload-artifact@v4

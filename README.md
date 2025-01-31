@@ -37,11 +37,20 @@ There are a number of devices with Bluetooth on the market. As far as we can tel
 
 ## Screenshots
 
-| <!-- -->    | <!-- -->    | <!-- -->    |
-|-------------|-------------|-------------|
-| <img src="./docs/images/screen-1.jpg" width="288" /> <img src="./docs/images/screen-1-hard.png" width="288" /> | <img src="./docs/images/screen-2.jpg" width="288" /> <img src="./docs/images/screen-2-hard.png" width="288" /> | <img src="./docs/images/screen-3.jpg" width="288" /> <img src="./docs/images/screen-3-hard.png" width="288" /> |
-| <!-- -->    | <!-- -->    | <!-- -->    |
-| <img src="./docs/images/screen-4.jpg" width="288" /> <img src="./docs/images/screen-4-hard.png" width="288" /> | <img src="./docs/images/screen-5.jpg" width="288" /> <img src="./docs/images/screen-5-hard.png" width="288" /> | <img src="./docs/images/screen-6.jpg" width="288" /> <img src="./docs/images/screen-6-hard.png" width="288" /> |
+<table>
+  <tr>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-home_screen.png" width="1080"/></td>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-text_badge.png" width="1080"/></td>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-emoji_badge.png" width="1080"/></td>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-inverted_emoji_badge.png" width="1080"/></td>
+  </tr>
+  <tr>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-saved_badges.png" width="1080"/></td>
+    <td colspan="3">
+      <img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-draw_badge.png" width="2146"/>
+    </td>
+  </tr>
+</table>
 
 ## Reverse-Engineering Bluetooth LE Devices
 
