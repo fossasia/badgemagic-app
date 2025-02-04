@@ -84,7 +84,7 @@ runs:
         # Force push to fastlane branch
         git checkout --orphan temporary
         git add --all .
-        git commit -am "[Auto] Update screenshots for versionCode: ${{ steps.download-assets.outputs.VERSION_CODE }} ($(date +%Y-%m-%d.%H:%M:%S))"
+        git commit -am "[Auto] Update screenshots ($(date +%Y-%m-%d.%H:%M:%S))"
         git branch -D fastlane-android
         git branch -m fastlane-android
         git push --force origin fastlane-android
