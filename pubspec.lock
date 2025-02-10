@@ -178,10 +178,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: c9943dd7d702ab4199d199bc151a2d79c86db031a02ad84566dab58c494d2adc
+      sha256: "8d8f126484286375baad27927d6d0d847c922e2a1613aa5305e9580e5999e1b5"
       url: "https://pub.dev"
     source: hosted
-    version: "8.3.1"
+    version: "8.3.3"
   fixnum:
     dependency: transitive
     description:
@@ -805,10 +805,10 @@ packages:
     dependency: transitive
     description:
       name: web
-      sha256: d43c1d6b787bf0afad444700ae7f4db8827f701bc61c255ac8d328c6f4d52062
+      sha256: cd3543bd5798f6ad290ea73d210f423502e71900302dde696f8bff84bf89a1cb
       url: "https://pub.dev"
     source: hosted
-    version: "1.0.0"
+    version: "1.1.0"
   webdriver:
     dependency: transitive
     description:
@@ -821,10 +821,10 @@ packages:
     dependency: transitive
     description:
       name: win32
-      sha256: "4d45dc9069dba4619dc0ebd93c7cec5e66d8482cb625a370ac806dcc8165f2ec"
+      sha256: daf97c9d80197ed7b619040e86c8ab9a9dad285e7671ee7390f9180cc828a51e
       url: "https://pub.dev"
     source: hosted
-    version: "5.5.5"
+    version: "5.10.1"
   xdg_directories:
     dependency: transitive
     description:
