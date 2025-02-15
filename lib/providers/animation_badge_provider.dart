@@ -43,7 +43,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int _animationSpeed = aniSpeedStrategy(0);
   Timer? _timer;
 
-  //List that contains the state of each cell of the badge for home view
+  // List that contains the state of each cell of the badge for home view
   List<List<bool>> _paintGrid =
       List.generate(11, (i) => List.generate(44, (j) => false));
 
@@ -51,10 +51,10 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   final Set<BadgeEffect?> _currentEffect = {};
 
-  //function to get the state of the cell
+  // Function to get the state of the cell
   List<List<bool>> getPaintGrid() => _paintGrid;
 
-  //function to calculate duration for the animation
+  // Function to calculate duration for the animation
   void calculateDuration(int speed) {
     int newSpeed = aniSpeedStrategy(speed - 1);
     if (newSpeed != _animationSpeed) {
@@ -67,10 +67,10 @@ class AnimationBadgeProvider extends ChangeNotifier {
   List<List<bool>> _newGrid =
       List.generate(11, (i) => List.generate(44, (j) => false));
 
-  //getter for newGrid
+  // Getter for newGrid
   List<List<bool>> getNewGrid() => _newGrid;
 
-  //setter for newGrid
+  // Setter for newGrid
   void setNewGrid(List<List<bool>> grid) {
     _newGrid = grid;
     _animationIndex = 0;
@@ -80,14 +80,16 @@ class AnimationBadgeProvider extends ChangeNotifier {
   Set<BadgeEffect?> get getCurrentEffect => _currentEffect;
 
   void addEffect(BadgeEffect? effect) {
-    _currentEffect.add(effect);
-    logger.i("Effect Added: $effect : $_currentEffect");
-    notifyListeners();
+    if (_currentEffect.add(effect)) {
+      logger.i("Effect Added: $effect : $_currentEffect");
+      notifyListeners();
+    }
   }
 
   void removeEffect(BadgeEffect? effect) {
-    _currentEffect.remove(effect);
-    notifyListeners();
+    if (_currentEffect.remove(effect)) {
+      notifyListeners();
+    }
   }
 
   bool isEffectActive(BadgeEffect? effect) {
@@ -95,34 +97,31 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   void initializeAnimation() {
-    if (_timer == null) {
+    if (_timer == null || !_timer!.isActive) {
       startTimer();
     }
   }
 
-  //function to stop timer and reset the animationIndex
+  // Function to stop timer and reset the animationIndex
   void stopAnimation() {
     logger.d("Timer stopped  ${_timer?.tick.toString()}");
     _timer?.cancel();
-
+    _timer = null;
     _animationIndex = 0;
   }
 
   void stopAllAnimations() {
-    // Stop any ongoing timer and reset the animation index
     stopAnimation();
     _currentAnimation = LeftAnimation();
-    // Reset the grids to all false values
     _paintGrid = List.generate(11, (i) => List.generate(44, (j) => false));
     _newGrid = List.generate(11, (i) => List.generate(44, (j) => false));
     logger.d("All animations stopped");
   }
 
   void startTimer() {
+    _timer?.cancel(); // Cancel any existing timer
     _timer =
         Timer.periodic(Duration(microseconds: _animationSpeed), (Timer timer) {
-      // logger.i(
-      //     "New Grid set to: ${getNewGrid().map((e) => e.map((e) => e ? 1 : 0).toList()).toList()}");
       renderGrid(getNewGrid());
       _animationIndex++;
     });
@@ -146,14 +145,13 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   bool isAnimationActive(BadgeAnimation? badgeAnimation) {
-    bool isActive = _currentAnimation == badgeAnimation;
-    return isActive;
+    return _currentAnimation == badgeAnimation;
   }
 
-  void badgeAnimation(
-      String message, Converters converters, bool isInverted) async {
-    if (message == "") {
-      //geerate a 2d list with all values as 0
+  Future<void> badgeAnimation(
+      String message, Converters converters, bool isInverted,
+      {required TextStyle textStyle}) async {
+    if (message.isEmpty) {
       List<List<bool>> image =
           List.generate(11, (i) => List.generate(44, (j) => false));
       setNewGrid(image);
@@ -181,5 +179,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
     _paintGrid = canvas;
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel(); // Cancel the timer on dispose
+    _timer = null;
+    super.dispose();
   }
 }
