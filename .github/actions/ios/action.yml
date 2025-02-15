@@ -35,7 +35,7 @@ runs:
         flutter build ipa --no-codesign --build-name $VERSION_NAME --build-number $VERSION_CODE
 
     - name: Build iOS IPA (With Code Signing)
-      if: ${{ github.event_name != 'pull_request' }}
+      if: ${{ github.event_name == 'push' }}
       shell: bash
       env:
         VERSION_NAME: ${{ inputs.VERSION_NAME }}

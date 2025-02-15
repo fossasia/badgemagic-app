@@ -48,7 +48,7 @@ runs:
         DEVICE_NAME="${{ inputs.IPAD_DEVICE_MODEL }}" flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ inputs.IPAD_DEVICE_MODEL }}"
 
     - name: Update Fastlane Metadata
-      if: ${{ github.event_name != 'pull_request' }}
+      if: ${{ github.event_name == 'push' }}
       shell: bash
       run: |
         git config --global user.name "github-actions[bot]"

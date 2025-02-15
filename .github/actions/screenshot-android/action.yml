@@ -68,7 +68,7 @@ runs:
           DEVICE_NAME="Pixel 6" flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d emulator
 
     - name: Update Fastlane Metadata
-      if: ${{ github.event_name != 'pull_request' }}
+      if: ${{ github.event_name == 'push' }}
       shell: bash
       run: |
         git config --global user.name "github-actions[bot]"
