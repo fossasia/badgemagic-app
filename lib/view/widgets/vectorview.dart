@@ -1,4 +1,3 @@
-import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

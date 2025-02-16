@@ -165,7 +165,7 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  void _showColorPicker() {
+  /* void _showColorPicker() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -190,7 +190,7 @@ class _HomeScreenState extends State<HomeScreen>
       ),
     );
   }
-
+*/
   @override
   Widget build(BuildContext context) {
     super.build(context);
