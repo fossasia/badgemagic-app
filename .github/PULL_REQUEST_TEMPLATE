@@ -1,0 +1,13 @@
+Fixes #<!-- Add issue number here. This will automatically closes the issue. If you do not solve the issue entirely, please change the message to e.g. "First steps for issues #IssueNumber" -->
+
+## Changes 
+- <!-- Add here what changes were made in this pull request and if possible provide links. -->
+
+## Screenshots / Recordings  
+<!-- Add screen shots/screen recordings of the layout where you made changes or a `*.gif` containing a demonstration. Fill "> N/A" if the change is not a UI fix. -->
+
+**Checklist**: <!-- Please tick following check boxes with `[x]` if the respective task is completed -->
+- [ ] **No hard coding**: I have used resources from `constants.dart` without hard coding any value.
+- [ ] **No end of file edits**: No modifications done at end of resource files.
+- [ ] **Code reformatting**: I have reformatted code and fixed indentation in every file included in this pull request.
+- [ ] **Code analyzation**: My code passes analyzations run in _flutter analyze_ and tests run in _flutter test_.
