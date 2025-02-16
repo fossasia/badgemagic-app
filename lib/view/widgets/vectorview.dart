@@ -37,7 +37,7 @@ class _VectorGridViewState extends State<VectorGridView> {
               child: Center(
                 child: Icon(
                   Icons.add_circle_outline_rounded,
-                  color: colorPrimary,
+                  color: const Color.fromARGB(255, 248, 240, 240),
                 ),
               ),
             ),

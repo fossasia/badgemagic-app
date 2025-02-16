@@ -1,13 +1,14 @@
 import 'dart:math' as math;
-
 import 'package:badgemagic/bademagic_module/utils/badge_utils.dart';
 import 'package:flutter/material.dart';
 
 class BadgePaint extends CustomPainter {
   BadgeUtils badgeUtils = BadgeUtils();
   final List<List<bool>> grid;
+  final TextStyle? textStyle;
+  final String text; // New: actual text to display
 
-  BadgePaint({required this.grid});
+  BadgePaint({required this.grid, this.textStyle, required this.text});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -46,6 +47,7 @@ class BadgePaint extends CustomPainter {
             offsetHeightBadgeBackground, badgeWidth, badgeHeight);
     double cellStartX = cellStartCoordinate.key;
     double cellStartY = cellStartCoordinate.value;
+
     // Draw the cells
     for (int row = 0; row < grid.length; row++) {
       for (int col = 0; col < grid[row].length; col++) {
@@ -53,7 +55,9 @@ class BadgePaint extends CustomPainter {
         var cellStartCol = cellStartX + col * (cellSize * 0.93);
 
         final Paint paint = Paint()
-          ..color = grid[row][col] ? Colors.red : Colors.grey.shade900
+          ..color = grid[row][col]
+              ? const Color.fromARGB(255, 170, 38, 38)
+              : Colors.grey.shade900
           ..style = PaintingStyle.fill;
 
         final Rect cellRect = Rect.fromLTWH(
@@ -78,6 +82,23 @@ class BadgePaint extends CustomPainter {
         canvas.drawRect(cellRect, paint);
         canvas.restore();
       }
+    }
+
+    // Draw text using the provided text style and actual message
+    if (textStyle != null && text.isNotEmpty) {
+      final textPainter = TextPainter(
+        text: TextSpan(text: text, style: textStyle),
+        textDirection: TextDirection.ltr,
+      );
+      textPainter.layout();
+
+      // Position the text in the center of the badge
+      final textOffset = Offset(
+        offsetWidthBadgeBackground + (badgeWidth - textPainter.width) / 2,
+        offsetHeightBadgeBackground + (badgeHeight - textPainter.height) / 2,
+      );
+
+      textPainter.paint(canvas, textOffset);
     }
   }
 
