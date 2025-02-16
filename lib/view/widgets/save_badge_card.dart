@@ -5,6 +5,7 @@ import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
+import 'package:badgemagic/providers/badge_slot_provider..dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
@@ -159,83 +160,77 @@ class SaveBadgeCard extends StatelessWidget {
           SizedBox(height: 8.h),
           Row(
             children: [
-              GestureDetector(
-                  onTap: () {},
-                  child: Row(
-                    children: [
-                      Visibility(
-                        visible:
-                            file.jsonToData(badgeData.value).messages[0].flash,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 10.w, vertical: 4.h),
-                          decoration: BoxDecoration(
-                            color: colorPrimary,
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                "assets/icons/flash.png",
-                                color: Colors.white,
-                                height: 14.h,
-                              )
-                            ],
-                          ),
-                        ),
+              Row(
+                children: [
+                  Visibility(
+                    visible: file.jsonToData(badgeData.value).messages[0].flash,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: colorPrimary,
+                        borderRadius: BorderRadius.circular(100),
                       ),
-                      SizedBox(
-                        width: 8.w,
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/icons/flash.png",
+                            color: Colors.white,
+                            height: 14.h,
+                          )
+                        ],
                       ),
-                      Visibility(
-                        visible: file
-                            .jsonToData(badgeData.value)
-                            .messages[0]
-                            .marquee,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 4.h),
-                          decoration: BoxDecoration(
-                            color: colorPrimary,
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                "assets/icons/square.png",
-                                color: Colors.white,
-                                height: 14.h,
-                              )
-                            ],
-                          ),
-                        ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 8.w,
+                  ),
+                  Visibility(
+                    visible:
+                        file.jsonToData(badgeData.value).messages[0].marquee,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: colorPrimary,
+                        borderRadius: BorderRadius.circular(100),
                       ),
-                      SizedBox(
-                        width: 8.w,
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/icons/square.png",
+                            color: Colors.white,
+                            height: 14.h,
+                          )
+                        ],
                       ),
-                      Visibility(
-                        visible:
-                            badgeData.value['messages'][0]['invert'] ?? false,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 12.w, vertical: 4.h),
-                          decoration: BoxDecoration(
-                            color: colorPrimary,
-                            borderRadius: BorderRadius.circular(100),
-                          ),
-                          child: Row(
-                            children: [
-                              Image.asset(
-                                "assets/icons/t_invert.png",
-                                color: Colors.white,
-                                height: 14.h,
-                              )
-                            ],
-                          ),
-                        ),
-                      )
-                    ],
-                  )),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 8.w,
+                  ),
+                  Visibility(
+                    visible: badgeData.value['messages'][0]['invert'] ?? false,
+                    child: Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: colorPrimary,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/icons/t_invert.png",
+                            color: Colors.white,
+                            height: 14.h,
+                          )
+                        ],
+                      ),
+                    ),
+                  )
+                ],
+              ),
               SizedBox(width: 8.w),
               GestureDetector(
                 onTap: () {},
@@ -289,6 +284,21 @@ class SaveBadgeCard extends StatelessWidget {
                     style: const TextStyle(color: Colors.white),
                   ),
                 ),
+              ),
+              const Spacer(),
+              Consumer<BadgeSlotProvider>(
+                builder: (context, selectionProvider, _) {
+                  final isSelected =
+                      selectionProvider.isSelected(badgeData.key);
+                  return Switch(
+                    value: isSelected,
+                    onChanged: (selectionProvider.canSelectMore || isSelected)
+                        ? (value) =>
+                            selectionProvider.toggleSelection(badgeData.key)
+                        : null,
+                    activeColor: colorPrimary,
+                  );
+                },
               ),
             ],
           ),
