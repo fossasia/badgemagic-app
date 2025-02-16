@@ -158,7 +158,6 @@ class AnimationBadgeProvider extends ChangeNotifier {
     return isActive;
   }
 
-  // Updated: badgeAnimation now renders the text using the selected TextStyle.
   // It stores the current message and calls the new renderTextToMatrix converter.
   void badgeAnimation(String message, Converters converters, bool isInverted,
       {required TextStyle textStyle}) async {

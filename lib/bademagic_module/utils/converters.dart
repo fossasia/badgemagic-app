@@ -17,8 +17,6 @@ class Converters {
   FileHelper fileHelper = FileHelper();
 
   int controllerLength = 0;
-
-  // Old method kept for special markers; for plain text, use renderTextToMatrix.
   Future<List<String>> messageTohex(String message, bool isInverted) async {
     List<String> hexStrings = [];
     for (int x = 0; x < message.length; x++) {
@@ -137,7 +135,6 @@ class Converters {
     return matrix;
   }
 
-  // -- The rest of the file (convertBitmapToLEDHex, invertHex, padHexString) remains unchanged --
   static List<String> convertBitmapToLEDHex(List<List<int>> image, bool trim) {
     int height = image.length;
     int width = image.isNotEmpty ? image[0].length : 0;
