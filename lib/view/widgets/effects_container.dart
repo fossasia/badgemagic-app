@@ -49,8 +49,7 @@ class _EffectContainerState extends State<EffectContainer> {
               ? effectCardState.removeEffect(badgeEffect)
               : effectCardState.addEffect(badgeEffect);
           effectCardState.badgeAnimation(imageProvider.getController().text,
-              Converters(), effectCardState.isEffectActive(InvertLEDEffect()),
-              textStyle: TextStyle());
+              Converters(), effectCardState.isEffectActive(InvertLEDEffect()));
         },
         child: Card(
           surfaceTintColor: Colors.white,

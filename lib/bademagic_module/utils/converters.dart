@@ -1,12 +1,10 @@
 import 'dart:math';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
+
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/data_to_bytearray_converter.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
 class Converters {
@@ -17,6 +15,7 @@ class Converters {
   FileHelper fileHelper = FileHelper();
 
   int controllerLength = 0;
+
   Future<List<String>> messageTohex(String message, bool isInverted) async {
     List<String> hexStrings = [];
     for (int x = 0; x < message.length; x++) {
@@ -51,161 +50,108 @@ class Converters {
     return hexStrings;
   }
 
-  /// New: Render the given text using the provided [textStyle] onto an offscreen
-  /// canvas and convert it to an LED matrix (11 rows x 44 columns).
-  Future<List<List<bool>>> renderTextToMatrix(
-    String message,
-    TextStyle textStyle, {
-    int cols = 44,
-    int rows = 11,
-    int scale = 10, // scale factor for better resolution
-  }) async {
-    // Calculate canvas size
-    final int width = cols * scale;
-    final int height = rows * scale;
-
-    // Create a PictureRecorder and Canvas
-    final ui.PictureRecorder recorder = ui.PictureRecorder();
-    final Canvas canvas = Canvas(
-        recorder, Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()));
-
-    // Fill background with white
-    final Paint bgPaint = Paint()..color = Colors.white;
-    canvas.drawRect(
-        Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()), bgPaint);
-
-    // Prepare the text painter
-    // Multiply fontSize by scale to maintain sharpness
-    final TextPainter textPainter = TextPainter(
-      text: TextSpan(
-        text: message,
-        style: textStyle.copyWith(
-            color: Colors.black, fontSize: (textStyle.fontSize ?? 16) * scale),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout(maxWidth: width.toDouble());
-    // Center the text on the canvas
-    final Offset offset = Offset(
-      (width - textPainter.width) / 2,
-      (height - textPainter.height) / 2,
-    );
-    textPainter.paint(canvas, offset);
-
-    // End recording and get the image
-    final ui.Picture picture = recorder.endRecording();
-    final ui.Image image = await picture.toImage(width, height);
-    final ByteData? byteData =
-        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
-
-    if (byteData == null) {
-      throw Exception("Failed to convert image to byte data.");
-    }
-    final Uint8List data = byteData.buffer.asUint8List();
-
-    // Downsample: For each cell (scale x scale block) compute average brightness.
-    List<List<bool>> matrix =
-        List.generate(rows, (_) => List.generate(cols, (_) => false));
-    for (int row = 0; row < rows; row++) {
-      for (int col = 0; col < cols; col++) {
-        int sum = 0;
-        int count = 0;
-        for (int y = 0; y < scale; y++) {
-          for (int x = 0; x < scale; x++) {
-            int pixelX = col * scale + x;
-            int pixelY = row * scale + y;
-            int index =
-                (pixelY * width + pixelX) * 4; // 4 bytes per pixel (RGBA)
-            if (index + 3 < data.length) {
-              // Calculate brightness using average of R, G, B channels.
-              int r = data[index];
-              int g = data[index + 1];
-              int b = data[index + 2];
-              int brightness = ((r + g + b) / 3).round();
-              sum += brightness;
-              count++;
-            }
-          }
-        }
-        double avgBrightness = sum / count;
-        // Use a threshold of 128 to decide if the LED is on (true) or off (false)
-        matrix[row][col] = avgBrightness < 128;
-      }
-    }
-    return matrix;
-  }
-
+  //function to convert the bitmap to the LED hex format
+  //it takes the 2D list of pixels and converts it to the LED hex format
   static List<String> convertBitmapToLEDHex(List<List<int>> image, bool trim) {
+    // Determine the height and width of the image
     int height = image.length;
     int width = image.isNotEmpty ? image[0].length : 0;
+
+    // Initialize variables to calculate padding and offsets
     int finalSum = 0;
+
+    // Calculate and adjust for right-side padding
     for (int j = 0; j < width; j++) {
       int sum = 0;
       for (int i = 0; i < height; i++) {
-        sum += image[i][j];
+        sum += image[i][j]; // Sum up pixel values in each column
       }
       if (sum == 0 && trim) {
+        // If column sum is zero, mark all pixels in that column as -1
         for (int i = 0; i < height; i++) {
           image[i][j] = -1;
         }
       } else {
+        // Otherwise, update finalSum and exit loop
         finalSum += j;
         break;
       }
     }
+
+    // Calculate and adjust for left-side padding
     for (int j = width - 1; j >= 0; j--) {
       int sum = 0;
       for (int i = 0; i < height; i++) {
-        sum += image[i][j];
+        sum += image[i]
+            [j]; // Sum up pixel values in each column (from right to left)
       }
       if (sum == 0 && trim) {
+        // If column sum is zero, mark all pixels in that column as -1
         for (int i = 0; i < height; i++) {
           image[i][j] = -1;
         }
       } else {
+        // Otherwise, update finalSum and exit loop
         finalSum += (height - j - 1);
         break;
       }
     }
+
+    // Calculate padding difference to align height to a multiple of 8
     int diff = 0;
     if ((height - finalSum) % 8 > 0) {
       diff = 8 - (height - finalSum) % 8;
     }
+
+    // Calculate left and right offsets for padding
     int rOff = (diff / 2).floor();
     int lOff = (diff / 2).ceil();
+
+    // Initialize a new list to accommodate the padded image
     List<List<int>> list =
         List.generate(height, (i) => List.filled(width + rOff + lOff, 0));
+
+    // Fill the new list with the padded image data
     for (int i = 0; i < height; i++) {
       int k = 0;
       for (int j = 0; j < rOff; j++) {
-        list[i][k++] = 0;
+        list[i][k++] = 0; // Fill right-side padding
       }
       for (int j = 0; j < width; j++) {
         if (image[i][j] != -1) {
-          list[i][k++] = image[i][j];
+          list[i][k++] = image[i][j]; // Copy non-padded pixels
         }
       }
       for (int j = 0; j < lOff; j++) {
-        list[i][k++] = 0;
+        list[i][k++] = 0; // Fill left-side padding
       }
     }
+
     logger.d("Padded image: $list");
+
+    // Convert each 8-bit segment into hexadecimal strings
     List<String> allHexs = [];
     for (int i = 0; i < list[0].length ~/ 8; i++) {
       StringBuffer lineHex = StringBuffer();
+
       for (int k = 0; k < height; k++) {
         StringBuffer stBuilder = StringBuffer();
+
+        // Construct 8-bit segments for each row
         for (int j = i * 8; j < i * 8 + 8; j++) {
           stBuilder.write(list[k][j]);
         }
+
+        // Convert binary string to hexadecimal
         String hex = int.parse(stBuilder.toString(), radix: 2)
             .toRadixString(16)
             .padLeft(2, '0');
-        lineHex.write(hex);
+        lineHex.write(hex); // Append hexadecimal to line
       }
-      allHexs.add(lineHex.toString());
+
+      allHexs.add(lineHex.toString()); // Store completed hexadecimal line
     }
-    return allHexs;
+    return allHexs; // Return list of hexadecimal strings
   }
 
   static String invertHex(String hex) {
@@ -222,10 +168,13 @@ class Converters {
     List<List<int>> hexArray = hexStringToBool(hexString.join()).map((e) {
       return e.map((e) => e ? 1 : 0).toList();
     }).toList();
+
+    //add 1 at the satrt and end of each row in the 2D list
     for (int i = 0; i < hexArray.length; i++) {
       hexArray[i].insert(0, 1);
       hexArray[i].add(1);
     }
+
     return convertBitmapToLEDHex(hexArray, true);
   }
 }

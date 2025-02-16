@@ -87,7 +87,7 @@ class _BMBadgeState extends State<BMBadge> {
             aspectRatio: 3.2,
             child: Consumer<DrawBadgeProvider>(
               builder: (context, value, child) => CustomPaint(
-                  painter: BadgePaint(grid: value.getDrawViewGrid(), text: ''),
+                  painter: BadgePaint(grid: value.getDrawViewGrid()),
                   size: size),
             ),
           )),

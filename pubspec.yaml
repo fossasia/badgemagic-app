@@ -50,7 +50,6 @@ dependencies:
   google_fonts: ^6.2.1
   url_launcher: ^6.3.1
   image: ^4.5.2
-  flutter_colorpicker: ^1.1.0
 
 dev_dependencies:
   flutter_test:
