@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
@@ -21,7 +20,6 @@ import 'package:badgemagic/virtualbadge/view/animated_badge.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:get_it/get_it.dart';
@@ -77,7 +75,7 @@ class _HomeScreenState extends State<HomeScreen>
         color: textColor,
       );
     } catch (e) {
-      print('Error loading font $fontName: $e');
+      //print('Error loading font $fontName: $e');
       return GoogleFonts.roboto(
         fontSize: fontSize,
         color: textColor,
@@ -165,32 +163,6 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  /* void _showColorPicker() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Pick a color'),
-        content: SingleChildScrollView(
-          child: ColorPicker(
-            pickerColor: textColor,
-            onColorChanged: (color) => setState(() {
-              textColor = color;
-              _controllerListner();
-            }),
-            showLabel: true,
-            pickerAreaHeightPercent: 0.8,
-          ),
-        ),
-        actions: [
-          TextButton(
-            child: Text('OK'),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-        ],
-      ),
-    );
-  }
-*/
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -300,9 +272,9 @@ class _HomeScreenState extends State<HomeScreen>
                     indicatorColor: colorPrimary,
                     controller: _tabController,
                     splashFactory: InkRipple.splashFactory,
-                    overlayColor: MaterialStateProperty.resolveWith<Color?>(
-                      (Set<MaterialState> states) {
-                        if (states.contains(MaterialState.pressed)) {
+                    overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                      (Set<WidgetState> states) {
+                        if (states.contains(WidgetState.pressed)) {
                           return dividerColor;
                         }
                         return null;

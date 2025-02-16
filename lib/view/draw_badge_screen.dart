@@ -56,6 +56,7 @@ class _DrawBadgeState extends State<DrawBadge> {
   @override
   Widget build(BuildContext context) {
     FileHelper fileHelper = FileHelper();
+    // ignore: deprecated_member_use
     return WillPopScope(
       onWillPop: () async {
         _resetPortraitOrientation();

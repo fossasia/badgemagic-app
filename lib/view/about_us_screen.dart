@@ -15,7 +15,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
   @override
   void initState() {
     _setOrientation();
-    // TODO: implement initState
+
     super.initState();
   }
 
