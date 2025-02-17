@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:badgemagic/virtualbadge/view/draw_badge.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -60,6 +61,19 @@ void main() async {
       await tester.pump(const Duration(seconds: 5));
       await binding.takeScreenshot('text_badge');
 
+      final saveButton = find.text('Save');
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      final saveBadgeButton = find.byWidgetPredicate(
+        (widget) =>
+            widget is TextButton &&
+            widget.child is Text &&
+            (widget.child as Text).data == 'Save',
+      );
+      await tester.tap(saveBadgeButton);
+      await tester.pumpAndSettle();
+
       await tester.tap(inputField);
       await tester.pumpAndSettle();
       tester.testTextInput.enterText('');
@@ -95,6 +109,12 @@ void main() async {
       await tester.pumpAndSettle();
       await binding.takeScreenshot('emoji_badge');
 
+      await tester.tap(saveButton);
+      await tester.pumpAndSettle();
+
+      await tester.tap(saveBadgeButton);
+      await tester.pumpAndSettle();
+
       final invertEffectContainer = find.text('Invert');
       await tester.tap(invertEffectContainer);
       await tester.pump(const Duration(seconds: 5));
@@ -120,12 +140,40 @@ void main() async {
       await tester.pumpAndSettle();
       await binding.takeScreenshot('saved_badges');
 
+      final playButton = find
+          .byWidgetPredicate(
+            (widget) =>
+                widget is IconButton &&
+                widget.icon is Image &&
+                (widget.icon as Image).image is AssetImage &&
+                ((widget.icon as Image).image as AssetImage).assetName ==
+                    "assets/icons/t_play.png",
+          )
+          .at(1);
+      await tester.tap(playButton);
+      await tester.pumpAndSettle();
+      final badgeSwitch = find.byType(Switch).at(1);
+      await tester.tap(badgeSwitch);
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      await tester.pump(const Duration(seconds: 5));
+      await tester.pumpAndSettle();
+      await binding.takeScreenshot('saved_badges_clicked');
+
       state = tester.firstState(find.byType(Scaffold));
       state.openDrawer();
       await tester.pumpAndSettle();
       final drawBadgeText = find.text('Draw Clipart');
       await tester.tap(drawBadgeText);
       await pumpUntilFound(tester, drawBadgeScreenTitle);
+
+      final badgeFinder = find.byWidgetPredicate(
+        (widget) => widget is BMBadge,
+      );
+      await tester.drag(badgeFinder, const Offset(50, 0));
+      await tester.pumpAndSettle();
+      await tester.drag(badgeFinder, const Offset(-50, 0));
+      await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));

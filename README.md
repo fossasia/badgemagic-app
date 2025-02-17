@@ -52,7 +52,8 @@ There are a number of devices with Bluetooth on the market. As far as we can tel
   </tr>
   <tr>
     <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-saved_badges.png" width="1080"/></td>
-    <td colspan="3">
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-saved_badges_clicked.png" width="1080"/></td>
+    <td colspan="2">
       <img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-draw_badge.png" width="2146"/>
     </td>
   </tr>
