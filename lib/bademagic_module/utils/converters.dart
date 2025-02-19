@@ -17,6 +17,7 @@ class Converters {
   FileHelper fileHelper = FileHelper();
 
   int controllerLength = 0;
+
   Future<List<String>> messageTohex(String message, bool isInverted) async {
     List<String> hexStrings = [];
     for (int x = 0; x < message.length; x++) {
@@ -26,9 +27,9 @@ class Converters {
         if (key is List) {
           String filename = key[0];
           List<dynamic>? decodedData = await fileHelper.readFromFile(filename);
-          final List<List<dynamic>> image = decodedData!.cast<List<dynamic>>();
+          final List<List>? image = decodedData?.cast<List<dynamic>>();
           List<List<int>> imageData =
-              image.map((list) => list.cast<int>()).toList();
+              image!.map((list) => list.cast<int>()).toList();
           hexStrings += convertBitmapToLEDHex(imageData, true);
           x += 5;
         } else {
@@ -51,15 +52,34 @@ class Converters {
     return hexStrings;
   }
 
-  /// New: Render the given text using the provided [textStyle] onto an offscreen
+  /// Updated: Render the given text using the provided [textStyle] onto an offscreen
   /// canvas and convert it to an LED matrix (11 rows x 44 columns).
-  Future<List<List<bool>>> renderTextToMatrix(
+ Future<List<List<bool>>> renderTextToMatrix(
     String message,
     TextStyle textStyle, {
     int cols = 44,
     int rows = 11,
     int scale = 10, // scale factor for better resolution
   }) async {
+    // Parse the message for emoji placeholders
+    final RegExp regex = RegExp(r'<<(\d{2})>>');
+    List<_Segment> segments = [];
+    int lastMatchEnd = 0;
+    for (final match in regex.allMatches(message)) {
+      if (match.start > lastMatchEnd) {
+        segments.add(_Segment(
+          text: message.substring(lastMatchEnd, match.start), 
+          isEmoji: false
+        ));
+      }
+      String emojiIndex = match.group(1)!;
+      segments.add(_Segment(text: emojiIndex, isEmoji: true));
+      lastMatchEnd = match.end;
+    }
+    if (lastMatchEnd < message.length) {
+      segments.add(_Segment(text: message.substring(lastMatchEnd), isEmoji: false));
+    }
+
     // Calculate canvas size
     final int width = cols * scale;
     final int height = rows * scale;
@@ -74,25 +94,48 @@ class Converters {
     canvas.drawRect(
         Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()), bgPaint);
 
-    // Prepare the text painter
-    // Multiply fontSize by scale to maintain sharpness
-    final TextPainter textPainter = TextPainter(
-      text: TextSpan(
-        text: message,
-        style: textStyle.copyWith(
-            color: Colors.black, fontSize: (textStyle.fontSize ?? 16) * scale),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    textPainter.layout(maxWidth: width.toDouble());
-    // Center the text on the canvas
-    final Offset offset = Offset(
-      (width - textPainter.width) / 2,
-      (height - textPainter.height) / 2,
-    );
-    textPainter.paint(canvas, offset);
+    double currentX = 0;
+    double centerY = height / 2.0;
+    double fontSize = (textStyle.fontSize ?? 16) * scale;
+    double emojiWidth = fontSize*0.734; 
 
-    // End recording and get the image
+    for (var segment in segments) {
+      if (!segment.isEmoji) {
+        // Paint text
+        final TextPainter textPainter = TextPainter(
+          text: TextSpan(
+            text: segment.text,
+            style: textStyle.copyWith(
+                color: Colors.black, fontSize: fontSize),
+          ),
+          textDirection: TextDirection.ltr,
+        );
+        textPainter.layout(maxWidth: width.toDouble() - currentX);
+        double offsetY = centerY - textPainter.height / 2;
+        textPainter.paint(canvas, Offset(currentX, offsetY));
+        currentX += textPainter.width;
+      } else {
+        // Paint emoji
+        int index = int.parse(segment.text);
+        List keys = controllerData.imageCache.keys.toList();
+        if (index < keys.length) {
+          var key = keys[index];
+          Uint8List? emojiBytes = controllerData.imageCache[key];
+          if (emojiBytes != null) {
+            ui.Codec codec = await ui.instantiateImageCodec(emojiBytes,
+                targetWidth: emojiWidth.toInt(), targetHeight: emojiWidth.toInt());
+            ui.FrameInfo fi = await codec.getNextFrame();
+            ui.Image emojiImage = fi.image;
+            double offsetY = centerY - emojiWidth / 2;
+            Paint imagePaint = Paint();
+            canvas.drawImage(emojiImage, Offset(currentX, offsetY), imagePaint);
+            currentX += emojiWidth;
+          }
+        }
+      }
+    }
+
+    // Convert canvas to image for downsampling
     final ui.Picture picture = recorder.endRecording();
     final ui.Image image = await picture.toImage(width, height);
     final ByteData? byteData =
@@ -103,7 +146,7 @@ class Converters {
     }
     final Uint8List data = byteData.buffer.asUint8List();
 
-    // Downsample: For each cell (scale x scale block) compute average brightness.
+    // Downsample to LED matrix
     List<List<bool>> matrix =
         List.generate(rows, (_) => List.generate(cols, (_) => false));
     for (int row = 0; row < rows; row++) {
@@ -117,10 +160,7 @@ class Converters {
             int index =
                 (pixelY * width + pixelX) * 4; // 4 bytes per pixel (RGBA)
             if (index + 3 < data.length) {
-              // Calculate brightness using average of R, G, B channels.
-              int r = data[index];
-              int g = data[index + 1];
-              int b = data[index + 2];
+              int r = data[index], g = data[index + 1], b = data[index + 2];
               int brightness = ((r + g + b) / 3).round();
               sum += brightness;
               count++;
@@ -128,7 +168,6 @@ class Converters {
           }
         }
         double avgBrightness = sum / count;
-        // Use a threshold of 128 to decide if the LED is on (true) or off (false)
         matrix[row][col] = avgBrightness < 128;
       }
     }
@@ -228,4 +267,9 @@ class Converters {
     }
     return convertBitmapToLEDHex(hexArray, true);
   }
+}
+class _Segment {
+  final String text;
+  final bool isEmoji;
+  _Segment({required this.text, required this.isEmoji});
 }
