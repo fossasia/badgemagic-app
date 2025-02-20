@@ -30,11 +30,11 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           
-          git clone --branch=version https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} version
-          cd version
-
           # Get commit message
           commit_message=$(git log -1 --pretty=format:"%s")
+          
+          git clone --branch=version https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} version
+          cd version
 
           # Read and increment version name
           IFS='.' read -r major minor patch < versionName.txt

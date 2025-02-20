@@ -10,14 +10,20 @@
 
 The Badge Magic Android app lets you create moving text and draw clipart for LED name badges. The app provides options to portray names, cliparts, and simple animations on the badges. For the org.fossasia.badgemagic.data transfer from the smartphone to the LED badge it uses Bluetooth. The project is based on the work of [Nilhcem](https://github.com/Nilhcem).
 
+## Get Stable Versions
+
 <a href='https://apps.apple.com/us/app/badge-magic/id6740176888'><img align='center' height='55' src='./docs/images/appstore_badge.svg'></a>
 <a href='https://play.google.com/store/apps/details?id=org.fossasia.badgemagic'><img align='center' height='55' src='./docs/images/google_play_badge.png'></a>
 <a href='https://f-droid.org/en/packages/org.fossasia.badgemagic/'><img align='center' alt='Get it on F-Droid' src='./docs/images/fdroid_badge.png' height="55"/></a>
 
+## Get Beta Versions (Built from the latest code)
+
+<a href='https://testflight.apple.com/join/h6tHnYGK'><img align='center' height='55' src='./docs/images/testflight.png'></a>
+<a href='https://play.google.com/apps/testing/org.fossasia.badgemagic'><img align='center' height='55' src='./docs/images/google_play_badge.png'></a>
+
 ## Download
 
-* [Latest Release Build](https://github.com/fossasia/badgemagic-app/raw/apk/badge-magic-master-release.apk) in the apk branch
-* [Latest Development Build](https://github.com/fossasia/badgemagic-app/raw/apk/badge-magic-development-release.apk) in the apk branch
+* [Latest Release Build](https://github.com/fossasia/badgemagic-app/raw/apk/badge-magic-flutter_app-release.apk) in the apk branch
 
 ## Permissions
 * **Bluetooth**: For sending org.fossasia.badgemagic.data to the badge.
@@ -46,7 +52,8 @@ There are a number of devices with Bluetooth on the market. As far as we can tel
   </tr>
   <tr>
     <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-saved_badges.png" width="1080"/></td>
-    <td colspan="3">
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-saved_badges_clicked.png" width="1080"/></td>
+    <td colspan="2">
       <img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-draw_badge.png" width="2146"/>
     </td>
   </tr>
