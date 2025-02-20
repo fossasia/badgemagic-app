@@ -193,6 +193,7 @@ class Converters {
     for (int row = 0; row < rows; row++) {
       for (int col = 0; col < (canvasWidth / scale).ceil(); col++) {
         int darkCount = 0;
+        // ignore: unused_local_variable
         int totalCount = 0;
         for (int y = 0; y < scale; y++) {
           for (int x = 0; x < scale; x++) {
