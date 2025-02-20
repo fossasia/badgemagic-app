@@ -64,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen>
     'Ubuntu',
     'Playfair Display',
     'Source Sans Pro',
-    'Dancing Script'
   ];
 
   TextStyle _getGoogleFont(String fontName) {

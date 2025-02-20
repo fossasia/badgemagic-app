@@ -29,7 +29,7 @@ class _AnimationBadgeState extends State<AnimationBadge> {
           grid: provider.getPaintGrid(),
           textStyle:
               provider.textStyle, // Updated to pass the selected font style
-          text: provider.currentMessage, // Pass the current message to display
+          text:"", // Pass the current message to display
         ),
       ),
     );
