@@ -1,0 +1,22 @@
+{
+    "sourceFile": "lib/virtualbadge/view/animated_badge.dart",
+    "activeCommit": 0,
+    "commits": [
+        {
+            "activePatchIndex": 1,
+            "patches": [
+                {
+                    "date": 1739990095171,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n"
+                },
+                {
+                    "date": 1739990104043,
+                    "content": "Index: \n===================================================================\n--- \n+++ \n@@ -28,9 +28,9 @@\n         painter: BadgePaint(\r\n           grid: provider.getPaintGrid(),\r\n           textStyle:\r\n               provider.textStyle, // Updated to pass the selected font style\r\n-          , // Pass the current message to display\r\n+          text:\" provider.currentMessage\", // Pass the current message to display\r\n         ),\r\n       ),\r\n     );\r\n   }\r\n"
+                }
+            ],
+            "date": 1739990095171,
+            "name": "Commit-0",
+            "content": "import 'package:badgemagic/providers/animation_badge_provider.dart';\r\nimport 'package:badgemagic/virtualbadge/view/badge_paint.dart';\r\nimport 'package:flutter/material.dart';\r\nimport 'package:provider/provider.dart';\r\n\r\nclass AnimationBadge extends StatefulWidget {\r\n  const AnimationBadge({super.key});\r\n\r\n  @override\r\n  State<AnimationBadge> createState() => _AnimationBadgeState();\r\n}\r\n\r\nclass _AnimationBadgeState extends State<AnimationBadge> {\r\n  @override\r\n  void initState() {\r\n    super.initState();\r\n    WidgetsBinding.instance.addPostFrameCallback((_) {\r\n      context.read<AnimationBadgeProvider>().initializeAnimation();\r\n    });\r\n  }\r\n\r\n  @override\r\n  Widget build(BuildContext context) {\r\n    final provider = context.watch<AnimationBadgeProvider>();\r\n    return AspectRatio(\r\n      aspectRatio: 3.2,\r\n      child: CustomPaint(\r\n        painter: BadgePaint(\r\n          grid: provider.getPaintGrid(),\r\n          textStyle:\r\n              provider.textStyle, // Updated to pass the selected font style\r\n          , // Pass the current message to display\r\n        ),\r\n      ),\r\n    );\r\n  }\r\n}\r\n"
+        }
+    ]
+}
