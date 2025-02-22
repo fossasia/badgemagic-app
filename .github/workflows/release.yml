@@ -48,7 +48,7 @@ jobs:
           git clone --branch=fastlane-android --depth=1 https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} fastlane
           cd fastlane
           
-          echo "${{ github.event.release.body }}" > metadata/android/en-US/changelogs/${{ steps.download-assets.outputs.VERSION_CODE }}.txt
+          printf "%s" "${{ github.event.release.body }}" > "metadata/android/en-US/changelogs/${{ steps.download-assets.outputs.VERSION_CODE }}.txt"
           
           # Force push to fastlane branch
           git checkout --orphan temporary
@@ -72,7 +72,7 @@ jobs:
           git clone --branch=fastlane-ios --depth=1 https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} fastlane
           cd fastlane
           
-          echo "${{ github.event.release.body }}" > metadata/en-US/release_notes.txt
+          printf "%s" "${{ github.event.release.body }}" > "metadata/en-US/release_notes.txt"
           
           # Force push to fastlane branch
           git checkout --orphan temporary
