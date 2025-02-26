@@ -42,19 +42,13 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int _animationIndex = 0;
   int _animationSpeed = aniSpeedStrategy(0);
   Timer? _timer;
-
-  //List that contains the state of each cell of the badge for home view
   List<List<bool>> _paintGrid =
-      List.generate(11, (i) => List.generate(44, (j) => false));
+      List.generate(16, (i) => List.generate(45, (j) => false));
 
   BadgeAnimation _currentAnimation = LeftAnimation();
 
   final Set<BadgeEffect?> _currentEffect = {};
-
-  //function to get the state of the cell
   List<List<bool>> getPaintGrid() => _paintGrid;
-
-  //function to calculate duration for the animation
   void calculateDuration(int speed) {
     int newSpeed = aniSpeedStrategy(speed - 1);
     if (newSpeed != _animationSpeed) {
@@ -65,12 +59,9 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   List<List<bool>> _newGrid =
-      List.generate(11, (i) => List.generate(44, (j) => false));
-
-  //getter for newGrid
+      List.generate(16, (i) => List.generate(45, (j) => false));
   List<List<bool>> getNewGrid() => _newGrid;
 
-  //setter for newGrid
   void setNewGrid(List<List<bool>> grid) {
     _newGrid = grid;
     _animationIndex = 0;
@@ -100,7 +91,6 @@ class AnimationBadgeProvider extends ChangeNotifier {
     }
   }
 
-  //function to stop timer and reset the animationIndex
   void stopAnimation() {
     logger.d("Timer stopped  ${_timer?.tick.toString()}");
     _timer?.cancel();
@@ -109,20 +99,16 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   void stopAllAnimations() {
-    // Stop any ongoing timer and reset the animation index
     stopAnimation();
     _currentAnimation = LeftAnimation();
-    // Reset the grids to all false values
-    _paintGrid = List.generate(11, (i) => List.generate(44, (j) => false));
-    _newGrid = List.generate(11, (i) => List.generate(44, (j) => false));
+    _paintGrid = List.generate(16, (i) => List.generate(45, (j) => false));
+    _newGrid = List.generate(16, (i) => List.generate(45, (j) => false));
     logger.d("All animations stopped");
   }
 
   void startTimer() {
     _timer =
         Timer.periodic(Duration(microseconds: _animationSpeed), (Timer timer) {
-      // logger.i(
-      //     "New Grid set to: ${getNewGrid().map((e) => e.map((e) => e ? 1 : 0).toList()).toList()}");
       renderGrid(getNewGrid());
       _animationIndex++;
     });
@@ -150,18 +136,29 @@ class AnimationBadgeProvider extends ChangeNotifier {
     return isActive;
   }
 
-  void badgeAnimation(
-      String message, Converters converters, bool isInverted) async {
-    if (message == "") {
-      //geerate a 2d list with all values as 0
+  void badgeAnimation(String message, Converters converters, bool isInverted,
+      {TextStyle? textStyle}
+      ) async {
+    if (message.isEmpty) {
       List<List<bool>> image =
-          List.generate(11, (i) => List.generate(44, (j) => false));
+          List.generate(16, (i) => List.generate(45, (j) => false));
       setNewGrid(image);
     } else {
-      List<String> hexString =
-          await converters.messageTohex(message, isInverted);
-      List<List<bool>> binaryArray = hexStringToBool(hexString.join());
-      setNewGrid(binaryArray);
+      try {
+        List<List<bool>> matrix = await converters.renderTextToMatrix(
+          message,
+          textStyle ??
+              TextStyle(
+                  fontSize: 11,
+                  color: Colors
+                      .black),
+        );
+
+        List<List<bool>> binaryArray = matrix;
+        setNewGrid(binaryArray);
+      } catch (e) {
+        logger.e("Error rendering text to matrix: $e");
+      }
     }
   }
 

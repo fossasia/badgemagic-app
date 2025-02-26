@@ -28,8 +28,8 @@ class _BMBadgeState extends State<BMBadge> {
     super.initState();
   }
 
-  static const int rows = 11;
-  static const int cols = 44;
+  static const int rows = 16;
+  static const int cols = 45;
 
   void _handlePanUpdate(DragUpdateDetails details) {
     RenderBox renderBox = context.findRenderObject() as RenderBox;
@@ -87,71 +87,10 @@ class _BMBadgeState extends State<BMBadge> {
             aspectRatio: 3.2,
             child: Consumer<DrawBadgeProvider>(
               builder: (context, value, child) => CustomPaint(
-                  painter: BadgePaint(grid: value.getDrawViewGrid()),
+                  painter: BadgePaint(grid: value.getDrawViewGrid(), text: ''),
                   size: size),
             ),
           )),
     );
   }
 }
-
-// class AnimationBadgeROW extends LeafRenderObjectWidget {
-//   final DrawBadgeProvider provider;
-
-//   const AnimationBadgeROW({super.key, required this.provider});
-
-//   @override
-//   RenderObject createRenderObject(BuildContext context) {
-//     final renderObject = BadgeRenderObject(provider: provider);
-//     provider.addListener(renderObject.onProviderUpdate);
-//     return renderObject;
-//   }
-
-//   @override
-//   void updateRenderObject(
-//       BuildContext context, covariant BadgeRenderObject renderObject) {
-//     renderObject.provider = provider;
-//   }
-// }
-
-// class BadgeRenderObject extends RenderBox with RenderObjectWithChildMixin {
-//   DrawBadgeProvider provider;
-
-//   BadgeRenderObject({required this.provider});
-
-//   @override
-//   void performLayout() {
-//     var width = constraints.maxWidth;
-//     var height = constraints.maxHeight;
-
-//     // Maintain aspect ratio but ensure it fits within the available height
-//     var desiredHeight = width / 3.2;
-//     if (desiredHeight > height) {
-//       desiredHeight = height;
-//     }
-
-//     size = constraints.constrain(Size(width, desiredHeight));
-//   }
-
-//   @override
-//   void paint(PaintingContext context, Offset offset) {
-//     final Canvas canvas = context.canvas;
-//     BadgePaint(grid: provider.getDrawViewGrid()).paint(canvas, size);
-//   }
-
-//   @override
-//   bool get alwaysNeedsCompositing => true;
-
-//   void onProviderUpdate() {
-//     markNeedsPaint();
-//   }
-
-//   @override
-//   bool hitTest(BoxHitTestResult result, {required Offset position}) {
-//     if (size.contains(position)) {
-//       result.add(BoxHitTestEntry(this, position));
-//       return true;
-//     }
-//     return false;
-//   }
-// }
