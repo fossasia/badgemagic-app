@@ -45,16 +45,16 @@ There are a number of devices with Bluetooth on the market. As far as we can tel
 
 <table>
   <tr>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-home_screen.png" width="1080"/></td>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-text_badge.png" width="1080"/></td>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-emoji_badge.png" width="1080"/></td>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-inverted_emoji_badge.png" width="1080"/></td>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-1_home_screen.png" width="1080"/></td>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-2_text_badge.png" width="1080"/></td>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-3_emoji_badge.png" width="1080"/></td>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-4_inverted_emoji_badge.png" width="1080"/></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-saved_badges.png" width="1080"/></td>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-saved_badges_clicked.png" width="1080"/></td>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-5_saved_badges.png" width="1080"/></td>
+    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-6_saved_badges_clicked.png" width="1080"/></td>
     <td colspan="2">
-      <img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-draw_badge.png" width="2146"/>
+      <img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-7_draw_badge.png" width="2146"/>
     </td>
   </tr>
 </table>

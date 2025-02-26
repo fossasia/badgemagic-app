@@ -34,7 +34,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('home_screen');
+      await binding.takeScreenshot('1_home_screen');
 
       final animationTabText = find.text('Animation');
       await tester.tap(animationTabText);
@@ -59,7 +59,7 @@ void main() async {
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
-      await binding.takeScreenshot('text_badge');
+      await binding.takeScreenshot('2_text_badge');
 
       final saveButton = find.text('Save');
       await tester.tap(saveButton);
@@ -107,7 +107,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('emoji_badge');
+      await binding.takeScreenshot('3_emoji_badge');
 
       await tester.tap(saveButton);
       await tester.pumpAndSettle();
@@ -121,7 +121,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('inverted_emoji_badge');
+      await binding.takeScreenshot('4_inverted_emoji_badge');
 
       await tester.tap(invertEffectContainer);
       await tester.pumpAndSettle();
@@ -138,7 +138,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('saved_badges');
+      await binding.takeScreenshot('5_saved_badges');
 
       final playButton = find
           .byWidgetPredicate(
@@ -158,7 +158,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('saved_badges_clicked');
+      await binding.takeScreenshot('6_saved_badges_clicked');
 
       state = tester.firstState(find.byType(Scaffold));
       state.openDrawer();
@@ -178,7 +178,7 @@ void main() async {
       await tester.pumpAndSettle();
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
-      await binding.takeScreenshot('draw_badge');
+      await binding.takeScreenshot('7_draw_badge');
     });
   });
 }
