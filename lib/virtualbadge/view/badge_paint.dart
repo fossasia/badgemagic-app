@@ -6,7 +6,7 @@ class BadgePaint extends CustomPainter {
   BadgeUtils badgeUtils = BadgeUtils();
   final List<List<bool>> grid;
   final TextStyle? textStyle;
-  final String text; 
+  final String text;
 
   BadgePaint({required this.grid, this.textStyle, required this.text});
 
@@ -21,8 +21,7 @@ class BadgePaint extends CustomPainter {
     double badgeHeight = badgeSize.key * 1.28;
     double badgeWidth = badgeSize.value + 10;
 
-
-    double horizontalPadding = 8.0; 
+    double horizontalPadding = 8.0;
     badgeWidth -= 1.0 * horizontalPadding;
     final Paint rectPaint = Paint()
       ..style = PaintingStyle.fill
@@ -39,8 +38,8 @@ class BadgePaint extends CustomPainter {
 
     canvas.drawRRect(gridRect, rectPaint);
 
-    double totalHorizontalPadding = 15.0; 
-    double totalVerticalPadding = 10.0; 
+    double totalHorizontalPadding = 15.0;
+    double totalVerticalPadding = 10.0;
     double cellStartX = offsetWidthBadgeBackground + totalHorizontalPadding + 6;
     double cellStartY = offsetHeightBadgeBackground + totalVerticalPadding;
 

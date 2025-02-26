@@ -98,7 +98,7 @@ class Converters {
     double fontSize = (textStyle.fontSize ?? 16) * scale;
     double emojiWidth = fontSize * 1.27;
     double totalWidth = 0.0;
-    double spacing = 2.0 * scale; 
+    double spacing = 2.0 * scale;
 
     for (var segment in segments) {
       if (!segment.isEmoji) {
@@ -153,16 +153,13 @@ class Converters {
           var key = keys[index];
           Uint8List? emojiBytes = controllerData.imageCache[key];
           if (emojiBytes != null) {
-            
             ui.Codec codec = await ui.instantiateImageCodec(emojiBytes);
             ui.FrameInfo fi = await codec.getNextFrame();
             ui.Image originalImage = fi.image;
 
-         
             double aspectRatio = originalImage.width / originalImage.height;
             double scaledHeight = emojiWidth / aspectRatio;
 
-      
             codec = await ui.instantiateImageCodec(
               emojiBytes,
               targetWidth: emojiWidth.toInt(),
@@ -293,6 +290,7 @@ class Converters {
 
     return trimmed;
   }
+
   static List<String> convertBitmapToLEDHex(List<List<int>> image, bool trim) {
     int height = image.length;
     int width = image.isNotEmpty ? image[0].length : 0;
@@ -365,6 +363,7 @@ class Converters {
     }
     return allHexs;
   }
+
   static String invertHex(String hex) {
     StringBuffer invertedHex = StringBuffer();
     for (int i = 0; i < hex.length; i++) {
@@ -374,6 +373,7 @@ class Converters {
     }
     return invertedHex.toString();
   }
+
   List<String> padHexString(List<String> hexString) {
     List<List<int>> hexArray = hexStringToBool(hexString.join()).map((e) {
       return e.map((e) => e ? 1 : 0).toList();

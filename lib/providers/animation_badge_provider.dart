@@ -137,8 +137,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   void badgeAnimation(String message, Converters converters, bool isInverted,
-      {TextStyle? textStyle}
-      ) async {
+      {TextStyle? textStyle}) async {
     if (message.isEmpty) {
       List<List<bool>> image =
           List.generate(16, (i) => List.generate(45, (j) => false));
@@ -147,11 +146,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
       try {
         List<List<bool>> matrix = await converters.renderTextToMatrix(
           message,
-          textStyle ??
-              TextStyle(
-                  fontSize: 11,
-                  color: Colors
-                      .black),
+          textStyle ?? TextStyle(fontSize: 11, color: Colors.black),
         );
 
         List<List<bool>> binaryArray = matrix;
