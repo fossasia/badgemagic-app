@@ -11,7 +11,8 @@ class FixedAnimation extends BadgeAnimation {
   ) {
     int newWidth = processGrid[0].length;
     int horizontalOffset = (badgeWidth - newWidth) ~/ 2;
-    int rowLimit = badgeHeight < processGrid.length ? badgeHeight : processGrid.length;
+    int rowLimit =
+        badgeHeight < processGrid.length ? badgeHeight : processGrid.length;
 
     for (int i = 0; i < rowLimit; i++) {
       for (int j = 0; j < badgeWidth; j++) {
