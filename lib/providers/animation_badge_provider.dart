@@ -65,7 +65,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   List<List<bool>> _newGrid =
-      List.generate(14, (i) => List.generate(44, (j) => false));
+      List.generate(16, (i) => List.generate(45, (j) => false));
 
   //getter for newGrid
   List<List<bool>> getNewGrid() => _newGrid;
@@ -113,8 +113,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
     stopAnimation();
     _currentAnimation = LeftAnimation();
     // Reset the grids to all false values
-    _paintGrid = List.generate(15, (i) => List.generate(44, (j) => false));
-    _newGrid = List.generate(15, (i) => List.generate(44, (j) => false));
+    _paintGrid = List.generate(16, (i) => List.generate(45, (j) => false));
+    _newGrid = List.generate(16, (i) => List.generate(45, (j) => false));
     logger.d("All animations stopped");
   }
 
@@ -155,7 +155,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
       ) async {
     if (message.isEmpty) {
       List<List<bool>> image =
-          List.generate(15, (i) => List.generate(44, (j) => false));
+          List.generate(16, (i) => List.generate(45, (j) => false));
       setNewGrid(image);
     } else {
       try {
