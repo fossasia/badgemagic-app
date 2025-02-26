@@ -2,12 +2,18 @@ import 'package:badgemagic/badge_animation/animation_abstract.dart';
 
 class FixedAnimation extends BadgeAnimation {
   @override
-  void processAnimation(int badgeHeight, int badgeWidth, int animationIndex,
-      List<List<bool>> processGrid, List<List<bool>> canvas) {
+  void processAnimation(
+    int badgeHeight,
+    int badgeWidth,
+    int animationIndex,
+    List<List<bool>> processGrid,
+    List<List<bool>> canvas,
+  ) {
     int newWidth = processGrid[0].length;
     int horizontalOffset = (badgeWidth - newWidth) ~/ 2;
+    int rowLimit = badgeHeight < processGrid.length ? badgeHeight : processGrid.length;
 
-    for (int i = 0; i < badgeHeight; i++) {
+    for (int i = 0; i < rowLimit; i++) {
       for (int j = 0; j < badgeWidth; j++) {
         int sourceCol = j - horizontalOffset;
         bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
