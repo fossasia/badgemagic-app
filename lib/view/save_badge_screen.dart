@@ -126,7 +126,11 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                 children: [
                   Column(
                     children: [
-                      AnimationBadge(),
+                      // Updated: Pass a non-null default TextStyle
+                      AnimationBadge(
+                        text: '',
+                        textStyle: const TextStyle(fontSize: 16, color: Colors.black),
+                      ),
                       Expanded(
                         child: BadgeListView(
                           futureBadges: Future.value(provider.savedBadgeCache),
@@ -168,7 +172,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                             badgeData['messages'][0]);
                                         badgeDataList.add(message);
                                       }
-                                      //add empty message object in the badgeList such that total count becomes 8
+                                      // Add empty message objects so that the total count becomes 8
                                       while (badgeDataList.length < 8) {
                                         badgeDataList.add(Message(text: []));
                                       }

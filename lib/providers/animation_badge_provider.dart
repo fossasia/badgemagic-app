@@ -43,31 +43,18 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int _animationSpeed = aniSpeedStrategy(0);
   Timer? _timer;
 
-  // List that contains the state of each cell of the badge for home view
+  //List that contains the state of each cell of the badge for home view
   List<List<bool>> _paintGrid =
-      List.generate(11, (i) => List.generate(44, (j) => false));
+      List.generate(16, (i) => List.generate(45, (j) => false));
 
   BadgeAnimation _currentAnimation = LeftAnimation();
 
   final Set<BadgeEffect?> _currentEffect = {};
 
-  TextStyle? _textStyle;
-
-  TextStyle? get textStyle => _textStyle;
-
-  void setTextStyle(TextStyle textStyle) {
-    _textStyle = textStyle;
-    notifyListeners();
-  }
-
-  // New: store the current message for display purposes
-  String _currentMessage = "";
-  String get currentMessage => _currentMessage;
-
-  // Function to get the state of the cell
+  //function to get the state of the cell
   List<List<bool>> getPaintGrid() => _paintGrid;
 
-  // Function to calculate duration for the animation
+  //function to calculate duration for the animation
   void calculateDuration(int speed) {
     int newSpeed = aniSpeedStrategy(speed - 1);
     if (newSpeed != _animationSpeed) {
@@ -78,12 +65,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   List<List<bool>> _newGrid =
-      List.generate(11, (i) => List.generate(44, (j) => false));
+      List.generate(14, (i) => List.generate(44, (j) => false));
 
-  // Getter for newGrid
+  //getter for newGrid
   List<List<bool>> getNewGrid() => _newGrid;
 
-  // Setter for newGrid
+  //setter for newGrid
   void setNewGrid(List<List<bool>> grid) {
     _newGrid = grid;
     _animationIndex = 0;
@@ -113,24 +100,29 @@ class AnimationBadgeProvider extends ChangeNotifier {
     }
   }
 
-  // Function to stop timer and reset the animationIndex
+  //function to stop timer and reset the animationIndex
   void stopAnimation() {
     logger.d("Timer stopped  ${_timer?.tick.toString()}");
     _timer?.cancel();
+
     _animationIndex = 0;
   }
 
   void stopAllAnimations() {
+    // Stop any ongoing timer and reset the animation index
     stopAnimation();
     _currentAnimation = LeftAnimation();
-    _paintGrid = List.generate(11, (i) => List.generate(44, (j) => false));
-    _newGrid = List.generate(11, (i) => List.generate(44, (j) => false));
+    // Reset the grids to all false values
+    _paintGrid = List.generate(15, (i) => List.generate(44, (j) => false));
+    _newGrid = List.generate(15, (i) => List.generate(44, (j) => false));
     logger.d("All animations stopped");
   }
 
   void startTimer() {
     _timer =
         Timer.periodic(Duration(microseconds: _animationSpeed), (Timer timer) {
+      // logger.i(
+      //     "New Grid set to: ${getNewGrid().map((e) => e.map((e) => e ? 1 : 0).toList()).toList()}");
       renderGrid(getNewGrid());
       _animationIndex++;
     });
@@ -158,26 +150,33 @@ class AnimationBadgeProvider extends ChangeNotifier {
     return isActive;
   }
 
-  // It stores the current message and calls the new renderTextToMatrix converter.
-  void badgeAnimation(String message, Converters converters, bool isInverted,
-      {required TextStyle textStyle}) async {
-    _currentMessage = message;
-    setTextStyle(textStyle);
-    if (message == "") {
-      List<List<bool>> image =
-          List.generate(11, (i) => List.generate(44, (j) => false));
-      setNewGrid(image);
-    } else {
-      // Render the text using the selected font style
-      List<List<bool>> matrix =
-          await converters.renderTextToMatrix(message, textStyle);
-      if (isInverted) {
-        matrix =
-            matrix.map((row) => row.map((cell) => !cell).toList()).toList();
-      }
-      setNewGrid(matrix);
+  void badgeAnimation(
+  String message,
+  Converters converters,
+  bool isInverted,
+  {TextStyle? textStyle} // Optional TextStyle parameter
+) async {
+  if (message.isEmpty) {
+    List<List<bool>> image = List.generate(15, (i) => List.generate(44, (j) => false));
+    setNewGrid(image);
+  } else {
+    try {
+      // Call renderTextToMatrix from the Converters instance
+      List<List<bool>> matrix = await converters.renderTextToMatrix(
+        message,
+        textStyle ?? TextStyle(fontSize: 11, color: Colors.black), // Provide a default TextStyle if none is provided
+      );
+
+      // Convert the matrix to a binary array
+      List<List<bool>> binaryArray = matrix;
+
+      // Set the new grid
+      setNewGrid(binaryArray);
+    } catch (e) {
+      logger.e("Error rendering text to matrix: $e");
     }
   }
+}
 
   void renderGrid(List<List<bool>> newGrid) {
     int badgeWidth = _paintGrid[0].length;

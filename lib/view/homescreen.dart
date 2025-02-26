@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
@@ -64,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen>
     'Ubuntu',
     'Playfair Display',
     'Source Sans Pro',
+    'dancing_script'
   ];
 
   TextStyle _getGoogleFont(String fontName) {
@@ -93,8 +93,16 @@ class _HomeScreenState extends State<HomeScreen>
     _startImageCaching();
     speedDialProvider = SpeedDialProvider(animationProvider);
     super.initState();
+    _preloadFonts();
     _tabController = TabController(length: 3, vsync: this);
   }
+ Future<void> _preloadFonts() async {
+  for (String font in googleFonts) {
+    // Use the TextStyle object directly
+    GoogleFonts.getFont(font);
+    // No need to call .load() on the TextStyle object
+  }
+}
 
   void handleTextChange() {
     final currentText = inlineimagecontroller.text;
@@ -132,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen>
       inlineImageProvider.getController().text,
       Converters(),
       animationProvider.isEffectActive(InvertLEDEffect()),
-      textStyle: _getGoogleFont(selectedFont),
+      textStyle: _getGoogleFont(selectedFont), // Pass the selected TextStyle
     );
   }
 
@@ -184,7 +192,11 @@ class _HomeScreenState extends State<HomeScreen>
                   : const AlwaysScrollableScrollPhysics(),
               child: Column(
                 children: [
-                  AnimationBadge(),
+                  AnimationBadge(
+                    text: inlineimagecontroller.text,
+                    textStyle: _getGoogleFont(selectedFont),
+                  ),
+                  const SizedBox(height: 40),
                   Container(
                     margin: EdgeInsets.all(15.w),
                     child: Material(
@@ -316,8 +328,7 @@ class _HomeScreenState extends State<HomeScreen>
                           children: [
                             GestureDetector(
                               onTap: () {
-                                logger.i(
-                                    'Save button clicked, showing dialog : ${animationProvider.isEffectActive(FlashEffect())}');
+                                
                                 showDialog(
                                   context: context,
                                   builder: (context) => SaveBadgeDialog(

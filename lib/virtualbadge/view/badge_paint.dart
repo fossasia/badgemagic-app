@@ -21,8 +21,14 @@ class BadgePaint extends CustomPainter {
     // Size of the rectangle
     MapEntry<double, double> badgeSize = badgeUtils.getBadgeSize(
         offsetHeightBadgeBackground, offsetWidthBadgeBackground, size);
-    double badgeHeight = badgeSize.key;
-    double badgeWidth = badgeSize.value;
+    double badgeHeight = badgeSize.key * 1.28; 
+    double badgeWidth = badgeSize.value+10;
+
+    // Horizontal padding
+    double horizontalPadding = 8.0; // Adjust this value as needed
+
+    // Adjust badgeWidth to account for horizontal padding
+    badgeWidth -= 1.0 * horizontalPadding;
 
     // Draw the outer rectangle
     final Paint rectPaint = Paint()
@@ -31,28 +37,30 @@ class BadgePaint extends CustomPainter {
       ..strokeWidth = 2.0;
 
     final RRect gridRect = RRect.fromLTRBR(
-      offsetWidthBadgeBackground,
+      offsetWidthBadgeBackground + horizontalPadding-10,
       offsetHeightBadgeBackground,
-      offsetWidthBadgeBackground + badgeWidth,
+      offsetWidthBadgeBackground + badgeWidth + horizontalPadding,
       offsetHeightBadgeBackground + badgeHeight,
       const Radius.circular(10.0),
     );
 
     canvas.drawRRect(gridRect, rectPaint);
 
-    var cellSize = badgeWidth / grid[0].length;
+  double totalHorizontalPadding = 15.0; // Example value; adjust as necessary
+double totalVerticalPadding = 10.0; // Example value; adjust as necessary
 
-    MapEntry<double, double> cellStartCoordinate =
-        badgeUtils.getCellStartCoordinate(offsetWidthBadgeBackground,
-            offsetHeightBadgeBackground, badgeWidth, badgeHeight);
-    double cellStartX = cellStartCoordinate.key;
-    double cellStartY = cellStartCoordinate.value;
+// Calculate the starting X and Y coordinates considering the padding
+double cellStartX = offsetWidthBadgeBackground + totalHorizontalPadding+6;
+double cellStartY = offsetHeightBadgeBackground + totalVerticalPadding;
+
+// Adjust the cell size to maintain the aspect ratio if necessary
+double cellSize = (badgeWidth - 2 * totalHorizontalPadding) / grid[0].length;
 
     // Draw the cells
     for (int row = 0; row < grid.length; row++) {
       for (int col = 0; col < grid[row].length; col++) {
         var cellStartRow = cellStartY + row * cellSize;
-        var cellStartCol = cellStartX + col * (cellSize * 0.93);
+        var cellStartCol = cellStartX + col * cellSize;
 
         final Paint paint = Paint()
           ..color = grid[row][col]
@@ -63,7 +71,7 @@ class BadgePaint extends CustomPainter {
         final Rect cellRect = Rect.fromLTWH(
           cellStartCol,
           cellStartRow,
-          cellSize / 2.5,
+          cellSize,
           cellSize,
         );
 
@@ -94,7 +102,7 @@ class BadgePaint extends CustomPainter {
 
       // Position the text in the center of the badge
       final textOffset = Offset(
-        offsetWidthBadgeBackground + (badgeWidth - textPainter.width) / 2,
+        offsetWidthBadgeBackground + (badgeWidth - textPainter.width) / 2 + horizontalPadding,
         offsetHeightBadgeBackground + (badgeHeight - textPainter.height) / 2,
       );
 

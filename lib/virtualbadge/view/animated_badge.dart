@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class AnimationBadge extends StatefulWidget {
-  const AnimationBadge({super.key});
+  final String text;
+  final TextStyle textStyle;
+  const AnimationBadge({super.key, required this.text, required this.textStyle});
 
   @override
   State<AnimationBadge> createState() => _AnimationBadgeState();
@@ -27,9 +29,8 @@ class _AnimationBadgeState extends State<AnimationBadge> {
       child: CustomPaint(
         painter: BadgePaint(
           grid: provider.getPaintGrid(),
-          textStyle:
-              provider.textStyle, // Updated to pass the selected font style
-          text: "", // Pass the current message to display
+          text: widget.text,
+          textStyle: widget.textStyle,
         ),
       ),
     );

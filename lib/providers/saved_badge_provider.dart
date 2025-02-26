@@ -77,7 +77,6 @@ class SavedBadgeProvider extends ChangeNotifier {
   void savedBadgeAnimation(
       Map<String, dynamic> data, AnimationBadgeProvider aniProvider) {
     //set the animations and the modes from the json file
-    logger.i(Speed.getIntValue(Speed.fromHex(data['messages'][0]['speed'])));
     aniProvider.calculateDuration(
         Speed.getIntValue(Speed.fromHex(data['messages'][0]['speed'])) + 1);
     aniProvider.setAnimationMode(animationMap[
@@ -94,8 +93,6 @@ class SavedBadgeProvider extends ChangeNotifier {
     if (data['messages'][0]['marquee'] == true) {
       aniProvider.addEffect(effectMap[2]);
     }
-
-    logger.i("Effects set are = ${aniProvider.getCurrentEffect}");
 
     String hexString = data['messages'][0]['text'].join();
     List<List<bool>> binaryArray = hexStringToBool(hexString);
