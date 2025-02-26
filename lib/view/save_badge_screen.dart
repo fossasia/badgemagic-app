@@ -129,7 +129,8 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                       // Updated: Pass a non-null default TextStyle
                       AnimationBadge(
                         text: '',
-                        textStyle: const TextStyle(fontSize: 16, color: Colors.black),
+                        textStyle:
+                            const TextStyle(fontSize: 16, color: Colors.black),
                       ),
                       Expanded(
                         child: BadgeListView(

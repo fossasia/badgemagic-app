@@ -21,8 +21,8 @@ class BadgePaint extends CustomPainter {
     // Size of the rectangle
     MapEntry<double, double> badgeSize = badgeUtils.getBadgeSize(
         offsetHeightBadgeBackground, offsetWidthBadgeBackground, size);
-    double badgeHeight = badgeSize.key * 1.28; 
-    double badgeWidth = badgeSize.value+10;
+    double badgeHeight = badgeSize.key * 1.28;
+    double badgeWidth = badgeSize.value + 10;
 
     // Horizontal padding
     double horizontalPadding = 8.0; // Adjust this value as needed
@@ -37,7 +37,7 @@ class BadgePaint extends CustomPainter {
       ..strokeWidth = 2.0;
 
     final RRect gridRect = RRect.fromLTRBR(
-      offsetWidthBadgeBackground + horizontalPadding-10,
+      offsetWidthBadgeBackground + horizontalPadding - 10,
       offsetHeightBadgeBackground,
       offsetWidthBadgeBackground + badgeWidth + horizontalPadding,
       offsetHeightBadgeBackground + badgeHeight,
@@ -46,15 +46,16 @@ class BadgePaint extends CustomPainter {
 
     canvas.drawRRect(gridRect, rectPaint);
 
-  double totalHorizontalPadding = 15.0; // Example value; adjust as necessary
-double totalVerticalPadding = 10.0; // Example value; adjust as necessary
+    double totalHorizontalPadding = 15.0; // Example value; adjust as necessary
+    double totalVerticalPadding = 10.0; // Example value; adjust as necessary
 
 // Calculate the starting X and Y coordinates considering the padding
-double cellStartX = offsetWidthBadgeBackground + totalHorizontalPadding+6;
-double cellStartY = offsetHeightBadgeBackground + totalVerticalPadding;
+    double cellStartX = offsetWidthBadgeBackground + totalHorizontalPadding + 6;
+    double cellStartY = offsetHeightBadgeBackground + totalVerticalPadding;
 
 // Adjust the cell size to maintain the aspect ratio if necessary
-double cellSize = (badgeWidth - 2 * totalHorizontalPadding) / grid[0].length;
+    double cellSize =
+        (badgeWidth - 2 * totalHorizontalPadding) / grid[0].length;
 
     // Draw the cells
     for (int row = 0; row < grid.length; row++) {
@@ -102,7 +103,9 @@ double cellSize = (badgeWidth - 2 * totalHorizontalPadding) / grid[0].length;
 
       // Position the text in the center of the badge
       final textOffset = Offset(
-        offsetWidthBadgeBackground + (badgeWidth - textPainter.width) / 2 + horizontalPadding,
+        offsetWidthBadgeBackground +
+            (badgeWidth - textPainter.width) / 2 +
+            horizontalPadding,
         offsetHeightBadgeBackground + (badgeHeight - textPainter.height) / 2,
       );
 

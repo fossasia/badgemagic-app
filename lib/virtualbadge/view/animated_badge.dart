@@ -6,7 +6,8 @@ import 'package:provider/provider.dart';
 class AnimationBadge extends StatefulWidget {
   final String text;
   final TextStyle textStyle;
-  const AnimationBadge({super.key, required this.text, required this.textStyle});
+  const AnimationBadge(
+      {super.key, required this.text, required this.textStyle});
 
   @override
   State<AnimationBadge> createState() => _AnimationBadgeState();

@@ -150,33 +150,35 @@ class AnimationBadgeProvider extends ChangeNotifier {
     return isActive;
   }
 
-  void badgeAnimation(
-  String message,
-  Converters converters,
-  bool isInverted,
-  {TextStyle? textStyle} // Optional TextStyle parameter
-) async {
-  if (message.isEmpty) {
-    List<List<bool>> image = List.generate(15, (i) => List.generate(44, (j) => false));
-    setNewGrid(image);
-  } else {
-    try {
-      // Call renderTextToMatrix from the Converters instance
-      List<List<bool>> matrix = await converters.renderTextToMatrix(
-        message,
-        textStyle ?? TextStyle(fontSize: 11, color: Colors.black), // Provide a default TextStyle if none is provided
-      );
+  void badgeAnimation(String message, Converters converters, bool isInverted,
+      {TextStyle? textStyle} // Optional TextStyle parameter
+      ) async {
+    if (message.isEmpty) {
+      List<List<bool>> image =
+          List.generate(15, (i) => List.generate(44, (j) => false));
+      setNewGrid(image);
+    } else {
+      try {
+        // Call renderTextToMatrix from the Converters instance
+        List<List<bool>> matrix = await converters.renderTextToMatrix(
+          message,
+          textStyle ??
+              TextStyle(
+                  fontSize: 11,
+                  color: Colors
+                      .black), // Provide a default TextStyle if none is provided
+        );
 
-      // Convert the matrix to a binary array
-      List<List<bool>> binaryArray = matrix;
+        // Convert the matrix to a binary array
+        List<List<bool>> binaryArray = matrix;
 
-      // Set the new grid
-      setNewGrid(binaryArray);
-    } catch (e) {
-      logger.e("Error rendering text to matrix: $e");
+        // Set the new grid
+        setNewGrid(binaryArray);
+      } catch (e) {
+        logger.e("Error rendering text to matrix: $e");
+      }
     }
   }
-}
 
   void renderGrid(List<List<bool>> newGrid) {
     int badgeWidth = _paintGrid[0].length;

@@ -96,13 +96,14 @@ class _HomeScreenState extends State<HomeScreen>
     _preloadFonts();
     _tabController = TabController(length: 3, vsync: this);
   }
- Future<void> _preloadFonts() async {
-  for (String font in googleFonts) {
-    // Use the TextStyle object directly
-    GoogleFonts.getFont(font);
-    // No need to call .load() on the TextStyle object
+
+  Future<void> _preloadFonts() async {
+    for (String font in googleFonts) {
+      // Use the TextStyle object directly
+      GoogleFonts.getFont(font);
+      // No need to call .load() on the TextStyle object
+    }
   }
-}
 
   void handleTextChange() {
     final currentText = inlineimagecontroller.text;
@@ -328,7 +329,6 @@ class _HomeScreenState extends State<HomeScreen>
                           children: [
                             GestureDetector(
                               onTap: () {
-                                
                                 showDialog(
                                   context: context,
                                   builder: (context) => SaveBadgeDialog(
