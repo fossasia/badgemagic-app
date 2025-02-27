@@ -49,7 +49,7 @@ dependencies:
   file_picker: ^9.0.1
   google_fonts: ^6.2.1
   url_launcher: ^6.3.1
-  image: ^4.5.2
+  image: ^4.5.3
 
 dev_dependencies:
   flutter_test:
