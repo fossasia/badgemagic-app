@@ -67,7 +67,7 @@ platform :ios do
         app_version: options[:version_name],
         run_precheck_before_submit: false,
         skip_binary_upload: true,
-        # overwrite_screenshots: true,
+        overwrite_screenshots: true,
       )
     else
       UI.user_error!("You must provide a build_number and version_name option when promoting a version to production.")
