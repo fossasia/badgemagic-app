@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'globals/globals.dart' as globals;
-
 void main() {
   setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
@@ -22,7 +21,6 @@ void main() {
     child: const MyApp(),
   ));
 }
-
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
