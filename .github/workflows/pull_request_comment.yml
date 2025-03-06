@@ -134,7 +134,7 @@ jobs:
             
             var statusText = `Build successful. APKs to test: ${artifact_url}.`;
 
-            var androidScreenshots = '
+            var androidScreenshots = `
             <table>
               <tr>
                 <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Pixel_6-1_home_screen.png" width="1080"/></td>
@@ -150,9 +150,9 @@ jobs:
                 </td>
               </tr>
             </table>
-            ';
+            `;
 
-            var iPhoneScreenshots = '
+            var iPhoneScreenshots = `
             <table>
               <tr>
                 <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone_16_Pro_Max-1_home_screen.png" width="1080"/></td>
@@ -168,9 +168,9 @@ jobs:
                 </td>
               </tr>
             </table>
-            ';
+            `;
 
-            var iPadScreenshots = '
+            var iPadScreenshots = `
             <table>
               <tr>
                 <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad_Pro_13-inch_(M4)-1_home_screen.png" width="1080"/></td>
@@ -186,7 +186,7 @@ jobs:
                 </td>
               </tr>
             </table>
-            ';
+            `;
 
             const body = `
             ## Build Status
