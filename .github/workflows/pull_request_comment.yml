@@ -73,7 +73,6 @@ jobs:
         with:
           script: |
             var fs = require('fs')
-            const core = require('@actions/core');
             var issue_number = Number(fs.readFileSync('./NR'));
             core.setOutput("pr_number", issue_number);
 
