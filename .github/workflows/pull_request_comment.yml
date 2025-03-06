@@ -71,7 +71,7 @@ jobs:
           unzip androidScreenshots.zip -d screenshots/
           unzip iosScreenshots.zip -d screenshots/
 
-      - name: Update PR Screnshots
+      - name: Update PR Screenshots
         shell: bash
         run: |
           git config --global user.name "github-actions[bot]"
@@ -185,16 +185,16 @@ jobs:
 
             const body = `
             ## Build Status
-            {statusText}
+            ${statusText}
 
             ## Screenshots (Android)
-            {androidScreenshots}
+            ${androidScreenshots}
 
             ## Screenshots (iPhone)
-            {iPhoneScreenshots}
+            ${iPhoneScreenshots}
 
             ## Screenshots (iPad)
-            {iPadScreenshots}
+            ${iPadScreenshots}
             `;
             
             if (comment_id) {

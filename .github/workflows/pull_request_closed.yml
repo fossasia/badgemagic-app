@@ -31,6 +31,3 @@ jobs:
           git branch -D pr-screenshots
           git branch -m pr-screenshots
           git push --force origin pr-screenshots
-
-
-
