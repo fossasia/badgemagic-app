@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
@@ -254,6 +255,11 @@ class _HomeScreenState extends State<HomeScreen>
                             children: [
                               GestureDetector(
                                 onTap: () {
+                                  if (inlineimagecontroller.text.isEmpty) {
+                                    ToastUtils().showErrorToast(
+                                        "Please enter a message");
+                                    return;
+                                  }
                                   logger.i(
                                       'Save button clicked, showing dialog : ${animationProvider.isEffectActive(FlashEffect())}');
                                   showDialog(
