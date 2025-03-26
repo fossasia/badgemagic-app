@@ -255,7 +255,7 @@ class _HomeScreenState extends State<HomeScreen>
                             children: [
                               GestureDetector(
                                 onTap: () {
-                                  if (inlineimagecontroller.text.isEmpty) {
+                                  if (inlineimagecontroller.text.trim().isEmpty) {
                                     ToastUtils().showErrorToast(
                                         "Please enter a message");
                                     return;
