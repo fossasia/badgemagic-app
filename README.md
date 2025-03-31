@@ -139,3 +139,6 @@ The application is licensed under the [Apache License 2.0](/LICENSE). Copyright 
 ## OTHER BADGE APPS
 
 * [LED Python App](https://github.com/fossasia/led-name-badge-ls32)
+
+  > 🚀 First GitHub edit by Prerna – GSoC 2025 exploration 🎯
+
