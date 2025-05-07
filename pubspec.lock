@@ -178,10 +178,10 @@ packages:
     dependency: "direct main"
     description:
       name: file_picker
-      sha256: "8986dec4581b4bcd4b6df5d75a2ea0bede3db802f500635d05fa8be298f9467f"
+      sha256: b4303b48136c7913fccb7297458b450bb7f94dd1d77b6b6e752e8a0208c0469d
       url: "https://pub.dev"
     source: hosted
-    version: "10.1.2"
+    version: "10.1.4"
   fixnum:
     dependency: transitive
     description:
