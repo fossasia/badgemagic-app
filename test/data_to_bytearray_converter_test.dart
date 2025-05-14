@@ -144,7 +144,7 @@ void main() {
           text: await converters.messageTohex(
               'abcdefghijklmnopqrstuvwxyz', false)),
       Message(text: await converters.messageTohex('_' * 500, false)),
-      Message(text: await converters.messageTohex('É', false)),
+      Message(text: await converters.messageTohex('°', false)),
       Message(text: await converters.messageTohex('ÇÇÇÇÇabc', false)),
       Message(text: await converters.messageTohex('', false)),
     ]);
@@ -163,7 +163,7 @@ void main() {
       0x00,
       0x00,
       0x00,
-      0x03,
+      0x08,
       0x00,
       0x00,
       0x00,
@@ -201,7 +201,7 @@ void main() {
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     Data data = Data(messages: [
       Message(text: await converters.messageTohex('AB', false)),
-      Message(text: await converters.messageTohex('ÈC', false)),
+      Message(text: await converters.messageTohex('°C', false)),
     ]);
 
     List<List<int>> result = converter.convert(data);
