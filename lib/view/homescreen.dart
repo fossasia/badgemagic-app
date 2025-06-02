@@ -1,16 +1,20 @@
 import 'dart:async';
-
+import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
-import 'package:badgemagic/providers/badge_message_provider.dart';
+import 'package:badgemagic/providers/badge_message_provider.dart'
+    hide modeValueMap, speedMap;
 import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/view/special_text_field.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -27,7 +31,15 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  // Add parameters for saved badge data when editing
+  final Map<String, dynamic>? savedBadgeData;
+  final String? savedBadgeFilename;
+
+  const HomeScreen({
+    super.key,
+    this.savedBadgeData,
+    this.savedBadgeFilename,
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -54,14 +66,144 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
       inlineImageProvider.setContext(context);
+
+      // Apply saved badge data if we're editing a saved badge
+      if (widget.savedBadgeData != null) {
+        await _applySavedBadgeData();
+      }
     });
     _startImageCaching();
     speedDialProvider = SpeedDialProvider(animationProvider);
     super.initState();
 
     _tabController = TabController(length: 3, vsync: this);
+  }
+
+  // Method to apply saved badge data when editing a badge
+  Future<void> _applySavedBadgeData() async {
+    final savedData = widget.savedBadgeData!;
+    final fileHelper = FileHelper();
+    final savedBadgeProvider = SavedBadgeProvider();
+
+    // Set the text from the saved badge
+    final badgeData = fileHelper.jsonToData(savedData);
+    final message = badgeData.messages[0];
+
+    // When we save a badge, we store the original text using BadgeTextStorage
+    // Now we need to retrieve that text to show in the text field
+
+    String badgeText = "";
+    try {
+      if (widget.savedBadgeFilename != null) {
+        // Get the original text from BadgeTextStorage
+        badgeText =
+            await BadgeTextStorage.getOriginalText(widget.savedBadgeFilename!);
+
+        // If we couldn't find the original text, use the filename as a fallback
+        if (badgeText.isEmpty) {
+          badgeText = widget.savedBadgeFilename!
+              .substring(0, widget.savedBadgeFilename!.length - 5);
+          // If the filename is a timestamp, use a generic text
+          if (badgeText.contains(":") && badgeText.contains("-")) {
+            badgeText = "Hello"; // Default text for timestamp filenames
+          }
+        }
+      }
+    } catch (e) {
+      logger.e("Failed to retrieve original badge text: $e");
+      badgeText = "Hello"; // Default fallback
+    }
+
+    // Set the text in the controller
+    inlineimagecontroller.text = badgeText;
+
+    // Set animation effects
+    if (message.flash) {
+      animationProvider.addEffect(effectMap[1]); // Flash effect
+    }
+    if (message.marquee) {
+      animationProvider.addEffect(effectMap[2]); // Marquee effect
+    }
+
+    // Set inversion if applicable
+    if (savedData.containsKey('invert') && savedData['invert'] == true) {
+      animationProvider.addEffect(effectMap[0]); // Invert effect
+    }
+
+    // Set animation mode
+    int modeValue = 0; // Default to left animation
+    try {
+      // Handle different mode formats - could be enum or int
+      if (message.mode is int) {
+        modeValue = message.mode as int;
+      } else {
+        // Try to extract the mode value from the enum
+        String modeString = message.mode.toString();
+        // If it's in format "Mode.left", extract just the mode name
+        if (modeString.contains('.')) {
+          String modeName = modeString.split('.').last;
+          // Map mode name to value
+          switch (modeName.toLowerCase()) {
+            case 'left':
+              modeValue = 0;
+              break;
+            case 'right':
+              modeValue = 1;
+              break;
+            case 'up':
+              modeValue = 2;
+              break;
+            case 'down':
+              modeValue = 3;
+              break;
+            case 'fixed':
+              modeValue = 4;
+              break;
+            case 'snowflake':
+              modeValue = 5;
+              break;
+            case 'picture':
+              modeValue = 6;
+              break;
+            case 'animation':
+              modeValue = 7;
+              break;
+            default:
+              modeValue = 0; // Default to left
+          }
+        } else {
+          // Try parsing as int
+          modeValue = int.tryParse(modeString) ?? 0;
+        }
+      }
+    } catch (e) {
+      // If parsing fails, default to left animation (0)
+      logger.e("Failed to parse mode value: $e");
+    }
+    animationProvider.setAnimationMode(animationMap[modeValue]);
+
+    // Set speed using Speed.getIntValue to ensure correct dial value
+    try {
+      int speedDialValue = 1; // Default
+      // Use the static helper method to get the correct dial value
+      speedDialValue = Speed.getIntValue(message.speed);
+      logger
+          .i("Setting speed dial to: $speedDialValue from ${message.speed}");
+          speedDialProvider.setDialValue(speedDialValue);
+    } catch (e) {
+      logger.e("Failed to set speed dial value: $e");
+      speedDialProvider.setDialValue(1); // Fallback to default
+    }
+
+    // Store the filename for saving back to the same file
+    savedBadgeProvider.setSavedBadgeDataMap(savedData);
+    savedBadgeProvider.setIsSavedBadgeData(true);
+
+    // Notify that we're editing an existing badge
+    ToastUtils().showToast(
+        "Editing badge: ${widget.savedBadgeFilename!.substring(0, widget.savedBadgeFilename!.length - 5)}");
   }
 
   void handleTextChange() {
@@ -254,29 +396,67 @@ class _HomeScreenState extends State<HomeScreen>
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               GestureDetector(
-                                onTap: () {
-                                  if (inlineimagecontroller.text
-                                      .trim()
+                                onTap: () async {
+                                  if (inlineImageProvider
+                                      .getController()
+                                      .text
                                       .isEmpty) {
-                                    ToastUtils().showErrorToast(
-                                        "Please enter a message");
+                                    ToastUtils()
+                                        .showToast("Please enter a message");
                                     return;
                                   }
                                   logger.i(
                                       'Save button clicked, showing dialog : ${animationProvider.isEffectActive(FlashEffect())}');
-                                  showDialog(
-                                      context: this.context,
-                                      builder: (context) {
-                                        return SaveBadgeDialog(
-                                          speed: speedDialProvider,
-                                          animationProvider: animationProvider,
-                                          textController: inlineImageProvider
-                                              .getController(),
-                                          isInverse:
-                                              animationProvider.isEffectActive(
-                                                  InvertLEDEffect()),
-                                        );
-                                      });
+                                  // If we're editing an existing badge, update it instead of showing save dialog
+                                  if (widget.savedBadgeFilename != null) {
+                                    // Update the existing badge file using the new updateBadgeData method
+                                    SavedBadgeProvider savedBadgeProvider =
+                                        SavedBadgeProvider();
+                                    // Extract the base filename without .json extension
+                                    String baseFilename =
+                                        widget.savedBadgeFilename!;
+                                    if (baseFilename.endsWith('.json')) {
+                                      baseFilename = baseFilename.substring(
+                                          0, baseFilename.length - 5);
+                                    }
+
+                                    logger.i(
+                                        'Updating existing badge: $baseFilename');
+
+                                    // Use the new updateBadgeData method which handles everything cleanly
+                                    await savedBadgeProvider.updateBadgeData(
+                                        baseFilename, // Pass the filename without .json extension
+                                        inlineImageProvider
+                                            .getController()
+                                            .text,
+                                        animationProvider
+                                            .isEffectActive(FlashEffect()),
+                                        animationProvider
+                                            .isEffectActive(MarqueeEffect()),
+                                        animationProvider
+                                            .isEffectActive(InvertLEDEffect()),
+                                        speedDialProvider.getOuterValue(),
+                                        animationProvider.getAnimationIndex() ??
+                                            1);
+                                    ToastUtils().showToast(
+                                        "Badge Updated Successfully");
+                                  } else {
+                                    // Show save dialog for new badges
+                                    showDialog(
+                                        context: this.context,
+                                        builder: (context) {
+                                          return SaveBadgeDialog(
+                                            speed: speedDialProvider,
+                                            animationProvider:
+                                                animationProvider,
+                                            textController: inlineImageProvider
+                                                .getController(),
+                                            isInverse: animationProvider
+                                                .isEffectActive(
+                                                    InvertLEDEffect()),
+                                          );
+                                        });
+                                  }
                                 },
                                 child: Container(
                                   padding: EdgeInsets.symmetric(

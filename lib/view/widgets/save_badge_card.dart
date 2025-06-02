@@ -7,7 +7,7 @@ import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
-import 'package:badgemagic/view/draw_badge_screen.dart';
+import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -26,6 +26,40 @@ class SaveBadgeCard extends StatelessWidget {
     required this.badgeData,
     required this.refreshBadgesCallback,
   });
+
+  // Helper methods to safely access badge data properties
+  bool _safeGetFlashValue(Map<String, dynamic> data) {
+    try {
+      return file.jsonToData(data).messages[0].flash;
+    } catch (e) {
+      // If there's an error, default to false
+      return false;
+    }
+  }
+
+  bool _safeGetMarqueeValue(Map<String, dynamic> data) {
+    try {
+      return file.jsonToData(data).messages[0].marquee;
+    } catch (e) {
+      // If there's an error, default to false
+      return false;
+    }
+  }
+
+  bool _safeGetInvertValue(Map<String, dynamic> data) {
+    try {
+      if (data.containsKey('messages') &&
+          data['messages'] is List &&
+          data['messages'].isNotEmpty &&
+          data['messages'][0] is Map<String, dynamic>) {
+        return data['messages'][0]['invert'] ?? false;
+      }
+      return false;
+    } catch (e) {
+      // If there's an error, default to false
+      return false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,21 +129,20 @@ class SaveBadgeCard extends StatelessWidget {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        List<List<int>> data = hexStringToBool(file
-                                .jsonToData(badgeData.value)
-                                .messages[0]
-                                .text
-                                .join())
-                            .map((e) => e.map((e) => e ? 1 : 0).toList())
-                            .toList();
-                        Navigator.of(context).push(
+                        // Navigate to HomeScreen with the badge data
+                        // First, get the saved badge data
+                        Map<String, dynamic> savedData = badgeData.value;
+                        String badgeFilename = badgeData.key;
+
+                        // Navigate to HomeScreen and replace the current route
+                        Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                            builder: (context) => DrawBadge(
-                              filename: badgeData.key,
-                              isSavedCard: true,
-                              badgeGrid: data,
+                            builder: (context) => HomeScreen(
+                              savedBadgeData: savedData,
+                              savedBadgeFilename: badgeFilename,
                             ),
                           ),
+                          (route) => false, // Remove all previous routes
                         );
                       },
                     ),
@@ -163,7 +196,7 @@ class SaveBadgeCard extends StatelessWidget {
               Row(
                 children: [
                   Visibility(
-                    visible: file.jsonToData(badgeData.value).messages[0].flash,
+                    visible: _safeGetFlashValue(badgeData.value),
                     child: Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
@@ -186,8 +219,7 @@ class SaveBadgeCard extends StatelessWidget {
                     width: 8.w,
                   ),
                   Visibility(
-                    visible:
-                        file.jsonToData(badgeData.value).messages[0].marquee,
+                    visible: _safeGetMarqueeValue(badgeData.value),
                     child: Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
@@ -210,7 +242,7 @@ class SaveBadgeCard extends StatelessWidget {
                     width: 8.w,
                   ),
                   Visibility(
-                    visible: badgeData.value['messages'][0]['invert'] ?? false,
+                    visible: _safeGetInvertValue(badgeData.value),
                     child: Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),

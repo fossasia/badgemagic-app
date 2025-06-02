@@ -278,8 +278,22 @@ class FileHelper {
       // Save JSON string to the file
       File file = File(filePath);
       await file.writeAsString(jsonString);
-      imageCacheProvider.savedBadgeCache
-          .add(MapEntry("$filename.json", jsonData));
+
+      // Update the cache properly - check if the badge already exists in the cache
+      final cacheKey = "$filename.json";
+      final cache = imageCacheProvider.savedBadgeCache;
+      final existingIndex = cache.indexWhere((entry) => entry.key == cacheKey);
+
+      if (existingIndex >= 0) {
+        // Replace the existing entry in the cache
+        logger.i('Updating existing badge in cache: $cacheKey');
+        cache[existingIndex] = MapEntry(cacheKey, jsonData);
+      } else {
+        // Add as a new entry if it doesn't exist
+        logger.i('Adding new badge to cache: $cacheKey');
+        cache.add(MapEntry(cacheKey, jsonData));
+      }
+
       logger.i('Data saved to $filePath');
     } catch (e) {
       logger.i('Error saving data: $e');
@@ -315,9 +329,36 @@ class FileHelper {
 
 //function that takes JsonSData and returns the Data object
   Data jsonToData(Map<String, dynamic> jsonData) {
-    // Convert JSON data to Data object
-    Data data = Data.fromJson(jsonData);
-    return data;
+    try {
+      // Convert JSON data to Data object
+      Data data = Data.fromJson(jsonData);
+      return data;
+    } catch (e) {
+      // If there's an error with the 'messages' key missing, add it with default values
+      if (e.toString().contains("Missing \"messages\" key")) {
+        logger.w('Fixing missing "messages" key in badge data');
+
+        // Create a default message structure if missing
+        Map<String, dynamic> fixedJsonData =
+            Map<String, dynamic>.from(jsonData);
+        fixedJsonData['messages'] = [
+          {
+            'text': jsonData['text'] ?? ['00'],
+            'flash': jsonData['flash'] ?? false,
+            'marquee': jsonData['marquee'] ?? false,
+            'speed': jsonData['speed'] ?? '0x70', // Default to Speed.one
+            'mode': jsonData['mode'] ?? '0x00', // Default to Mode.left
+            'invert': jsonData['invert'] ?? false
+          }
+        ];
+
+        return Data.fromJson(fixedJsonData);
+      } else {
+        // For other errors, rethrow
+        logger.e('Error parsing badge data: $e');
+        rethrow;
+      }
+    }
   }
 
   Future<void> shareBadgeData(String filename) async {
