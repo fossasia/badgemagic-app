@@ -189,9 +189,8 @@ class _HomeScreenState extends State<HomeScreen>
       int speedDialValue = 1; // Default
       // Use the static helper method to get the correct dial value
       speedDialValue = Speed.getIntValue(message.speed);
-      logger
-          .i("Setting speed dial to: $speedDialValue from ${message.speed}");
-          speedDialProvider.setDialValue(speedDialValue);
+      logger.i("Setting speed dial to: $speedDialValue from ${message.speed}");
+      speedDialProvider.setDialValue(speedDialValue);
     } catch (e) {
       logger.e("Failed to set speed dial value: $e");
       speedDialProvider.setDialValue(1); // Fallback to default
