@@ -64,7 +64,6 @@ class _HomeScreenState extends State<HomeScreen>
     _startImageCaching();
     speedDialProvider = SpeedDialProvider(animationProvider);
     super.initState();
-
     _tabController = TabController(length: 3, vsync: this);
   }
 
@@ -355,7 +354,10 @@ class _HomeScreenState extends State<HomeScreen>
       previousText = '';
       animationProvider.stopAllAnimations();
       animationProvider.initializeAnimation();
-      setState(() {});
+      if (mounted) setState(() {});
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      animationProvider.stopAnimation();
     }
   }
 }
