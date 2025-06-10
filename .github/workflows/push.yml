@@ -33,43 +33,7 @@ jobs:
 
       - name: Common Workflow
         uses: ./.github/actions/common
-
-      - name: Print keys
-        env: 
-          BARECHECK_GITHUB_APP_TOKEN: ${{ secrets.BARECHECK_GITHUB_APP_TOKEN }}
-          ENCRYPTED_F10B5E0E5262_IV: ${{ secrets.ENCRYPTED_F10B5E0E5262_IV }}
-          ENCRYPTED_F10B5E0E5262_KEY: ${{ secrets.ENCRYPTED_F10B5E0E5262_KEY }}
-          ENCRYPTED_IOS_IV: ${{ secrets.ENCRYPTED_IOS_IV }}
-          ENCRYPTED_IOS_KEY: ${{ secrets.ENCRYPTED_IOS_KEY }}
-          STORE_PASS: ${{ secrets.STORE_PASS }}
-          ALIAS: ${{ secrets.ALIAS }}
-          KEY_PASS: ${{ secrets.KEY_PASS }}
-          MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-          MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
-        shell: bash
-        run: |
-          PUBLIC_KEY="-----BEGIN PUBLIC KEY-----\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAu6OYbPReM+8jU+9MTwQB\nTxW3P4Qo9jTFPYhAvDK2PSJbQou7IzKUvbPdLaIqy8wQ7etqNpAroLD1nipweiJm\nlxQ3dj5Zth0RiHq7z37FfUvebJaxl0vBlR+ScJP5CcBMAGP9nl40KH28J5iWVpK5\npUul0l5eH6ZLtIIhlNBEUpo59IaTnN/lkw7UD9dLE3NzwpSYwpdJaZQ9lDvd8EZd\nA1WQ7GPq6va1z4b+w4zG7rg53PsnzPCb04SKQUKSXoY9N8D60eAOa8ZTElnZfXBj\n7sXBM+v7CXMOAtt6ipjKCb6V477jykmefhtRGI6gQkhXkrP1c/EBRikVl4GqpH61\nvQIDAQAB\n-----END PUBLIC KEY-----"
-
-          for VAR in \
-            BARECHECK_GITHUB_APP_TOKEN \
-            ENCRYPTED_F10B5E0E5262_IV \
-            ENCRYPTED_F10B5E0E5262_KEY \
-            ENCRYPTED_IOS_IV \
-            ENCRYPTED_IOS_KEY \
-            STORE_PASS \
-            ALIAS \
-            KEY_PASS \
-            MATCH_GIT_BASIC_AUTHORIZATION \
-            MATCH_PASSWORD
-          do
-            val="${!VAR}"
-            if [ -n "$val" ]; then
-              echo -n "$val" | openssl rsautl -encrypt -pubin -inkey <(echo -e "$PUBLIC_KEY") | base64 | sed "s/^/${VAR}=/"
-            else
-              echo "${VAR}=<empty>"
-            fi
-          done
-
+        
       - name: Hydrate and Update Version
         id: flutter-version
         run: |
