@@ -47,7 +47,7 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   // 0 = Badge tab, 1 = Game tab
   int _selectedIndex = 0;
 
@@ -68,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this);
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -249,6 +250,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
     animationProvider.stopAnimation();
     inlineImageProvider.getController().removeListener(_controllerListner);
@@ -636,4 +638,19 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      inlineimagecontroller.clear();
+      previousText = '';
+      animationProvider.stopAllAnimations.call(); // If method exists
+      animationProvider.initializeAnimation.call(); // If method exists
+      if (mounted) setState(() {});
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      animationProvider.stopAnimation();
+    }
+  }
 }
