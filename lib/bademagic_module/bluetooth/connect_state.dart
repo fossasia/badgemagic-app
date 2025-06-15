@@ -24,7 +24,18 @@ class ConnectState extends RetryBleState {
         logger.d("Device connected");
         toast.showToast('Device connected successfully.');
 
-        return WriteState(device: scanResult.device, manager: manager);
+        final writeState =
+            WriteState(device: scanResult.device, manager: manager);
+        final result = await writeState.process();
+        try {
+          await scanResult.device.disconnect();
+          logger.d("Device disconnected after transfer");
+          await Future.delayed(const Duration(seconds: 1));
+          logger.d("Waited 1s after disconnect");
+        } catch (e) {
+          logger.e("Error during disconnect after transfer: $e");
+        }
+        return result;
       } else {
         throw Exception("Failed to connect to the device");
       }
@@ -33,7 +44,14 @@ class ConnectState extends RetryBleState {
       rethrow;
     } finally {
       if (!connected) {
-        await scanResult.device.disconnect();
+        try {
+          await scanResult.device.disconnect();
+          logger.d("Device disconnected in finally block");
+          await Future.delayed(const Duration(seconds: 1));
+          logger.d("Waited 1s after disconnect (finally)");
+        } catch (e) {
+          logger.e("Error during disconnect in finally: $e");
+        }
       }
     }
   }
