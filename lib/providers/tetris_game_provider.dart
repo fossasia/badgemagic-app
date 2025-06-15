@@ -64,6 +64,7 @@ class TetrisGameProvider extends ChangeNotifier {
     _liveSync = value;
     notifyListeners();
   }
+
   bool get liveSync => _liveSync;
 
   bool isPaused = false;
@@ -96,7 +97,8 @@ class TetrisGameProvider extends ChangeNotifier {
   void resume() {
     if (isPaused && !isGameOver) {
       isPaused = false;
-      _timer = Timer.periodic(Duration(milliseconds: tickMillis), (_) => tick());
+      _timer =
+          Timer.periodic(Duration(milliseconds: tickMillis), (_) => tick());
       notifyListeners();
     }
   }
@@ -281,7 +283,12 @@ class TetrisGameProvider extends ChangeNotifier {
       // Use displayGrid to include falling piece
       List<List<int>> badgeGrid = displayGrid;
       List<String> hex = Converters.convertBitmapToLEDHex(badgeGrid, true);
-      Message msg = Message(text: hex, flash: false, marquee: false, speed: Speed.one, mode: Mode.picture);
+      Message msg = Message(
+          text: hex,
+          flash: false,
+          marquee: false,
+          speed: Speed.one,
+          mode: Mode.picture);
       Data data = Data(messages: [msg]);
       DataTransferManager manager = DataTransferManager(data);
       await BadgeMessageProvider().transferData(manager);

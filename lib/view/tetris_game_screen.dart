@@ -107,12 +107,18 @@ class TetrisGameScreen extends StatelessWidget {
                                     : provider.isPaused
                                         ? provider.resume
                                         : provider.pause,
-                                icon: Icon(provider.isPaused ? Icons.play_arrow : Icons.pause),
-                                label: Text(provider.isPaused ? 'Resume' : 'Pause'),
+                                icon: Icon(provider.isPaused
+                                    ? Icons.play_arrow
+                                    : Icons.pause),
+                                label: Text(
+                                    provider.isPaused ? 'Resume' : 'Pause'),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: provider.isPaused ? Colors.green : Colors.red,
+                                  backgroundColor: provider.isPaused
+                                      ? Colors.green
+                                      : Colors.red,
                                   foregroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
                                 ),
                               ),
                               SizedBox(width: 24),
@@ -123,7 +129,8 @@ class TetrisGameScreen extends StatelessWidget {
                                 style: ElevatedButton.styleFrom(
                                   backgroundColor: Colors.blue,
                                   foregroundColor: Colors.white,
-                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 10),
                                 ),
                               ),
                             ],

@@ -57,6 +57,7 @@ class SnakeGameProvider extends ChangeNotifier {
     _liveSync = value;
     notifyListeners();
   }
+
   bool get liveSync => _liveSync;
 
   // Snake body positions (list of coordinates)
@@ -300,11 +301,17 @@ class SnakeGameProvider extends ChangeNotifier {
   Future<void> _sendGridToBadge() async {
     try {
       // Convert bool grid to int grid for badge
-      List<List<int>> badgeGrid = _gameGrid.map((row) => row.map((b) => b ? 1 : 0).toList()).toList();
+      List<List<int>> badgeGrid =
+          _gameGrid.map((row) => row.map((b) => b ? 1 : 0).toList()).toList();
       // Convert to hex
       List<String> hex = Converters.convertBitmapToLEDHex(badgeGrid, true);
       // Create Message/Data for badge
-      Message msg = Message(text: hex, flash: false, marquee: false, speed: Speed.one, mode: Mode.picture);
+      Message msg = Message(
+          text: hex,
+          flash: false,
+          marquee: false,
+          speed: Speed.one,
+          mode: Mode.picture);
       Data data = Data(messages: [msg]);
       DataTransferManager manager = DataTransferManager(data);
       await BadgeMessageProvider().transferData(manager);
