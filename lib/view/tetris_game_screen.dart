@@ -95,6 +95,40 @@ class TetrisGameScreen extends StatelessWidget {
                               ],
                             ),
                           ),
+                        // Pause/Resume and Reset buttons
+                        Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              ElevatedButton.icon(
+                                onPressed: provider.isGameOver
+                                    ? null
+                                    : provider.isPaused
+                                        ? provider.resume
+                                        : provider.pause,
+                                icon: Icon(provider.isPaused ? Icons.play_arrow : Icons.pause),
+                                label: Text(provider.isPaused ? 'Resume' : 'Pause'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: provider.isPaused ? Colors.green : Colors.red,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                ),
+                              ),
+                              SizedBox(width: 24),
+                              ElevatedButton.icon(
+                                onPressed: provider.reset,
+                                icon: Icon(Icons.refresh),
+                                label: Text('Reset'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.blue,
+                                  foregroundColor: Colors.white,
+                                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     );
                   },

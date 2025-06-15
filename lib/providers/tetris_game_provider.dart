@@ -1,6 +1,14 @@
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/bademagic_module/models/messages.dart';
+import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/bademagic_module/models/mode.dart';
+import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/providers/badge_message_provider.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 
 // Badge grid size
 const int badgeRows = 11;
@@ -47,6 +55,19 @@ final List<List<List<int>>> tetrominoShapes = [
 ];
 
 class TetrisGameProvider extends ChangeNotifier {
+  // Live badge sync
+  bool _liveSync = false;
+  DateTime _lastSyncTime = DateTime.fromMillisecondsSinceEpoch(0);
+  static const int minSyncIntervalMs = 100; // 10 FPS max
+
+  void setLiveSync(bool value) {
+    _liveSync = value;
+    notifyListeners();
+  }
+  bool get liveSync => _liveSync;
+
+  bool isPaused = false;
+
   List<List<int>> grid =
       List.generate(badgeRows, (_) => List.filled(badgeCols, 0));
   int score = 0;
@@ -64,14 +85,48 @@ class TetrisGameProvider extends ChangeNotifier {
     _timer = Timer.periodic(Duration(milliseconds: tickMillis), (_) => tick());
   }
 
+  void pause() {
+    if (!isPaused && !isGameOver) {
+      isPaused = true;
+      _timer?.cancel();
+      notifyListeners();
+    }
+  }
+
+  void resume() {
+    if (isPaused && !isGameOver) {
+      isPaused = false;
+      _timer = Timer.periodic(Duration(milliseconds: tickMillis), (_) => tick());
+      notifyListeners();
+    }
+  }
+
+  void reset() {
+    grid = List.generate(badgeRows, (_) => List.filled(badgeCols, 0));
+    score = 0;
+    isGameOver = false;
+    isPaused = false;
+    _timer?.cancel();
+    _spawnNewShape();
+    _timer = Timer.periodic(Duration(milliseconds: tickMillis), (_) => tick());
+    notifyListeners();
+  }
+
   void tick() {
-    if (isGameOver) return;
+    if (isGameOver || isPaused) return;
     if (!_moveShape(1, 0)) {
       _mergeShapeToGrid();
       _clearLines();
       if (!_spawnNewShape()) {
         isGameOver = true;
         _timer?.cancel();
+      }
+    }
+    if (_liveSync) {
+      final now = DateTime.now();
+      if (now.difference(_lastSyncTime).inMilliseconds >= minSyncIntervalMs) {
+        _lastSyncTime = now;
+        _sendGridToBadge();
       }
     }
     notifyListeners();
@@ -96,8 +151,9 @@ class TetrisGameProvider extends ChangeNotifier {
         if (shape[i][j] == 0) continue;
         int rr = r + i;
         int cc = c + j;
-        if (rr < 0 || rr >= badgeRows || cc < 0 || cc >= badgeCols)
+        if (rr < 0 || rr >= badgeRows || cc < 0 || cc >= badgeCols) {
           return false;
+        }
         if (grid[rr][cc] != 0) return false;
       }
     }
@@ -143,6 +199,7 @@ class TetrisGameProvider extends ChangeNotifier {
   void moveLeft() {
     if (!isGameOver) {
       _moveShape(0, -1);
+      if (_liveSync) _maybeSendGridToBadge();
       notifyListeners();
     }
   }
@@ -159,6 +216,7 @@ class TetrisGameProvider extends ChangeNotifier {
     List<List<int>> rotated = _rotateMatrix(currentShape);
     if (_canPlace(rotated, shapeRow, shapeCol)) {
       currentShape = rotated;
+      if (_liveSync) _maybeSendGridToBadge();
       notifyListeners();
     }
   }
@@ -179,6 +237,7 @@ class TetrisGameProvider extends ChangeNotifier {
     if (isGameOver) return;
     while (_moveShape(1, 0)) {}
     tick();
+    if (_liveSync) _maybeSendGridToBadge();
     notifyListeners();
   }
 
@@ -207,6 +266,35 @@ class TetrisGameProvider extends ChangeNotifier {
       }
     }
     return tempGrid;
+  }
+
+  void _maybeSendGridToBadge() {
+    final now = DateTime.now();
+    if (now.difference(_lastSyncTime).inMilliseconds >= minSyncIntervalMs) {
+      _lastSyncTime = now;
+      _sendGridToBadge();
+    }
+  }
+
+  Future<void> _sendGridToBadge() async {
+    try {
+      // Use displayGrid to include falling piece
+      List<List<int>> badgeGrid = displayGrid;
+      List<String> hex = Converters.convertBitmapToLEDHex(badgeGrid, true);
+      Message msg = Message(text: hex, flash: false, marquee: false, speed: Speed.one, mode: Mode.picture);
+      Data data = Data(messages: [msg]);
+      DataTransferManager manager = DataTransferManager(data);
+      await BadgeMessageProvider().transferData(manager);
+      // Optionally: ToastUtils().showToast('Live badge updated');
+    } catch (e) {
+      ToastUtils().showErrorToast('Live badge update failed');
+    }
+  }
+
+  // Toggle live sync
+  void toggleLiveSync() {
+    _liveSync = !_liveSync;
+    notifyListeners();
   }
 
   @override

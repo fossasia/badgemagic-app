@@ -1,7 +1,14 @@
 import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
+import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/bademagic_module/models/messages.dart';
+import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/bademagic_module/models/mode.dart';
+import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/providers/badge_message_provider.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 
 // Direction enum for snake movement
 enum Direction { up, down, left, right }
@@ -40,6 +47,17 @@ class SnakeGameProvider extends ChangeNotifier {
   static const int minSpeed = 100; // Fastest speed (100ms)
   static const int maxSpeed = 500; // Slowest speed (500ms)
   static const int speedStep = 50; // Speed increment/decrement step
+
+  // Live badge sync
+  bool _liveSync = false;
+  DateTime _lastSyncTime = DateTime.fromMillisecondsSinceEpoch(0);
+  static const int minSyncIntervalMs = 100; // 10 FPS max
+
+  void setLiveSync(bool value) {
+    _liveSync = value;
+    notifyListeners();
+  }
+  bool get liveSync => _liveSync;
 
   // Snake body positions (list of coordinates)
   List<Position> _snake = [];
@@ -170,6 +188,15 @@ class SnakeGameProvider extends ChangeNotifier {
 
   // Move the snake
   void _moveSnake() {
+    // Live sync: send badge update after move, throttled
+    if (_liveSync) {
+      final now = DateTime.now();
+      if (now.difference(_lastSyncTime).inMilliseconds >= minSyncIntervalMs) {
+        _lastSyncTime = now;
+        _sendGridToBadge();
+      }
+    }
+
     if (!_isGameRunning || _isGameOver) return;
 
     // Get the current head position
@@ -252,20 +279,45 @@ class SnakeGameProvider extends ChangeNotifier {
 
   // Update the grid based on snake and food positions
   void _updateGrid() {
-    // Clear the grid
-    _gameGrid = List.generate(rows, (i) => List.generate(cols, (j) => false));
-
-    // Set snake positions to true
-    for (var pos in _snake) {
+    // Clear grid
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        _gameGrid[i][j] = false;
+      }
+    }
+    // Draw snake
+    for (final pos in _snake) {
       if (pos.row >= 0 && pos.row < rows && pos.col >= 0 && pos.col < cols) {
         _gameGrid[pos.row][pos.col] = true;
       }
     }
-
-    // Set food position to true
+    // Draw food
     if (_food != null) {
       _gameGrid[_food!.row][_food!.col] = true;
     }
+  }
+
+  Future<void> _sendGridToBadge() async {
+    try {
+      // Convert bool grid to int grid for badge
+      List<List<int>> badgeGrid = _gameGrid.map((row) => row.map((b) => b ? 1 : 0).toList()).toList();
+      // Convert to hex
+      List<String> hex = Converters.convertBitmapToLEDHex(badgeGrid, true);
+      // Create Message/Data for badge
+      Message msg = Message(text: hex, flash: false, marquee: false, speed: Speed.one, mode: Mode.picture);
+      Data data = Data(messages: [msg]);
+      DataTransferManager manager = DataTransferManager(data);
+      await BadgeMessageProvider().transferData(manager);
+      // Optionally: ToastUtils().showToast('Live badge updated');
+    } catch (e) {
+      ToastUtils().showErrorToast('Live badge update failed');
+    }
+  }
+
+  // Toggle live sync
+  void toggleLiveSync() {
+    _liveSync = !_liveSync;
+    notifyListeners();
   }
 
   @override
