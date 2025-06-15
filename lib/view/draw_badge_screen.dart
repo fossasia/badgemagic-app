@@ -1,3 +1,4 @@
+import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
@@ -13,24 +14,29 @@ class DrawBadge extends StatefulWidget {
   final bool? isSavedCard;
   final bool? isSavedClipart;
   final List<List<int>>? badgeGrid;
-  const DrawBadge(
-      {super.key,
-      this.filename,
-      this.isSavedCard = false,
-      this.isSavedClipart = false,
-      this.badgeGrid});
+
+  const DrawBadge({
+    super.key,
+    this.filename,
+    this.isSavedCard = false,
+    this.isSavedClipart = false,
+    this.badgeGrid,
+  });
 
   @override
   State<DrawBadge> createState() => _DrawBadgeState();
 }
 
 class _DrawBadgeState extends State<DrawBadge> {
-  var drawToggle = DrawBadgeProvider();
+  late DrawBadgeProvider drawToggle;
 
   @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _setLandscapeOrientation();
+  void initState() {
+    super.initState();
+    drawToggle = DrawBadgeProvider();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _setLandscapeOrientation();
+    });
   }
 
   @override
@@ -39,27 +45,67 @@ class _DrawBadgeState extends State<DrawBadge> {
     super.dispose();
   }
 
-  void _resetPortraitOrientation() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+  Future<void> _resetPortraitOrientation() async {
+    try {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.portraitUp,
+        DeviceOrientation.portraitDown,
+      ]);
+    } catch (e) {
+      logger.e('Error setting portrait orientation', error: e);
+    }
   }
 
-  void _setLandscapeOrientation() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.landscapeLeft,
-    ]);
+  Future<void> _setLandscapeOrientation() async {
+    try {
+      await SystemChrome.setPreferredOrientations([
+        DeviceOrientation.landscapeRight,
+        DeviceOrientation.landscapeLeft,
+      ]);
+    } catch (e) {
+      logger.e('Error setting landscape orientation', error: e);
+    }
+  }
+
+  Future<void> _saveImage() async {
+    try {
+      List<List<int>> badgeGrid = drawToggle
+          .getDrawViewGrid()
+          .map((e) => e.map((e) => e ? 1 : 0).toList())
+          .toList();
+      List<String> hexString =
+          Converters.convertBitmapToLEDHex(badgeGrid, false);
+
+      if (widget.isSavedCard == true) {
+        await FileHelper().updateBadgeText(
+          widget.filename ?? '',
+          hexString,
+        );
+      } else if (widget.isSavedClipart == true) {
+        await FileHelper().updateClipart(
+          widget.filename ?? '',
+          badgeGrid,
+        );
+      } else {
+        await FileHelper().saveImage(drawToggle.getDrawViewGrid());
+      }
+
+      await FileHelper().generateClipartCache();
+      ToastUtils().showToast("Clipart Saved Successfully");
+    } catch (e) {
+      logger.e('Error saving image', error: e);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    FileHelper fileHelper = FileHelper();
-    return WillPopScope(
-      onWillPop: () async {
-        _resetPortraitOrientation();
-        return true; // Allows back navigation
+    return PopScope(
+      canPop: true,
+      // ignore: deprecated_member_use
+      onPopInvoked: (didPop) async {
+        if (didPop) {
+          await _resetPortraitOrientation();
+        }
       },
       child: CommonScaffold(
         index: 1,
@@ -79,9 +125,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                   children: [
                     Column(
                       children: [
-                        SizedBox(
-                          width: 100,
-                        ),
+                        const SizedBox(width: 100),
                         BMBadge(
                           providerInit: (provider) => drawToggle = provider,
                           badgeGrid: widget.badgeGrid
@@ -110,7 +154,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                               Text(
                                 'Draw',
                                 style: TextStyle(
-                                  color: drawToggle.isDrawing
+                                  color: drawToggle.getIsDrawing()
                                       ? colorPrimary
                                       : Colors.black,
                                 ),
@@ -128,14 +172,14 @@ class _DrawBadgeState extends State<DrawBadge> {
                             children: [
                               Icon(
                                 Icons.delete,
-                                color: drawToggle.isDrawing
+                                color: drawToggle.getIsDrawing()
                                     ? Colors.black
                                     : colorPrimary,
                               ),
                               Text(
                                 'Erase',
                                 style: TextStyle(
-                                  color: drawToggle.isDrawing
+                                  color: drawToggle.getIsDrawing()
                                       ? Colors.black
                                       : colorPrimary,
                                 ),
@@ -151,46 +195,19 @@ class _DrawBadgeState extends State<DrawBadge> {
                           },
                           child: const Column(
                             children: [
-                              Icon(
-                                Icons.refresh,
-                                color: Colors.black,
-                              ),
-                              Text(
-                                'Reset',
-                                style: TextStyle(color: Colors.black),
-                              )
+                              Icon(Icons.refresh, color: Colors.black),
+                              Text('Reset',
+                                  style: TextStyle(color: Colors.black))
                             ],
                           ),
                         ),
                         TextButton(
-                          onPressed: () {
-                            List<List<int>> badgeGrid = drawToggle
-                                .getDrawViewGrid()
-                                .map((e) => e.map((e) => e ? 1 : 0).toList())
-                                .toList();
-                            List<String> hexString =
-                                Converters.convertBitmapToLEDHex(
-                                    badgeGrid, false);
-                            widget.isSavedCard!
-                                ? fileHelper.updateBadgeText(
-                                    widget.filename!,
-                                    hexString,
-                                  )
-                                : widget.isSavedClipart!
-                                    ? fileHelper.updateClipart(
-                                        widget.filename!, badgeGrid)
-                                    : fileHelper.saveImage(
-                                        drawToggle.getDrawViewGrid());
-                            fileHelper.generateClipartCache();
-                            ToastUtils()
-                                .showToast("Clipart Saved Successfully");
+                          onPressed: () async {
+                            await _saveImage();
                           },
                           child: const Column(
                             children: [
-                              Icon(
-                                Icons.save,
-                                color: Colors.black,
-                              ),
+                              Icon(Icons.save, color: Colors.black),
                               Text('Save',
                                   style: TextStyle(color: Colors.black))
                             ],
