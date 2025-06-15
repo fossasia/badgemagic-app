@@ -281,24 +281,26 @@ class FileHelper {
       File file = File(filePath);
       await file.writeAsString(jsonString);
 
-      // Update the cache properly - check if the badge already exists in the cache
-      final cacheKey = "$filename.json";
-      final cache = imageCacheProvider.savedBadgeCache;
-      final existingIndex = cache.indexWhere((entry) => entry.key == cacheKey);
-
-      if (existingIndex >= 0) {
-        // Replace the existing entry in the cache
-        logger.i('Updating existing badge in cache: $cacheKey');
-        cache[existingIndex] = MapEntry(cacheKey, jsonData);
-      } else {
-        // Add as a new entry if it doesn't exist
-        logger.i('Adding new badge to cache: $cacheKey');
-        cache.add(MapEntry(cacheKey, jsonData));
-      }
+      // Update the cache using the new utility method
+      _updateSavedBadgeCache(filename, jsonData);
 
       logger.i('Data saved to $filePath');
     } catch (e) {
       logger.i('Error saving data: $e');
+    }
+  }
+
+  // Utility method to update savedBadgeCache
+  void _updateSavedBadgeCache(String filename, Map<String, dynamic> jsonData) {
+    final cacheKey = "$filename.json";
+    final cache = imageCacheProvider.savedBadgeCache;
+    final existingIndex = cache.indexWhere((entry) => entry.key == cacheKey);
+    if (existingIndex >= 0) {
+      logger.i('Updating existing badge in cache: $cacheKey');
+      cache[existingIndex] = MapEntry(cacheKey, jsonData);
+    } else {
+      logger.i('Adding new badge to cache: $cacheKey');
+      cache.add(MapEntry(cacheKey, jsonData));
     }
   }
 
