@@ -1,11 +1,8 @@
 import 'dart:async';
-import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
+import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
@@ -46,7 +43,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        WidgetsBindingObserver {
   late final TabController _tabController;
   AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
   late SpeedDialProvider speedDialProvider;
@@ -66,6 +66,7 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
+    speedDialProvider = SpeedDialProvider(animationProvider);
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       inlineImageProvider.setContext(context);
 
@@ -75,179 +76,33 @@ class _HomeScreenState extends State<HomeScreen>
       }
     });
     _startImageCaching();
-    speedDialProvider = SpeedDialProvider(animationProvider);
     super.initState();
 
     _tabController = TabController(length: 3, vsync: this);
   }
 
-  // Method to apply saved badge data when editing a badge
   Future<void> _applySavedBadgeData() async {
-    final savedData = widget.savedBadgeData!;
-    final fileHelper = FileHelper();
-    final savedBadgeProvider = SavedBadgeProvider();
-
-    // Set the text from the saved badge
-    final badgeData = fileHelper.jsonToData(savedData);
-    final message = badgeData.messages[0];
-
-    // When we save a badge, we store the original text using BadgeTextStorage
-    // Now we need to retrieve that text to show in the text field
-
-    String badgeText = "";
-    try {
-      if (widget.savedBadgeFilename != null) {
-        // Get the original text from BadgeTextStorage
-        badgeText =
-            await BadgeTextStorage.getOriginalText(widget.savedBadgeFilename!);
-
-        // If we couldn't find the original text, use the filename as a fallback
-        if (badgeText.isEmpty) {
-          badgeText = widget.savedBadgeFilename!
-              .substring(0, widget.savedBadgeFilename!.length - 5);
-          // If the filename is a timestamp, use a generic text
-          if (badgeText.contains(":") && badgeText.contains("-")) {
-            badgeText = "Hello"; // Default text for timestamp filenames
-          }
+    await SavedBadgeProvider().applySavedBadgeDataToUI(
+      savedData: widget.savedBadgeData!,
+      savedBadgeFilename: widget.savedBadgeFilename,
+      animationProvider: animationProvider,
+      speedDialProvider: speedDialProvider,
+      inlineimagecontroller: inlineimagecontroller,
+      context: context,
+    );
+    // Set the text field for editing
+    if (widget.savedBadgeFilename != null) {
+      String badgeText =
+          await BadgeTextStorage.getOriginalText(widget.savedBadgeFilename!);
+      if (badgeText.isEmpty) {
+        badgeText = widget.savedBadgeFilename!
+            .substring(0, widget.savedBadgeFilename!.length - 5);
+        if (badgeText.contains(":") && badgeText.contains("-")) {
+          badgeText = "Hello"; // Default text for timestamp filenames
         }
       }
-    } catch (e) {
-      logger.e("Failed to retrieve original badge text: $e");
-      badgeText = "Hello"; // Default fallback
+      inlineimagecontroller.text = badgeText;
     }
-
-    // Set the text in the controller
-    inlineimagecontroller.text = badgeText;
-
-    // Set animation effects
-    if (message.flash) {
-      animationProvider.addEffect(effectMap[1]); // Flash effect
-    }
-    if (message.marquee) {
-      animationProvider.addEffect(effectMap[2]); // Marquee effect
-    }
-
-    // Set inversion if applicable
-    if (savedData.containsKey('invert') && savedData['invert'] == true) {
-      animationProvider.addEffect(effectMap[0]); // Invert effect
-    }
-
-    // Set animation mode
-    int modeValue = 0; // Default to left animation
-    try {
-      // Handle different mode formats - could be enum or int
-      if (message.mode is int) {
-        modeValue = message.mode as int;
-      } else {
-        // Try to extract the mode value from the enum
-        String modeString = message.mode.toString();
-        // If it's in format "Mode.left", extract just the mode name
-        if (modeString.contains('.')) {
-          String modeName = modeString.split('.').last;
-          // Map mode name to value
-          switch (modeName.toLowerCase()) {
-            case 'left':
-              modeValue = 0;
-              break;
-            case 'right':
-              modeValue = 1;
-              break;
-            case 'up':
-              modeValue = 2;
-              break;
-            case 'down':
-              modeValue = 3;
-              break;
-            case 'fixed':
-              modeValue = 4;
-              break;
-            case 'snowflake':
-              modeValue = 5;
-              break;
-            case 'picture':
-              modeValue = 6;
-              break;
-            case 'animation':
-              modeValue = 7;
-              break;
-            default:
-              modeValue = 0; // Default to left
-          }
-        } else {
-          // Try parsing as int
-          modeValue = int.tryParse(modeString) ?? 0;
-        }
-      }
-    } catch (e) {
-      // If parsing fails, default to left animation (0)
-      logger.e("Failed to parse mode value: $e");
-    }
-    animationProvider.setAnimationMode(animationMap[modeValue]);
-
-    // Set speed using Speed.getIntValue to ensure correct dial value
-    try {
-      int speedDialValue = 1; // Default
-      // Use the static helper method to get the correct dial value
-      speedDialValue = Speed.getIntValue(message.speed);
-      logger.i("Setting speed dial to: $speedDialValue from ${message.speed}");
-      speedDialProvider.setDialValue(speedDialValue);
-    } catch (e) {
-      logger.e("Failed to set speed dial value: $e");
-      speedDialProvider.setDialValue(1); // Fallback to default
-    }
-
-    // Store the filename for saving back to the same file
-    savedBadgeProvider.setSavedBadgeDataMap(savedData);
-    savedBadgeProvider.setIsSavedBadgeData(true);
-
-    // Notify that we're editing an existing badge
-    ToastUtils().showToast(
-        "Editing badge: ${widget.savedBadgeFilename!.substring(0, widget.savedBadgeFilename!.length - 5)}");
-  }
-
-  void handleTextChange() {
-    final currentText = inlineimagecontroller.text;
-    final selection = inlineimagecontroller.selection;
-
-    if (previousText.length > currentText.length) {
-      final deletionIndex = selection.baseOffset;
-
-      final regex = RegExp(r'<<\d+>>');
-      final matches = regex.allMatches(previousText);
-
-      bool placeholderDeleted = false;
-
-      for (final match in matches) {
-        if (deletionIndex > match.start && deletionIndex < match.end) {
-          inlineimagecontroller.text =
-              previousText.replaceRange(match.start, match.end, '');
-          inlineimagecontroller.selection =
-              TextSelection.collapsed(offset: match.start);
-          placeholderDeleted = true;
-          break;
-        }
-      }
-
-      if (!placeholderDeleted) {
-        previousText = inlineimagecontroller.text;
-      }
-    } else {
-      previousText = currentText;
-    }
-  }
-
-  void _controllerListner() {
-    animationProvider.badgeAnimation(inlineImageProvider.getController().text,
-        Converters(), animationProvider.isEffectActive(InvertLEDEffect()));
-  }
-
-  @override
-  void dispose() {
-    inlineimagecontroller.removeListener(handleTextChange);
-    animationProvider.stopAnimation();
-    inlineImageProvider.getController().removeListener(_controllerListner);
-    _tabController.dispose();
-    super.dispose();
   }
 
   void _setPortraitOrientation() {
@@ -264,6 +119,15 @@ class _HomeScreenState extends State<HomeScreen>
         inlineImageProvider.isCacheInitialized = true;
       });
     }
+  }
+
+  @override
+  void dispose() {
+    inlineimagecontroller.removeListener(handleTextChange);
+    animationProvider.stopAnimation();
+    WidgetsBinding.instance.removeObserver(this);
+    _tabController.dispose();
+    super.dispose();
   }
 
   @override
@@ -404,14 +268,10 @@ class _HomeScreenState extends State<HomeScreen>
                                         .showToast("Please enter a message");
                                     return;
                                   }
-                                  logger.i(
-                                      'Save button clicked, showing dialog : ${animationProvider.isEffectActive(FlashEffect())}');
                                   // If we're editing an existing badge, update it instead of showing save dialog
                                   if (widget.savedBadgeFilename != null) {
-                                    // Update the existing badge file using the new updateBadgeData method
                                     SavedBadgeProvider savedBadgeProvider =
                                         SavedBadgeProvider();
-                                    // Extract the base filename without .json extension
                                     String baseFilename =
                                         widget.savedBadgeFilename!;
                                     if (baseFilename.endsWith('.json')) {
@@ -419,10 +279,6 @@ class _HomeScreenState extends State<HomeScreen>
                                           0, baseFilename.length - 5);
                                     }
 
-                                    logger.i(
-                                        'Updating existing badge: $baseFilename');
-
-                                    // Use the new updateBadgeData method which handles everything cleanly
                                     await savedBadgeProvider.updateBadgeData(
                                         baseFilename, // Pass the filename without .json extension
                                         inlineImageProvider
@@ -518,6 +374,57 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  void handleTextChange() {
+    final currentText = inlineimagecontroller.text;
+    final selection = inlineimagecontroller.selection;
+
+    if (previousText.length > currentText.length) {
+      final deletionIndex = selection.baseOffset;
+
+      final regex = RegExp(r'<<\d+>>');
+      final matches = regex.allMatches(previousText);
+
+      bool placeholderDeleted = false;
+
+      for (final match in matches) {
+        if (deletionIndex > match.start && deletionIndex < match.end) {
+          inlineimagecontroller.text =
+              previousText.replaceRange(match.start, match.end, '');
+          inlineimagecontroller.selection =
+              TextSelection.collapsed(offset: match.start);
+          placeholderDeleted = true;
+          break;
+        }
+      }
+
+      if (!placeholderDeleted) {
+        previousText = inlineimagecontroller.text;
+      }
+    } else {
+      previousText = currentText;
+    }
+  }
+
+  void _controllerListner() {
+    animationProvider.badgeAnimation(inlineImageProvider.getController().text,
+        Converters(), animationProvider.isEffectActive(InvertLEDEffect()));
+  }
+
   @override
   bool get wantKeepAlive => true;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      inlineimagecontroller.clear();
+      previousText = '';
+      animationProvider.stopAllAnimations.call(); // If method exists
+      animationProvider.initializeAnimation.call(); // If method exists
+      if (mounted) setState(() {});
+    } else if (state == AppLifecycleState.paused ||
+        state == AppLifecycleState.inactive) {
+      animationProvider.stopAnimation();
+    }
+  }
 }

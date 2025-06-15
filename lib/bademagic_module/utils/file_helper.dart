@@ -15,7 +15,11 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
+import 'package:synchronized/synchronized.dart';
+
 class FileHelper {
+  // Static lock to synchronize file access and prevent race conditions
+  static final Lock _badgeFileLock = Lock();
   final InlineImageProvider imageCacheProvider =
       GetIt.instance<InlineImageProvider>();
   ImageUtils imageUtils = ImageUtils();
@@ -28,10 +32,10 @@ class FileHelper {
 
   static Future<File> _writeToFile(String filename, String data) async {
     final path = await _getFilePath(filename);
-
     logger.d('Writing to file: $path');
-
-    return File(path).writeAsString(data);
+    return await _badgeFileLock.synchronized(() async {
+      return File(path).writeAsString(data);
+    });
   }
 
   static String _generateUniqueFilename() {
@@ -199,19 +203,17 @@ class FileHelper {
     try {
       final path = await _getFilePath(filename);
       final file = File(path);
-
-      if (await file.exists()) {
-        final content = await file.readAsString();
-        final dynamic decodedData = jsonDecode(content);
-
-        // Automatically return decoded JSON as a dynamic type
-        return decodedData;
-      } else {
-        logger.d('File not found: $filename');
-        return null;
-      }
+      return await _badgeFileLock.synchronized(() async {
+        if (await file.exists()) {
+          final content = await file.readAsString();
+          return jsonDecode(content);
+        } else {
+          logger.i('File not found: $path');
+          return null;
+        }
+      });
     } catch (e) {
-      logger.e('Error reading file: $e');
+      logger.i('Error reading from file: $e');
       return null;
     }
   }
@@ -389,14 +391,15 @@ class FileHelper {
     try {
       final directory = await getApplicationDocumentsDirectory();
       final filePath = '${directory.path}/$filename';
-
       File file = File(filePath);
-      if (await file.exists()) {
-        await file.delete();
-        logger.i('File deleted: $filePath');
-      } else {
-        logger.i('File not found: $filePath');
-      }
+      await _badgeFileLock.synchronized(() async {
+        if (await file.exists()) {
+          await file.delete();
+          logger.i('File deleted: $filePath');
+        } else {
+          logger.i('File not found: $filePath');
+        }
+      });
     } catch (e) {
       logger.i('Error deleting file: $e');
     }

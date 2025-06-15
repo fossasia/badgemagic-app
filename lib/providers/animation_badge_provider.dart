@@ -79,6 +79,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   Set<BadgeEffect?> get getCurrentEffect => _currentEffect;
 
+  /// Clears all currently active effects
+  void clearAllEffects() {
+    _currentEffect.clear();
+    notifyListeners();
+  }
+
   void addEffect(BadgeEffect? effect) {
     _currentEffect.add(effect);
     logger.i("Effect Added: $effect : $_currentEffect");

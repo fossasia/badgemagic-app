@@ -8,6 +8,8 @@ import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -38,6 +40,129 @@ Map<int, Mode> modeValueMap = {
 };
 
 class SavedBadgeProvider extends ChangeNotifier {
+  /// Applies saved badge data to the UI providers and controllers.
+  /// Moves logic out of HomeScreen._applySavedBadgeData for better separation of concerns.
+  Future<void> applySavedBadgeDataToUI({
+    required Map<String, dynamic> savedData,
+    required String? savedBadgeFilename,
+    required AnimationBadgeProvider animationProvider,
+    required SpeedDialProvider speedDialProvider,
+    required TextEditingController inlineimagecontroller,
+    required BuildContext context,
+  }) async {
+    final fileHelper = FileHelper();
+    // Set the text from the saved badge
+    final badgeDataModel = fileHelper.jsonToData(savedData);
+    final message = badgeDataModel.messages[0];
+
+    // When we save a badge, we store the original text using BadgeTextStorage
+    // Now we need to retrieve that text to show in the text field
+    String badgeText = "";
+    try {
+      if (savedBadgeFilename != null) {
+        // Get the original text from BadgeTextStorage
+        badgeText = await BadgeTextStorage.getOriginalText(savedBadgeFilename);
+        // If we couldn't find the original text, use the filename as a fallback
+        if (badgeText.isEmpty) {
+          badgeText =
+              savedBadgeFilename.substring(0, savedBadgeFilename.length - 5);
+          // If the filename is a timestamp, use a generic text
+          if (badgeText.contains(":") && badgeText.contains("-")) {
+            badgeText = "Hello"; // Default text for timestamp filenames
+          }
+        }
+      }
+    } catch (e) {
+      logger.e("Failed to retrieve original badge text: $e");
+      badgeText = "Hello"; // Default fallback
+    }
+    // Set the text in the controller
+    inlineimagecontroller.text = badgeText;
+
+    // Set animation effects
+    if (message.flash) {
+      animationProvider.addEffect(effectMap[1]); // Flash effect
+    }
+    if (message.marquee) {
+      animationProvider.addEffect(effectMap[2]); // Marquee effect
+    }
+    // Set inversion if applicable
+    if (savedData.containsKey('invert') && savedData['invert'] == true) {
+      animationProvider.addEffect(effectMap[0]); // Invert effect
+    }
+    // Set animation mode
+    int modeValue = 0; // Default to left animation
+    try {
+      // Handle different mode formats - could be enum or int
+      if (message.mode is int) {
+        modeValue = message.mode as int;
+      } else {
+        // Try to extract the mode value from the enum
+        String modeString = message.mode.toString();
+        // If it's in format "Mode.left", extract just the mode name
+        if (modeString.contains('.')) {
+          String modeName = modeString.split('.').last;
+          // Map mode name to value
+          switch (modeName.toLowerCase()) {
+            case 'left':
+              modeValue = 0;
+              break;
+            case 'right':
+              modeValue = 1;
+              break;
+            case 'up':
+              modeValue = 2;
+              break;
+            case 'down':
+              modeValue = 3;
+              break;
+            case 'fixed':
+              modeValue = 4;
+              break;
+            case 'snowflake':
+              modeValue = 5;
+              break;
+            case 'picture':
+              modeValue = 6;
+              break;
+            case 'animation':
+              modeValue = 7;
+              break;
+            default:
+              modeValue = 0; // Default to left
+          }
+        } else {
+          // Try parsing as int
+          modeValue = int.tryParse(modeString) ?? 0;
+        }
+      }
+    } catch (e) {
+      // If parsing fails, default to left animation (0)
+      logger.e("Failed to parse mode value: $e");
+    }
+    animationProvider.setAnimationMode(animationMap[modeValue]);
+
+    // Set speed using Speed.getIntValue to ensure correct dial value
+    try {
+      int speedDialValue = 1; // Default
+      // Use the static helper method to get the correct dial value
+      speedDialValue = Speed.getIntValue(message.speed);
+      logger.i("Setting speed dial to: $speedDialValue from [33m");
+      speedDialProvider.setDialValue(speedDialValue);
+    } catch (e) {
+      logger.e("Failed to set speed dial value: $e");
+      speedDialProvider.setDialValue(1); // Fallback to default
+    }
+    // Store the filename for saving back to the same file
+    setSavedBadgeDataMap(savedData);
+    setIsSavedBadgeData(true);
+    // Notify that we're editing an existing badge
+    ToastUtils().showToast("Editing badge: " +
+        (savedBadgeFilename != null
+            ? savedBadgeFilename.substring(0, savedBadgeFilename.length - 5)
+            : ""));
+  }
+
   Converters converters = Converters();
   FileHelper fileHelper = FileHelper();
   bool isSavedBadgeData = false;
@@ -166,6 +291,9 @@ class SavedBadgeProvider extends ChangeNotifier {
 
   void savedBadgeAnimation(
       Map<String, dynamic> data, AnimationBadgeProvider aniProvider) {
+    // Reset animation mode and effects to default to avoid leakage
+    aniProvider.setAnimationMode(animationMap[0]); // Default to left
+    aniProvider.clearAllEffects();
     //set the animations and the modes from the json file
     try {
       // Safely get the speed value
