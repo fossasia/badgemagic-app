@@ -22,6 +22,7 @@ import 'package:badgemagic/view/widgets/vectorview.dart';
 import 'package:badgemagic/virtualbadge/view/animated_badge.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
@@ -152,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen>
           length: 3,
           child: CommonScaffold(
             index: 0,
-            title: 'Badge Magic',
+            title: AppLocalizations.of(context)?.appTitle ?? 'Badge Magic',
             body: SafeArea(
               child: SingleChildScrollView(
                 physics: isDialInteracting
@@ -218,10 +219,16 @@ class _HomeScreenState extends State<HomeScreen>
                           return null;
                         },
                       ),
-                      tabs: const [
-                        Tab(text: 'Speed'),
-                        Tab(text: 'Animation'),
-                        Tab(text: 'Effects'),
+                      tabs: [
+                        Tab(
+                            text: AppLocalizations.of(context)?.tabSpeed ??
+                                'Speed'),
+                        Tab(
+                            text: AppLocalizations.of(context)?.tabAnimation ??
+                                'Animation'),
+                        Tab(
+                            text: AppLocalizations.of(context)?.tabEffects ??
+                                'Effects'),
                       ],
                     ),
                     SizedBox(
@@ -264,8 +271,10 @@ class _HomeScreenState extends State<HomeScreen>
                                       .getController()
                                       .text
                                       .isEmpty) {
-                                    ToastUtils()
-                                        .showToast("Please enter a message");
+                                    ToastUtils().showToast(
+                                        AppLocalizations.of(context)
+                                                ?.pleaseEnterMessage ??
+                                            "Please enter a message");
                                     return;
                                   }
                                   // If we're editing an existing badge, update it instead of showing save dialog
@@ -294,7 +303,9 @@ class _HomeScreenState extends State<HomeScreen>
                                         animationProvider.getAnimationIndex() ??
                                             1);
                                     ToastUtils().showToast(
-                                        "Badge Updated Successfully");
+                                        AppLocalizations.of(context)
+                                                ?.badgeUpdated ??
+                                            "Badge Updated Successfully");
                                   } else {
                                     // Show save dialog for new badges
                                     showDialog(
@@ -320,7 +331,9 @@ class _HomeScreenState extends State<HomeScreen>
                                     borderRadius: BorderRadius.circular(2.r),
                                     color: mdGrey400,
                                   ),
-                                  child: const Text('Save'),
+                                  child: Text(
+                                      AppLocalizations.of(context)?.save ??
+                                          'Save'),
                                 ),
                               ),
                             ],
@@ -357,7 +370,9 @@ class _HomeScreenState extends State<HomeScreen>
                                     borderRadius: BorderRadius.circular(2.r),
                                     color: mdGrey400,
                                   ),
-                                  child: const Text('Transfer'),
+                                  child: Text(
+                                      AppLocalizations.of(context)?.transfer ??
+                                          'Transfer'),
                                 ),
                               ),
                             ],

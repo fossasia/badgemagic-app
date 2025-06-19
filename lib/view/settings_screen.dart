@@ -2,9 +2,11 @@ import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import '../l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
-  const SettingsScreen({super.key});
+  final void Function(Locale)? onLocaleChange;
+  const SettingsScreen({super.key, this.onLocaleChange});
 
   @override
   SettingsScreenState createState() => SettingsScreenState();
@@ -15,6 +17,10 @@ class SettingsScreenState extends State<SettingsScreen> {
   String selectedBadge = 'LSLED';
 
   final List<String> languages = ['ENGLISH', 'CHINESE'];
+  final Map<String, Locale> languageLocales = {
+    'ENGLISH': Locale('en'),
+    'CHINESE': Locale('zh'),
+  };
   final List<String> badges = ['LSLED', 'VBLAB'];
 
   @override
@@ -39,9 +45,9 @@ class SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Language',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)?.language ?? 'Language',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Container(
@@ -59,6 +65,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                     setState(() {
                       selectedLanguage = newValue!;
                     });
+                    // Change locale if callback is provided
+                    if (widget.onLocaleChange != null && newValue != null) {
+                      widget.onLocaleChange!(languageLocales[newValue]!);
+                    }
                   },
                   items:
                       languages.map<DropdownMenuItem<String>>((String value) {
@@ -72,9 +82,9 @@ class SettingsScreenState extends State<SettingsScreen> {
               ),
             ),
             const SizedBox(height: 20),
-            const Text(
-              'Select Badge',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)?.selectBadge ?? 'Select Badge',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
             Container(
@@ -106,7 +116,7 @@ class SettingsScreenState extends State<SettingsScreen> {
           ],
         ),
       ),
-      title: 'Badge Magic',
+      title: AppLocalizations.of(context)?.appTitle ?? 'Badge Magic',
     );
   }
 }

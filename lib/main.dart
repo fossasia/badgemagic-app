@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'l10n/app_localizations.dart';
 import 'globals/globals.dart' as globals;
 
 void main() {
@@ -28,8 +30,21 @@ void main() {
   ));
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  Locale? _locale;
+
+  void setLocale(Locale locale) {
+    setState(() {
+      _locale = locale;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -43,14 +58,39 @@ class MyApp extends StatelessWidget {
             colorSchemeSeed: Colors.white,
             useMaterial3: true,
           ),
+          locale: _locale,
+          localizationsDelegates: const [
+            AppLocalizations.delegate,
+            GlobalMaterialLocalizations.delegate,
+            GlobalWidgetsLocalizations.delegate,
+            GlobalCupertinoLocalizations.delegate,
+          ],
+          supportedLocales: const [
+            Locale('en'),
+            Locale('zh'),
+          ],
           initialRoute: '/',
-          routes: {
-            '/': (context) => const HomeScreen(),
-            '/drawBadge': (context) => const DrawBadge(),
-            '/savedBadge': (context) => const SaveBadgeScreen(),
-            '/savedClipart': (context) => const SavedClipart(),
-            '/aboutUs': (context) => const AboutUsScreen(),
-            '/settings': (context) => const SettingsScreen(),
+          onGenerateRoute: (settings) {
+            if (settings.name == '/settings') {
+              return MaterialPageRoute(
+                builder: (context) => SettingsScreen(
+                  onLocaleChange: setLocale,
+                ),
+              );
+            }
+            // fallback to default
+            final routes = <String, WidgetBuilder>{
+              '/': (context) => const HomeScreen(),
+              '/drawBadge': (context) => const DrawBadge(),
+              '/savedBadge': (context) => const SaveBadgeScreen(),
+              '/savedClipart': (context) => const SavedClipart(),
+              '/aboutUs': (context) => const AboutUsScreen(),
+            };
+            final builder = routes[settings.name];
+            if (builder != null) {
+              return MaterialPageRoute(builder: builder);
+            }
+            return null;
           },
         );
       },
