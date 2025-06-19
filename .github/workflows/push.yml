@@ -112,14 +112,14 @@ jobs:
           name: AAB Generated
           path: build/app/outputs/bundle
       
-      - name: Upload APK/AAB to apk branch
+      - name: Upload APK/AAB to app branch
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git clone --branch=apk https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} apk
-          cd apk
+          git clone --branch=app https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} app
+          cd app
           
           branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
 
@@ -144,14 +144,14 @@ jobs:
 
           ls
 
-          echo "Pushing to apk branch"
+          echo "Pushing to app branch"
 
           git checkout --orphan temporary
           git add --all .
           git commit -am "[Auto] Update APK/AAB's from $branch ($(date +%Y-%m-%d.%H:%M:%S))"
-          git branch -D apk
-          git branch -m apk
-          git push --force origin apk
+          git branch -D app
+          git branch -m app
+          git push --force origin app
 
       - name: Push app in open testing track
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
