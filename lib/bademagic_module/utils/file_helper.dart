@@ -14,7 +14,6 @@ import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
-
 import 'package:synchronized/synchronized.dart';
 
 class FileHelper {
