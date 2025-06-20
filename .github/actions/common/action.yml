@@ -1,5 +1,4 @@
 name: "Common Workflow"
-
 runs:
   using: "composite"
   steps:
@@ -8,19 +7,15 @@ runs:
       with:
         cache: true
         flutter-version-file: pubspec.yaml
-
     - name: Fetch Flutter Dependencies
       shell: bash
       run: flutter pub get
-
     - name: Validate Code Format
       shell: bash
-      run: dart format --output=none --set-exit-if-changed .
-
+      run: dart format --output=none --set-exit-if-changed $(find . -name "*.dart" -not -path "./lib/l10n/*" -not -path "./.dart_tool/*" -not -name "*.g.dart" -not -name "*.freezed.dart")
     - name: Analyze Code
       shell: bash
       run: flutter analyze --no-fatal-infos
-
     - name: Run tests
       shell: bash
       run: flutter test
