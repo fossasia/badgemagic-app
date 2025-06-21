@@ -130,16 +130,11 @@ class SaveBadgeCard extends StatelessWidget {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        // Navigate to HomeScreen with the badge data
-                        // First, get the saved badge data
-                        Map<String, dynamic> savedData = badgeData.value;
+                        // Navigate to HomeScreen with only the badge filename for editing
                         String badgeFilename = badgeData.key;
-
-                        // Navigate to HomeScreen and replace the current route
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                             builder: (context) => HomeScreen(
-                              savedBadgeData: savedData,
                               savedBadgeFilename: badgeFilename,
                             ),
                           ),

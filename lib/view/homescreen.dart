@@ -1,11 +1,17 @@
 import 'dart:async';
-import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+
 import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
+import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
@@ -29,14 +35,13 @@ import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   // Add parameters for saved badge data when editing
-  final Map<String, dynamic>? savedBadgeData;
+
   final String? savedBadgeFilename;
 
   const HomeScreen({
-    super.key,
-    this.savedBadgeData,
+    Key? key,
     this.savedBadgeFilename,
-  });
+  }) : super(key: key);
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -71,8 +76,8 @@ class _HomeScreenState extends State<HomeScreen>
       inlineImageProvider.setContext(context);
 
       // Apply saved badge data if we're editing a saved badge
-      if (widget.savedBadgeData != null) {
-        await _applySavedBadgeData();
+      if (widget.savedBadgeFilename != null) {
+        await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
       }
     });
     _startImageCaching();
@@ -81,28 +86,116 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: 3, vsync: this);
   }
 
-  Future<void> _applySavedBadgeData() async {
-    await SavedBadgeProvider().applySavedBadgeDataToUI(
-      savedData: widget.savedBadgeData!,
-      savedBadgeFilename: widget.savedBadgeFilename,
-      animationProvider: animationProvider,
-      speedDialProvider: speedDialProvider,
-      inlineimagecontroller: inlineimagecontroller,
-      context: context,
-    );
-    // Set the text field for editing
-    if (widget.savedBadgeFilename != null) {
-      String badgeText =
-          await BadgeTextStorage.getOriginalText(widget.savedBadgeFilename!);
+  // Loads badge data from disk and populates controllers/providers for editing
+  Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
+    final fileHelper = FileHelper();
+    Map<String, dynamic>? savedData;
+    String badgeText = "";
+    try {
+      // Load badge JSON from disk
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/$badgeFilename';
+      final file = File(filePath);
+      if (await file.exists()) {
+        final jsonString = await file.readAsString();
+        savedData = jsonDecode(jsonString) as Map<String, dynamic>;
+      } else {
+        print("Badge file not found: $filePath");
+        ToastUtils().showToast("Badge file not found");
+        return;
+      }
+      // Load original text (always use .json extension)
+      final textFilename = badgeFilename.endsWith('.json')
+          ? badgeFilename
+          : '$badgeFilename.json';
+      badgeText = await BadgeTextStorage.getOriginalText(textFilename);
       if (badgeText.isEmpty) {
-        badgeText = widget.savedBadgeFilename!
-            .substring(0, widget.savedBadgeFilename!.length - 5);
+        badgeText = badgeFilename.endsWith('.json')
+            ? badgeFilename.substring(0, badgeFilename.length - 5)
+            : badgeFilename;
         if (badgeText.contains(":") && badgeText.contains("-")) {
-          badgeText = "Hello"; // Default text for timestamp filenames
+          badgeText = "Hello";
         }
       }
-      inlineimagecontroller.text = badgeText;
+    } catch (e) {
+      print("Failed to load badge data: $e");
+      ToastUtils().showToast("Failed to load badge data");
+      return;
     }
+    // Set the text in the controller
+    inlineimagecontroller.text = badgeText;
+    // Set animation effects
+    final badgeData = fileHelper.jsonToData(savedData);
+    final message = badgeData.messages[0];
+    // Clear all effects (reset state)
+    animationProvider.removeEffect(effectMap[0]); // Invert
+    animationProvider.removeEffect(effectMap[1]); // Flash
+    animationProvider.removeEffect(effectMap[2]); // Marquee
+    if (message.flash) {
+      animationProvider.addEffect(effectMap[1]);
+    }
+    if (message.marquee) {
+      animationProvider.addEffect(effectMap[2]);
+    }
+    if (savedData.containsKey('invert') && savedData['invert'] == true) {
+      animationProvider.addEffect(effectMap[0]);
+    }
+    // Set animation mode
+    int modeValue = 0;
+    try {
+      if (message.mode is int) {
+        modeValue = message.mode as int;
+      } else {
+        String modeString = message.mode.toString();
+        if (modeString.contains('.')) {
+          String modeName = modeString.split('.').last;
+          switch (modeName.toLowerCase()) {
+            case 'left':
+              modeValue = 0;
+              break;
+            case 'right':
+              modeValue = 1;
+              break;
+            case 'up':
+              modeValue = 2;
+              break;
+            case 'down':
+              modeValue = 3;
+              break;
+            case 'fixed':
+              modeValue = 4;
+              break;
+            case 'snowflake':
+              modeValue = 5;
+              break;
+            case 'picture':
+              modeValue = 6;
+              break;
+            case 'animation':
+              modeValue = 7;
+              break;
+            default:
+              modeValue = 0;
+          }
+        } else {
+          modeValue = int.tryParse(modeString) ?? 0;
+        }
+      }
+    } catch (e) {
+      print("Failed to parse mode value: $e");
+    }
+    animationProvider.setAnimationMode(animationMap[modeValue]);
+    // Set speed
+    try {
+      int speedDialValue = 1;
+      speedDialValue = Speed.getIntValue(message.speed);
+      speedDialProvider.setDialValue(speedDialValue);
+    } catch (e) {
+      speedDialProvider.setDialValue(1);
+    }
+    // Notify that we're editing an existing badge
+    ToastUtils().showToast(
+        "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
   }
 
   void _setPortraitOrientation() {
