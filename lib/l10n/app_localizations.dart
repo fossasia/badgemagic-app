@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/intl.dart' as intl;
 
 import 'app_localizations_en.dart';
+import 'app_localizations_es.dart';
 import 'app_localizations_zh.dart';
 
 // ignore_for_file: type=lint
@@ -95,6 +96,7 @@ abstract class AppLocalizations {
   /// A list of this localizations delegate's supported locales.
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
+    Locale('es'),
     Locale('zh')
   ];
 
@@ -206,6 +208,36 @@ abstract class AppLocalizations {
   /// **'Badge Magic is an app to control LED name badges. This app provides features to portray names, graphics and simple animations on LED badges. You can also download it from below link https://play.google.com/store/apps/details?id=org.fossasia.badgemagic'**
   String get drawerShareText;
 
+  /// No description provided for @aboutDescription.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge Magic is an app to control LED name badges. The goal is to provide options to portray names, graphics, and simple animations on LED badges. For the data transfer from the smartphone to the LED badge we use Bluetooth. The project is based on the work of Nihlcem.'**
+  String get aboutDescription;
+
+  /// No description provided for @aboutDevelopedBy.
+  ///
+  /// In en, this message translates to:
+  /// **'Developed by'**
+  String get aboutDevelopedBy;
+
+  /// No description provided for @aboutContributors.
+  ///
+  /// In en, this message translates to:
+  /// **'FOSSASIA contributors'**
+  String get aboutContributors;
+
+  /// No description provided for @aboutContactWithUs.
+  ///
+  /// In en, this message translates to:
+  /// **'Contact With Us'**
+  String get aboutContactWithUs;
+
+  /// No description provided for @aboutGithubSubtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fork the repo and push changes or submit new issues.'**
+  String get aboutGithubSubtitle;
+
   /// No description provided for @drawerRateUs.
   ///
   /// In en, this message translates to:
@@ -272,7 +304,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'zh'].contains(locale.languageCode);
+      <String>['en', 'es', 'zh'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -283,6 +315,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
   switch (locale.languageCode) {
     case 'en':
       return AppLocalizationsEn();
+    case 'es':
+      return AppLocalizationsEs();
     case 'zh':
       return AppLocalizationsZh();
   }

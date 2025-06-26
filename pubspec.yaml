@@ -64,6 +64,7 @@ dependencies:
   url_launcher: ^6.3.1
   image: ^4.5.4
   synchronized: ^3.3.1
+  shared_preferences: ^2.2.2
 
 dev_dependencies:
   flutter_test:

@@ -1,5 +1,6 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
+import '../bademagic_module/utils/locale_persistence.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../l10n/app_localizations.dart';
@@ -13,20 +14,39 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
-  String selectedLanguage = 'ENGLISH';
+  String selectedLanguage =
+      'ENGLISH'; // Default, consider loading from user prefs if needed
   String selectedBadge = 'LSLED';
 
-  final List<String> languages = ['ENGLISH', 'CHINESE'];
+  final List<String> languages = ['ENGLISH', 'CHINESE', 'ESPANOL'];
   final Map<String, Locale> languageLocales = {
     'ENGLISH': Locale('en'),
     'CHINESE': Locale('zh'),
+    'ESPANOL': Locale('es'),
   };
   final List<String> badges = ['LSLED', 'VBLAB'];
 
   @override
   void initState() {
     _setOrientation();
+    _loadSavedLocale();
     super.initState();
+  }
+
+  void _loadSavedLocale() async {
+    Locale? saved = await LocalePersistence.loadLocale();
+    if (saved != null) {
+      final entry = languageLocales.entries.firstWhere(
+        (e) => e.value.languageCode == saved.languageCode,
+        orElse: () => const MapEntry('ENGLISH', Locale('en')),
+      );
+      setState(() {
+        selectedLanguage = entry.key;
+      });
+      if (widget.onLocaleChange != null) {
+        widget.onLocaleChange!(entry.value);
+      }
+    }
   }
 
   void _setOrientation() {
@@ -65,8 +85,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                     setState(() {
                       selectedLanguage = newValue!;
                     });
-                    // Change locale if callback is provided
-                    if (widget.onLocaleChange != null && newValue != null) {
+                    LocalePersistence.saveLocale(languageLocales[newValue!]!);
+                    if (widget.onLocaleChange != null) {
                       widget.onLocaleChange!(languageLocales[newValue]!);
                     }
                   },

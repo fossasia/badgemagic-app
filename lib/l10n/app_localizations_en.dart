@@ -64,6 +64,23 @@ class AppLocalizationsEn extends AppLocalizations {
       'Badge Magic is an app to control LED name badges. This app provides features to portray names, graphics and simple animations on LED badges. You can also download it from below link https://play.google.com/store/apps/details?id=org.fossasia.badgemagic';
 
   @override
+  String get aboutDescription =>
+      'Badge Magic is an app to control LED name badges. The goal is to provide options to portray names, graphics, and simple animations on LED badges. For the data transfer from the smartphone to the LED badge we use Bluetooth. The project is based on the work of Nihlcem.';
+
+  @override
+  String get aboutDevelopedBy => 'Developed by';
+
+  @override
+  String get aboutContributors => 'FOSSASIA contributors';
+
+  @override
+  String get aboutContactWithUs => 'Contact With Us';
+
+  @override
+  String get aboutGithubSubtitle =>
+      'Fork the repo and push changes or submit new issues.';
+
+  @override
   String get drawerRateUs => 'Rate Us';
 
   @override

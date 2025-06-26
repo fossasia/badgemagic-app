@@ -64,6 +64,22 @@ class AppLocalizationsZh extends AppLocalizations {
       '徽章魔法是一款用于控制LED名牌的应用程序。该应用可在LED徽章上显示姓名、图形和简单动画。你也可以通过以下链接下载：https://play.google.com/store/apps/details?id=org.fossasia.badgemagic';
 
   @override
+  String get aboutDescription =>
+      '徽章魔法是一款用于控制LED名牌的应用程序。目标是为LED徽章提供显示姓名、图形和简单动画的选项。我们使用蓝牙将数据从智能手机传输到LED徽章。该项目基于Nihlcem的工作。';
+
+  @override
+  String get aboutDevelopedBy => '开发者';
+
+  @override
+  String get aboutContributors => 'FOSSASIA 贡献者';
+
+  @override
+  String get aboutContactWithUs => '联系我们';
+
+  @override
+  String get aboutGithubSubtitle => 'Fork 代码库并提交更改或新问题。';
+
+  @override
   String get drawerRateUs => '为我们评分';
 
   @override

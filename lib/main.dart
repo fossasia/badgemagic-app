@@ -13,6 +13,7 @@ import 'package:provider/provider.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'globals/globals.dart' as globals;
+import 'bademagic_module/utils/locale_persistence.dart';
 
 void main() {
   setupLocator();
@@ -40,10 +41,26 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   Locale? _locale;
 
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedLocale();
+  }
+
+  void _loadSavedLocale() async {
+    Locale? saved = await LocalePersistence.loadLocale();
+    if (saved != null) {
+      setState(() {
+        _locale = saved;
+      });
+    }
+  }
+
   void setLocale(Locale locale) {
     setState(() {
       _locale = locale;
     });
+    LocalePersistence.saveLocale(locale);
   }
 
   @override
@@ -68,6 +85,7 @@ class _MyAppState extends State<MyApp> {
           supportedLocales: const [
             Locale('en'),
             Locale('zh'),
+            Locale('es'),
           ],
           initialRoute: '/',
           onGenerateRoute: (settings) {

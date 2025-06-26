@@ -1,5 +1,6 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
+import '../l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -64,9 +65,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       ),
                       const SizedBox(height: 30),
                       Text(
-                        'Badge Magic is an app to control LED name badges. '
-                        'The goal is to provide options to portray names, graphics, and simple animations on LED badges. '
-                        'For the data transfer from the smartphone to the LED badge we use Bluetooth. The project is based on the work of Nihlcem.',
+                        AppLocalizations.of(context)?.aboutDescription ?? '',
                         textAlign: TextAlign.justify,
                         style: GoogleFonts.sora(
                           wordSpacing: 3,
@@ -82,7 +81,8 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         children: [
                           Flexible(
                             child: Text(
-                              'Developed by',
+                              AppLocalizations.of(context)?.aboutDevelopedBy ??
+                                  'Developed by',
                               style: GoogleFonts.sora(
                                 fontWeight: FontWeight.w500,
                                 color: Colors.grey,
@@ -96,7 +96,9 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                               onTap: () => openUrl(
                                   'https://github.com/fossasia/badgemagic-app/graphs/contributors'),
                               child: Text(
-                                'FOSSASIA contributors',
+                                AppLocalizations.of(context)
+                                        ?.aboutContributors ??
+                                    'FOSSASIA contributors',
                                 style: GoogleFonts.sora(
                                   fontWeight: FontWeight.w500,
                                   color: Colors.red,
@@ -131,7 +133,8 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                     Padding(
                       padding: EdgeInsets.only(left: 12.0, top: 12.0),
                       child: Text(
-                        'Contact With Us',
+                        AppLocalizations.of(context)?.aboutContactWithUs ??
+                            'Contact With Us',
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -146,7 +149,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         fit: BoxFit.contain,
                       ),
                       title: Text(
-                        'GitHub',
+                        AppLocalizations.of(context)?.github ?? 'GitHub',
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -154,7 +157,8 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         ),
                       ),
                       subtitle: Text(
-                        'Fork the repo and push changes or submit new issues.',
+                        AppLocalizations.of(context)?.aboutGithubSubtitle ??
+                            'Fork the repo and push changes or submit new issues.',
                         style: GoogleFonts.sora(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
