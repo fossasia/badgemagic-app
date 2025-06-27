@@ -15,11 +15,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:uuid/uuid.dart';
 
-import 'package:synchronized/synchronized.dart';
-
 class FileHelper {
-  // Static lock to synchronize file access and prevent race conditions
-  static final Lock _badgeFileLock = Lock();
   final InlineImageProvider imageCacheProvider =
       GetIt.instance<InlineImageProvider>();
   ImageUtils imageUtils = ImageUtils();
@@ -33,9 +29,7 @@ class FileHelper {
   static Future<File> _writeToFile(String filename, String data) async {
     final path = await _getFilePath(filename);
     logger.d('Writing to file: $path');
-    return await _badgeFileLock.synchronized(() async {
-      return File(path).writeAsString(data);
-    });
+    return File(path).writeAsString(data);
   }
 
   static String _generateUniqueFilename() {
@@ -58,10 +52,6 @@ class FileHelper {
         key++;
       }
     }
-    //storing the user drawn clipart to the badge in the form of a list
-    //the first element of the list is the filename and the second element is the key
-    //while parsing the vector we can take the filename and generate the hex for that vector
-    //therefore transfering the vector to the physiacl badge will be easier.
     imageCacheProvider.imageCache[[filename, key]] = imageData;
   }
 
@@ -203,15 +193,13 @@ class FileHelper {
     try {
       final path = await _getFilePath(filename);
       final file = File(path);
-      return await _badgeFileLock.synchronized(() async {
-        if (await file.exists()) {
-          final content = await file.readAsString();
-          return jsonDecode(content);
-        } else {
-          logger.i('File not found: $path');
-          return null;
-        }
-      });
+      if (await file.exists()) {
+        final content = await file.readAsString();
+        return jsonDecode(content);
+      } else {
+        logger.i('File not found: $path');
+        return null;
+      }
     } catch (e) {
       logger.i('Error reading from file: $e');
       return null;
@@ -394,14 +382,12 @@ class FileHelper {
       final directory = await getApplicationDocumentsDirectory();
       final filePath = '${directory.path}/$filename';
       File file = File(filePath);
-      await _badgeFileLock.synchronized(() async {
-        if (await file.exists()) {
-          await file.delete();
-          logger.i('File deleted: $filePath');
-        } else {
-          logger.i('File not found: $filePath');
-        }
-      });
+      if (await file.exists()) {
+        await file.delete();
+        logger.i('File deleted: $filePath');
+      } else {
+        logger.i('File not found: $filePath');
+      }
     } catch (e) {
       logger.i('Error deleting file: $e');
     }

@@ -108,14 +108,12 @@ class _HomeScreenState extends State<HomeScreen>
       final textFilename = badgeFilename.endsWith('.json')
           ? badgeFilename
           : '$badgeFilename.json';
+      print('[BadgeEdit] Loading original text for filename: $textFilename');
       badgeText = await BadgeTextStorage.getOriginalText(textFilename);
+      print('[BadgeEdit] Loaded original text: "$badgeText"');
       if (badgeText.isEmpty) {
-        badgeText = badgeFilename.endsWith('.json')
-            ? badgeFilename.substring(0, badgeFilename.length - 5)
-            : badgeFilename;
-        if (badgeText.contains(":") && badgeText.contains("-")) {
-          badgeText = "Hello";
-        }
+        print('[BadgeEdit] No original text found, falling back to "Hello"');
+        badgeText = "Hello";
       }
     } catch (e) {
       print("Failed to load badge data: $e");
