@@ -2,7 +2,7 @@ name: Badge Magic PR CI
 
 on:
   pull_request:
-    branches: [ "flutter_app" ]
+    branches: [ "development" ]
 
 env:
   ANDROID_EMULATOR_API: 34

@@ -2,7 +2,7 @@ name: Badge Magic Push CI
 
 on:
   push:
-    branches: ["flutter_app"]
+    branches: ["development"]
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -10,6 +10,16 @@ env:
   ANDROID_EMULATOR_ARCH: x86_64
   IPHONE_DEVICE_MODEL: iPhone 16 Pro Max
   IPAD_DEVICE_MODEL: iPad Pro 13-inch (M4)
+  BARECHECK_GITHUB_APP_TOKEN: ${{ secrets.BARECHECK_GITHUB_APP_TOKEN }}
+  ENCRYPTED_F10B5E0E5262_IV: ${{ secrets.ENCRYPTED_F10B5E0E5262_IV }}
+  ENCRYPTED_F10B5E0E5262_KEY: ${{ secrets.ENCRYPTED_F10B5E0E5262_KEY }}
+  ENCRYPTED_IOS_IV: ${{ secrets.ENCRYPTED_IOS_IV }}
+  ENCRYPTED_IOS_KEY: ${{ secrets.ENCRYPTED_IOS_KEY }}
+  STORE_PASS: ${{ secrets.STORE_PASS }}
+  ALIAS: ${{ secrets.ALIAS }}
+  KEY_PASS: ${{ secrets.KEY_PASS }}
+  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
+  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
 
 jobs:
   common:
@@ -23,7 +33,7 @@ jobs:
 
       - name: Common Workflow
         uses: ./.github/actions/common
-
+        
       - name: Hydrate and Update Version
         id: flutter-version
         run: |
@@ -102,14 +112,14 @@ jobs:
           name: AAB Generated
           path: build/app/outputs/bundle
       
-      - name: Upload APK/AAB to apk branch
+      - name: Upload APK/AAB to app branch
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git clone --branch=apk https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} apk
-          cd apk
+          git clone --branch=app https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} app
+          cd app
           
           branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
 
@@ -134,14 +144,14 @@ jobs:
 
           ls
 
-          echo "Pushing to apk branch"
+          echo "Pushing to app branch"
 
           git checkout --orphan temporary
           git add --all .
           git commit -am "[Auto] Update APK/AAB's from $branch ($(date +%Y-%m-%d.%H:%M:%S))"
-          git branch -D apk
-          git branch -m apk
-          git push --force origin apk
+          git branch -D app
+          git branch -m app
+          git push --force origin app
 
       - name: Push app in open testing track
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -220,8 +230,8 @@ jobs:
       - name: Create and Upload Assets
         run: |
           echo "${{ needs.common.outputs.VERSION_CODE }}" > ./versionCode.txt
-          git clone --branch=apk https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} apk
-          gh release upload ${{ steps.run-release-drafter.outputs.tag_name }} apk/badge-magic-flutter_app-release.apk ./versionCode.txt --clobber
+          git clone --branch=app https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} app
+          gh release upload ${{ steps.run-release-drafter.outputs.tag_name }} app/badge-magic-development-release.apk ./versionCode.txt --clobber
 
   screenshots-android:
     name: Screenshots (Android)
