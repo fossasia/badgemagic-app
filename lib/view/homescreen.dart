@@ -25,6 +25,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -34,7 +35,10 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        WidgetsBindingObserver {
   late final TabController _tabController;
   AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
   late SpeedDialProvider speedDialProvider;
@@ -50,8 +54,12 @@ class _HomeScreenState extends State<HomeScreen>
   bool isDialInteracting = false;
   String errorVal = "";
 
+  static const String _kHomeTextFieldKey = 'home_text_field_value';
+
   @override
   void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -59,9 +67,30 @@ class _HomeScreenState extends State<HomeScreen>
     });
     _startImageCaching();
     speedDialProvider = SpeedDialProvider(animationProvider);
-    super.initState();
-
     _tabController = TabController(length: 3, vsync: this);
+    _restoreTextField();
+  }
+
+  Future<void> _restoreTextField() async {
+    final prefs = await SharedPreferences.getInstance();
+    final value = prefs.getString(_kHomeTextFieldKey);
+    if (value != null && value.isNotEmpty) {
+      inlineimagecontroller.text = value;
+      previousText = value;
+    }
+  }
+
+  Future<void> _saveTextField() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_kHomeTextFieldKey, inlineimagecontroller.text);
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.paused) {
+      _saveTextField();
+    }
   }
 
   void handleTextChange() {
@@ -102,6 +131,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
     animationProvider.stopAnimation();
     inlineImageProvider.getController().removeListener(_controllerListner);
