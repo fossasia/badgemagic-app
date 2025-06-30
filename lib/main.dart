@@ -1,5 +1,8 @@
 import 'package:badgemagic/providers/getitlocator.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/animation_badge_provider.dart';
+import 'package:badgemagic/providers/speed_dial_provider.dart';
+import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/view/about_us_screen.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/homescreen.dart';
@@ -17,7 +20,20 @@ void main() {
   runApp(MultiProvider(
     providers: [
       ChangeNotifierProvider<InlineImageProvider>(
-          create: (context) => getIt<InlineImageProvider>()),
+        create: (context) => getIt<InlineImageProvider>(),
+      ),
+      ChangeNotifierProvider<AnimationBadgeProvider>(
+        create: (context) => AnimationBadgeProvider(),
+      ),
+      ChangeNotifierProxyProvider<AnimationBadgeProvider, SpeedDialProvider>(
+        create: (context) =>
+            SpeedDialProvider(context.read<AnimationBadgeProvider>()),
+        update: (context, animationProvider, speedDialProvider) =>
+            speedDialProvider!..badgeProvider = animationProvider,
+      ),
+      Provider<BadgeMessageProvider>(
+        create: (context) => BadgeMessageProvider(),
+      ),
     ],
     child: const MyApp(),
   ));
