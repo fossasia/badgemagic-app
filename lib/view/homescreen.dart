@@ -33,6 +33,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen>
     with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+  late AnimationBadgeProvider _animationProvider;
+  late InlineImageProvider _inlineImageProvider;
   late final TabController _tabController;
   // Providers are now accessed via context; removed direct instantiation.
 
@@ -58,16 +60,18 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
-    // Initialize the controller from provider if not already set
-    final provider = Provider.of<InlineImageProvider>(context, listen: false);
-    inlineimagecontroller = provider.getController();
+    _animationProvider =
+        Provider.of<AnimationBadgeProvider>(context, listen: false);
+    _inlineImageProvider =
+        Provider.of<InlineImageProvider>(context, listen: false);
+    inlineimagecontroller = _inlineImageProvider.getController();
     inlineimagecontroller.addListener(handleTextChange);
     if (!_controllerListenerAdded) {
-      provider.getController().addListener(_controllerListner);
+      _inlineImageProvider.getController().addListener(_controllerListner);
       _controllerListenerAdded = true;
     }
     // Set context if needed by InlineImageProvider
-    provider.setContext(context);
+    _inlineImageProvider.setContext(context);
   }
 
   void handleTextChange() {
@@ -116,10 +120,8 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     inlineimagecontroller.removeListener(handleTextChange);
-    Provider.of<AnimationBadgeProvider>(context, listen: false).stopAnimation();
-    Provider.of<InlineImageProvider>(context, listen: false)
-        .getController()
-        .removeListener(_controllerListner);
+    _animationProvider.stopAnimation();
+    _inlineImageProvider.getController().removeListener(_controllerListner);
     _tabController.dispose();
     super.dispose();
   }
