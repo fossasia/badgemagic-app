@@ -22,7 +22,6 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -38,24 +37,17 @@ class _HomeScreenState extends State<HomeScreen>
   // Providers are now accessed via context; removed direct instantiation.
 
   ImageUtils imageUtils = ImageUtils();
-  InlineImageProvider inlineImageProvider =
-      GetIt.instance<InlineImageProvider>();
+
   bool isPrefixIconClicked = false;
   int textfieldLength = 0;
   String previousText = '';
-  final TextEditingController inlineimagecontroller =
-      GetIt.instance.get<InlineImageProvider>().getController();
+  late TextEditingController inlineimagecontroller;
   bool isDialInteracting = false;
   String errorVal = "";
 
   @override
   void initState() {
-    inlineimagecontroller.addListener(handleTextChange);
-
     _setPortraitOrientation();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      inlineImageProvider.setContext(context);
-    });
     _startImageCaching();
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
@@ -66,12 +58,16 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    // Initialize the controller from provider if not already set
+    final provider = Provider.of<InlineImageProvider>(context, listen: false);
+    inlineimagecontroller = provider.getController();
+    inlineimagecontroller.addListener(handleTextChange);
     if (!_controllerListenerAdded) {
-      Provider.of<InlineImageProvider>(context, listen: false)
-          .getController()
-          .addListener(_controllerListner);
+      provider.getController().addListener(_controllerListner);
       _controllerListenerAdded = true;
     }
+    // Set context if needed by InlineImageProvider
+    provider.setContext(context);
   }
 
   void handleTextChange() {
@@ -136,10 +132,11 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _startImageCaching() async {
-    if (!inlineImageProvider.isCacheInitialized) {
-      await inlineImageProvider.generateImageCache();
+    final provider = Provider.of<InlineImageProvider>(context, listen: false);
+    if (!provider.isCacheInitialized) {
+      await provider.generateImageCache();
       setState(() {
-        inlineImageProvider.isCacheInitialized = true;
+        provider.isCacheInitialized = true;
       });
     }
   }
@@ -147,12 +144,10 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    InlineImageProvider inlineImageProvider =
-        Provider.of<InlineImageProvider>(context);
-
     final animationProvider = context.watch<AnimationBadgeProvider>();
     final speedDialProvider = context.watch<SpeedDialProvider>();
     final badgeData = context.read<BadgeMessageProvider>();
+    final inlineImageProvider = context.watch<InlineImageProvider>();
 
     // Listener registration moved to didChangeDependencies to avoid multiple adds.
     return DefaultTabController(

@@ -36,7 +36,7 @@ void main() {
         update: (context, animationProvider, speedDialProvider) =>
             speedDialProvider!..badgeProvider = animationProvider,
       ),
-      Provider<BadgeMessageProvider>(
+      ChangeNotifierProvider<BadgeMessageProvider>(
         create: (context) => BadgeMessageProvider(),
       ),
     ],

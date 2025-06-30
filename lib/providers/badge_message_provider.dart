@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'dart:io';
 import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
@@ -37,7 +38,7 @@ Map<int, Speed> speedMap = {
   8: Speed.eight,
 };
 
-class BadgeMessageProvider {
+class BadgeMessageProvider extends ChangeNotifier {
   static final Logger logger = Logger();
   InlineImageProvider controllerData =
       GetIt.instance.get<InlineImageProvider>();
