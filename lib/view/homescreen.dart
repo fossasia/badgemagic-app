@@ -32,7 +32,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+    with
+        TickerProviderStateMixin,
+        AutomaticKeepAliveClientMixin,
+        WidgetsBindingObserver {
+  String _cachedText = ''; // Cache text on pause
   late AnimationBadgeProvider _animationProvider;
   late InlineImageProvider _inlineImageProvider;
   late final TabController _tabController;
@@ -49,6 +53,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void initState() {
+    WidgetsBinding.instance.addObserver(this); // Register observer
     _setPortraitOrientation();
     _startImageCaching();
     super.initState();
@@ -119,6 +124,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this); // Unregister observer
     inlineimagecontroller.removeListener(handleTextChange);
     _animationProvider.stopAnimation();
     _inlineImageProvider.getController().removeListener(_controllerListner);
@@ -140,6 +146,24 @@ class _HomeScreenState extends State<HomeScreen>
       setState(() {
         provider.isCacheInitialized = true;
       });
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.paused) {
+      _cachedText = inlineimagecontroller.text;
+      _animationProvider.stopAnimation();
+    } else if (state == AppLifecycleState.resumed) {
+      if (inlineimagecontroller.text.trim().isEmpty &&
+          _cachedText.trim().isNotEmpty) {
+        inlineimagecontroller.text = _cachedText;
+      }
+      _animationProvider.badgeAnimation(
+        inlineimagecontroller.text,
+        Converters(),
+        _animationProvider.isEffectActive(InvertLEDEffect()),
+      );
     }
   }
 
