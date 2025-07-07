@@ -128,14 +128,21 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                     children: [
                       AnimationBadge(),
                       Expanded(
-                        child: BadgeListView(
-                          futureBadges: Future.value(provider.savedBadgeCache),
-                          refreshBadgesCallback: (value) {
-                            provider.savedBadgeCache.remove(value);
-                            setState(() {});
-                            return Future.value();
-                          },
-                        ),
+                        child: Selector<BadgeSlotProvider, bool>(
+                            selector: (context, selectionProvider) =>
+                                selectionProvider.selectedBadges.isNotEmpty,
+                            builder: (context, isTransferEnabled, _) {
+                              return BadgeListView(
+                                isTransferEnabled: isTransferEnabled,
+                                futureBadges:
+                                    Future.value(provider.savedBadgeCache),
+                                refreshBadgesCallback: (value) {
+                                  provider.savedBadgeCache.remove(value);
+                                  setState(() {});
+                                  return Future.value();
+                                },
+                              );
+                            }),
                       ),
                     ],
                   ),

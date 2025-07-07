@@ -3,11 +3,13 @@ import 'package:flutter/material.dart';
 
 class BadgeListView extends StatelessWidget {
   final Future<List<MapEntry<String, Map<String, dynamic>>>> futureBadges;
+  final bool isTransferEnabled;
   final Future<void> Function(MapEntry<String, Map<String, dynamic>>)
       refreshBadgesCallback; // Add callback for refreshing badges
 
   const BadgeListView(
       {super.key,
+      required this.isTransferEnabled,
       required this.futureBadges,
       required this.refreshBadgesCallback // Require the callback
       });
@@ -22,15 +24,18 @@ class BadgeListView extends StatelessWidget {
         } else {
           List<MapEntry<String, Map<String, dynamic>>> savedBadges =
               snapshot.data!;
-          return ListView.builder(
-            itemCount: savedBadges.length,
-            itemBuilder: (context, index) {
-              return SaveBadgeCard(
-                badgeData: savedBadges[index],
-                refreshBadgesCallback:
-                    refreshBadgesCallback, // Pass callback to card
-              );
-            },
+          return Padding(
+            padding: EdgeInsets.only(bottom: isTransferEnabled ? 75.0 : 0),
+            child: ListView.builder(
+              itemCount: savedBadges.length,
+              itemBuilder: (context, index) {
+                return SaveBadgeCard(
+                  badgeData: savedBadges[index],
+                  refreshBadgesCallback:
+                      refreshBadgesCallback, // Pass callback to card
+                );
+              },
+            ),
           );
         }
       },
