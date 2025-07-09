@@ -1,6 +1,7 @@
 import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
+import 'dart:io';
 
 class BMDrawer extends StatefulWidget {
   final int selectedIndex;
@@ -118,8 +119,9 @@ class _BMDrawerState extends State<BMDrawer> {
             icon: Icons.star,
             title: 'Rate Us',
             routeName: '/rateUs',
-            externalLink:
-                'https://play.google.com/store/apps/details?id=org.fossasia.badgemagic',
+            externalLink: Platform.isIOS
+                ? 'https://apps.apple.com/us/app/badge-magic/id6740176888?action=write-review'
+                : 'https://play.google.com/store/apps/details?id=org.fossasia.badgemagic',
           ),
           _buildListTile(
             index: 9,

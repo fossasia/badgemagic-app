@@ -1,3 +1,4 @@
+import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
@@ -250,12 +251,12 @@ class SaveBadgeCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        file
-                            .jsonToData(badgeData.value)
-                            .messages[0]
-                            .speed
-                            .hexValue
-                            .substring(2, 3),
+                        (Speed.getIntValue(file
+                                    .jsonToData(badgeData.value)
+                                    .messages[0]
+                                    .speed) +
+                                1)
+                            .toString(),
                         style: const TextStyle(color: Colors.white),
                       ),
                     ],

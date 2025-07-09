@@ -56,8 +56,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         height: 25,
                       ),
                       Center(
-                        child:
-                            Image.asset('assets/icons/icon.png', height: 100),
+                        child: Image.asset(
+                          'assets/icons/icon.png',
+                          height: 100,
+                          fit: BoxFit.contain,
+                        ),
                       ),
                       const SizedBox(height: 30),
                       Text(
@@ -66,33 +69,41 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         'For the data transfer from the smartphone to the LED badge we use Bluetooth. The project is based on the work of Nihlcem.',
                         textAlign: TextAlign.justify,
                         style: GoogleFonts.sora(
-                            wordSpacing: 3,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black,
-                            fontSize: 12),
+                          wordSpacing: 3,
+                          fontWeight: FontWeight.w400,
+                          color: Colors.black,
+                          fontSize: 12,
+                        ),
+                        softWrap: true,
                       ),
                       const SizedBox(height: 16),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Text(
-                            'Developed by',
-                            style: GoogleFonts.sora(
-                                fontWeight: FontWeight.w500,
-                                color: Colors.grey),
-                          ),
-                          SizedBox(
-                            width: 10,
-                          ),
-                          GestureDetector(
-                            onTap: () => openUrl(
-                                'https://github.com/fossasia/badgemagic-app/graphs/contributors'),
+                          Flexible(
                             child: Text(
-                              'FOSSASIA contributors',
+                              'Developed by',
                               style: GoogleFonts.sora(
+                                fontWeight: FontWeight.w500,
+                                color: Colors.grey,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Flexible(
+                            child: GestureDetector(
+                              onTap: () => openUrl(
+                                  'https://github.com/fossasia/badgemagic-app/graphs/contributors'),
+                              child: Text(
+                                'FOSSASIA contributors',
+                                style: GoogleFonts.sora(
                                   fontWeight: FontWeight.w500,
                                   color: Colors.red,
-                                  decoration: TextDecoration.underline),
+                                  decoration: TextDecoration.underline,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
                             ),
                           ),
                         ],
@@ -104,15 +115,16 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 1,
-                        color: Colors.grey,
-                        offset: Offset(0, 1),
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(6)),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 1,
+                      color: Colors.grey,
+                      offset: Offset(0, 1),
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -121,27 +133,34 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       child: Text(
                         'Contact With Us',
                         style: GoogleFonts.sora(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                     ListTile(
-                      leading:
-                          Image.asset('assets/icons/github.png', height: 40),
+                      leading: Image.asset(
+                        'assets/icons/github.png',
+                        height: 40,
+                        fit: BoxFit.contain,
+                      ),
                       title: Text(
                         'GitHub',
                         style: GoogleFonts.sora(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
                       ),
                       subtitle: Text(
                         'Fork the repo and push changes or submit new issues.',
                         style: GoogleFonts.sora(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
+                        softWrap: true,
                       ),
                       onTap: () =>
                           openUrl('https://github.com/fossasia/badgemagic-app'),
@@ -149,20 +168,19 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                   ],
                 ),
               ),
-              SizedBox(
-                height: 10,
-              ),
+              SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                    color: Colors.white,
-                    boxShadow: [
-                      BoxShadow(
-                        blurRadius: 1,
-                        color: Colors.grey,
-                        offset: Offset(0, 1),
-                      )
-                    ],
-                    borderRadius: BorderRadius.circular(6)),
+                  color: Colors.white,
+                  boxShadow: [
+                    BoxShadow(
+                      blurRadius: 1,
+                      color: Colors.grey,
+                      offset: Offset(0, 1),
+                    )
+                  ],
+                  borderRadius: BorderRadius.circular(6),
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -171,27 +189,34 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       child: Text(
                         "License",
                         style: GoogleFonts.sora(
-                            fontSize: 18,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey),
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
                     ListTile(
-                      leading:
-                          Image.asset('assets/icons/badge.png', height: 40),
+                      leading: Image.asset(
+                        'assets/icons/badge.png',
+                        height: 40,
+                        fit: BoxFit.contain,
+                      ),
                       title: Text(
                         'License',
                         style: GoogleFonts.sora(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black),
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
                       ),
                       subtitle: Text(
                         'Check Apache License 2.0 terms used on Badge Magic',
                         style: GoogleFonts.sora(
-                            fontSize: 12,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.grey),
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
+                        softWrap: true,
                       ),
                       onTap: () => openUrl(
                           'https://github.com/fossasia/badgemagic-app/blob/development/LICENSE'),

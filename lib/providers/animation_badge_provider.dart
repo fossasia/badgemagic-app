@@ -152,17 +152,21 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   void badgeAnimation(
       String message, Converters converters, bool isInverted) async {
-    if (message == "") {
-      //geerate a 2d list with all values as 0
-      List<List<bool>> image =
+    if (message.isEmpty) {
+      stopAllAnimations();
+      List<List<bool>> emptyGrid =
           List.generate(11, (i) => List.generate(44, (j) => false));
-      setNewGrid(image);
-    } else {
-      List<String> hexString =
-          await converters.messageTohex(message, isInverted);
-      List<List<bool>> binaryArray = hexStringToBool(hexString.join());
-      setNewGrid(binaryArray);
+      _newGrid = emptyGrid;
+      _paintGrid = emptyGrid;
+      notifyListeners();
+      return;
     }
+    if (_timer == null || !_timer!.isActive) {
+      startTimer();
+    }
+    List<String> hexString = await converters.messageTohex(message, isInverted);
+    List<List<bool>> binaryArray = hexStringToBool(hexString.join());
+    setNewGrid(binaryArray);
   }
 
   void renderGrid(List<List<bool>> newGrid) {
