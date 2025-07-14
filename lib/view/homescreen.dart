@@ -1,14 +1,11 @@
 import 'dart:async';
-import 'dart:convert';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 
-import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
+import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
@@ -88,112 +85,43 @@ class _HomeScreenState extends State<HomeScreen>
 
   // Loads badge data from disk and populates controllers/providers for editing
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
-    final fileHelper = FileHelper();
-    Map<String, dynamic>? savedData;
-    String badgeText = "";
     try {
-      // Load badge JSON from disk
-      final directory = await getApplicationDocumentsDirectory();
-      final filePath = '${directory.path}/$badgeFilename';
-      final file = File(filePath);
-      if (await file.exists()) {
-        final jsonString = await file.readAsString();
-        savedData = jsonDecode(jsonString) as Map<String, dynamic>;
-      } else {
-        print("Badge file not found: $filePath");
-        ToastUtils().showToast("Badge file not found");
-        return;
+      final (badgeText, badgeData, savedData) =
+          await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
+      // Set the text in the controller
+      inlineimagecontroller.text = badgeText;
+      // Set animation effects
+      animationProvider.removeEffect(effectMap[0]); // Invert
+      animationProvider.removeEffect(effectMap[1]); // Flash
+      animationProvider.removeEffect(effectMap[2]); // Marquee
+      final message = badgeData.messages[0];
+      if (message.flash) {
+        animationProvider.addEffect(effectMap[1]);
       }
-      // Load original text (always use .json extension)
-      final textFilename = badgeFilename.endsWith('.json')
-          ? badgeFilename
-          : '$badgeFilename.json';
-      print('[BadgeEdit] Loading original text for filename: $textFilename');
-      badgeText = await BadgeTextStorage.getOriginalText(textFilename);
-      print('[BadgeEdit] Loaded original text: "$badgeText"');
-      if (badgeText.isEmpty) {
-        print('[BadgeEdit] No original text found, falling back to "Hello"');
-        badgeText = "Hello";
+      if (message.marquee) {
+        animationProvider.addEffect(effectMap[2]);
       }
+      if (savedData != null &&
+          savedData.containsKey('invert') &&
+          savedData['invert'] == true) {
+        animationProvider.addEffect(effectMap[0]);
+      }
+      // Set animation mode
+      int modeValue = BadgeLoaderHelper.parseAnimationMode(message.mode);
+      animationProvider.setAnimationMode(animationMap[modeValue]);
+      // Set speed
+      try {
+        int speedDialValue = Speed.getIntValue(message.speed);
+        speedDialProvider.setDialValue(speedDialValue);
+      } catch (e) {
+        speedDialProvider.setDialValue(1);
+      }
+      ToastUtils().showToast(
+          "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
     } catch (e) {
       print("Failed to load badge data: $e");
       ToastUtils().showToast("Failed to load badge data");
-      return;
     }
-    // Set the text in the controller
-    inlineimagecontroller.text = badgeText;
-    // Set animation effects
-    final badgeData = fileHelper.jsonToData(savedData);
-    final message = badgeData.messages[0];
-    // Clear all effects (reset state)
-    animationProvider.removeEffect(effectMap[0]); // Invert
-    animationProvider.removeEffect(effectMap[1]); // Flash
-    animationProvider.removeEffect(effectMap[2]); // Marquee
-    if (message.flash) {
-      animationProvider.addEffect(effectMap[1]);
-    }
-    if (message.marquee) {
-      animationProvider.addEffect(effectMap[2]);
-    }
-    if (savedData.containsKey('invert') && savedData['invert'] == true) {
-      animationProvider.addEffect(effectMap[0]);
-    }
-    // Set animation mode
-    int modeValue = 0;
-    try {
-      if (message.mode is int) {
-        modeValue = message.mode as int;
-      } else {
-        String modeString = message.mode.toString();
-        if (modeString.contains('.')) {
-          String modeName = modeString.split('.').last;
-          switch (modeName.toLowerCase()) {
-            case 'left':
-              modeValue = 0;
-              break;
-            case 'right':
-              modeValue = 1;
-              break;
-            case 'up':
-              modeValue = 2;
-              break;
-            case 'down':
-              modeValue = 3;
-              break;
-            case 'fixed':
-              modeValue = 4;
-              break;
-            case 'snowflake':
-              modeValue = 5;
-              break;
-            case 'picture':
-              modeValue = 6;
-              break;
-            case 'animation':
-              modeValue = 7;
-              break;
-            default:
-              modeValue = 0;
-          }
-        } else {
-          modeValue = int.tryParse(modeString) ?? 0;
-        }
-      }
-    } catch (e) {
-      print("Failed to parse mode value: $e");
-    }
-    animationProvider.setAnimationMode(animationMap[modeValue]);
-    // Set speed
-    try {
-      int speedDialValue = 1;
-      speedDialValue = Speed.getIntValue(message.speed);
-      speedDialProvider.setDialValue(speedDialValue);
-    } catch (e) {
-      speedDialProvider.setDialValue(1);
-    }
-    // Notify that we're editing an existing badge
-    ToastUtils().showToast(
-        "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
   }
 
   void _setPortraitOrientation() {
