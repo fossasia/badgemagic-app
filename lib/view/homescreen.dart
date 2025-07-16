@@ -34,10 +34,12 @@ class HomeScreen extends StatefulWidget {
   // Add parameters for saved badge data when editing
 
   final String? savedBadgeFilename;
+  final int? initialSpeed;
 
   const HomeScreen({
     Key? key,
     this.savedBadgeFilename,
+    this.initialSpeed,
   }) : super(key: key);
 
   @override
@@ -69,6 +71,10 @@ class _HomeScreenState extends State<HomeScreen>
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
     speedDialProvider = SpeedDialProvider(animationProvider);
+    // If initialSpeed is provided, set it immediately
+    if (widget.initialSpeed != null) {
+      speedDialProvider.setDialValue(widget.initialSpeed!);
+    }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       inlineImageProvider.setContext(context);
 

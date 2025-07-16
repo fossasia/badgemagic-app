@@ -130,12 +130,15 @@ class SaveBadgeCard extends StatelessWidget {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        // Navigate to HomeScreen with only the badge filename for editing
+                        // Extract the speed value from the saved badge
+                        final speed = Speed.getIntValue(
+                            file.jsonToData(badgeData.value).messages[0].speed);
                         String badgeFilename = badgeData.key;
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
                             builder: (context) => HomeScreen(
                               savedBadgeFilename: badgeFilename,
+                              initialSpeed: speed, // Pass the speed value
                             ),
                           ),
                           (route) => false, // Remove all previous routes
@@ -278,11 +281,10 @@ class SaveBadgeCard extends StatelessWidget {
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        (Speed.getIntValue(file
-                                    .jsonToData(badgeData.value)
-                                    .messages[0]
-                                    .speed) +
-                                1)
+                        Speed.getIntValue(file
+                                .jsonToData(badgeData.value)
+                                .messages[0]
+                                .speed)
                             .toString(),
                         style: const TextStyle(color: Colors.white),
                       ),
