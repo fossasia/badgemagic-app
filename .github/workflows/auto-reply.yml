@@ -14,10 +14,13 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const comment = context.payload.comment.body.toLowerCase();
+            const comment = context.payload.comment.body;
             const keywords = ["assign","work on this","take this up","pick this","want this"];
-            const matched = keywords.some(keyword => comment.includes(keyword));
-            
+            const matched = keywords.some(keyword => {
+              const pattern = new RegExp(`\\b${keyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i');
+              return pattern.test(comment);
+            });
+
             if (matched) {
               const issue_number = context.payload.issue.number;
               const owner = context.repo.owner;
