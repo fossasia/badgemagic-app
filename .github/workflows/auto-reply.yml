@@ -1,0 +1,32 @@
+name: Auto-reply to Assign Requests
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  auto-reply:
+    runs-on: ubuntu-latest
+    if: github.event.issue.pull_request == null
+    steps:
+      - name: Check for assign keywords
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const comment = context.payload.comment.body.toLowerCase();
+            const keywords = ["assign","work on this","take this up","pick this","want this"];
+            const matched = keywords.some(keyword => comment.includes(keyword));
+            
+            if (matched) {
+              const issue_number = context.payload.issue.number;
+              const owner = context.repo.owner;
+              const repo = context.repo.repo;
+
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body: "Please go ahead and create a PR when you are ready. We do not formally assign issues. Contributors are free to pick up any open issue based on their availability. You can open a PR or even a draft PR to let others know that you're working on it."
+              });
+              }
