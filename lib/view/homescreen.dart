@@ -37,10 +37,10 @@ class HomeScreen extends StatefulWidget {
   final int? initialSpeed;
 
   const HomeScreen({
-    Key? key,
+    super.key,
     this.savedBadgeFilename,
     this.initialSpeed,
-  }) : super(key: key);
+  });
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

@@ -7,6 +7,8 @@ import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class SaveBadgeDialog extends StatelessWidget {
   final SpeedDialProvider speed;
@@ -95,19 +97,68 @@ class SaveBadgeDialog extends StatelessWidget {
                       style: TextStyle(color: Colors.red),
                     )),
                 TextButton(
-                  onPressed: () {
-                    logger.i(
-                        "Flash Effect ${animationProvider.isEffectActive(FlashEffect())} , Marquee Effect ${animationProvider.isEffectActive(MarqueeEffect())} , invert $isInverse , speed ${speed.getOuterValue()} , animation ${animationProvider.getAnimationIndex() ?? 1}");
-                    savedBadgeProvider.saveBadgeData(
+                  onPressed: () async {
+                    final directory = await getApplicationDocumentsDirectory();
+                    final filePath =
+                        '${directory.path}/${badgeNameController.text}.json';
+                    final file = File(filePath);
+                    if (await file.exists()) {
+                      // Show dialog: Rename or Update
+                      final result = await showDialog<String>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Badge name exists'),
+                          content: const Text(
+                              'A badge with this name already exists. What would you like to do?'),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'rename'),
+                              child: const Text('Rename'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'update'),
+                              child: const Text('Update'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (result == 'rename') {
+                        // Do nothing, let user change the name
+                        ToastUtils()
+                            .showToast('Please enter a new badge name.');
+                        return;
+                      } else if (result == 'update') {
+                        // Overwrite existing badge
+                        savedBadgeProvider.saveBadgeData(
+                          badgeNameController.text,
+                          textController.text,
+                          animationProvider.isEffectActive(FlashEffect()),
+                          animationProvider.isEffectActive(MarqueeEffect()),
+                          isInverse,
+                          speed.getOuterValue(),
+                          animationProvider.getAnimationIndex() ?? 1,
+                        );
+                        ToastUtils().showToast('Badge updated successfully.');
+                        Navigator.pop(context);
+                        return;
+                      } else {
+                        // Dialog dismissed
+                        return;
+                      }
+                    } else {
+                      // File does not exist, save as new
+                      savedBadgeProvider.saveBadgeData(
                         badgeNameController.text,
                         textController.text,
                         animationProvider.isEffectActive(FlashEffect()),
                         animationProvider.isEffectActive(MarqueeEffect()),
                         isInverse,
                         speed.getOuterValue(),
-                        animationProvider.getAnimationIndex() ?? 1);
-                    ToastUtils().showToast("Badge Saved Successfully");
-                    Navigator.pop(context);
+                        animationProvider.getAnimationIndex() ?? 1,
+                      );
+                      ToastUtils().showToast('Badge saved successfully.');
+                      Navigator.pop(context);
+                    }
                   },
                   child: const Text(
                     'Save',
