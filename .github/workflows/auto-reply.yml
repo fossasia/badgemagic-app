@@ -1,4 +1,3 @@
-
 name: Auto-reply to Assign Requests
 
 on:
@@ -29,7 +28,16 @@ jobs:
 
             const matched = keywords.some(keyword => {
               const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-@@ -41,14 +41,14 @@
+              const regex = new RegExp(`\\b${escapedKeyword}\\b`, 'i');
+              return regex.test(commentBody);
+            });
+
+            if (!matched) return;
+
+            const comments = await github.rest.issues.listComments({
+              owner,
+              repo,
+              issue_number: issueNumber
             });
 
             const alreadyReplied = comments.data.some(c =>
