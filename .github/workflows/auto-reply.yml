@@ -1,3 +1,4 @@
+
 name: Auto-reply to Assign Requests
 
 on:
@@ -8,28 +9,38 @@ jobs:
   auto-reply:
     runs-on: ubuntu-latest
     if: github.event.issue.pull_request == null
+    env:
+      KEYWORDS: "assign,work on this,take this up,pick this,want this"
+      RESPONSE_MESSAGE: "Please go ahead and create a PR when you are ready. We do not formally assign issues. Contributors are free to pick up any open issue based on their availability. You can open a PR or even a draft PR to let others know that you're working on it."
     steps:
-      - name: Check for assign keywords
+      - name: Auto reply if assign keyword is used
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const comment = context.payload.comment.body;
-            const keywords = ["assign","work on this","take this up","pick this","want this"];
+            const commentBody = context.payload.comment.body;
+            const commenter = context.payload.comment.user.login;
+            const issueNumber = context.payload.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const keywords = process.env.KEYWORDS.split(',').map(k => k.trim());
+            const responseMessage = `@${commenter} ${process.env.RESPONSE_MESSAGE}`;
+
             const matched = keywords.some(keyword => {
-              const pattern = new RegExp(`\\b${keyword.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&')}\\b`, 'i');
-              return pattern.test(comment);
+              const escapedKeyword = keyword.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+@@ -41,14 +41,14 @@
             });
 
-            if (matched) {
-              const issue_number = context.payload.issue.number;
-              const owner = context.repo.owner;
-              const repo = context.repo.repo;
+            const alreadyReplied = comments.data.some(c =>
+              c.user.type === 'Bot' && c.body.includes(`@${commenter}`)
+            );
 
-              await github.rest.issues.createComment({
-                owner,
-                repo,
-                issue_number,
-                body: "Please go ahead and create a PR when you are ready. We do not formally assign issues. Contributors are free to pick up any open issue based on their availability. You can open a PR or even a draft PR to let others know that you're working on it."
-              });
-              }
+            if (alreadyReplied) return;
+
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number: issueNumber,
+              body: responseMessage
+            });
