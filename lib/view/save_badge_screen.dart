@@ -72,19 +72,66 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         index: 2,
         actions: [
           TextButton(
-              onPressed: () async {
-                final value = await fileHelper.importBadgeData(context);
-                if (value) {
-                  logger.d('value: $value');
-                  toastUtils.showToast('Badge imported successfully');
-                  await fileHelper.getBadgeDataFiles();
-                  setState(() {});
-                }
-              },
-              child: const Text(
-                'Import',
-                style: TextStyle(color: drawerHeaderTitle),
-              ))
+            onPressed: () async {
+              final value = await fileHelper.importBadgeData(context);
+              if (value) {
+                logger.d('value: $value');
+                toastUtils.showToast('Badge imported successfully');
+                await fileHelper.getBadgeDataFiles();
+                setState(() {});
+              }
+            },
+            child: const Text(
+              'Import',
+              style: TextStyle(color: drawerHeaderTitle),
+            ),
+          ),
+          Consumer<BadgeSlotProvider>(
+            builder: (context, selectionProvider, _) {
+              if (selectionProvider.selectedBadges.isEmpty)
+                return SizedBox.shrink();
+              return IconButton(
+                icon: const Icon(Icons.delete, color: Colors.red),
+                tooltip: 'Delete Selected',
+                onPressed: () async {
+                  final confirm = await showDialog<bool>(
+                    context: context,
+                    builder: (context) => AlertDialog(
+                      title: const Text('Delete Badges'),
+                      content: const Text(
+                          'Are you sure you want to delete all selected badges?'),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, false),
+                          child: const Text('Cancel'),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context, true),
+                          child: const Text('Delete',
+                              style: TextStyle(color: Colors.red)),
+                        ),
+                      ],
+                    ),
+                  );
+                  if (confirm == true) {
+                    final provider = Provider.of<InlineImageProvider>(context,
+                        listen: false);
+                    final selectedBadges =
+                        selectionProvider.selectedBadges.toList();
+                    for (final badgeKey in selectedBadges) {
+                      await FileHelper().deleteFile(badgeKey);
+                      provider.savedBadgeCache
+                          .removeWhere((entry) => entry.key == badgeKey);
+                    }
+                    selectionProvider.clearSelections();
+                    setState(() {});
+                    ToastUtils()
+                        .showToast('Selected badges deleted successfully.');
+                  }
+                },
+              );
+            },
+          ),
         ],
         body: Consumer<InlineImageProvider>(
           builder: (context, provider, child) {

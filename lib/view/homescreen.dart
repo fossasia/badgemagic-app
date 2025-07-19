@@ -320,6 +320,8 @@ class _HomeScreenState extends State<HomeScreen>
                                             1);
                                     ToastUtils().showToast(
                                         "Badge Updated Successfully");
+                                    Navigator.pushNamedAndRemoveUntil(context,
+                                        '/savedBadge', (route) => false);
                                   } else {
                                     // Show save dialog for new badges
                                     showDialog(

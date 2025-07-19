@@ -1,4 +1,3 @@
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
@@ -13,16 +12,16 @@ import 'package:path_provider/path_provider.dart';
 class SaveBadgeDialog extends StatelessWidget {
   final SpeedDialProvider speed;
   final bool isInverse;
-  final AnimationBadgeProvider animationProvider;
+  final AnimationBadgeProvider animationProvider; // Restore this field
+  final TextEditingController textController;
+
   const SaveBadgeDialog({
     super.key,
     required this.textController,
     required this.isInverse,
-    required this.animationProvider,
+    required this.animationProvider, // Restore this parameter
     required this.speed,
   });
-
-  final TextEditingController textController;
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +138,11 @@ class SaveBadgeDialog extends StatelessWidget {
                           animationProvider.getAnimationIndex() ?? 1,
                         );
                         ToastUtils().showToast('Badge updated successfully.');
-                        Navigator.pop(context);
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          Navigator.of(context, rootNavigator: true)
+                              .pushNamedAndRemoveUntil(
+                                  '/savedBadge', (route) => false);
+                        });
                         return;
                       } else {
                         // Dialog dismissed
@@ -157,7 +160,11 @@ class SaveBadgeDialog extends StatelessWidget {
                         animationProvider.getAnimationIndex() ?? 1,
                       );
                       ToastUtils().showToast('Badge saved successfully.');
-                      Navigator.pop(context);
+                      Future.delayed(const Duration(milliseconds: 100), () {
+                        Navigator.of(context, rootNavigator: true)
+                            .pushNamedAndRemoveUntil(
+                                '/savedBadge', (route) => false);
+                      });
                     }
                   },
                   child: const Text(

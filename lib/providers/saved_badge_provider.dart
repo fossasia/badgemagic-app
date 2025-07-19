@@ -157,10 +157,8 @@ class SavedBadgeProvider extends ChangeNotifier {
     setSavedBadgeDataMap(savedData);
     setIsSavedBadgeData(true);
     // Notify that we're editing an existing badge
-    ToastUtils().showToast("Editing badge: " +
-        (savedBadgeFilename != null
-            ? savedBadgeFilename.substring(0, savedBadgeFilename.length - 5)
-            : ""));
+    ToastUtils().showToast(
+        "Editing badge: ${savedBadgeFilename != null ? savedBadgeFilename.substring(0, savedBadgeFilename.length - 5) : ""}");
   }
 
   Converters converters = Converters();
