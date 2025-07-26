@@ -102,7 +102,7 @@ class SaveBadgeDialog extends StatelessWidget {
                         '${directory.path}/${badgeNameController.text}.json';
                     final file = File(filePath);
                     if (await file.exists()) {
-                      // Show dialog: Rename or Update
+                      // Show dialog: Cancel or Overwrite
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -112,11 +112,11 @@ class SaveBadgeDialog extends StatelessWidget {
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'rename'),
-                              child: const Text('Rename'),
+                              child: const Text('Cancel'),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'update'),
-                              child: const Text('Update'),
+                              child: const Text('Overwrite'),
                             ),
                           ],
                         ),
@@ -138,11 +138,7 @@ class SaveBadgeDialog extends StatelessWidget {
                           animationProvider.getAnimationIndex() ?? 1,
                         );
                         ToastUtils().showToast('Badge updated successfully.');
-                        Future.delayed(const Duration(milliseconds: 100), () {
-                          Navigator.of(context, rootNavigator: true)
-                              .pushNamedAndRemoveUntil(
-                                  '/savedBadge', (route) => false);
-                        });
+                        Navigator.of(context).pop();
                         return;
                       } else {
                         // Dialog dismissed
@@ -160,11 +156,9 @@ class SaveBadgeDialog extends StatelessWidget {
                         animationProvider.getAnimationIndex() ?? 1,
                       );
                       ToastUtils().showToast('Badge saved successfully.');
-                      Future.delayed(const Duration(milliseconds: 100), () {
-                        Navigator.of(context, rootNavigator: true)
-                            .pushNamedAndRemoveUntil(
-                                '/savedBadge', (route) => false);
-                      });
+                      // Reset the saved badge state since we've created a new badge
+                      savedBadgeProvider.setIsSavedBadgeData(false);
+                      Navigator.of(context).pop(); // Just close the dialog
                     }
                   },
                   child: const Text(
