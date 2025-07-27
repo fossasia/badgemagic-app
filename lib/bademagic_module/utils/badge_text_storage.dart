@@ -41,6 +41,21 @@ class BadgeTextStorage {
     }
   }
 
+  /// Move the original text mapping from oldFilename to newFilename
+  static Future<void> moveOriginalText(String oldFilename, String newFilename) async {
+    try {
+      Map<String, String> textStorage = await _getTextStorage();
+      if (textStorage.containsKey(oldFilename)) {
+        textStorage[newFilename] = textStorage[oldFilename]!;
+        textStorage.remove(oldFilename);
+        await _saveTextStorage(textStorage);
+        logger.d('Moved original text from: $oldFilename to $newFilename');
+      }
+    } catch (e) {
+      logger.e('Error moving original text: $e');
+    }
+  }
+
   /// Delete the original text for a badge
   static Future<void> deleteOriginalText(String badgeFilename) async {
     try {

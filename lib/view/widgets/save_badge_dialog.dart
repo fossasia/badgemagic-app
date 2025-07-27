@@ -101,8 +101,26 @@ class SaveBadgeDialog extends StatelessWidget {
                     final filePath =
                         '${directory.path}/${badgeNameController.text}.json';
                     final file = File(filePath);
-                    if (await file.exists()) {
-                      // Show dialog: Cancel or Overwrite
+
+                    // Check for any file with the same name (case-insensitive)
+                    final files = directory.listSync();
+                    String? caseInsensitiveMatch;
+                    for (var f in files) {
+                      if (f is File) {
+                        final filename = f.path.split(Platform.pathSeparator).last;
+                        if (filename.toLowerCase() == '${badgeNameController.text.toLowerCase()}.json') {
+                          caseInsensitiveMatch = filename;
+                          break;
+                        }
+                      }
+                    }
+
+                    // Check for exact (case-sensitive) match
+                    bool caseSensitiveExists = await file.exists();
+
+                    if (caseSensitiveExists) {
+                      // Exact same file exists (case-sensitive)
+                      // Show dialog: Rename or Update
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -123,8 +141,7 @@ class SaveBadgeDialog extends StatelessWidget {
                       );
                       if (result == 'rename') {
                         // Do nothing, let user change the name
-                        ToastUtils()
-                            .showToast('Please enter a new badge name.');
+                        ToastUtils().showToast('Please enter a new badge name.');
                         return;
                       } else if (result == 'update') {
                         // Overwrite existing badge
@@ -138,7 +155,59 @@ class SaveBadgeDialog extends StatelessWidget {
                           animationProvider.getAnimationIndex() ?? 1,
                         );
                         ToastUtils().showToast('Badge updated successfully.');
-                        Navigator.of(context).pop();
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          Navigator.of(context, rootNavigator: true)
+                              .pushNamedAndRemoveUntil(
+                                  '/savedBadge', (route) => false);
+                        });
+                        return;
+                      } else {
+                        // Dialog dismissed
+                        return;
+                      }
+                    } else if (caseInsensitiveMatch != null) {
+                      // Case-insensitive match exists but not exact match
+                      final result = await showDialog<String>(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: const Text('Similar badge name exists'),
+                          content: Text(
+                              "A badge with a similar name already exists: '$caseInsensitiveMatch'. What would you like to do?"),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'rename'),
+                              child: const Text('Cancel'),
+                            ),
+                            TextButton(
+                              onPressed: () => Navigator.pop(context, 'update'),
+                              child: const Text('Overwrite'),
+                            ),
+                          ],
+                        ),
+                      );
+                      if (result == 'rename') {
+                        ToastUtils().showToast('Please enter a new badge name.');
+                        return;
+                      } else if (result == 'update') {
+                        // Overwrite the existing file with the actual filename (preserving its case)
+                        final existingFilePath = '${directory.path}/$caseInsensitiveMatch';
+                        final existingFile = File(existingFilePath);
+                        await existingFile.writeAsString(''); // Optionally clear file before saving new data, or just overwrite below
+                        savedBadgeProvider.saveBadgeData(
+                          caseInsensitiveMatch.substring(0, caseInsensitiveMatch.length - 5), // Remove .json
+                          textController.text,
+                          animationProvider.isEffectActive(FlashEffect()),
+                          animationProvider.isEffectActive(MarqueeEffect()),
+                          isInverse,
+                          speed.getOuterValue(),
+                          animationProvider.getAnimationIndex() ?? 1,
+                        );
+                        ToastUtils().showToast('Badge updated successfully.');
+                        Future.delayed(const Duration(milliseconds: 100), () {
+                          Navigator.of(context, rootNavigator: true)
+                              .pushNamedAndRemoveUntil(
+                                  '/savedBadge', (route) => false);
+                        });
                         return;
                       } else {
                         // Dialog dismissed
@@ -156,9 +225,7 @@ class SaveBadgeDialog extends StatelessWidget {
                         animationProvider.getAnimationIndex() ?? 1,
                       );
                       ToastUtils().showToast('Badge saved successfully.');
-                      // Reset the saved badge state since we've created a new badge
-                      savedBadgeProvider.setIsSavedBadgeData(false);
-                      Navigator.of(context).pop(); // Just close the dialog
+                      Navigator.of(context).pop();
                     }
                   },
                   child: const Text(
