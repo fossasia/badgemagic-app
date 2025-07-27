@@ -42,7 +42,8 @@ class BadgeTextStorage {
   }
 
   /// Move the original text mapping from oldFilename to newFilename
-  static Future<void> moveOriginalText(String oldFilename, String newFilename) async {
+  static Future<void> moveOriginalText(
+      String oldFilename, String newFilename) async {
     try {
       Map<String, String> textStorage = await _getTextStorage();
       if (textStorage.containsKey(oldFilename)) {

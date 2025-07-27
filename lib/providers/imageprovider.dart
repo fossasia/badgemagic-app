@@ -14,7 +14,10 @@ class InlineImageProvider extends ChangeNotifier {
   Future<void> reloadSavedBadgeCache() async {
     final directory = await getApplicationDocumentsDirectory();
     final files = directory.listSync();
-    final badgeFiles = files.whereType<File>().where((file) => file.path.endsWith('.json')).toList();
+    final badgeFiles = files
+        .whereType<File>()
+        .where((file) => file.path.endsWith('.json'))
+        .toList();
     List<MapEntry<String, Map<String, dynamic>>> badgeList = [];
     for (final file in badgeFiles) {
       final contents = await file.readAsString();
@@ -26,6 +29,7 @@ class InlineImageProvider extends ChangeNotifier {
     savedBadgeCache = badgeList;
     notifyListeners();
   }
+
   //boolean variable to check for isCacheInitialized
   bool isCacheInitialized = false;
 

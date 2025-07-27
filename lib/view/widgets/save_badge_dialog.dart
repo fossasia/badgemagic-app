@@ -107,8 +107,10 @@ class SaveBadgeDialog extends StatelessWidget {
                     String? caseInsensitiveMatch;
                     for (var f in files) {
                       if (f is File) {
-                        final filename = f.path.split(Platform.pathSeparator).last;
-                        if (filename.toLowerCase() == '${badgeNameController.text.toLowerCase()}.json') {
+                        final filename =
+                            f.path.split(Platform.pathSeparator).last;
+                        if (filename.toLowerCase() ==
+                            '${badgeNameController.text.toLowerCase()}.json') {
                           caseInsensitiveMatch = filename;
                           break;
                         }
@@ -141,7 +143,8 @@ class SaveBadgeDialog extends StatelessWidget {
                       );
                       if (result == 'rename') {
                         // Do nothing, let user change the name
-                        ToastUtils().showToast('Please enter a new badge name.');
+                        ToastUtils()
+                            .showToast('Please enter a new badge name.');
                         return;
                       } else if (result == 'update') {
                         // Overwrite existing badge
@@ -186,15 +189,19 @@ class SaveBadgeDialog extends StatelessWidget {
                         ),
                       );
                       if (result == 'rename') {
-                        ToastUtils().showToast('Please enter a new badge name.');
+                        ToastUtils()
+                            .showToast('Please enter a new badge name.');
                         return;
                       } else if (result == 'update') {
                         // Overwrite the existing file with the actual filename (preserving its case)
-                        final existingFilePath = '${directory.path}/$caseInsensitiveMatch';
+                        final existingFilePath =
+                            '${directory.path}/$caseInsensitiveMatch';
                         final existingFile = File(existingFilePath);
-                        await existingFile.writeAsString(''); // Optionally clear file before saving new data, or just overwrite below
+                        await existingFile.writeAsString(
+                            ''); // Optionally clear file before saving new data, or just overwrite below
                         savedBadgeProvider.saveBadgeData(
-                          caseInsensitiveMatch.substring(0, caseInsensitiveMatch.length - 5), // Remove .json
+                          caseInsensitiveMatch.substring(0,
+                              caseInsensitiveMatch.length - 5), // Remove .json
                           textController.text,
                           animationProvider.isEffectActive(FlashEffect()),
                           animationProvider.isEffectActive(MarqueeEffect()),
