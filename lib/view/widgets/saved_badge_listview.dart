@@ -26,8 +26,10 @@ class BadgeListView extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const Center(child: CircularProgressIndicator());
         } else {
-          List<MapEntry<String, Map<String, dynamic>>> savedBadges =
-              snapshot.data!;
+          List<MapEntry<String, Map<String, dynamic>>> savedBadges = snapshot
+              .data!
+              .where((entry) => entry.key != 'badge_original_texts.json')
+              .toList();
           return Consumer<BadgeSlotProvider>(
             builder: (context, slotProvider, _) => Padding(
               padding: EdgeInsets.only(bottom: isTransferEnabled ? 75.0 : 0),

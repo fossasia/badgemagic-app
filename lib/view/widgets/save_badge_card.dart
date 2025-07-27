@@ -16,6 +16,7 @@ import 'package:provider/provider.dart';
 
 class SaveBadgeCard extends StatelessWidget {
   final MapEntry<String, Map<String, dynamic>> badgeData;
+
   final Future<void> Function(MapEntry<String, Map<String, dynamic>>)
       refreshBadgesCallback;
   final FileHelper file = FileHelper();

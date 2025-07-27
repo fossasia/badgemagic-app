@@ -98,24 +98,27 @@ class SaveBadgeDialog extends StatelessWidget {
                 TextButton(
                   onPressed: () async {
                     final directory = await getApplicationDocumentsDirectory();
-                    final filePath =
-                        '${directory.path}/${badgeNameController.text}.json';
+                    final trimmedBadgeName = badgeNameController.text.trim();
+                    final filePath = '${directory.path}/$trimmedBadgeName.json';
                     final file = File(filePath);
 
-                    // Check for any file with the same name (case-insensitive)
+                    // Check for any file(s) with the same name (case-insensitive)
                     final files = directory.listSync();
-                    String? caseInsensitiveMatch;
+                    List<String> caseInsensitiveMatches = [];
                     for (var f in files) {
                       if (f is File) {
                         final filename =
                             f.path.split(Platform.pathSeparator).last;
                         if (filename.toLowerCase() ==
-                            '${badgeNameController.text.toLowerCase()}.json') {
-                          caseInsensitiveMatch = filename;
-                          break;
+                            '${trimmedBadgeName.toLowerCase()}.json') {
+                          caseInsensitiveMatches.add(filename);
                         }
                       }
                     }
+                    String? caseInsensitiveMatch =
+                        caseInsensitiveMatches.isNotEmpty
+                            ? caseInsensitiveMatches.first
+                            : null;
 
                     // Check for exact (case-sensitive) match
                     bool caseSensitiveExists = await file.exists();

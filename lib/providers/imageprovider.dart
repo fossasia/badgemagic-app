@@ -16,7 +16,9 @@ class InlineImageProvider extends ChangeNotifier {
     final files = directory.listSync();
     final badgeFiles = files
         .whereType<File>()
-        .where((file) => file.path.endsWith('.json'))
+        .where((file) =>
+            file.path.endsWith('.json') &&
+            !file.path.endsWith('badge_original_texts.json'))
         .toList();
     List<MapEntry<String, Map<String, dynamic>>> badgeList = [];
     for (final file in badgeFiles) {
