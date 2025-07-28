@@ -38,7 +38,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   provider: ^6.1.5
   flutter_blue_plus: ^1.35.5
-  logger: ^2.6.0
+  logger: ^2.6.1
   flutter_svg: ^2.2.0
   get_it: ^8.0.3
   flutter_screenutil: ^5.9.3
@@ -64,7 +64,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  dart_style: ^3.1.0
+  dart_style: ^3.1.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
