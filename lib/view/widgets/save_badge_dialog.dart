@@ -99,26 +99,26 @@ class SaveBadgeDialog extends StatelessWidget {
                   onPressed: () async {
                     final directory = await getApplicationDocumentsDirectory();
                     final trimmedBadgeName = badgeNameController.text.trim();
-                    final filePath = '${directory.path}/$trimmedBadgeName.json';
+                    final filePath =
+                        '${directory.path}/$trimmedBadgeName.json';
                     final file = File(filePath);
 
-                    // Check for any file(s) with the same name (case-insensitive)
+                    // Check for any file(s) with the same name (case-insensitive, ignoring spaces around the base name)
                     final files = directory.listSync();
                     List<String> caseInsensitiveMatches = [];
                     for (var f in files) {
                       if (f is File) {
                         final filename =
                             f.path.split(Platform.pathSeparator).last;
-                        if (filename.toLowerCase() ==
-                            '${trimmedBadgeName.toLowerCase()}.json') {
-                          caseInsensitiveMatches.add(filename);
+                        if (filename.toLowerCase().endsWith('.json')) {
+                          final baseName = filename.substring(0, filename.length - 5).trim();
+                          if (baseName.toLowerCase() == trimmedBadgeName.toLowerCase()) {
+                            caseInsensitiveMatches.add(filename);
+                          }
                         }
                       }
                     }
-                    String? caseInsensitiveMatch =
-                        caseInsensitiveMatches.isNotEmpty
-                            ? caseInsensitiveMatches.first
-                            : null;
+                    String? caseInsensitiveMatch = caseInsensitiveMatches.isNotEmpty ? caseInsensitiveMatches.first : null;
 
                     // Check for exact (case-sensitive) match
                     bool caseSensitiveExists = await file.exists();
@@ -178,7 +178,7 @@ class SaveBadgeDialog extends StatelessWidget {
                         builder: (context) => AlertDialog(
                           title: const Text('Similar badge name exists'),
                           content: Text(
-                              "A badge with a similar name already exists: '$caseInsensitiveMatch'. What would you like to do?"),
+                              "A badge with a similar name already exists: '${caseInsensitiveMatch.substring(0, caseInsensitiveMatch.length - 5)}'. What would you like to do?"),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'rename'),
