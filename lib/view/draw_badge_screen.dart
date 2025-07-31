@@ -1,4 +1,3 @@
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
@@ -14,7 +13,6 @@ class DrawBadge extends StatefulWidget {
   final bool? isSavedCard;
   final bool? isSavedClipart;
   final List<List<int>>? badgeGrid;
-
   const DrawBadge({
     super.key,
     this.filename,
@@ -28,15 +26,12 @@ class DrawBadge extends StatefulWidget {
 }
 
 class _DrawBadgeState extends State<DrawBadge> {
-  late DrawBadgeProvider drawToggle;
+  var drawToggle = DrawBadgeProvider();
 
   @override
-  void initState() {
-    super.initState();
-    drawToggle = DrawBadgeProvider();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _setLandscapeOrientation();
-    });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _setLandscapeOrientation();
   }
 
   @override
@@ -45,67 +40,27 @@ class _DrawBadgeState extends State<DrawBadge> {
     super.dispose();
   }
 
-  Future<void> _resetPortraitOrientation() async {
-    try {
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.portraitUp,
-        DeviceOrientation.portraitDown,
-      ]);
-    } catch (e) {
-      logger.e('Error setting portrait orientation', error: e);
-    }
+  void _resetPortraitOrientation() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ]);
   }
 
-  Future<void> _setLandscapeOrientation() async {
-    try {
-      await SystemChrome.setPreferredOrientations([
-        DeviceOrientation.landscapeRight,
-        DeviceOrientation.landscapeLeft,
-      ]);
-    } catch (e) {
-      logger.e('Error setting landscape orientation', error: e);
-    }
-  }
-
-  Future<void> _saveImage() async {
-    try {
-      List<List<int>> badgeGrid = drawToggle
-          .getDrawViewGrid()
-          .map((e) => e.map((e) => e ? 1 : 0).toList())
-          .toList();
-      List<String> hexString =
-          Converters.convertBitmapToLEDHex(badgeGrid, false);
-
-      if (widget.isSavedCard == true) {
-        await FileHelper().updateBadgeText(
-          widget.filename ?? '',
-          hexString,
-        );
-      } else if (widget.isSavedClipart == true) {
-        await FileHelper().updateClipart(
-          widget.filename ?? '',
-          badgeGrid,
-        );
-      } else {
-        await FileHelper().saveImage(drawToggle.getDrawViewGrid());
-      }
-
-      await FileHelper().generateClipartCache();
-      ToastUtils().showToast("Clipart Saved Successfully");
-    } catch (e) {
-      logger.e('Error saving image', error: e);
-    }
+  void _setLandscapeOrientation() {
+    SystemChrome.setPreferredOrientations([
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.landscapeLeft,
+    ]);
   }
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      canPop: true,
-      // ignore: deprecated_member_use
-      onPopInvoked: (didPop) async {
-        if (didPop) {
-          await _resetPortraitOrientation();
-        }
+    FileHelper fileHelper = FileHelper();
+    return WillPopScope(
+      onWillPop: () async {
+        _resetPortraitOrientation();
+        return true;
       },
       child: CommonScaffold(
         index: 1,
@@ -154,7 +109,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                               Text(
                                 'Draw',
                                 style: TextStyle(
-                                  color: drawToggle.getIsDrawing()
+                                  color: drawToggle.isDrawing
                                       ? colorPrimary
                                       : Colors.black,
                                 ),
@@ -172,14 +127,14 @@ class _DrawBadgeState extends State<DrawBadge> {
                             children: [
                               Icon(
                                 Icons.delete,
-                                color: drawToggle.getIsDrawing()
+                                color: drawToggle.isDrawing
                                     ? Colors.black
                                     : colorPrimary,
                               ),
                               Text(
                                 'Erase',
                                 style: TextStyle(
-                                  color: drawToggle.getIsDrawing()
+                                  color: drawToggle.isDrawing
                                       ? Colors.black
                                       : colorPrimary,
                                 ),
@@ -195,19 +150,62 @@ class _DrawBadgeState extends State<DrawBadge> {
                           },
                           child: const Column(
                             children: [
-                              Icon(Icons.refresh, color: Colors.black),
-                              Text('Reset',
-                                  style: TextStyle(color: Colors.black))
+                              Icon(
+                                Icons.refresh,
+                                color: Colors.black,
+                              ),
+                              Text(
+                                'Reset',
+                                style: TextStyle(color: Colors.black),
+                              )
                             ],
                           ),
                         ),
                         TextButton(
                           onPressed: () async {
-                            await _saveImage();
+                            try {
+                              List<List<int>> badgeGrid = drawToggle
+                                  .getDrawViewGrid()
+                                  .map((e) => e.map((e) => e ? 1 : 0).toList())
+                                  .toList();
+                              List<String> hexString =
+                                  Converters.convertBitmapToLEDHex(
+                                      badgeGrid, false);
+
+                              if (widget.isSavedCard!) {
+                                await fileHelper.updateBadgeText(
+                                    widget.filename!, hexString);
+                              } else if (widget.isSavedClipart!) {
+                                await fileHelper.updateClipart(
+                                    widget.filename!, badgeGrid);
+                              } else {
+                                await fileHelper
+                                    .saveImage(drawToggle.getDrawViewGrid());
+                              }
+
+                              await fileHelper.generateClipartCache();
+
+                              ToastUtils()
+                                  .showToast("Clipart Saved Successfully");
+
+                              await Future.delayed(
+                                  const Duration(milliseconds: 800));
+
+                              if (mounted) {
+                                Navigator.of(context)
+                                    .popUntil((route) => route.isFirst);
+                              }
+                            } catch (e) {
+                              ToastUtils().showToast(
+                                  "Failed to save badge: ${e.toString()}");
+                            }
                           },
                           child: const Column(
                             children: [
-                              Icon(Icons.save, color: Colors.black),
+                              Icon(
+                                Icons.save,
+                                color: Colors.black,
+                              ),
                               Text('Save',
                                   style: TextStyle(color: Colors.black))
                             ],

@@ -23,7 +23,7 @@ The Badge Magic Android app lets you create moving text and draw clipart for LED
 
 ## Download
 
-* [Latest Release Build](https://github.com/fossasia/badgemagic-app/raw/apk/badge-magic-flutter_app-release.apk) in the apk branch
+* [Latest Release Build](https://github.com/fossasia/badgemagic-app/raw/apk/badge-magic-development-release.apk) in the apk branch
 
 ## Permissions
 * **Bluetooth**: For sending org.fossasia.badgemagic.data to the badge.
