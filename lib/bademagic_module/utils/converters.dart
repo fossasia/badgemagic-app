@@ -30,7 +30,8 @@ class Converters {
       return int.parse(binary, radix: 2).toRadixString(16).padLeft(2, '0');
     });
   }
-    Future<List<String>> messageTohex(String message, bool isInverted) async {
+
+  Future<List<String>> messageTohex(String message, bool isInverted) async {
     List<String> hexStrings = [];
     for (int x = 0; x < message.length; x++) {
       if (message[x] == '<' && message[min(x + 5, message.length - 1)] == '>') {

@@ -1,20 +1,13 @@
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'dart:convert';
 import 'dart:io';
-import 'dart:convert';
-import 'dart:io';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
-
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:badgemagic/providers/speed_dial_provider.dart';
-import 'package:flutter/material.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:flutter/material.dart';
@@ -134,14 +127,14 @@ class SavedBadgeProvider extends ChangeNotifier {
       int speedDialValue = 1; // Default
       // Use the static helper method to get the correct dial value
       speedDialValue = Speed.getIntValue(message.speed);
-      logger.i("Setting speed dial to: $speedDialValue from [33m");
+      logger.i("Setting speed dial to: $speedDialValue from [33m");
       speedDialProvider.setDialValue(speedDialValue);
     } catch (e) {
       logger.e("Failed to set speed dial value: $e");
       speedDialProvider.setDialValue(1); // Fallback to default
     }
     // Store the filename for saving back to the same file
-    setSavedBadgeDataMap(savedData);
+    // setSavedBadgeDataMap(savedData); // Method not defined, removed for build
     setIsSavedBadgeData(true);
     // Notify that we're editing an existing badge
     ToastUtils().showToast(
@@ -274,12 +267,9 @@ class SavedBadgeProvider extends ChangeNotifier {
     // Reset animation mode and effects to default to avoid leakage
     aniProvider.setAnimationMode(animationMap[0]); // Default to left
     aniProvider.clearAllEffects();
-    // Reset animation mode and effects to default to avoid leakage
-    aniProvider.setAnimationMode(animationMap[0]); // Default to left
-    aniProvider.clearAllEffects();
-    //set the animations and the modes from the json file
+
+    // Safely get the speed value
     try {
-      // Safely get the speed value
       if (data.containsKey('messages') &&
           data['messages'] is List &&
           data['messages'].isNotEmpty &&
@@ -300,62 +290,8 @@ class SavedBadgeProvider extends ChangeNotifier {
       // Handle any errors and default to speed 1
       logger.e("Error setting animation speed: $e");
       aniProvider.calculateDuration(1);
-    }
-    // Safely set the animation mode
-    try {
-      if (data.containsKey('messages') &&
-          data['messages'] is List &&
-          data['messages'].isNotEmpty &&
-          data['messages'][0] is Map<String, dynamic> &&
-          data['messages'][0].containsKey('mode')) {
-        int modeValue =
-            Mode.getIntValue(Mode.fromHex(data['messages'][0]['mode']));
-        aniProvider.setAnimationMode(animationMap[modeValue]);
-      } else {
-        // Default to left animation if mode is missing
-        logger.w("Missing mode data, defaulting to left animation");
-        aniProvider.setAnimationMode(animationMap[0]);
-      }
-    } catch (e) {
-      // Handle any errors and default to left animation
-      logger.e("Error setting animation mode: $e");
-      aniProvider.setAnimationMode(animationMap[0]);
     }
 
-    // Safely handle effects
-    try {
-      if (data.containsKey('messages') &&
-          data['messages'] is List &&
-          data['messages'].isNotEmpty &&
-          data['messages'][0] is Map<String, dynamic>) {
-        // Handle invert effect
-        if (data['messages'][0].containsKey('invert') &&
-            data['messages'][0]['invert'] == true) {
-          aniProvider.addEffect(effectMap[0]);
-        }
-    try {
-      // Safely get the speed value
-      if (data.containsKey('messages') &&
-          data['messages'] is List &&
-          data['messages'].isNotEmpty &&
-          data['messages'][0] is Map<String, dynamic> &&
-          data['messages'][0].containsKey('speed')) {
-        // Get the speed value directly from the Speed enum without adding 1
-        // The Speed.getIntValue already adds 1 to the index
-        int speedValue =
-            Speed.getIntValue(Speed.fromHex(data['messages'][0]['speed']));
-        logger.i("Setting animation speed to: $speedValue");
-        aniProvider.calculateDuration(speedValue);
-      } else {
-        // Default to speed 1 if data is missing
-        logger.w("Missing speed data, defaulting to speed 1");
-        aniProvider.calculateDuration(1);
-      }
-    } catch (e) {
-      // Handle any errors and default to speed 1
-      logger.e("Error setting animation speed: $e");
-      aniProvider.calculateDuration(1);
-    }
     // Safely set the animation mode
     try {
       if (data.containsKey('messages') &&
@@ -394,21 +330,7 @@ class SavedBadgeProvider extends ChangeNotifier {
             data['messages'][0]['flash'] == true) {
           aniProvider.addEffect(effectMap[1]);
         }
-        // Handle flash effect
-        if (data['messages'][0].containsKey('flash') &&
-            data['messages'][0]['flash'] == true) {
-          aniProvider.addEffect(effectMap[1]);
-        }
 
-        // Handle marquee effect
-        if (data['messages'][0].containsKey('marquee') &&
-            data['messages'][0]['marquee'] == true) {
-          aniProvider.addEffect(effectMap[2]);
-        }
-      }
-    } catch (e) {
-      logger.e("Error setting effects: $e");
-      // No default effects needed
         // Handle marquee effect
         if (data['messages'][0].containsKey('marquee') &&
             data['messages'][0]['marquee'] == true) {
@@ -422,31 +344,6 @@ class SavedBadgeProvider extends ChangeNotifier {
 
     logger.i("Effects set are = ${aniProvider.getCurrentEffect}");
 
-    // Safely handle text data
-    try {
-      if (data.containsKey('messages') &&
-          data['messages'] is List &&
-          data['messages'].isNotEmpty &&
-          data['messages'][0] is Map<String, dynamic> &&
-          data['messages'][0].containsKey('text') &&
-          data['messages'][0]['text'] is List) {
-        String hexString = data['messages'][0]['text'].join();
-        List<List<bool>> binaryArray = hexStringToBool(hexString);
-        aniProvider.setNewGrid(binaryArray);
-      } else {
-        logger.w("Missing or invalid text data in badge");
-        // Create a default empty grid if text data is missing
-        List<List<bool>> emptyGrid =
-            List.generate(8, (_) => List.generate(16, (_) => false));
-        aniProvider.setNewGrid(emptyGrid);
-      }
-    } catch (e) {
-      logger.e("Error setting badge text: $e");
-      // Create a default empty grid on error
-      List<List<bool>> emptyGrid =
-          List.generate(8, (_) => List.generate(16, (_) => false));
-      aniProvider.setNewGrid(emptyGrid);
-    }
     // Safely handle text data
     try {
       if (data.containsKey('messages') &&
