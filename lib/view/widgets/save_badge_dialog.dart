@@ -9,8 +9,6 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 
 class SaveBadgeDialog extends StatelessWidget {
   final SpeedDialProvider speed;
