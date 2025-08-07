@@ -13,12 +13,13 @@ class DrawBadge extends StatefulWidget {
   final bool? isSavedCard;
   final bool? isSavedClipart;
   final List<List<int>>? badgeGrid;
-  const DrawBadge(
-      {super.key,
-      this.filename,
-      this.isSavedCard = false,
-      this.isSavedClipart = false,
-      this.badgeGrid});
+  const DrawBadge({
+    super.key,
+    this.filename,
+    this.isSavedCard = false,
+    this.isSavedClipart = false,
+    this.badgeGrid,
+  });
 
   @override
   State<DrawBadge> createState() => _DrawBadgeState();
@@ -59,7 +60,7 @@ class _DrawBadgeState extends State<DrawBadge> {
     return WillPopScope(
       onWillPop: () async {
         _resetPortraitOrientation();
-        return true; // Allows back navigation
+        return true;
       },
       child: CommonScaffold(
         index: 1,
@@ -79,9 +80,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                   children: [
                     Column(
                       children: [
-                        SizedBox(
-                          width: 100,
-                        ),
+                        const SizedBox(width: 100),
                         BMBadge(
                           providerInit: (provider) => drawToggle = provider,
                           badgeGrid: widget.badgeGrid
@@ -163,27 +162,43 @@ class _DrawBadgeState extends State<DrawBadge> {
                           ),
                         ),
                         TextButton(
-                          onPressed: () {
-                            List<List<int>> badgeGrid = drawToggle
-                                .getDrawViewGrid()
-                                .map((e) => e.map((e) => e ? 1 : 0).toList())
-                                .toList();
-                            List<String> hexString =
-                                Converters.convertBitmapToLEDHex(
-                                    badgeGrid, false);
-                            widget.isSavedCard!
-                                ? fileHelper.updateBadgeText(
-                                    widget.filename!,
-                                    hexString,
-                                  )
-                                : widget.isSavedClipart!
-                                    ? fileHelper.updateClipart(
-                                        widget.filename!, badgeGrid)
-                                    : fileHelper.saveImage(
-                                        drawToggle.getDrawViewGrid());
-                            fileHelper.generateClipartCache();
-                            ToastUtils()
-                                .showToast("Clipart Saved Successfully");
+                          onPressed: () async {
+                            try {
+                              List<List<int>> badgeGrid = drawToggle
+                                  .getDrawViewGrid()
+                                  .map((e) => e.map((e) => e ? 1 : 0).toList())
+                                  .toList();
+                              List<String> hexString =
+                                  Converters.convertBitmapToLEDHex(
+                                      badgeGrid, false);
+
+                              if (widget.isSavedCard!) {
+                                await fileHelper.updateBadgeText(
+                                    widget.filename!, hexString);
+                              } else if (widget.isSavedClipart!) {
+                                await fileHelper.updateClipart(
+                                    widget.filename!, badgeGrid);
+                              } else {
+                                await fileHelper
+                                    .saveImage(drawToggle.getDrawViewGrid());
+                              }
+
+                              await fileHelper.generateClipartCache();
+
+                              ToastUtils()
+                                  .showToast("Clipart Saved Successfully");
+
+                              await Future.delayed(
+                                  const Duration(milliseconds: 800));
+
+                              if (mounted) {
+                                Navigator.of(context)
+                                    .popUntil((route) => route.isFirst);
+                              }
+                            } catch (e) {
+                              ToastUtils().showToast(
+                                  "Failed to save badge: ${e.toString()}");
+                            }
                           },
                           child: const Column(
                             children: [

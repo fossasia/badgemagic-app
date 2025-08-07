@@ -24,9 +24,9 @@ Map<int, BadgeAnimation?> animationMap = {
   2: UpAnimation(),
   3: DownAnimation(),
   4: FixedAnimation(),
-  5: SnowFlakeAnimation(),
-  6: PictureAnimation(),
-  7: AniAnimation(),
+  5: AniAnimation(),
+  6: SnowFlakeAnimation(),
+  7: PictureAnimation(),
   8: LaserAnimation(),
 };
 
@@ -78,6 +78,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   Set<BadgeEffect?> get getCurrentEffect => _currentEffect;
+
+  /// Clears all currently active effects
+  void clearAllEffects() {
+    _currentEffect.clear();
+    notifyListeners();
+  }
 
   void addEffect(BadgeEffect? effect) {
     _currentEffect.add(effect);
@@ -150,8 +156,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
     return isActive;
   }
 
-  void badgeAnimation(
-      String message, Converters converters, bool isInverted) async {
+  void badgeAnimation(String message, Converters converters, bool isInverted,
+      {TextStyle? textStyle}) async {
     if (message.isEmpty) {
       stopAllAnimations();
       List<List<bool>> emptyGrid =
@@ -164,7 +170,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
     if (_timer == null || !_timer!.isActive) {
       startTimer();
     }
-    List<String> hexString = await converters.messageTohex(message, isInverted);
+    List<String> hexString = await converters
+        .textToBadgeHex(message, isInverted, fontStyle: textStyle);
     List<List<bool>> binaryArray = hexStringToBool(hexString.join());
     setNewGrid(binaryArray);
   }

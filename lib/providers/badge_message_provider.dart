@@ -13,6 +13,7 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:flutter/material.dart';
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -20,9 +21,9 @@ Map<int, Mode> modeValueMap = {
   2: Mode.up,
   3: Mode.down,
   4: Mode.fixed,
-  5: Mode.snowflake,
-  6: Mode.picture,
-  7: Mode.animation,
+  5: Mode.animation,
+  6: Mode.snowflake,
+  7: Mode.picture,
   8: Mode.laser
 };
 
@@ -45,8 +46,10 @@ class BadgeMessageProvider {
   Converters converters = Converters();
 
   Future<Data> getBadgeData(String text, bool flash, bool marq, Speed speed,
-      Mode mode, bool isInverted) async {
-    List<String> message = await converters.messageTohex(text, isInverted);
+      Mode mode, bool isInverted,
+      {TextStyle? textStyle}) async {
+    List<String> message =
+        await converters.textToBadgeHex(text, isInverted, fontStyle: textStyle);
     Data data = Data(messages: [
       Message(
         text: message,
@@ -59,19 +62,15 @@ class BadgeMessageProvider {
     return data;
   }
 
-  Future<Data> generateData(
-      String? text,
-      bool? flash,
-      bool? marq,
-      bool? inverted,
-      Speed? speed,
-      Mode? mode,
-      Map<String, dynamic>? jsonData) async {
+  Future<Data> generateData(String? text, bool? flash, bool? marq,
+      bool? inverted, Speed? speed, Mode? mode, Map<String, dynamic>? jsonData,
+      {TextStyle? textStyle}) async {
     if (jsonData != null) {
       return fileHelper.jsonToData(jsonData);
     } else {
       return getBadgeData(text ?? '', flash ?? false, marq ?? false,
-          speed ?? Speed.one, mode ?? Mode.left, inverted ?? false);
+          speed ?? Speed.one, mode ?? Mode.left, inverted ?? false,
+          textStyle: textStyle);
     }
   }
 
@@ -94,7 +93,8 @@ class BadgeMessageProvider {
       int? speed,
       Mode? mode,
       Map<String, dynamic>? jsonData,
-      bool isSavedBadge) async {
+      bool isSavedBadge,
+      {TextStyle? textStyle}) async {
     if (await FlutterBluePlus.isSupported == false) {
       ToastUtils().showErrorToast('Bluetooth is not supported by the device');
       return;
@@ -112,7 +112,8 @@ class BadgeMessageProvider {
         data = fileHelper.jsonToData(jsonData);
       } else {
         data = await generateData(
-            text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
+            text, flash, marq, isInverted, speedMap[speed], mode, jsonData,
+            textStyle: textStyle);
       }
       DataTransferManager manager = DataTransferManager(data);
       await transferData(manager);

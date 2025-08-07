@@ -33,6 +33,7 @@ const String aniLaser = 'assets/animations/ic_anim_laser.gif';
 const String aniPicture = 'assets/animations/ic_anim_picture.gif';
 const String aniUp = 'assets/animations/ic_anim_up.gif';
 const String aniRight = 'assets/animations/ic_anim_right.gif';
+const String aniSnowflake = 'assets/animations/ic_anim_snowflake.gif';
 
 //path to all the effects assets used
 const String effFlash = 'assets/effects/ic_effect_flash.gif';

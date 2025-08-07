@@ -13,9 +13,8 @@ enum Speed {
 
   // Static method to get int value of speed from the Enum Speed
   static int getIntValue(Speed speed) {
-    String hexValue = speed.hexValue.substring(2, 3);
-    int intValue = int.parse(hexValue, radix: 10);
-    return intValue;
+    // Map Speed.one (index 0) -> 1, Speed.two (index 1) -> 2, etc.
+    return speed.index + 1;
   }
 
   // Static method to get Speed from hex value

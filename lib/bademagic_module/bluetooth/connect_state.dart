@@ -11,30 +11,37 @@ class ConnectState extends RetryBleState {
 
   @override
   Future<BleState?> processState() async {
-    bool connected = false;
-
     try {
+      try {
+        await scanResult.device.disconnect();
+        logger.d("Pre-emptive disconnect for clean state");
+        await Future.delayed(const Duration(seconds: 1));
+      } catch (_) {
+        logger.d("No existing connection to disconnect");
+      }
+
       await scanResult.device.connect(autoConnect: false);
       BluetoothConnectionState connectionState =
           await scanResult.device.connectionState.first;
 
       if (connectionState == BluetoothConnectionState.connected) {
-        connected = true;
-
-        logger.d("Device connected");
+        logger.d("Device connected successfully");
         toast.showToast('Device connected successfully.');
 
-        return WriteState(device: scanResult.device, manager: manager);
+        manager.connectedDevice = scanResult.device;
+
+        final writeState = WriteState(
+          device: scanResult.device,
+          manager: manager,
+        );
+
+        return await writeState.process();
       } else {
         throw Exception("Failed to connect to the device");
       }
     } catch (e) {
-      toast.showErrorToast('Failed to connect retrying...');
+      toast.showErrorToast('Failed to connect. Retrying...');
       rethrow;
-    } finally {
-      if (!connected) {
-        await scanResult.device.disconnect();
-      }
     }
   }
 }
