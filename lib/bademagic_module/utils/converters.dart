@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
@@ -28,6 +29,39 @@ class Converters {
       final binary = matrix[i].map((b) => b ? '1' : '0').join();
       return int.parse(binary, radix: 2).toRadixString(16).padLeft(2, '0');
     });
+  }
+    Future<List<String>> messageTohex(String message, bool isInverted) async {
+    List<String> hexStrings = [];
+    for (int x = 0; x < message.length; x++) {
+      if (message[x] == '<' && message[min(x + 5, message.length - 1)] == '>') {
+        int index = int.parse(message[x + 2] + message[x + 3]);
+        var key = controllerData.imageCache.keys.toList()[index];
+        if (key is List) {
+          String filename = key[0];
+          List<dynamic>? decodedData = await fileHelper.readFromFile(filename);
+          final List<List<dynamic>> image = decodedData!.cast<List<dynamic>>();
+          List<List<int>> imageData =
+              image.map((list) => list.cast<int>()).toList();
+          hexStrings += convertBitmapToLEDHex(imageData, true);
+          x += 5;
+        } else {
+          List<String> hs =
+              await imageUtils.generateLedHex(controllerData.vectors[index]);
+          hexStrings.addAll(hs);
+          x += 5;
+        }
+      } else {
+        if (converter.charCodes.containsKey(message[x])) {
+          hexStrings.add(converter.charCodes[message[x]]!);
+        }
+      }
+    }
+    if (isInverted) {
+      hexStrings = invertHex(hexStrings.join()).split('');
+      hexStrings = padHexString(hexStrings);
+    }
+    logger.d("Hex strings: $hexStrings");
+    return hexStrings;
   }
 
   Future<Map<String, dynamic>> renderTextToMatrix(

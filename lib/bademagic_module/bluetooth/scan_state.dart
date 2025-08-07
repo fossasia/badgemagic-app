@@ -57,9 +57,9 @@ class ScanState extends NormalBleState {
 
       await FlutterBluePlus.startScan(
         withServices: [Guid("0000fee0-0000-1000-8000-00805f9b34fb")],
-        removeIfGone: const Duration(seconds: 5),
+        removeIfGone: Duration(seconds: 5),
         continuousUpdates: true,
-        timeout: const Duration(seconds: 15),
+        timeout: const Duration(seconds: 15), // Reduced scan timeout
       );
 
       await Future.delayed(const Duration(seconds: 1));

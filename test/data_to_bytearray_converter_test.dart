@@ -156,10 +156,10 @@ void main() {
       Message(
           text: await converters.textToBadgeHex(
               'abcdefghijklmnopqrstuvwxyz', false)),
-      Message(text: await converters.textToBadgeHex('_' * 500, false)),
-      Message(text: await converters.textToBadgeHex('°', false)),
-      Message(text: await converters.textToBadgeHex('ÇÇÇÇÇabc', false)),
-      Message(text: await converters.textToBadgeHex('', false)),
+      Message(text: await converters.messageTohex('_' * 500, false)),
+      Message(text: await converters.messageTohex('°', false)),
+      Message(text: await converters.messageTohex('ÇÇÇÇÇabc', false)),
+      Message(text: await converters.messageTohex('', false)),
     ]);
 
     List<List<int>> result = converter.convert(data);
@@ -213,8 +213,8 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     Data data = Data(messages: [
-      Message(text: await converters.textToBadgeHex('AB', false)),
-      Message(text: await converters.textToBadgeHex('°C', false)),
+      Message(text: await converters.messageTohex('AB', false)),
+      Message(text: await converters.messageTohex('°C', false)),
     ]);
 
     List<List<int>> result = converter.convert(data);
