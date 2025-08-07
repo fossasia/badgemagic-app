@@ -1,8 +1,11 @@
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
+import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badge_animation/ani_animation.dart';
+import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
@@ -208,34 +211,57 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                             child: TextButton(
                               onPressed: selectionProvider
                                       .selectedBadges.isNotEmpty
-                                  ? () {
+                                  ? () async {
                                       final selectedBadges =
                                           selectionProvider.selectedBadges;
                                       List<Message> badgeDataList = [];
+
                                       for (var badgeKey in selectedBadges) {
                                         Map<String, dynamic> badgeData =
                                             provider.savedBadgeCache
                                                 .firstWhere((element) =>
                                                     element.key == badgeKey)
                                                 .value;
+
                                         final message = Message.fromJson(
                                             badgeData['messages'][0]);
                                         badgeDataList.add(message);
                                       }
-                                      //add empty message object in the badgeList such that total count becomes 8
+
                                       while (badgeDataList.length < 8) {
                                         badgeDataList.add(Message(text: []));
                                       }
-                                      Data data = Data(messages: badgeDataList);
+                                      if (badgeDataList
+                                              .where(
+                                                  (msg) => msg.text.isNotEmpty)
+                                              .length >
+                                          1) {
+                                        animationBadgeProvider
+                                            .setAnimationMode(AniAnimation());
+                                      } else {
+                                        animationBadgeProvider
+                                            .setAnimationMode(FixedAnimation());
+                                      }
+                                      final fullText = badgeDataList
+                                          .map((m) => m.text.join())
+                                          .join(" ");
+                                      animationBadgeProvider.badgeAnimation(
+                                        fullText,
+                                        Converters(),
+                                        false,
+                                      );
+                                      final data =
+                                          Data(messages: badgeDataList);
                                       badgeMessageProvider.checkAndTransfer(
-                                          null,
-                                          null,
-                                          null,
-                                          null,
-                                          null,
-                                          null,
-                                          data.toJson(),
-                                          true);
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        data.toJson(),
+                                        true,
+                                      );
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(

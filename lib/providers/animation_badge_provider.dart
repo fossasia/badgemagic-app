@@ -24,9 +24,9 @@ Map<int, BadgeAnimation?> animationMap = {
   2: UpAnimation(),
   3: DownAnimation(),
   4: FixedAnimation(),
-  5: SnowFlakeAnimation(),
-  6: PictureAnimation(),
-  7: AniAnimation(),
+  5: AniAnimation(),
+  6: SnowFlakeAnimation(),
+  7: PictureAnimation(),
   8: LaserAnimation(),
 };
 

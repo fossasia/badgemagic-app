@@ -4,26 +4,61 @@ class SnowFlakeAnimation extends BadgeAnimation {
   @override
   void processAnimation(int badgeHeight, int badgeWidth, int animationIndex,
       List<List<bool>> processGrid, List<List<bool>> canvas) {
-    int newGridHeight = processGrid.length;
-    int newGridWidth = processGrid[0].length;
-    for (int i = 0; i < badgeHeight; i++) {
-      for (int j = 0; j < badgeWidth; j++) {
-        // Calculate the total number of frames that fit the badge width
-        int framesCount = (newGridWidth / badgeWidth).ceil();
+    int newWidth = processGrid[0].length;
+    int totalAnimationLength = badgeHeight * 16;
+    int frame = animationIndex % totalAnimationLength;
 
-        // Determine the current frame based on the animation value
-        int currentcountFrame = animationIndex ~/ badgeWidth % framesCount;
+    int horizontalOffset = (badgeWidth - newWidth) ~/ 2;
 
-        // Calculate the starting column for the current frame in newGrid
-        int startCol = currentcountFrame * badgeWidth;
+    bool phase1 = frame < badgeHeight * 4;
+    bool phase2 = frame >= badgeHeight * 4 && frame < badgeHeight * 8;
 
-        bool isNewGridCell = i < newGridHeight && (startCol + j) < newGridWidth;
+    if (phase1) {
+      for (int row = badgeHeight - 1; row >= 0; row--) {
+        int fallPosition = frame - (badgeHeight - 1 - row) * 2;
+        int stoppingPosition = row;
+        fallPosition =
+            fallPosition >= stoppingPosition ? stoppingPosition : fallPosition;
 
-        // Update the grid based on the current frame's data
-        bool snowflakeCondition =
-            (isNewGridCell && processGrid[i][startCol + j]);
+        if (fallPosition >= 0 && fallPosition < badgeHeight) {
+          for (int col = 0; col < badgeWidth; col++) {
+            int sourceCol = col - horizontalOffset;
+            bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
+            if (isWithinNewGrid) {
+              canvas[fallPosition][col] = processGrid[row][sourceCol];
+            }
+          }
+        }
+      }
+    } else if (phase2) {
+      for (int row = badgeHeight - 1; row >= 0; row--) {
+        int fallOutStartFrame = (badgeHeight - 1 - row) * 2;
+        int fallOutPosition =
+            row + (frame - badgeHeight * 4 - fallOutStartFrame);
 
-        canvas[i][j] = snowflakeCondition;
+        if (fallOutPosition < row) {
+          for (int col = 0; col < badgeWidth; col++) {
+            int sourceCol = col - horizontalOffset;
+            bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
+            if (isWithinNewGrid) {
+              canvas[row][col] = processGrid[row][sourceCol];
+            }
+          }
+        }
+
+        if (fallOutPosition >= row && fallOutPosition < badgeHeight) {
+          for (int col = 0; col < badgeWidth; col++) {
+            canvas[row][col] = false;
+          }
+
+          for (int col = 0; col < badgeWidth; col++) {
+            int sourceCol = col - horizontalOffset;
+            bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
+            if (isWithinNewGrid && fallOutPosition < badgeHeight) {
+              canvas[fallOutPosition][col] = processGrid[row][sourceCol];
+            }
+          }
+        }
       }
     }
   }

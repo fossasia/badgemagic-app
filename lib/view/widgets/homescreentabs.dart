@@ -46,9 +46,7 @@ class _EffectsTabState extends State<EffectTab> {
 
 //Animation tab to show animation choices for the user
 class AnimationTab extends StatefulWidget {
-  const AnimationTab({
-    super.key,
-  });
+  const AnimationTab({super.key});
 
   @override
   State<AnimationTab> createState() => _AnimationTabState();
@@ -91,8 +89,8 @@ class _AnimationTabState extends State<AnimationTab> {
               index: 4,
             ),
             AniContainer(
-              animation: aniFixed,
-              animationName: 'Snowflake',
+              animation: animation,
+              animationName: 'Animation',
               index: 5,
             ),
           ],
@@ -100,13 +98,13 @@ class _AnimationTabState extends State<AnimationTab> {
         Row(
           children: [
             AniContainer(
-              animation: aniPicture,
-              animationName: 'Picture',
+              animation: aniSnowflake,
+              animationName: 'Snowflake',
               index: 6,
             ),
             AniContainer(
-              animation: animation,
-              animationName: 'Animation',
+              animation: aniPicture,
+              animationName: 'Picture',
               index: 7,
             ),
             AniContainer(
