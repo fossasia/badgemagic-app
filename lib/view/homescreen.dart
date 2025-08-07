@@ -1,4 +1,6 @@
 import 'dart:async';
+
+import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
@@ -6,6 +8,7 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
@@ -79,11 +82,57 @@ class _HomeScreenState extends State<HomeScreen>
     }
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       inlineImageProvider.setContext(context);
+
+      // Apply saved badge data if we're editing a saved badge
+      if (widget.savedBadgeFilename != null) {
+        await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
+      }
     });
     _startImageCaching();
     super.initState();
 
     _tabController = TabController(length: 3, vsync: this);
+  }
+
+  // Loads badge data from disk and populates controllers/providers for editing
+  Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
+    try {
+      final (badgeText, badgeData, savedData) =
+          await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
+      // Set the text in the controller
+      inlineimagecontroller.text = badgeText;
+      // Set animation effects
+      animationProvider.removeEffect(effectMap[0]); // Invert
+      animationProvider.removeEffect(effectMap[1]); // Flash
+      animationProvider.removeEffect(effectMap[2]); // Marquee
+      final message = badgeData.messages[0];
+      if (message.flash) {
+        animationProvider.addEffect(effectMap[1]);
+      }
+      if (message.marquee) {
+        animationProvider.addEffect(effectMap[2]);
+      }
+      if (savedData != null &&
+          savedData.containsKey('invert') &&
+          savedData['invert'] == true) {
+        animationProvider.addEffect(effectMap[0]);
+      }
+      // Set animation mode
+      int modeValue = BadgeLoaderHelper.parseAnimationMode(message.mode);
+      animationProvider.setAnimationMode(animationMap[modeValue]);
+      // Set speed
+      try {
+        int speedDialValue = Speed.getIntValue(message.speed);
+        speedDialProvider.setDialValue(speedDialValue);
+      } catch (e) {
+        speedDialProvider.setDialValue(1);
+      }
+      ToastUtils().showToast(
+          "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
+    } catch (e) {
+      print("Failed to load badge data: $e");
+      ToastUtils().showToast("Failed to load badge data");
+    }
   }
 
   void _setPortraitOrientation() {

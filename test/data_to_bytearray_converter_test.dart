@@ -122,11 +122,11 @@ void main() {
           speed: Speed.four,
           mode: Mode.fixed),
       Message(
-          text: await converters.textToBadgeHex("Hii", false),
+          text: await converters.messageTohex("Hii", false),
           speed: Speed.five,
           mode: Mode.animation),
       Message(
-          text: await converters.textToBadgeHex('Hii', false),
+          text: await converters.messageTohex('Hii', false),
           speed: Speed.six,
           mode: Mode.laser),
       Message(
