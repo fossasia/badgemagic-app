@@ -30,6 +30,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 
 class HomeScreen extends StatefulWidget {
   // Add parameters for saved badge data when editing
@@ -124,10 +125,11 @@ class _HomeScreenState extends State<HomeScreen>
         speedDialProvider.setDialValue(1);
       }
       ToastUtils().showToast(
-          "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
+          "${AppLocalizations.of(context)!.editingBadge}: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
     } catch (e) {
       print("Failed to load badge data: $e");
-      ToastUtils().showToast("Failed to load badge data");
+      ToastUtils()
+          .showToast(AppLocalizations.of(context)!.failedToLoadBadgeData);
     }
   }
 
@@ -178,7 +180,7 @@ class _HomeScreenState extends State<HomeScreen>
           length: 4,
           child: CommonScaffold(
             index: 0,
-            title: 'Badge Magic',
+            title: AppLocalizations.of(context)!.appTitle,
             body: SafeArea(
               child: SingleChildScrollView(
                 physics: isDialInteracting
@@ -244,11 +246,10 @@ class _HomeScreenState extends State<HomeScreen>
                             ? dividerColor
                             : null,
                       ),
-                      tabs: const [
-                        Tab(text: 'Speed'),
-                        Tab(text: 'Animation'),
-                        Tab(text: 'Transition'),
-                        Tab(text: 'Effects'),
+                      tabs: [
+                        Tab(text: AppLocalizations.of(context)!.speed),
+                        Tab(text: AppLocalizations.of(context)!.animation),
+                        Tab(text: AppLocalizations.of(context)!.effects),
                       ],
                     ),
                     SizedBox(

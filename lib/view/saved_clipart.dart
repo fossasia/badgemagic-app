@@ -1,6 +1,7 @@
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/view/widgets/clipart_list_view.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -39,7 +40,7 @@ class _SavedClipartState extends State<SavedClipart> {
     return CommonScaffold(
       index: 3,
       key: const Key(savedClipartScreen),
-      title: "Saved Clipart",
+      title: AppLocalizations.of(context)!.savedClipartTitle,
       body: imageprovider.clipartsCache.isEmpty
           ? Center(
               child: Column(
@@ -56,14 +57,14 @@ class _SavedClipartState extends State<SavedClipart> {
                     height: 20.h,
                   ),
                   Text(
-                    'No saved clipart!',
+                    AppLocalizations.of(context)!.noSavedClipart,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 20.sp,
                     ),
                   ),
                   Text(
-                    'Looks like there are no saved cliparts yet.',
+                    AppLocalizations.of(context)!.noSavedClipartMessage,
                     style: TextStyle(
                       color: Colors.black,
                       fontSize: 14.sp,

@@ -2,6 +2,7 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/virtualbadge/view/draw_badge.dart';
@@ -64,7 +65,7 @@ class _DrawBadgeState extends State<DrawBadge> {
       },
       child: CommonScaffold(
         index: 1,
-        title: 'BadgeMagic',
+        title: AppLocalizations.of(context)!.appTitle,
         body: SingleChildScrollView(
           physics: NeverScrollableScrollPhysics(),
           key: const Key(drawBadgeScreen),
@@ -107,7 +108,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                                     : Colors.black,
                               ),
                               Text(
-                                'Draw',
+                                AppLocalizations.of(context)!.draw,
                                 style: TextStyle(
                                   color: drawToggle.isDrawing
                                       ? colorPrimary
@@ -132,7 +133,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                                     : colorPrimary,
                               ),
                               Text(
-                                'Erase',
+                                AppLocalizations.of(context)!.erase,
                                 style: TextStyle(
                                   color: drawToggle.isDrawing
                                       ? Colors.black
@@ -148,15 +149,15 @@ class _DrawBadgeState extends State<DrawBadge> {
                               drawToggle.resetDrawViewGrid();
                             });
                           },
-                          child: const Column(
+                          child: Column(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.refresh,
                                 color: Colors.black,
                               ),
                               Text(
-                                'Reset',
-                                style: TextStyle(color: Colors.black),
+                                AppLocalizations.of(context)!.reset,
+                                style: const TextStyle(color: Colors.black),
                               )
                             ],
                           ),
@@ -185,8 +186,9 @@ class _DrawBadgeState extends State<DrawBadge> {
 
                               await fileHelper.generateClipartCache();
 
-                              ToastUtils()
-                                  .showToast("Clipart Saved Successfully");
+                              ToastUtils().showToast(
+                                  AppLocalizations.of(context)!
+                                      .clipartSavedSuccessfully);
 
                               await Future.delayed(
                                   const Duration(milliseconds: 800));
@@ -197,17 +199,19 @@ class _DrawBadgeState extends State<DrawBadge> {
                               }
                             } catch (e) {
                               ToastUtils().showToast(
-                                  "Failed to save badge: ${e.toString()}");
+                                  "${AppLocalizations.of(context)!.failedToSaveBadge}: ${e.toString()}");
                             }
                           },
-                          child: const Column(
+                          child: Column(
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.save,
                                 color: Colors.black,
                               ),
-                              Text('Save',
-                                  style: TextStyle(color: Colors.black))
+                              Text(
+                                AppLocalizations.of(context)!.save,
+                                style: const TextStyle(color: Colors.black),
+                              )
                             ],
                           ),
                         ),

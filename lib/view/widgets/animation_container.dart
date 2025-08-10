@@ -1,5 +1,6 @@
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -33,6 +34,29 @@ class _AniContainerState extends State<AniContainer> {
   void initState() {
     badgeAnimation = animationMap[widget.index];
     super.initState();
+  }
+
+  String _getLocalizedAnimationName(String name, BuildContext context) {
+    switch (name) {
+      case 'Left':
+        return AppLocalizations.of(context)!.animationLeft;
+      case 'Right':
+        return AppLocalizations.of(context)!.animationRight;
+      case 'Up':
+        return AppLocalizations.of(context)!.animationUp;
+      case 'Down':
+        return AppLocalizations.of(context)!.animationDown;
+      case 'Fixed':
+        return AppLocalizations.of(context)!.animationFixed;
+      case 'Snowflake':
+        return AppLocalizations.of(context)!.animationSnowflake;
+      case 'Picture':
+        return AppLocalizations.of(context)!.animationPicture;
+      case 'Laser':
+        return AppLocalizations.of(context)!.animationLaser;
+      default:
+        return name;
+    }
   }
 
   @override
@@ -83,10 +107,8 @@ class _AniContainerState extends State<AniContainer> {
                         : SizedBox.shrink()),
               ),
               Text(
-                widget.animationName,
-                style: TextStyle(fontSize: 8.sp),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
+                _getLocalizedAnimationName(widget.animationName, context),
+                style: TextStyle(fontSize: 9.sp),
               ),
             ],
           ),

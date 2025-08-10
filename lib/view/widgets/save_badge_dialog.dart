@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 
 class SaveBadgeDialog extends StatelessWidget {
   final SpeedDialProvider speed;
@@ -27,7 +28,14 @@ class SaveBadgeDialog extends StatelessWidget {
   Widget build(BuildContext context) {
     SavedBadgeProvider savedBadgeProvider = SavedBadgeProvider();
     TextEditingController badgeNameController = TextEditingController();
-    badgeNameController.text = DateTime.now().toString();
+    badgeNameController.text =
+        '${AppLocalizations.of(context)!.badge} ${DateTime.now().toString()}';
+
+    // Set up the initial selection to select all text when the dialog opens
+    badgeNameController.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: badgeNameController.text.length,
+    );
     return Dialog(
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(5.r),
@@ -44,43 +52,31 @@ class SaveBadgeDialog extends StatelessWidget {
           children: [
             Expanded(
               flex: 1,
-              child: const Text(
-                'Save Badge',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.saveBadge,
+                style: const TextStyle(
+                  fontSize: 20,
                   fontWeight: FontWeight.bold,
-                  fontSize: 18,
                 ),
               ),
             ),
-            // const SizedBox(
-            //     height: 10), // Space between title and file name text
-            const Text(
-              'File Name',
-              style: TextStyle(
+            Text(
+              AppLocalizations.of(context)!.badgeName,
+              style: const TextStyle(
                 fontWeight: FontWeight.w400,
                 color: Colors.red,
               ),
             ),
-            const SizedBox(
-                height: 10), // Space between file name and text field
+            const SizedBox(height: 10),
             TextField(
               controller: badgeNameController,
               autofocus: true,
-              onTap: () {
-                // Select all text when the TextField is tapped
-                textController.selection = TextSelection(
-                  baseOffset: 0,
-                  extentOffset: textController.text.length,
-                );
-              },
               decoration: const InputDecoration(
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.red),
                 ),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                      color: Colors.red,
-                      width: 2), // Thicker border when focused
+                  borderSide: BorderSide(color: Colors.red, width: 2),
                 ),
               ),
             ),
@@ -91,9 +87,9 @@ class SaveBadgeDialog extends StatelessWidget {
                     onPressed: () {
                       Navigator.pop(context);
                     },
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: Colors.red),
+                    child: Text(
+                      AppLocalizations.of(context)!.cancel,
+                      style: const TextStyle(color: Colors.red),
                     )),
                 TextButton(
                   onPressed: () async {
@@ -102,7 +98,6 @@ class SaveBadgeDialog extends StatelessWidget {
                     final filePath = '${directory.path}/$trimmedBadgeName.json';
                     final file = File(filePath);
 
-                    // Check for any file(s) with the same name (case-insensitive, ignoring spaces around the base name)
                     final files = directory.listSync();
                     List<String> caseInsensitiveMatches = [];
                     for (var f in files) {
@@ -124,37 +119,34 @@ class SaveBadgeDialog extends StatelessWidget {
                             ? caseInsensitiveMatches.first
                             : null;
 
-                    // Check for exact (case-sensitive) match
                     bool caseSensitiveExists = await file.exists();
 
                     if (caseSensitiveExists) {
-                      // Exact same file exists (case-sensitive)
-                      // Show dialog: Rename or Update
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Badge name exists'),
-                          content: const Text(
-                              'A badge with this name already exists. What would you like to do?'),
+                          title: Text(
+                              AppLocalizations.of(context)!.badgeNameExists),
+                          content: Text(
+                              AppLocalizations.of(context)!.badgeExistsMessage),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'rename'),
-                              child: const Text('Cancel'),
+                              child: Text(AppLocalizations.of(context)!.cancel),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'update'),
-                              child: const Text('Overwrite'),
+                              child:
+                                  Text(AppLocalizations.of(context)!.overwrite),
                             ),
                           ],
                         ),
                       );
                       if (result == 'rename') {
-                        // Do nothing, let user change the name
-                        ToastUtils()
-                            .showToast('Please enter a new badge name.');
+                        ToastUtils().showToast(AppLocalizations.of(context)!
+                            .pleaseEnterNewBadgeName);
                         return;
                       } else if (result == 'update') {
-                        // Overwrite existing badge
                         savedBadgeProvider.saveBadgeData(
                           badgeNameController.text,
                           textController.text,
@@ -164,7 +156,8 @@ class SaveBadgeDialog extends StatelessWidget {
                           speed.getOuterValue(),
                           animationProvider.getAnimationIndex() ?? 1,
                         );
-                        ToastUtils().showToast('Badge updated successfully.');
+                        ToastUtils().showToast(AppLocalizations.of(context)!
+                            .badgeUpdatedSuccessfully);
                         Future.delayed(const Duration(milliseconds: 100), () {
                           Navigator.of(context, rootNavigator: true)
                               .pushNamedAndRemoveUntil(
@@ -172,43 +165,48 @@ class SaveBadgeDialog extends StatelessWidget {
                         });
                         return;
                       } else {
-                        // Dialog dismissed
                         return;
                       }
                     } else if (caseInsensitiveMatch != null) {
-                      // Case-insensitive match exists but not exact match
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: const Text('Similar badge name exists'),
-                          content: Text(
-                              "A badge with a similar name already exists: '${caseInsensitiveMatch.substring(0, caseInsensitiveMatch.length - 5)}'. What would you like to do?"),
+                          title: Text(
+                              AppLocalizations.of(context)!.similarBadgeExists),
+                          content: Builder(
+                            builder: (context) {
+                              final badgeName = caseInsensitiveMatch.substring(
+                                  0, caseInsensitiveMatch.length - 5);
+                              final message = AppLocalizations.of(context)!
+                                  .similarBadgeExistsMessage(badgeName);
+                              return Text(message);
+                            },
+                          ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'rename'),
-                              child: const Text('Cancel'),
+                              child: Text(AppLocalizations.of(context)!.cancel),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'update'),
-                              child: const Text('Overwrite'),
+                              child:
+                                  Text(AppLocalizations.of(context)!.overwrite),
                             ),
                           ],
                         ),
                       );
                       if (result == 'rename') {
-                        ToastUtils()
-                            .showToast('Please enter a new badge name.');
+                        ToastUtils().showToast(AppLocalizations.of(context)!
+                            .pleaseEnterNewBadgeName);
                         return;
                       } else if (result == 'update') {
-                        // Overwrite the existing file with the actual filename (preserving its case)
                         final existingFilePath =
                             '${directory.path}/$caseInsensitiveMatch';
                         final existingFile = File(existingFilePath);
-                        await existingFile.writeAsString(
-                            ''); // Optionally clear file before saving new data, or just overwrite below
+                        await existingFile.writeAsString('');
                         savedBadgeProvider.saveBadgeData(
-                          caseInsensitiveMatch.substring(0,
-                              caseInsensitiveMatch.length - 5), // Remove .json
+                          caseInsensitiveMatch.substring(
+                              0, caseInsensitiveMatch.length - 5),
                           textController.text,
                           animationProvider.isEffectActive(FlashEffect()),
                           animationProvider.isEffectActive(MarqueeEffect()),
@@ -216,7 +214,8 @@ class SaveBadgeDialog extends StatelessWidget {
                           speed.getOuterValue(),
                           animationProvider.getAnimationIndex() ?? 1,
                         );
-                        ToastUtils().showToast('Badge updated successfully.');
+                        ToastUtils().showToast(AppLocalizations.of(context)!
+                            .badgeUpdatedSuccessfully);
                         Future.delayed(const Duration(milliseconds: 100), () {
                           Navigator.of(context, rootNavigator: true)
                               .pushNamedAndRemoveUntil(
@@ -224,11 +223,9 @@ class SaveBadgeDialog extends StatelessWidget {
                         });
                         return;
                       } else {
-                        // Dialog dismissed
                         return;
                       }
                     } else {
-                      // File does not exist, save as new
                       savedBadgeProvider.saveBadgeData(
                         badgeNameController.text,
                         textController.text,
@@ -238,13 +235,14 @@ class SaveBadgeDialog extends StatelessWidget {
                         speed.getOuterValue(),
                         animationProvider.getAnimationIndex() ?? 1,
                       );
-                      ToastUtils().showToast('Badge saved successfully.');
+                      ToastUtils().showToast(
+                          AppLocalizations.of(context)!.badgeSavedSuccessfully);
                       Navigator.of(context).pop();
                     }
                   },
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(color: Colors.red),
+                  child: Text(
+                    AppLocalizations.of(context)!.save,
+                    style: const TextStyle(color: Colors.red),
                   ),
                 ),
               ],

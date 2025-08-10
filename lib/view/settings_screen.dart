@@ -1,7 +1,7 @@
-import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import '../l10n/app_localizations.dart';
+import '../../main.dart';
+import '../../services/language_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -11,102 +11,112 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
-  String selectedLanguage = 'ENGLISH';
-  String selectedBadge = 'LSLED';
+  late String _selectedLanguage = 'en';
+  String _selectedBadge = 'LSLED';
+  final List<String> _badges = ['LSLED', 'VBLAB'];
 
-  final List<String> languages = ['ENGLISH', 'CHINESE'];
-  final List<String> badges = ['LSLED', 'VBLAB'];
+  // Localized badge names
+  final Map<String, String> _localizedBadgeNames = {
+    'LSLED': 'LSLED',
+    'VBLAB': 'VBLAB',
+  };
 
   @override
   void initState() {
-    _setOrientation();
     super.initState();
-  }
-
-  void _setOrientation() {
-    SystemChrome.setPreferredOrientations([
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ]);
+    // Initialize with current locale if available
+    final currentLocale = WidgetsBinding.instance.window.locale;
+    if (currentLocale.languageCode == 'hi') {
+      _selectedLanguage = 'hi';
+    } else {
+      _selectedLanguage = 'en'; // Default to English
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    return CommonScaffold(
-      index: 4,
-      body: Padding(
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(AppLocalizations.of(context)!.settings),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pop(context),
+        ),
+      ),
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Language',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            // Language Selection
+            Text(
+              AppLocalizations.of(context)!.language,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: selectedLanguage,
-                  isExpanded: true,
-                  icon: Icon(Icons.arrow_drop_down, color: mdGrey400),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedLanguage = newValue!;
-                    });
-                  },
-                  items:
-                      languages.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value,
-                          style: const TextStyle(color: Colors.black)),
-                    );
-                  }).toList(),
+            DropdownButtonFormField<String>(
+              value: _selectedLanguage,
+              items: [
+                DropdownMenuItem(
+                  value: 'en',
+                  child: Text(AppLocalizations.of(context)!.english),
                 ),
+                DropdownMenuItem(
+                  value: 'hi',
+                  child: Text(AppLocalizations.of(context)!.hindi),
+                ),
+              ],
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedLanguage = value;
+                  });
+                  // Update app locale and save preference
+                  final newLocale = Locale(value);
+                  appLocale.value = newLocale;
+                  // Save the selected language
+                  LanguageService.setLanguage(value);
+                }
+              },
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
             ),
-            const SizedBox(height: 20),
-            const Text(
-              'Select Badge',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+
+            const SizedBox(height: 24),
+
+            // Badge Selection
+            Text(
+              AppLocalizations.of(context)!.selectBadge,
+              style: Theme.of(context).textTheme.titleMedium,
             ),
             const SizedBox(height: 8),
-            Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  value: selectedBadge,
-                  isExpanded: true,
-                  icon: Icon(Icons.arrow_drop_down, color: mdGrey400),
-                  onChanged: (String? newValue) {
-                    setState(() {
-                      selectedBadge = newValue!;
-                    });
-                  },
-                  items: badges.map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value,
-                          style: const TextStyle(color: Colors.black)),
-                    );
-                  }).toList(),
-                ),
+            DropdownButtonFormField<String>(
+              value: _selectedBadge,
+              items: _badges.map((badge) {
+                return DropdownMenuItem(
+                  value: badge,
+                  child: Text(_localizedBadgeNames[badge] ?? badge),
+                );
+              }).toList(),
+              onChanged: (value) {
+                if (value != null) {
+                  setState(() {
+                    _selectedBadge = value;
+                  });
+                }
+              },
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               ),
             ),
           ],
         ),
       ),
-      title: 'Badge Magic',
     );
   }
 }

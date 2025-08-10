@@ -7,6 +7,7 @@ import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_animation/ani_animation.dart';
 import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
@@ -72,6 +73,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         ),
       ],
       child: CommonScaffold(
+        title: AppLocalizations.of(context)!.savedBadges,
         index: 2,
         actions: [
           TextButton(
@@ -79,39 +81,44 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
               final value = await fileHelper.importBadgeData(context);
               if (value) {
                 logger.d('value: $value');
-                toastUtils.showToast('Badge imported successfully');
+                toastUtils.showToast(
+                    AppLocalizations.of(context)!.badgeImportedSuccessfully);
                 await fileHelper.getBadgeDataFiles();
                 setState(() {});
               }
             },
-            child: const Text(
-              'Import',
-              style: TextStyle(color: drawerHeaderTitle),
+            child: Text(
+              AppLocalizations.of(context)!.import,
+              style: const TextStyle(color: drawerHeaderTitle),
             ),
           ),
           Consumer<BadgeSlotProvider>(
             builder: (context, selectionProvider, _) {
-              if (selectionProvider.selectedBadges.isEmpty)
+              if (selectionProvider.selectedBadges.isEmpty) {
                 return SizedBox.shrink();
+              }
               return IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
-                tooltip: 'Delete Selected',
+                tooltip: AppLocalizations.of(context)!.deleteSelected,
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: const Text('Delete Badges'),
-                      content: const Text(
-                          'Are you sure you want to delete all selected badges?'),
+                      title: Text(
+                          AppLocalizations.of(context)!.deleteSelectedBadges),
+                      content: Text(AppLocalizations.of(context)!
+                          .deleteBadgesConfirmation),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: const Text('Cancel'),
+                          child: Text(AppLocalizations.of(context)!.cancel),
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
-                          child: const Text('Delete',
-                              style: TextStyle(color: Colors.red)),
+                          child: Text(
+                            AppLocalizations.of(context)!.delete,
+                            style: const TextStyle(color: Colors.red),
+                          ),
                         ),
                       ],
                     ),
@@ -128,8 +135,8 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                     }
                     selectionProvider.clearSelections();
                     setState(() {});
-                    ToastUtils()
-                        .showToast('Selected badges deleted successfully.');
+                    ToastUtils().showToast(AppLocalizations.of(context)!
+                        .badgesDeletedSuccessfully);
                   }
                 },
               );
@@ -290,7 +297,6 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
             }
           },
         ),
-        title: 'Badge Magic',
         key: const Key(savedBadgeScreen),
       ),
     );

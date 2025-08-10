@@ -1,4 +1,5 @@
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
@@ -36,14 +37,14 @@ class _BMDrawerState extends State<BMDrawer> {
         children: [
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: const DrawerHeader(
+            child: DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.red,
               ),
               child: Center(
                 child: Text(
-                  'Badge Magic',
-                  style: TextStyle(
+                  AppLocalizations.of(context)!.appTitle,
+                  style: const TextStyle(
                       color: drawerHeaderTitle,
                       fontSize: 25,
                       fontWeight: FontWeight.bold),
@@ -54,45 +55,45 @@ class _BMDrawerState extends State<BMDrawer> {
           _buildListTile(
             index: 0,
             icon: Icons.edit,
-            title: 'Create Badges',
+            title: AppLocalizations.of(context)!.createBadges,
             routeName: '/',
           ),
           _buildListTile(
             index: 1,
             assetIcon: "assets/icons/signature.png",
-            title: 'Draw Clipart',
+            title: AppLocalizations.of(context)!.drawClipart,
             routeName: '/drawBadge',
           ),
           _buildListTile(
             index: 2,
             assetIcon: "assets/icons/r_save.png",
-            title: 'Saved Badges',
+            title: AppLocalizations.of(context)!.savedBadges,
             routeName: '/savedBadge',
           ),
           _buildListTile(
             index: 3,
             assetIcon: "assets/icons/r_save.png",
-            title: 'Saved Cliparts',
+            title: AppLocalizations.of(context)!.savedCliparts,
             routeName: '/savedClipart',
           ),
           _buildListTile(
             index: 4,
             assetIcon: "assets/icons/setting.png",
-            title: 'Settings',
+            title: AppLocalizations.of(context)!.settings,
             routeName: '/settings',
           ),
           _buildListTile(
             index: 5,
             assetIcon: "assets/icons/r_team.png",
-            title: 'About Us',
+            title: AppLocalizations.of(context)!.aboutUs,
             routeName: '/aboutUs',
           ),
           const Divider(),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
             child: Text(
-              'Other',
-              style: TextStyle(
+              AppLocalizations.of(context)!.other,
+              style: const TextStyle(
                 color: Colors.black54,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
@@ -102,22 +103,21 @@ class _BMDrawerState extends State<BMDrawer> {
           _buildListTile(
             index: 6,
             assetIcon: "assets/icons/r_price.png",
-            title: 'Buy Badge',
+            title: AppLocalizations.of(context)!.buyBadge,
             routeName: '/buyBadge',
             externalLink: 'https://badgemagic.fossasia.org/shop/',
           ),
           _buildListTile(
             index: 7,
             icon: Icons.share,
-            title: 'Share',
+            title: AppLocalizations.of(context)!.shareApp,
             routeName: '/share',
-            shareText:
-                'Badge Magic is an app to control LED name badges. This app provides features to portray names, graphics and simple animations on LED badges.You can also download it from below link https://play.google.com/store/apps/details?id=org.fossasia.badgemagic',
+            shareText: AppLocalizations.of(context)!.shareAppText,
           ),
           _buildListTile(
             index: 8,
             icon: Icons.star,
-            title: 'Rate Us',
+            title: AppLocalizations.of(context)!.rateUs,
             routeName: '/rateUs',
             externalLink: Platform.isIOS
                 ? 'https://apps.apple.com/us/app/badge-magic/id6740176888?action=write-review'
@@ -126,14 +126,14 @@ class _BMDrawerState extends State<BMDrawer> {
           _buildListTile(
             index: 9,
             assetIcon: "assets/icons/r_virus.png",
-            title: 'Feedback/Bug Reports',
+            title: AppLocalizations.of(context)!.feedbackBugReports,
             routeName: '/feedback',
             externalLink: 'https://github.com/fossasia/badgemagic-app/issues',
           ),
           _buildListTile(
             index: 10,
             assetIcon: "assets/icons/r_insurance.png",
-            title: 'Privacy Policy',
+            title: AppLocalizations.of(context)!.privacyPolicy,
             routeName: '/privacyPolicy',
             externalLink: 'https://badgemagic.fossasia.org/privacy/',
           ),
@@ -146,7 +146,7 @@ class _BMDrawerState extends State<BMDrawer> {
     required int index,
     IconData? icon,
     String? assetIcon,
-    required String title,
+    required dynamic title,
     required String routeName,
     String? externalLink,
     String? shareText,
@@ -163,14 +163,16 @@ class _BMDrawerState extends State<BMDrawer> {
               height: 18,
               color: currentIndex == index ? colorAccent : Colors.black,
             ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: currentIndex == index ? colorAccent : Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-      ),
+      title: title is String
+          ? Text(
+              title,
+              style: TextStyle(
+                color: currentIndex == index ? colorAccent : Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            )
+          : title,
       selected: currentIndex == index,
       selectedTileColor: dividerColor,
       onTap: () {

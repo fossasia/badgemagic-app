@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 
 class DeleteBadgeDialog extends StatelessWidget {
   const DeleteBadgeDialog({
@@ -24,7 +25,7 @@ class DeleteBadgeDialog extends StatelessWidget {
                   Icon(Icons.delete, color: Colors.black),
                   SizedBox(width: 10.w),
                   Text(
-                    'Delete',
+                    AppLocalizations.of(context)!.delete,
                     style: TextStyle(
                       fontSize: 16.sp,
                       fontWeight: FontWeight.w500,
@@ -34,7 +35,7 @@ class DeleteBadgeDialog extends StatelessWidget {
               ),
               SizedBox(height: 16.h),
               Text(
-                'Are you sure want to delete this badge?',
+                AppLocalizations.of(context)!.deleteBadgeConfirmation,
                 style: TextStyle(fontSize: 14.sp),
               ),
               SizedBox(height: 24.h),
@@ -45,18 +46,18 @@ class DeleteBadgeDialog extends StatelessWidget {
                     onPressed: () {
                       Navigator.of(context).pop(false);
                     },
-                    child: const Text(
-                      'Cancel',
-                      style: TextStyle(color: Colors.red),
+                    child: Text(
+                      AppLocalizations.of(context)!.cancel,
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
                   TextButton(
                     onPressed: () {
                       Navigator.of(context).pop(true);
                     },
-                    child: const Text(
-                      'OK',
-                      style: TextStyle(color: Colors.red),
+                    child: Text(
+                      AppLocalizations.of(context)!.ok,
+                      style: const TextStyle(color: Colors.red),
                     ),
                   ),
                 ],
