@@ -27,7 +27,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hindi => 'Hindi';
 
   @override
-  String get save => 'SAVE';
+  String get save => 'Save';
 
   @override
   String get cancel => 'Cancel';
