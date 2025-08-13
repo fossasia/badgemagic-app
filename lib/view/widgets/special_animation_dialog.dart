@@ -1,3 +1,4 @@
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,13 +8,12 @@ Future<bool?> showSpecialAnimationDialog(
     context: context,
     builder: (context) {
       return AlertDialog(
-        title: const Text('Switch to Special Animation?'),
+        title: Text(AppLocalizations.of(context)!.switchToSpecialAnimation),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-                'Selecting this animation will overwrite your current text.'),
+            Text(AppLocalizations.of(context)!.specialAnimationWarning),
             if (textToClear.isNotEmpty) ...[
               const SizedBox(height: 12),
               Row(
@@ -27,12 +27,13 @@ Future<bool?> showSpecialAnimationDialog(
                   ),
                   IconButton(
                     icon: const Icon(Icons.copy, size: 20),
-                    tooltip: 'Copy text',
+                    tooltip: AppLocalizations.of(context)!.copyText,
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: textToClear));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Text copied to clipboard!')),
+                        SnackBar(
+                            content:
+                                Text(AppLocalizations.of(context)!.textCopied)),
                       );
                     },
                   ),
@@ -44,11 +45,11 @@ Future<bool?> showSpecialAnimationDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(AppLocalizations.of(context)!.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Yes'),
+            child: Text(AppLocalizations.of(context)!.yes),
           ),
         ],
       );

@@ -125,11 +125,10 @@ class _HomeScreenState extends State<HomeScreen>
         speedDialProvider.setDialValue(1);
       }
       ToastUtils().showToast(
-          "${AppLocalizations.of(context)!.editingBadge}: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
+          "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
     } catch (e) {
       print("Failed to load badge data: $e");
-      ToastUtils()
-          .showToast(AppLocalizations.of(context)!.failedToLoadBadgeData);
+      ToastUtils().showToast("Failed to load badge data");
     }
   }
 
@@ -247,9 +246,12 @@ class _HomeScreenState extends State<HomeScreen>
                             : null,
                       ),
                       tabs: [
-                        Tab(text: AppLocalizations.of(context)!.speed),
+                        Tab(text: AppLocalizations.of(context)!.speedTitle),
                         Tab(text: AppLocalizations.of(context)!.animation),
-                        Tab(text: AppLocalizations.of(context)!.effects),
+                        Tab(
+                            text:
+                                AppLocalizations.of(context)!.transitionTitle),
+                        Tab(text: AppLocalizations.of(context)!.effectsTitle),
                       ],
                     ),
                     SizedBox(
@@ -318,7 +320,9 @@ class _HomeScreenState extends State<HomeScreen>
                                                 BorderRadius.circular(2.r),
                                             color: mdGrey400,
                                           ),
-                                          child: const Text('Transfer'),
+                                          child: Text(
+                                              AppLocalizations.of(context)!
+                                                  .transferButton),
                                         ),
                                       ),
                                     ),
@@ -403,7 +407,9 @@ class _HomeScreenState extends State<HomeScreen>
                                                 BorderRadius.circular(2.r),
                                             color: mdGrey400,
                                           ),
-                                          child: const Text('Save'),
+                                          child: Text(
+                                              AppLocalizations.of(context)!
+                                                  .saveButton),
                                         ),
                                       ),
                                     ),
@@ -438,7 +444,9 @@ class _HomeScreenState extends State<HomeScreen>
                                                 BorderRadius.circular(2.r),
                                             color: mdGrey400,
                                           ),
-                                          child: const Text('Transfer'),
+                                          child: Text(
+                                              AppLocalizations.of(context)!
+                                                  .transferButton),
                                         ),
                                       ),
                                     ),

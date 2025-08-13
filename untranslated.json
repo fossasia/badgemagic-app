@@ -1,1 +1,13 @@
-{}
+{
+  "hi": [
+    "savedBadgesTitle",
+    "drawClipartTitle",
+    "speedTitle",
+    "transitionTitle",
+    "effectsTitle",
+    "effectsTab",
+    "invertTitle",
+    "fixedAnimation",
+    "fixedTitle"
+  ]
+}

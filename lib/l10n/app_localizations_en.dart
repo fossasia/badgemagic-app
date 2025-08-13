@@ -12,6 +12,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Badge Magic';
 
   @override
+  String get saveButton => 'Save';
+
+  @override
+  String get save => 'SAVE';
+
+  @override
+  String get savedBadges => 'Saved Badges';
+
+  @override
+  String get savedBadgesTitle => 'Saved Badges';
+
+  @override
+  String get drawClipart => 'Draw Clipart';
+
+  @override
+  String get drawClipartTitle => 'Draw Clipart';
+
+  @override
+  String get transferButton => 'Transfer';
+
+  @override
   String get settings => 'Settings';
 
   @override
@@ -25,9 +46,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hindi => 'Hindi';
-
-  @override
-  String get save => 'Save';
 
   @override
   String get cancel => 'Cancel';
@@ -97,12 +115,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get createBadges => 'Create Badges';
 
   @override
-  String get drawClipart => 'Draw Clipart';
-
-  @override
-  String get savedBadges => 'Saved Badges';
-
-  @override
   String get savedCliparts => 'Saved Cliparts';
 
   @override
@@ -163,6 +175,76 @@ class AppLocalizationsEn extends AppLocalizations {
   String get license => 'License';
 
   @override
+  String get speed => 'Speed';
+
+  @override
+  String get speedTitle => 'Speed';
+
+  @override
+  String get animation => 'Animation';
+
+  @override
+  String get transition => 'Transition';
+
+  @override
+  String get transitionTitle => 'Transition';
+
+  @override
+  String get effects => 'Effects';
+
+  @override
+  String get effectsTitle => 'Effects';
+
+  @override
+  String get effectsTab => 'Effects';
+
+  @override
+  String get pacman => 'Pacman';
+
+  @override
+  String get chevron => 'Chevron';
+
+  @override
+  String get diamond => 'Diamond';
+
+  @override
+  String get brokenHearts => 'Broken Hearts';
+
+  @override
+  String get cupid => 'Cupid';
+
+  @override
+  String get feet => 'Feet';
+
+  @override
+  String get fishKiss => 'Fish Kiss';
+
+  @override
+  String get diagonal => 'Diagonal';
+
+  @override
+  String get emergency => 'Emergency';
+
+  @override
+  String get beatingHearts => 'Beating Hearts';
+
+  @override
+  String get fireworks => 'Fireworks';
+
+  @override
+  String get switchToSpecialAnimation => 'Switch to Special Animation?';
+
+  @override
+  String get specialAnimationWarning =>
+      'Selecting this animation will overwrite your current text.';
+
+  @override
+  String get copyText => 'Copy text';
+
+  @override
+  String get textCopied => 'Text copied to clipboard!';
+
+  @override
   String get githubDescription =>
       'Fork the repo and push changes or submit new issues.';
 
@@ -206,16 +288,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enterBadgeName => 'Enter badge name';
 
   @override
-  String get invertEffect => 'Invert Effect';
+  String get invertEffect => 'Invert';
+
+  @override
+  String get invertTitle => 'Invert';
+
+  @override
+  String get fixedAnimation => 'Fixed';
+
+  @override
+  String get fixedTitle => 'Fixed';
 
   @override
   String get flashEffect => 'Flash Effect';
 
   @override
   String get marqueeEffect => 'Marquee Effect';
-
-  @override
-  String get speed => 'Speed';
 
   @override
   String get slow => 'Slow';
@@ -285,9 +373,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get fixed => 'Fixed';
 
   @override
-  String get animation => 'Animation';
-
-  @override
   String get snowflake => 'Snowflake';
 
   @override
@@ -349,9 +434,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failedToSaveBadge => 'Failed to save badge';
-
-  @override
-  String get effects => 'Effects';
 
   @override
   String get transfer => 'Transfer';

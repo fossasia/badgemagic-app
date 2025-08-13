@@ -104,6 +104,48 @@ abstract class AppLocalizations {
   /// **'Badge Magic'**
   String get appTitle;
 
+  /// No description provided for @saveButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get saveButton;
+
+  /// No description provided for @save.
+  ///
+  /// In en, this message translates to:
+  /// **'SAVE'**
+  String get save;
+
+  /// No description provided for @savedBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Badges'**
+  String get savedBadges;
+
+  /// No description provided for @savedBadgesTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved Badges'**
+  String get savedBadgesTitle;
+
+  /// No description provided for @drawClipart.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw Clipart'**
+  String get drawClipart;
+
+  /// No description provided for @drawClipartTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Draw Clipart'**
+  String get drawClipartTitle;
+
+  /// No description provided for @transferButton.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get transferButton;
+
   /// No description provided for @settings.
   ///
   /// In en, this message translates to:
@@ -133,12 +175,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hindi'**
   String get hindi;
-
-  /// No description provided for @save.
-  ///
-  /// In en, this message translates to:
-  /// **'SAVE'**
-  String get save;
 
   /// No description provided for @cancel.
   ///
@@ -266,18 +302,6 @@ abstract class AppLocalizations {
   /// **'Create Badges'**
   String get createBadges;
 
-  /// No description provided for @drawClipart.
-  ///
-  /// In en, this message translates to:
-  /// **'Draw Clipart'**
-  String get drawClipart;
-
-  /// No description provided for @savedBadges.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved Badges'**
-  String get savedBadges;
-
   /// No description provided for @savedCliparts.
   ///
   /// In en, this message translates to:
@@ -392,6 +416,144 @@ abstract class AppLocalizations {
   /// **'License'**
   String get license;
 
+  /// No description provided for @speed.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get speed;
+
+  /// No description provided for @speedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Speed'**
+  String get speedTitle;
+
+  /// No description provided for @animation.
+  ///
+  /// In en, this message translates to:
+  /// **'Animation'**
+  String get animation;
+
+  /// No description provided for @transition.
+  ///
+  /// In en, this message translates to:
+  /// **'Transition'**
+  String get transition;
+
+  /// No description provided for @transitionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Transition'**
+  String get transitionTitle;
+
+  /// No description provided for @effects.
+  ///
+  /// In en, this message translates to:
+  /// **'Effects'**
+  String get effects;
+
+  /// No description provided for @effectsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Effects'**
+  String get effectsTitle;
+
+  /// No description provided for @effectsTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Effects'**
+  String get effectsTab;
+
+  /// No description provided for @pacman.
+  ///
+  /// In en, this message translates to:
+  /// **'Pacman'**
+  String get pacman;
+
+  /// No description provided for @chevron.
+  ///
+  /// In en, this message translates to:
+  /// **'Chevron'**
+  String get chevron;
+
+  /// No description provided for @diamond.
+  ///
+  /// In en, this message translates to:
+  /// **'Diamond'**
+  String get diamond;
+
+  /// No description provided for @brokenHearts.
+  ///
+  /// In en, this message translates to:
+  /// **'Broken Hearts'**
+  String get brokenHearts;
+
+  /// No description provided for @cupid.
+  ///
+  /// In en, this message translates to:
+  /// **'Cupid'**
+  String get cupid;
+
+  /// No description provided for @feet.
+  ///
+  /// In en, this message translates to:
+  /// **'Feet'**
+  String get feet;
+
+  /// No description provided for @fishKiss.
+  ///
+  /// In en, this message translates to:
+  /// **'Fish Kiss'**
+  String get fishKiss;
+
+  /// No description provided for @diagonal.
+  ///
+  /// In en, this message translates to:
+  /// **'Diagonal'**
+  String get diagonal;
+
+  /// No description provided for @emergency.
+  ///
+  /// In en, this message translates to:
+  /// **'Emergency'**
+  String get emergency;
+
+  /// No description provided for @beatingHearts.
+  ///
+  /// In en, this message translates to:
+  /// **'Beating Hearts'**
+  String get beatingHearts;
+
+  /// No description provided for @fireworks.
+  ///
+  /// In en, this message translates to:
+  /// **'Fireworks'**
+  String get fireworks;
+
+  /// No description provided for @switchToSpecialAnimation.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to Special Animation?'**
+  String get switchToSpecialAnimation;
+
+  /// No description provided for @specialAnimationWarning.
+  ///
+  /// In en, this message translates to:
+  /// **'Selecting this animation will overwrite your current text.'**
+  String get specialAnimationWarning;
+
+  /// No description provided for @copyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy text'**
+  String get copyText;
+
+  /// No description provided for @textCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Text copied to clipboard!'**
+  String get textCopied;
+
   /// No description provided for @githubDescription.
   ///
   /// In en, this message translates to:
@@ -479,8 +641,26 @@ abstract class AppLocalizations {
   /// No description provided for @invertEffect.
   ///
   /// In en, this message translates to:
-  /// **'Invert Effect'**
+  /// **'Invert'**
   String get invertEffect;
+
+  /// No description provided for @invertTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Invert'**
+  String get invertTitle;
+
+  /// No description provided for @fixedAnimation.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get fixedAnimation;
+
+  /// No description provided for @fixedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Fixed'**
+  String get fixedTitle;
 
   /// No description provided for @flashEffect.
   ///
@@ -493,12 +673,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Marquee Effect'**
   String get marqueeEffect;
-
-  /// No description provided for @speed.
-  ///
-  /// In en, this message translates to:
-  /// **'Speed'**
-  String get speed;
 
   /// No description provided for @slow.
   ///
@@ -632,12 +806,6 @@ abstract class AppLocalizations {
   /// **'Fixed'**
   String get fixed;
 
-  /// No description provided for @animation.
-  ///
-  /// In en, this message translates to:
-  /// **'Animation'**
-  String get animation;
-
   /// No description provided for @snowflake.
   ///
   /// In en, this message translates to:
@@ -763,12 +931,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to save badge'**
   String get failedToSaveBadge;
-
-  /// No description provided for @effects.
-  ///
-  /// In en, this message translates to:
-  /// **'Effects'**
-  String get effects;
 
   /// No description provided for @transfer.
   ///

@@ -12,6 +12,27 @@ class AppLocalizationsHi extends AppLocalizations {
   String get appTitle => 'बैज मैजिक';
 
   @override
+  String get saveButton => 'सहेजें';
+
+  @override
+  String get save => 'सहेजें';
+
+  @override
+  String get savedBadges => 'सहेजे गए बैज';
+
+  @override
+  String get savedBadgesTitle => 'Saved Badges';
+
+  @override
+  String get drawClipart => 'क्लिपआर्ट बनाएं';
+
+  @override
+  String get drawClipartTitle => 'Draw Clipart';
+
+  @override
+  String get transferButton => 'स्थानांतरित करें';
+
+  @override
   String get settings => 'सेटिंग्स';
 
   @override
@@ -25,9 +46,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get hindi => 'हिन्दी';
-
-  @override
-  String get save => 'सहेजें';
 
   @override
   String get cancel => 'रद्द करें';
@@ -97,12 +115,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get createBadges => 'बैज बनाएं';
 
   @override
-  String get drawClipart => 'क्लिपआर्ट बनाएं';
-
-  @override
-  String get savedBadges => 'सहेजे गए बैज';
-
-  @override
   String get savedCliparts => 'सहेजे गए क्लिपआर्ट';
 
   @override
@@ -163,6 +175,76 @@ class AppLocalizationsHi extends AppLocalizations {
   String get license => 'लाइसेंस';
 
   @override
+  String get speed => 'गति';
+
+  @override
+  String get speedTitle => 'Speed';
+
+  @override
+  String get animation => 'एनिमेशन';
+
+  @override
+  String get transition => 'ट्रांज़िशन';
+
+  @override
+  String get transitionTitle => 'Transition';
+
+  @override
+  String get effects => 'प्रभाव';
+
+  @override
+  String get effectsTitle => 'Effects';
+
+  @override
+  String get effectsTab => 'Effects';
+
+  @override
+  String get pacman => 'पैकमैन';
+
+  @override
+  String get chevron => 'शेवरॉन';
+
+  @override
+  String get diamond => 'हीरा';
+
+  @override
+  String get brokenHearts => 'टूटे दिल';
+
+  @override
+  String get cupid => 'कामदेव';
+
+  @override
+  String get feet => 'पैर';
+
+  @override
+  String get fishKiss => 'मछली का चुंबन';
+
+  @override
+  String get diagonal => 'विकर्ण';
+
+  @override
+  String get emergency => 'आपातकाल';
+
+  @override
+  String get beatingHearts => 'धड़कते दिल';
+
+  @override
+  String get fireworks => 'आतिशबाज़ी';
+
+  @override
+  String get switchToSpecialAnimation => 'विशेष एनिमेशन पर स्विच करें?';
+
+  @override
+  String get specialAnimationWarning =>
+      'इस एनिमेशन को चुनने से आपका वर्तमान टेक्स्ट ओवरराइट हो जाएगा।';
+
+  @override
+  String get copyText => 'टेक्स्ट कॉपी करें';
+
+  @override
+  String get textCopied => 'टेक्स्ट क्लिपबोर्ड पर कॉपी कर दिया गया!';
+
+  @override
   String get githubDescription =>
       'रिपॉजिटरी को फोर्क करें और परिवर्तन पुश करें या नए इश्यू सबमिट करें।';
 
@@ -209,13 +291,19 @@ class AppLocalizationsHi extends AppLocalizations {
   String get invertEffect => 'उलटा प्रभाव';
 
   @override
+  String get invertTitle => 'Invert';
+
+  @override
+  String get fixedAnimation => 'Fixed';
+
+  @override
+  String get fixedTitle => 'Fixed';
+
+  @override
   String get flashEffect => 'फ्लैश प्रभाव';
 
   @override
   String get marqueeEffect => 'मार्की प्रभाव';
-
-  @override
-  String get speed => 'गति';
 
   @override
   String get slow => 'धीमा';
@@ -285,9 +373,6 @@ class AppLocalizationsHi extends AppLocalizations {
   String get fixed => 'स्थिर';
 
   @override
-  String get animation => 'एनिमेशन';
-
-  @override
   String get snowflake => 'हिमकण';
 
   @override
@@ -349,9 +434,6 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get failedToSaveBadge => 'बैज सहेजने में विफल';
-
-  @override
-  String get effects => 'प्रभाव';
 
   @override
   String get transfer => 'स्थानांतरित करें';
