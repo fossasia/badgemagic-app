@@ -9,8 +9,6 @@ env:
   ANDROID_EMULATOR_ARCH: x86_64
   IPHONE_DEVICE_MODEL: iPhone 16
   IPAD_DEVICE_MODEL: iPad (10th generation)
-  IPHONE_DEVICE_MODEL: iPhone 16
-  IPAD_DEVICE_MODEL: iPad (10th generation)
 
 jobs:
   common:
@@ -50,7 +48,7 @@ jobs:
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1.6.0
         with:
-          xcode-version: 16.4.0
+          xcode-version: latest-stable
 
       - uses: actions/checkout@v4
 
