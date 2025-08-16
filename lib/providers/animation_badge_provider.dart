@@ -216,8 +216,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
     return isActive;
   }
 
-  void badgeAnimation(
-      String message, Converters converters, bool isInverted) async {
+  void badgeAnimation(String message, Converters converters, bool isInverted,
+      {TextStyle? textStyle}) async {
     bool isSpecial = isSpecialAnimationSelected();
     if (message.isEmpty && !isSpecial) {
       stopAllAnimations();

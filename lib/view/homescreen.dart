@@ -5,14 +5,12 @@ import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
-
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
-import 'package:badgemagic/providers/badge_message_provider.dart'
-    hide modeValueMap, speedMap;
+import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -417,6 +415,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                   isInverse: animationProvider
                                                       .isEffectActive(
                                                           InvertLEDEffect()),
+                                                  fontFamily:
+                                                      _selectedFontFamily,
                                                 );
                                               },
                                             );
