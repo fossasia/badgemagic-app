@@ -302,15 +302,16 @@ class FileHelper {
           file.path.endsWith('.json') &&
           !file.path.contains('data_')) {
         try {
-          // Read the JSON file
           String jsonString = await file.readAsString();
-
-          // Convert JSON string to Data object
           Map<String, dynamic> jsonData = jsonDecode(jsonString);
-          logger.d('JSON data: $jsonData');
 
-          // Add the Data object to the list with the filename as the key
-          badgeDataList.add(MapEntry(file.path.split('/').last, jsonData));
+          // Defensive: Only add if valid structure
+          if (jsonData.containsKey('messages') &&
+              jsonData['messages'] is List) {
+            badgeDataList.add(MapEntry(file.path.split('/').last, jsonData));
+          } else {
+            logger.i('Skipping invalid badge file: ${file.path}');
+          }
         } catch (e) {
           logger.i('Error parsing file ${file.path}: $e');
         }

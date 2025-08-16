@@ -36,8 +36,8 @@ void main() async {
       await tester.pumpAndSettle();
       await binding.takeScreenshot('1_home_screen');
 
-      final animationTabText = find.text('Animation');
-      await tester.tap(animationTabText);
+      final transitionTabText = find.text('Transition');
+      await tester.tap(transitionTabText);
       await tester.pumpAndSettle();
 
       final fixedAnimationContainer = find.text('Fixed');

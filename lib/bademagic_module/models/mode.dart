@@ -4,10 +4,16 @@ enum Mode {
   up('0x02'),
   down('0x03'),
   fixed('0x04'),
-  animation('0x05'),
-  snowflake('0x06'),
-  picture('0x07'),
-  laser('0x08');
+  snowflake('0x05'),
+  picture('0x06'),
+  animation('0x07'),
+  laser('0x08'),
+  pacman('0x09'), // Added Pacman mode
+  chevronleft('0x0A'), // Chevron left mode
+  diamond('0x0B'), // Diamond animation mode
+  feet('0x0C'), // Feet animation mode
+  brokenhearts('0x0D'), // Broken Hearts animation mode
+  cupid('0x0E'); // Cupid animation mode
 
   final String hexValue;
   const Mode(this.hexValue);
