@@ -251,6 +251,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with:
+          xcode-version: latest-stable
+
       - name: iOS Screenshot Workflow
         uses: ./.github/actions/screenshot-ios
         with:
