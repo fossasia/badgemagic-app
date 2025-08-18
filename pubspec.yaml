@@ -51,9 +51,6 @@ dependencies:
   google_fonts: ^6.2.1
   url_launcher: ^6.3.2
   image: ^4.5.4
-  flutter_colorpicker: ^1.1.0
-  intl: ^0.20.2
-
 
 dev_dependencies:
   flutter_test:

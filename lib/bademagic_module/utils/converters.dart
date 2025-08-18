@@ -1,19 +1,11 @@
 import 'dart:math';
-import 'dart:typed_data';
-import 'dart:ui' as ui;
 
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/data_to_bytearray_converter.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
-import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-
-String getFontKey(
-    String fontFamily, double fontSize, FontWeight weight, bool italic) {
-  return '$fontFamily-${fontSize.round()}-${weight.index}-$italic';
-}
 
 class Converters {
   InlineImageProvider controllerData =
@@ -22,14 +14,7 @@ class Converters {
   ImageUtils imageUtils = ImageUtils();
   FileHelper fileHelper = FileHelper();
 
-  static final Map<String, List<List<bool>>> _characterCache = {};
-
-  List<String> _matrixToHex(List<List<bool>> matrix) {
-    return List.generate(matrix.length, (i) {
-      final binary = matrix[i].map((b) => b ? '1' : '0').join();
-      return int.parse(binary, radix: 2).toRadixString(16).padLeft(2, '0');
-    });
-  }
+  int controllerLength = 0;
 
   Future<List<String>> messageTohex(String message, bool isInverted) async {
     List<String> hexStrings = [];
@@ -63,336 +48,6 @@ class Converters {
     }
     logger.d("Hex strings: $hexStrings");
     return hexStrings;
-  }
-
-  Future<Map<String, dynamic>> renderTextToMatrix(
-    String message,
-    TextStyle textStyle, {
-    int rows = 11,
-    required bool hasDescender, // for characters like j, g, p, q, y
-  }) async {
-    // Generate combined cache key using font properties and message
-    final fontKey = getFontKey(
-      textStyle.fontFamily ?? 'default',
-      textStyle.fontSize ?? 12.0,
-      textStyle.fontWeight ?? FontWeight.normal,
-      textStyle.fontStyle == FontStyle.italic,
-    );
-    final cacheKey = '$fontKey-$message';
-
-    // Check character cache
-    if (_characterCache.containsKey(cacheKey)) {
-      //print("Cache hit for $cacheKey");
-      return {
-        'matrix': _characterCache[cacheKey]!,
-      };
-    }
-
-    int cols = 1;
-    int scale = 1;
-    // Calculate canvas size
-    TextPainter widthCheckPainter = TextPainter(
-      text: TextSpan(
-        text: message,
-        style: textStyle.copyWith(
-            color: Colors.black,
-            fontSize:
-                ((textStyle.fontSize ?? 14) - 2).clamp(6.0, double.infinity) *
-                    scale),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-    widthCheckPainter.layout();
-    final rawWidth = widthCheckPainter.width;
-    // Check if character needs more width
-
-    // Dynamic column calculation
-    final actualCols = (rawWidth / scale).ceil().clamp(1, 16);
-
-    //print("Actual cols: $actualCols");
-    cols = actualCols;
-
-    // Calculate final dimensions
-    final int width = cols * scale;
-    final int height = rows * scale;
-
-    // Create single PictureRecorder and Canvas
-    final ui.PictureRecorder recorder = ui.PictureRecorder();
-    final Canvas canvas = Canvas(
-        recorder, Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()));
-
-    // Fill background
-    final Paint bgPaint = Paint()..color = Colors.white;
-    canvas.drawRect(
-        Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()), bgPaint);
-
-    // Create text painter with final dimensions
-    final TextPainter textPainter = TextPainter(
-      text: TextSpan(
-        text: message,
-        style: textStyle.copyWith(
-            color: Colors.black,
-            fontSize: (message == 'j'
-                        ? ((textStyle.fontSize ?? 14) - 2)
-                            .clamp(6.0, double.infinity)
-                        : (textStyle.fontSize ?? 14))
-                    .clamp(6.0, double.infinity) *
-                scale),
-      ),
-      textDirection: TextDirection.ltr,
-    );
-
-    textPainter.layout(maxWidth: width.toDouble());
-    Offset offset;
-    // For capital letters, do not use extra bottom padding
-    if (hasDescender) {
-      // For descender characters, align so descender can use bottom rows
-      final baselinePosition = height - 2; // Leave 3 units at bottom
-      // Add vertical margin so descenders don't touch the top
-      const int topGap = 2;
-      offset = Offset(
-        0,
-        baselinePosition -
-            textPainter
-                .computeDistanceToActualBaseline(TextBaseline.alphabetic) +
-            topGap,
-      );
-    } else if (message.isNotEmpty &&
-        message.codeUnitAt(0) >= 65 &&
-        message.codeUnitAt(0) <= 90) {
-      // Capital letter: only 1 unit bottom padding
-      offset = Offset(
-        0,
-        (height - 1) -
-            textPainter
-                .computeDistanceToActualBaseline(TextBaseline.alphabetic),
-      );
-    } else {
-      // Normal characters (non-descender, non-capital)
-      offset = Offset(
-        0,
-        (height - 1) -
-            textPainter
-                .computeDistanceToActualBaseline(TextBaseline.alphabetic),
-      );
-    }
-
-    //print("height: $height, offset: $offset");
-
-    textPainter.paint(canvas, offset);
-
-    final ui.Picture picture = recorder.endRecording();
-    final ui.Image image = await picture.toImage(width, height);
-    final ByteData? byteData =
-        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
-
-    if (byteData == null) {
-      throw Exception("Failed to convert image to byte data.");
-    }
-    final Uint8List data = byteData.buffer.asUint8List();
-
-    List<List<bool>> matrix =
-        List.generate(rows, (_) => List.generate(cols, (_) => false));
-    for (int row = 0; row < rows; row++) {
-      for (int col = 0; col < cols; col++) {
-        final int pixelIndex = (row * width + col) * 4;
-
-        if (pixelIndex + 3 < data.length) {
-          final int r = data[pixelIndex];
-          final int g = data[pixelIndex + 1];
-          final int b = data[pixelIndex + 2];
-          final int brightness = ((r + g + b) / 3).round();
-
-          matrix[row][col] = brightness < 128;
-        }
-      }
-    }
-
-    // Cache the result for future use
-    _characterCache[cacheKey] = matrix;
-    return {'matrix': matrix};
-  }
-
-  Future<List<String>> _processCustomFontMessage(
-      String text, TextStyle style) async {
-    try {
-      List<Map<String, dynamic>> segments = [];
-      // Parse text into segments
-      String currentText = '';
-      int i = 0;
-      while (i < text.length) {
-        if (text[i] == '<' && i + 5 < text.length && text[i + 5] == '>') {
-          if (currentText.isNotEmpty) {
-            segments.add({'type': 'text', 'content': currentText});
-            currentText = '';
-          }
-          segments.add(
-              {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
-          i += 6;
-        } else {
-          currentText += text[i];
-          i++;
-        }
-      }
-      if (currentText.isNotEmpty) {
-        segments.add({'type': 'text', 'content': currentText});
-      }
-
-      List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
-
-      // Process each segment
-      for (var segment in segments) {
-        if (segment['type'] == 'text') {
-          String text = segment['content'];
-          for (int i = 0; i < text.length; i++) {
-            String char = text[i];
-            bool hasDescender = "ypgqj".contains(char);
-            final matrixData = await renderTextToMatrix(char, style,
-                rows: 11, hasDescender: hasDescender);
-            List<List<bool>> charMatrix = matrixData['matrix'];
-            for (int row = 0; row < 11; row++) {
-              combinedMatrix[row].addAll(charMatrix[row]);
-              // Add extra gap column between characters except after last
-              if (i != text.length - 1) {
-                combinedMatrix[row].add(false);
-              }
-            }
-          }
-        } else if (segment['type'] == 'image') {
-          // Process bitmap
-          int index = segment['index'];
-          var key = controllerData.imageCache.keys.toList()[index];
-          List<String> hexStrings;
-          if (key is List) {
-            String filename = key[0];
-            List<dynamic>? decodedData =
-                await fileHelper.readFromFile(filename);
-            final List<List<dynamic>> image =
-                decodedData!.cast<List<dynamic>>();
-            List<List<int>> imageData =
-                image.map((list) => list.cast<int>()).toList();
-            hexStrings = convertBitmapToLEDHex(imageData, true);
-          } else {
-            hexStrings =
-                await imageUtils.generateLedHex(controllerData.vectors[index]);
-          }
-
-          for (var hex in hexStrings) {
-            for (int i = 0; i < 11; i++) {
-              String hexByte = hex.substring(i * 2, (i * 2) + 2);
-              int value = int.parse(hexByte, radix: 16);
-              for (int bit = 0; bit < 8; bit++) {
-                combinedMatrix[i].add(((value >> (7 - bit)) & 1) == 1);
-              }
-            }
-          }
-        }
-      }
-
-      int totalColumns =
-          combinedMatrix.isNotEmpty ? combinedMatrix[0].length : 0;
-      if (totalColumns % 8 != 0) {
-        int paddingNeeded = 8 - (totalColumns % 8);
-        final padding = List.filled(paddingNeeded, false);
-        for (var row in combinedMatrix) {
-          row.addAll(padding);
-        }
-      }
-
-      List<String> allHexStrings = [];
-      int segmentsCount =
-          combinedMatrix.isNotEmpty ? combinedMatrix[0].length ~/ 8 : 0;
-
-      for (int seg = 0; seg < segmentsCount; seg++) {
-        final startCol = seg * 8;
-        final endCol = startCol + 8;
-        final segmentMatrix = List.generate(
-            11, (row) => combinedMatrix[row].sublist(startCol, endCol));
-
-        final List<String> hexBytes = _matrixToHex(segmentMatrix);
-        final String segmentHex = hexBytes.join();
-        allHexStrings.add(segmentHex);
-      }
-
-      return allHexStrings;
-    } catch (e, stacktrace) {
-      logger.e("Error processing custom font message",
-          error: e, stackTrace: stacktrace);
-      return [];
-    }
-  }
-
-  /// Converts input text to badge hex format, with optional font style and inversion.
-  Future<List<String>> textToBadgeHex(String input, bool invert,
-      {TextStyle? fontStyle}) async {
-    if (input.isEmpty) return [];
-
-    // Use custom font logic if fontStyle is provided, otherwise default font
-    List<String> badgeHexList = fontStyle != null
-        ? await _processCustomFontMessage(input, fontStyle)
-        : await _processDefaultFont(input);
-
-    if (invert) {
-      return _processInversion(badgeHexList);
-    }
-
-    return badgeHexList;
-  }
-
-  Future<List<String>> _processDefaultFont(String text) async {
-    List<Map<String, dynamic>> segments = [];
-    String currentText = '';
-
-    int i = 0;
-    while (i < text.length) {
-      if (text[i] == '<' && i + 5 < text.length && text[i + 5] == '>') {
-        if (currentText.isNotEmpty) {
-          segments.add({'type': 'text', 'content': currentText});
-          currentText = '';
-        }
-        segments.add(
-            {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
-        i += 6;
-      } else {
-        currentText += text[i];
-        i++;
-      }
-    }
-    if (currentText.isNotEmpty) {
-      segments.add({'type': 'text', 'content': currentText});
-    }
-
-    List<String> hexStrings = [];
-    for (var segment in segments) {
-      if (segment['type'] == 'text') {
-        String text = segment['content'];
-        hexStrings.addAll(text
-            .split('')
-            .where((char) => converter.charCodes.containsKey(char))
-            .map((char) => converter.charCodes[char]!)
-            .toList());
-      } else if (segment['type'] == 'image') {
-        int index = segment['index'];
-        var key = controllerData.imageCache.keys.toList()[index];
-        if (key is List) {
-          String filename = key[0];
-          List<dynamic>? decodedData = await fileHelper.readFromFile(filename);
-          final List<List<dynamic>> image = decodedData!.cast<List<dynamic>>();
-          List<List<int>> imageData =
-              image.map((list) => list.cast<int>()).toList();
-          hexStrings.addAll(convertBitmapToLEDHex(imageData, true));
-        } else {
-          hexStrings.addAll(
-              await imageUtils.generateLedHex(controllerData.vectors[index]));
-        }
-      }
-    }
-    return hexStrings;
-  }
-
-  List<String> _processInversion(List<String> hexStrings) {
-    final inverted = invertHex(hexStrings.join()).split('');
-    return padHexString(inverted);
   }
 
   //function to convert the bitmap to the LED hex format
@@ -472,7 +127,7 @@ class Converters {
       }
     }
 
-    //logger.d("Padded image: $list");
+    logger.d("Padded image: $list");
 
     // Convert each 8-bit segment into hexadecimal strings
     List<String> allHexs = [];
@@ -514,6 +169,7 @@ class Converters {
       return e.map((e) => e ? 1 : 0).toList();
     }).toList();
 
+    //add 1 at the satrt and end of each row in the 2D list
     for (int i = 0; i < hexArray.length; i++) {
       hexArray[i].insert(0, 1);
       hexArray[i].add(1);

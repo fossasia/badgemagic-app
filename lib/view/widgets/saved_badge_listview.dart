@@ -1,7 +1,7 @@
-import 'package:badgemagic/providers/badge_slot_provider.dart';
 import 'package:badgemagic/view/widgets/save_badge_card.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:badgemagic/providers/badge_slot_provider..dart';
 
 class BadgeListView extends StatelessWidget {
   final Future<List<MapEntry<String, Map<String, dynamic>>>> futureBadges;

@@ -5,10 +5,8 @@ import 'package:flutter/material.dart';
 
 //effects tab to show effects that the user can select
 class EffectTab extends StatefulWidget {
-  final String? fontFamily;
   const EffectTab({
     super.key,
-    this.fontFamily,
   });
 
   @override
@@ -30,19 +28,16 @@ class _EffectsTabState extends State<EffectTab> {
           effect: effInvert,
           effectName: 'Invert',
           index: 0,
-          fontFamily: widget.fontFamily,
         ),
         EffectContainer(
           effect: effFlash,
           effectName: 'Effect',
           index: 1,
-          fontFamily: widget.fontFamily,
         ),
         EffectContainer(
           effect: effMarque,
           effectName: 'Marquee',
           index: 2,
-          fontFamily: widget.fontFamily,
         ),
       ],
     );
