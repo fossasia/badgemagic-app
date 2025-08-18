@@ -30,9 +30,9 @@ Map<int, Mode> modeValueMap = {
   2: Mode.up,
   3: Mode.down,
   4: Mode.fixed,
-  5: Mode.snowflake,
-  6: Mode.picture,
-  7: Mode.animation,
+  5: Mode.animation,
+  6: Mode.snowflake,
+  7: Mode.picture,
   8: Mode.laser,
   9: Mode.pacman, // Add this line for Pacman
   10: Mode.chevronleft, // Chevron left mode (now defined in mode.dart)
