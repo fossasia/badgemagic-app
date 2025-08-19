@@ -4,9 +4,9 @@ enum Mode {
   up('0x02'),
   down('0x03'),
   fixed('0x04'),
-  snowflake('0x05'),
-  picture('0x06'),
-  animation('0x07'),
+  animation('0x05'),
+  snowflake('0x06'),
+  picture('0x07'),
   laser('0x08'),
   pacman('0x09'), // Added Pacman mode
   chevronleft('0x0A'), // Chevron left mode
