@@ -1,52 +1,101 @@
+import 'package:flutter/material.dart';
 import 'package:badgemagic/badge_animation/ani_left.dart';
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
-import 'package:flutter/material.dart';
+
+enum DrawShape { freehand, square, rectangle, circle, triangle }
 
 class DrawBadgeProvider extends ChangeNotifier {
-  //List that contains the state of each cell of the badge for draw view
+  final int rows = 11;
+  final int cols = 44;
+
   List<List<bool>> _drawViewGrid =
-      List.generate(11, (i) => List.generate(44, (j) => false));
+      List.generate(11, (_) => List.generate(44, (_) => false));
 
-  //getter for the drawViewGrid
-  List<List<bool>> getDrawViewGrid() => _drawViewGrid;
+  final List<List<bool>> _previewGrid =
+      List.generate(11, (_) => List.generate(44, (_) => false));
 
-  //setter for the drawViewGrid
-  void setDrawViewGrid(int row, int col) {
-    _drawViewGrid[row][col] = isDrawing;
-    notifyListeners();
-  }
-
+  bool isDrawing = true;
+  DrawShape _selectedShape = DrawShape.freehand;
   BadgeAnimation currentAnimation = LeftAnimation();
 
-  void updateDrawViewGrid(List<List<bool>> badgeData) {
-    //copy the badgeData to the drawViewGrid and all the drawViewGrid after badgeData will remain unchanged
-    for (int i = 0; i < _drawViewGrid.length; i++) {
-      for (int j = 0; j < _drawViewGrid[0].length; j++) {
-        if (j < badgeData[0].length) {
-          _drawViewGrid[i][j] = badgeData[i][j];
-        } else {
-          _drawViewGrid[i][j] = false;
-        }
-      }
-    }
-    notifyListeners();
+  List<List<bool>> getDrawViewGrid() {
+    // Merge preview + permanent grid
+    final combined = List.generate(
+        rows,
+        (i) => List.generate(cols, (j) {
+              return _drawViewGrid[i][j] || _previewGrid[i][j];
+            }));
+    return combined;
   }
 
-  //function to reset the state of the cell
-  void resetDrawViewGrid() {
-    _drawViewGrid = List.generate(11, (i) => List.generate(44, (j) => false));
-    notifyListeners();
-  }
+  DrawShape get selectedShape => _selectedShape;
+  bool getIsDrawing() => isDrawing;
 
-  //boolean variable to check for isDrawing on Draw badge screen
-  bool isDrawing = true;
-
-  //function to toggle the isDrawing variable
   void toggleIsDrawing(bool drawing) {
     isDrawing = drawing;
     notifyListeners();
   }
 
-  //function to get the isDrawing variable
-  bool getIsDrawing() => isDrawing;
+  void setShape(DrawShape shape) {
+    _selectedShape = shape;
+    notifyListeners();
+  }
+
+  void setCell(int row, int col, bool value, {bool preview = false}) {
+    if (row >= 0 && row < rows && col >= 0 && col < cols) {
+      if (preview) {
+        _previewGrid[row][col] = value;
+      } else {
+        _drawViewGrid[row][col] = value;
+      }
+    }
+  }
+
+  void clearPreviewGrid() {
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        _previewGrid[i][j] = false;
+      }
+    }
+  }
+
+  void commitGridUpdate() {
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        if (_previewGrid[i][j]) {
+          _drawViewGrid[i][j] = _previewGrid[i][j];
+        }
+      }
+    }
+    clearPreviewGrid();
+    notifyListeners();
+  }
+
+  void resetDrawViewGrid() {
+    _drawViewGrid =
+        List.generate(rows, (_) => List.generate(cols, (_) => false));
+    notifyListeners();
+  }
+
+  void updateDrawViewGrid(List<List<bool>> badgeData) {
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        _drawViewGrid[i][j] =
+            (j < badgeData[0].length) ? badgeData[i][j] : false;
+      }
+    }
+    notifyListeners();
+  }
+
+  GridPosition getGridPosition(Offset position, double cellSize) {
+    final row = (position.dy / cellSize).floor();
+    final col = (position.dx / cellSize).floor();
+    return GridPosition(row, col);
+  }
+}
+
+class GridPosition {
+  final int x;
+  final int y;
+  GridPosition(this.x, this.y);
 }

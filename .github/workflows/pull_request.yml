@@ -7,8 +7,8 @@ on:
 env:
   ANDROID_EMULATOR_API: 34
   ANDROID_EMULATOR_ARCH: x86_64
-  IPHONE_DEVICE_MODEL: iPhone 16 Pro Max
-  IPAD_DEVICE_MODEL: iPad Pro 13-inch (M4)
+  IPHONE_DEVICE_MODEL: iPhone 16
+  IPAD_DEVICE_MODEL: iPad (10th generation)
 
 jobs:
   common:
@@ -48,7 +48,7 @@ jobs:
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1.6.0
         with:
-          xcode-version: latest
+          xcode-version: latest-stable
 
       - uses: actions/checkout@v4
 
@@ -74,9 +74,12 @@ jobs:
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1.6.0
         with:
-          xcode-version: latest
+          xcode-version: latest-stable
 
       - uses: actions/checkout@v4
+
+      - name: List available simulators
+        run: xcrun simctl list devices
 
       - name: iOS Screenshot Workflow
         uses: ./.github/actions/screenshot-ios

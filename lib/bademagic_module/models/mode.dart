@@ -7,23 +7,30 @@ enum Mode {
   snowflake('0x05'),
   picture('0x06'),
   animation('0x07'),
-  laser('0x08');
+  laser('0x08'),
+  pacman('0x09'), // Added Pacman mode
+  chevronleft('0x0A'), // Chevron left mode
+  diamond('0x0B'), // Diamond animation mode
+  feet('0x0C'), // Feet animation mode
+  brokenhearts('0x0D'), // Broken Hearts animation mode
+  cupid('0x0E'); // Cupid animation mode
 
   final String hexValue;
   const Mode(this.hexValue);
 
-  //method to get the integer value of the mode
   static int getIntValue(Mode mode) {
-    String hexValue = mode.hexValue.substring(3, 4);
-    int intValue = int.parse(hexValue, radix: 10);
-    return intValue;
+    return int.parse(mode.hexValue.substring(2), radix: 16);
   }
 
-  // Helper method to safely parse hex value
   static Mode fromHex(String hexValue) {
     return Mode.values.firstWhere(
       (mode) => mode.hexValue == hexValue,
-      orElse: () => Mode.left, // Default to Mode.left if no match
+      orElse: () => Mode.left,
     );
+  }
+
+  static Mode fromInt(int value) {
+    final hex = value.toRadixString(16).padLeft(2, '0');
+    return fromHex('0x$hex');
   }
 }

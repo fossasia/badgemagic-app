@@ -5,60 +5,60 @@ class PictureAnimation extends BadgeAnimation {
   void processAnimation(int badgeHeight, int badgeWidth, int animationIndex,
       List<List<bool>> processGrid, List<List<bool>> canvas) {
     int newWidth = processGrid[0].length;
-    int totalAnimationLength = badgeHeight * 16;
+    int newHeight = processGrid.length;
+    int verticalOffset = (badgeHeight - newHeight) ~/ 2;
+    int displayWidth = newWidth > badgeWidth ? badgeWidth : newWidth;
+    int horizontalOffset = (badgeWidth - displayWidth) ~/ 2;
+    var totalAnimationLength = badgeWidth;
     int frame = animationIndex % totalAnimationLength;
+    var firstHalf = frame < badgeWidth ~/ 2;
+    var secondHalf = frame >= badgeWidth ~/ 2;
 
-    int horizontalOffset = (badgeWidth - newWidth) ~/ 2;
+    for (int i = 0; i < badgeHeight; i++) {
+      for (int j = 0; j < badgeWidth; j++) {
+        bool lineShow = false;
+        bool bitmapShowcenter = false;
+        bool bitmapShowOut = false;
 
-    bool phase1 = frame < badgeHeight * 4;
-    bool phase2 = frame >= badgeHeight * 4 && frame < badgeHeight * 8;
+        int sourceRow = i - verticalOffset;
+        int sourceCol = j - horizontalOffset;
 
-    if (phase1) {
-      for (int row = badgeHeight - 1; row >= 0; row--) {
-        int fallPosition = frame - (badgeHeight - 1 - row) * 2;
-        int stoppingPosition = row;
-        fallPosition =
-            fallPosition >= stoppingPosition ? stoppingPosition : fallPosition;
+        bool isWithinNewGrid = sourceRow >= 0 &&
+            sourceRow < newHeight &&
+            sourceCol >= 0 &&
+            sourceCol < displayWidth;
 
-        if (fallPosition >= 0 && fallPosition < badgeHeight) {
-          for (int col = 0; col < badgeWidth; col++) {
-            int sourceCol = col - horizontalOffset;
-            bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
-            if (isWithinNewGrid) {
-              canvas[fallPosition][col] = processGrid[row][sourceCol];
-            }
-          }
-        }
-      }
-    } else if (phase2) {
-      for (int row = badgeHeight - 1; row >= 0; row--) {
-        int fallOutStartFrame = (badgeHeight - 1 - row) * 2;
-        int fallOutPosition =
-            row + (frame - badgeHeight * 4 - fallOutStartFrame);
+        int leftCenterCol = badgeWidth ~/ 2 - 1;
+        int rightCenterCol = badgeWidth ~/ 2;
 
-        if (fallOutPosition < row) {
-          for (int col = 0; col < badgeWidth; col++) {
-            int sourceCol = col - horizontalOffset;
-            bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
-            if (isWithinNewGrid) {
-              canvas[row][col] = processGrid[row][sourceCol];
-            }
-          }
+        int maxDistance = leftCenterCol;
+
+        int currentAnimationIndex = animationIndex % (maxDistance + 1);
+
+        int leftColPos = leftCenterCol - currentAnimationIndex;
+        int rightColPos = rightCenterCol + currentAnimationIndex;
+
+        if (leftColPos < 0) leftColPos += badgeWidth;
+        if (rightColPos >= badgeWidth) rightColPos -= badgeWidth;
+
+        if (j == leftColPos || j == rightColPos) {
+          lineShow = true;
+        } else {
+          lineShow = false;
         }
 
-        if (fallOutPosition >= row && fallOutPosition < badgeHeight) {
-          for (int col = 0; col < badgeWidth; col++) {
-            canvas[row][col] = false;
-          }
-
-          for (int col = 0; col < badgeWidth; col++) {
-            int sourceCol = col - horizontalOffset;
-            bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
-            if (isWithinNewGrid && fallOutPosition < badgeHeight) {
-              canvas[fallOutPosition][col] = processGrid[row][sourceCol];
-            }
+        if (firstHalf) {
+          if (isWithinNewGrid && j > leftColPos && j < rightColPos) {
+            bitmapShowcenter = processGrid[sourceRow][sourceCol];
           }
         }
+        if (secondHalf) {
+          if (isWithinNewGrid && (j < leftColPos || j > rightColPos)) {
+            bitmapShowOut = processGrid[sourceRow][sourceCol];
+          }
+        }
+
+        canvas[i][j] = (lineShow || bitmapShowOut || bitmapShowcenter);
       }
     }
   }

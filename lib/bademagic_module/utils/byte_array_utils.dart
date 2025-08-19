@@ -25,7 +25,7 @@ List<int> hexStringToByteArray(String hexString) {
     int secondDigit = int.parse(hexString[i + 1], radix: 16);
     data.add((firstDigit << 4) + secondDigit);
   }
-  logger.d(data.length);
+
   return data;
 }
 

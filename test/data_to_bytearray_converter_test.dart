@@ -38,14 +38,17 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     var data = Data(messages: [
-      Message(text: await converters.messageTohex('Hii', false), flash: true),
-      Message(text: await converters.messageTohex('Hii', false), flash: true),
-      Message(text: await converters.messageTohex('Hii', false), flash: false),
-      Message(text: await converters.messageTohex('Hii', false), flash: false),
-      Message(text: await converters.messageTohex('Hii', false), flash: true),
-      Message(text: await converters.messageTohex('Hii', false), flash: false),
-      Message(text: await converters.messageTohex('Hii', false), flash: true),
-      Message(text: await converters.messageTohex('Hii', false), flash: false)
+      Message(text: await converters.textToBadgeHex('Hii', false), flash: true),
+      Message(text: await converters.textToBadgeHex('Hii', false), flash: true),
+      Message(
+          text: await converters.textToBadgeHex('Hii', false), flash: false),
+      Message(
+          text: await converters.textToBadgeHex('Hii', false), flash: false),
+      Message(text: await converters.textToBadgeHex('Hii', false), flash: true),
+      Message(
+          text: await converters.textToBadgeHex('Hii', false), flash: false),
+      Message(text: await converters.textToBadgeHex('Hii', false), flash: true),
+      Message(text: await converters.textToBadgeHex('Hii', false), flash: false)
     ]);
 
     var result = converter.convert(data);
@@ -58,7 +61,8 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     var data = Data(messages: [
-      Message(text: await converters.messageTohex('Hii', false), marquee: false)
+      Message(
+          text: await converters.textToBadgeHex('Hii', false), marquee: false)
     ]);
 
     var result = converter.convert(data);
@@ -72,17 +76,22 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     var data = Data(messages: [
-      Message(text: await converters.messageTohex('Hii', false), marquee: true),
-      Message(text: await converters.messageTohex('Hii', false), marquee: true),
       Message(
-          text: await converters.messageTohex('Hii', false), marquee: false),
+          text: await converters.textToBadgeHex('Hii', false), marquee: true),
       Message(
-          text: await converters.messageTohex('Hii', false), marquee: false),
-      Message(text: await converters.messageTohex('Hii', false), marquee: true),
+          text: await converters.textToBadgeHex('Hii', false), marquee: true),
       Message(
-          text: await converters.messageTohex('Hii', false), marquee: false),
-      Message(text: await converters.messageTohex('Hii', false), marquee: true),
-      Message(text: await converters.messageTohex('Hii', false), marquee: false)
+          text: await converters.textToBadgeHex('Hii', false), marquee: false),
+      Message(
+          text: await converters.textToBadgeHex('Hii', false), marquee: false),
+      Message(
+          text: await converters.textToBadgeHex('Hii', false), marquee: true),
+      Message(
+          text: await converters.textToBadgeHex('Hii', false), marquee: false),
+      Message(
+          text: await converters.textToBadgeHex('Hii', false), marquee: true),
+      Message(
+          text: await converters.textToBadgeHex('Hii', false), marquee: false)
     ]);
 
     var result = converter.convert(data);
@@ -97,19 +106,19 @@ void main() {
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     Data data = Data(messages: [
       Message(
-          text: await converters.messageTohex('Hii', false),
+          text: await converters.textToBadgeHex('Hii', false),
           speed: Speed.one,
           mode: Mode.right),
       Message(
-          text: await converters.messageTohex('Hii', false),
+          text: await converters.textToBadgeHex('Hii', false),
           speed: Speed.two,
           mode: Mode.left),
       Message(
-          text: await converters.messageTohex('Hii', false),
+          text: await converters.textToBadgeHex('Hii', false),
           speed: Speed.three,
           mode: Mode.up),
       Message(
-          text: await converters.messageTohex('Hii', false),
+          text: await converters.textToBadgeHex('Hii', false),
           speed: Speed.four,
           mode: Mode.fixed),
       Message(
@@ -117,11 +126,11 @@ void main() {
           speed: Speed.six,
           mode: Mode.laser),
       Message(
-          text: await converters.messageTohex('Hii', false),
+          text: await converters.textToBadgeHex('Hii', false),
           speed: Speed.seven,
           mode: Mode.snowflake),
       Message(
-          text: await converters.messageTohex('Hii', false),
+          text: await converters.textToBadgeHex('Hii', false),
           speed: Speed.eight,
           mode: Mode.picture),
     ]);
@@ -138,10 +147,10 @@ void main() {
     Converters converters = Converters();
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     Data data = Data(messages: [
-      Message(text: await converters.messageTohex('A', false)),
-      Message(text: await converters.messageTohex('...', false)),
+      Message(text: await converters.textToBadgeHex('A', false)),
+      Message(text: await converters.textToBadgeHex('...', false)),
       Message(
-          text: await converters.messageTohex(
+          text: await converters.textToBadgeHex(
               'abcdefghijklmnopqrstuvwxyz', false)),
       Message(text: await converters.messageTohex('_' * 500, false)),
       Message(text: await converters.messageTohex('°', false)),
@@ -176,7 +185,7 @@ void main() {
 
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     var data = Data(
-        messages: [Message(text: await converters.messageTohex('A', false))]);
+        messages: [Message(text: await converters.textToBadgeHex('A', false))]);
 
     var result = converter.convert(data);
     expect(result[2].sublist(0, 6), [0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
@@ -218,16 +227,16 @@ void main() {
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     // Given
     final data1 = Data(
-        messages: [Message(text: await converters.messageTohex('A', false))]);
+        messages: [Message(text: await converters.textToBadgeHex('A', false))]);
     final data2 = Data(messages: [
-      Message(text: await converters.messageTohex('B', false)),
-      Message(text: await converters.messageTohex('BBB', false))
+      Message(text: await converters.textToBadgeHex('B', false)),
+      Message(text: await converters.textToBadgeHex('BBB', false))
     ]);
     final data3 = Data(messages: [
-      Message(text: await converters.messageTohex('C', false)),
-      Message(text: await converters.messageTohex('CCC', false)),
-      Message(text: await converters.messageTohex('CCCCC', false)),
-      Message(text: await converters.messageTohex('CCCCCCCC', false))
+      Message(text: await converters.textToBadgeHex('C', false)),
+      Message(text: await converters.textToBadgeHex('CCC', false)),
+      Message(text: await converters.textToBadgeHex('CCCCC', false)),
+      Message(text: await converters.textToBadgeHex('CCCCCCCC', false))
     ]);
 
     // When
