@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
-
+import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
@@ -55,9 +55,29 @@ class SavedBadgeProvider extends ChangeNotifier {
     final badgeDataModel = fileHelper.jsonToData(savedData);
     final message = badgeDataModel.messages[0];
 
-    // Set the text in the controller to the badge message if available
-    inlineimagecontroller.text =
-        message.text.isNotEmpty ? message.text.join(' ') : '';
+    // When we save a badge, we store the original text using BadgeTextStorage
+    // Now we need to retrieve that text to show in the text field
+    String badgeText = "";
+    try {
+      if (savedBadgeFilename != null) {
+        // Get the original text from BadgeTextStorage
+        badgeText = await BadgeTextStorage.getOriginalText(savedBadgeFilename);
+        // If we couldn't find the original text, use the filename as a fallback
+        if (badgeText.isEmpty) {
+          badgeText =
+              savedBadgeFilename.substring(0, savedBadgeFilename.length - 5);
+          // If the filename is a timestamp, use a generic text
+          if (badgeText.contains(":") && badgeText.contains("-")) {
+            badgeText = "Hello"; // Default text for timestamp filenames
+          }
+        }
+      }
+    } catch (e) {
+      logger.e("Failed to retrieve original badge text: $e");
+      badgeText = "Hello"; // Default fallback
+    }
+    // Set the text in the controller
+    inlineimagecontroller.text = badgeText;
 
     // Set animation effects
     if (message.flash) {
@@ -127,14 +147,14 @@ class SavedBadgeProvider extends ChangeNotifier {
       int speedDialValue = 1; // Default
       // Use the static helper method to get the correct dial value
       speedDialValue = Speed.getIntValue(message.speed);
-      logger.i("Setting speed dial to: $speedDialValue from [33m");
+      logger.i("Setting speed dial to: $speedDialValue from [33m");
       speedDialProvider.setDialValue(speedDialValue);
     } catch (e) {
       logger.e("Failed to set speed dial value: $e");
       speedDialProvider.setDialValue(1); // Fallback to default
     }
     // Store the filename for saving back to the same file
-    // setSavedBadgeDataMap(savedData); // Method not defined, removed for build
+    setSavedBadgeDataMap(savedData);
     setIsSavedBadgeData(true);
     // Notify that we're editing an existing badge
     ToastUtils().showToast(
@@ -153,8 +173,7 @@ class SavedBadgeProvider extends ChangeNotifier {
   }
 
   void saveBadgeData(String filename, String message, bool isFlash,
-      bool isMarquee, bool isInvert, int? speed, int animation,
-      {TextStyle? fontStyle}) async {
+      bool isMarquee, bool isInvert, int? speed, int animation) async {
     Data data = await getBadgeData(
       message,
       isFlash, //needs aniEffectProvider
@@ -162,13 +181,16 @@ class SavedBadgeProvider extends ChangeNotifier {
       isInvert, //needs Anieffect provider
       speedMap[speed] ?? Speed.one, //needs speed dial provider
       modeValueMap[animation]!,
-      textStyle: fontStyle,
     );
 
     // Save the badge data to a file
     fileHelper.saveBadgeData(data, filename, isInvert);
 
-    logger.d('Saved badge with text: $message');
+    // Store the original text separately using BadgeTextStorage
+    // This will allow us to retrieve it when editing
+    await BadgeTextStorage.saveOriginalText('$filename.json', message);
+
+    logger.d('Saved badge with original text: $message');
   }
 
   /// Updates an existing badge with new data
@@ -230,26 +252,29 @@ class SavedBadgeProvider extends ChangeNotifier {
           cache[existingIndex] = MapEntry(cacheKey, jsonData);
         }
 
+        // Update the original text storage
+        await BadgeTextStorage.saveOriginalText('$cleanFilename.json', message);
+
         logger.i('Successfully updated badge: $cleanFilename');
       } else {
         logger.e('Badge file not found for updating: $filePath');
         // If file doesn't exist, fall back to creating a new one
         fileHelper.saveBadgeData(data, cleanFilename, isInvert);
+        await BadgeTextStorage.saveOriginalText('$cleanFilename.json', message);
       }
     } catch (e) {
       logger.e('Error updating badge: $e');
       // Fall back to the regular save method if there's an error
       fileHelper.saveBadgeData(data, cleanFilename, isInvert);
+      await BadgeTextStorage.saveOriginalText('$cleanFilename.json', message);
     }
 
     logger.d('Updated badge with new text: $message');
   }
 
   Future<Data> getBadgeData(String text, bool flash, bool marq, bool isInverted,
-      Speed speed, Mode mode,
-      {TextStyle? textStyle}) async {
-    List<String> message =
-        await converters.textToBadgeHex(text, isInverted, fontStyle: textStyle);
+      Speed speed, Mode mode) async {
+    List<String> message = await converters.messageTohex(text, isInverted);
     Data data = Data(messages: [
       Message(
         text: message,
@@ -267,9 +292,9 @@ class SavedBadgeProvider extends ChangeNotifier {
     // Reset animation mode and effects to default to avoid leakage
     aniProvider.setAnimationMode(animationMap[0]); // Default to left
     aniProvider.clearAllEffects();
-
-    // Safely get the speed value
+    //set the animations and the modes from the json file
     try {
+      // Safely get the speed value
       if (data.containsKey('messages') &&
           data['messages'] is List &&
           data['messages'].isNotEmpty &&
@@ -291,7 +316,6 @@ class SavedBadgeProvider extends ChangeNotifier {
       logger.e("Error setting animation speed: $e");
       aniProvider.calculateDuration(1);
     }
-
     // Safely set the animation mode
     try {
       if (data.containsKey('messages') &&
