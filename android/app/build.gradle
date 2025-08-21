@@ -28,7 +28,7 @@ def LOCAL_KEY_PRESENT = project.hasProperty('SIGNING_KEY_FILE') && rootProject.f
 
 android {
     namespace "org.fossasia.badgemagic"
-    compileSdk flutter.compileSdkVersion
+    compileSdk 35
     ndkVersion "27.0.12077973"
 
     compileOptions {
@@ -42,7 +42,7 @@ android {
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
         minSdkVersion 21
-        targetSdkVersion flutter.targetSdkVersion
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }
