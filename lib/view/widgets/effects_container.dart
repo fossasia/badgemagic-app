@@ -8,21 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
-import 'package:badgemagic/bademagic_module/utils/font_utils.dart';
-
 class EffectContainer extends StatefulWidget {
   final String effect;
   final String effectName;
   final int index;
-  final String? fontFamily;
 
-  const EffectContainer({
-    super.key,
-    required this.effect,
-    required this.effectName,
-    required this.index,
-    this.fontFamily,
-  });
+  const EffectContainer(
+      {super.key,
+      required this.effect,
+      required this.effectName,
+      required this.index});
 
   @override
   State<EffectContainer> createState() => _EffectContainerState();
@@ -53,12 +48,8 @@ class _EffectContainerState extends State<EffectContainer> {
           effectCardState.isEffectActive(badgeEffect)
               ? effectCardState.removeEffect(badgeEffect)
               : effectCardState.addEffect(badgeEffect);
-          effectCardState.badgeAnimation(
-            imageProvider.getController().text,
-            Converters(),
-            effectCardState.isEffectActive(InvertLEDEffect()),
-            textStyle: FontUtils.getTextStyle(widget.fontFamily),
-          );
+          effectCardState.badgeAnimation(imageProvider.getController().text,
+              Converters(), effectCardState.isEffectActive(InvertLEDEffect()));
         },
         child: Card(
           surfaceTintColor: Colors.white,
