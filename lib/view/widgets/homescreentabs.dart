@@ -90,8 +90,8 @@ class _AnimationTabState extends State<AnimationTab> {
                 index: 4,
               ),
               AniContainer(
-                animation: aniFixed,
-                animationName: 'Snowflake',
+                animation: animation,
+                animationName: 'Animation',
                 index: 5,
               ),
             ],
@@ -99,13 +99,13 @@ class _AnimationTabState extends State<AnimationTab> {
           Row(
             children: [
               AniContainer(
-                animation: aniPicture,
-                animationName: 'Picture',
+                animation: aniSnowflake,
+                animationName: 'Snowflake',
                 index: 6,
               ),
               AniContainer(
-                animation: animation,
-                animationName: 'Animation',
+                animation: aniPicture,
+                animationName: 'Picture',
                 index: 7,
               ),
               AniContainer(
