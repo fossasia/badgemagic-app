@@ -94,29 +94,23 @@ class _AnimationTabState extends State<AnimationTab> {
                 ),
               ),
               AniContainer(
-                animation: aniFixed,
-                animationName: AppLocalizations.of(context)!.animationSnowflake,
+                animation: animation,
+                animationName: 'Animation',
                 index: 5,
               ),
             ],
           ),
           Row(
             children: [
-              Semantics(
-                label: 'Picture',
-                child: AniContainer(
-                  animation: aniPicture,
-                  animationName: AppLocalizations.of(context)!.picture,
-                  index: 6,
-                ),
+              AniContainer(
+                animation: aniSnowflake,
+                animationName: 'Snowflake',
+                index: 6,
               ),
-              Semantics(
-                label: 'Animation',
-                child: AniContainer(
-                  animation: animation,
-                  animationName: AppLocalizations.of(context)!.animation,
-                  index: 7,
-                ),
+              AniContainer(
+                animation: aniPicture,
+                animationName: 'Picture',
+                index: 7,
               ),
               Semantics(
                 label: 'Laser',

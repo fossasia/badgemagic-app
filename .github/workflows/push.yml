@@ -131,8 +131,8 @@ jobs:
 
           echo "Copying new build files"
 
-          find ../build/app/outputs/flutter-apk -type f \( -name '*.apk' -o -name '*.aab' \) -exec cp -v {} . \;
-          find ../build/app/outputs/bundle -type f \( -name '*.apk' -o -name '*.aab' \) -exec cp -v {} . \;
+          find ../build/app/outputs/flutter-apk -type f \( -name '*release.apk' -o -name '*release.aab' \) -exec cp -v {} . \;
+          find ../build/app/outputs/bundle -type f \( -name '*release.apk' -o -name '*release.aab' \) -exec cp -v {} . \;
 
           ls
 
@@ -250,6 +250,11 @@ jobs:
     runs-on: macos-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with:
+          xcode-version: latest-stable
 
       - name: iOS Screenshot Workflow
         uses: ./.github/actions/screenshot-ios

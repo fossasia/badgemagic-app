@@ -37,6 +37,7 @@ const String aniPacman = 'assets/animations/ic_anim_pacman.gif';
 const String aniChevronLeft = 'assets/animations/ic_anim_chevron_left.gif';
 const String aniDiamond = 'assets/animations/ic_anim_diamond.gif';
 const String aniBrokenHearts = 'assets/animations/ic_anim_broken_hearts.gif';
+const String aniSnowflake = 'assets/animations/ic_anim_snowflake.gif';
 
 //path to all the effects assets used
 const String effFlash = 'assets/effects/ic_effect_flash.gif';

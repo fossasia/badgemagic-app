@@ -30,9 +30,9 @@ Map<int, Mode> modeValueMap = {
   2: Mode.up,
   3: Mode.down,
   4: Mode.fixed,
-  5: Mode.snowflake,
-  6: Mode.picture,
-  7: Mode.animation,
+  5: Mode.animation,
+  6: Mode.snowflake,
+  7: Mode.picture,
   8: Mode.laser,
   9: Mode.pacman, // Add this line for Pacman
   10: Mode.chevronleft, // Chevron left mode (now defined in mode.dart)
@@ -136,36 +136,81 @@ class BadgeMessageProvider {
       }
     }
 
-    final adapterState = await FlutterBluePlus.adapterState.first;
-    if (adapterState == BluetoothAdapterState.on) {
-      Data data;
-      if (jsonData != null) {
-        data = fileHelper.jsonToData(jsonData);
-        if (isSavedBadge && data.messages.isNotEmpty) {
-          final old = data.messages[0];
-          final newMessage = Message(
-            text: old.text, // use the already-padded hex string
-            flash: old.flash,
-            marquee: old.marquee,
-            speed: old.speed,
-            mode: Mode.animation, // Force seamless marquee
-          );
-          data = Data(messages: [newMessage, ...data.messages.skip(1)]);
-        }
-      } else {
-        data = await generateData(
-            text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
-      }
-      DataTransferManager manager = DataTransferManager(data);
-      await transferData(manager);
-    } else {
+    BluetoothAdapterState adapterState =
+        await FlutterBluePlus.adapterState.first;
+    if (adapterState != BluetoothAdapterState.on) {
       if (Platform.isAndroid) {
         ToastUtils().showToast('Turning on Bluetooth...');
-        await FlutterBluePlus.turnOn();
+        try {
+          await FlutterBluePlus.turnOn();
+        } catch (e) {
+          ToastUtils().showErrorToast('Failed to enable Bluetooth: $e');
+          logger.e('Bluetooth turnOn() failed: $e');
+          return;
+        }
+
+        try {
+          adapterState = await FlutterBluePlus.adapterState
+              .where((state) => state == BluetoothAdapterState.on)
+              .first
+              .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              ToastUtils().showErrorToast('Bluetooth did not turn on in time.');
+              throw Exception('Bluetooth enable timeout');
+            },
+          );
+        } catch (e) {
+          logger.e('Error while waiting for Bluetooth to turn on: $e');
+          return;
+        }
       } else if (Platform.isIOS) {
-        ToastUtils().showToast('Please turn on Bluetooth');
+        ToastUtils().showErrorToast(
+          'Bluetooth is OFF. Please enable it from Settings.',
+        );
+
+        try {
+          adapterState = await FlutterBluePlus.adapterState
+              .where((state) => state == BluetoothAdapterState.on)
+              .first
+              .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              ToastUtils().showErrorToast('Bluetooth did not turn on in time.');
+              throw Exception('Bluetooth enable timeout');
+            },
+          );
+        } catch (e) {
+          logger.e('Error while waiting for Bluetooth to turn on: $e');
+          return;
+        }
+      } else {
+        ToastUtils().showErrorToast("Unsupported platform");
+        return;
       }
     }
+
+    Data data;
+    if (jsonData != null) {
+      data = fileHelper.jsonToData(jsonData);
+      if (isSavedBadge && data.messages.isNotEmpty) {
+        final old = data.messages[0];
+        final newMessage = Message(
+          text: old.text, // use the already-padded hex string
+          flash: old.flash,
+          marquee: old.marquee,
+          speed: old.speed,
+          mode: Mode.animation, // Force seamless marquee
+        );
+        data = Data(messages: [newMessage, ...data.messages.skip(1)]);
+      }
+    } else {
+      data = await generateData(
+          text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
+    }
+
+    DataTransferManager manager = DataTransferManager(data);
+    await transferData(manager);
   }
 }
 
