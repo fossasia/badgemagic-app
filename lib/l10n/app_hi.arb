@@ -177,5 +177,15 @@
   "marqueeEffect": "मार्की प्रभाव",
   "invertColors": "रंग उल्टा करें",
   "save": "सहेजें",
-  "badge": "बैज"
+  "badge": "बैज",
+  "draw": "ड्रॉ",
+  "erase": "मिटाएं",
+  "reset": "रीसेट",
+  "shapes": "आकृतियां",
+  "free": "मुक्त हाथ",
+  "square": "वर्ग",
+  "rectangle": "आयत",
+  "circle": "वृत्त",
+  "triangle": "त्रिभुज",
+  "clipartSavedSuccessfully": "क्लिपआर्ट सफलतापूर्वक सहेजा गया"
 }

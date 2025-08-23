@@ -188,5 +188,15 @@
   "marqueeEffect": "Marquee Effect",
   "invertColors": "Invert Colors",
   "save": "SAVE",
-  "badge": "Badge"
+  "badge": "Badge",
+  "draw": "Draw",
+  "erase": "Erase",
+  "reset": "Reset",
+  "shapes": "Shapes",
+  "free": "Free",
+  "square": "Square",
+  "rectangle": "Rectangle",
+  "circle": "Circle",
+  "triangle": "Triangle",
+  "clipartSavedSuccessfully": "Clipart saved successfully"
 }

@@ -1051,6 +1051,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Badge'**
   String get badge;
+
+  /// No description provided for @shapes.
+  ///
+  /// In en, this message translates to:
+  /// **'Shapes'**
+  String get shapes;
+
+  /// No description provided for @free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get free;
+
+  /// No description provided for @square.
+  ///
+  /// In en, this message translates to:
+  /// **'Square'**
+  String get square;
+
+  /// No description provided for @rectangle.
+  ///
+  /// In en, this message translates to:
+  /// **'Rectangle'**
+  String get rectangle;
+
+  /// No description provided for @circle.
+  ///
+  /// In en, this message translates to:
+  /// **'Circle'**
+  String get circle;
+
+  /// No description provided for @triangle.
+  ///
+  /// In en, this message translates to:
+  /// **'Triangle'**
+  String get triangle;
 }
 
 class _AppLocalizationsDelegate

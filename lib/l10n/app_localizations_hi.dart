@@ -424,7 +424,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get badgeImportedSuccessfully => 'बैज सफलतापूर्वक आयात किया गया';
 
   @override
-  String get draw => 'ड्रा';
+  String get draw => 'ड्रॉ';
 
   @override
   String get erase => 'मिटाएं';
@@ -500,4 +500,22 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get badge => 'बैज';
+
+  @override
+  String get shapes => 'आकृतियां';
+
+  @override
+  String get free => 'मुक्त हाथ';
+
+  @override
+  String get square => 'वर्ग';
+
+  @override
+  String get rectangle => 'आयत';
+
+  @override
+  String get circle => 'वृत्त';
+
+  @override
+  String get triangle => 'त्रिभुज';
 }

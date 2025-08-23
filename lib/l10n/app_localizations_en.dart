@@ -500,4 +500,22 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get badge => 'Badge';
+
+  @override
+  String get shapes => 'Shapes';
+
+  @override
+  String get free => 'Free';
+
+  @override
+  String get square => 'Square';
+
+  @override
+  String get rectangle => 'Rectangle';
+
+  @override
+  String get circle => 'Circle';
+
+  @override
+  String get triangle => 'Triangle';
 }

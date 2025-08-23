@@ -68,7 +68,7 @@ class _DrawBadgeState extends State<DrawBadge> {
       },
       child: CommonScaffold(
         index: 1,
-        title: 'BadgeMagic',
+        title: AppLocalizations.of(context)!.appTitle,
         body: LayoutBuilder(
           builder: (context, constraints) {
             return Column(
@@ -102,9 +102,11 @@ class _DrawBadgeState extends State<DrawBadge> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildCompactButton(true, Icons.edit, 'Draw'),
+                          _buildCompactButton(true, Icons.edit,
+                              AppLocalizations.of(context)!.draw),
                           const SizedBox(width: 8),
-                          _buildCompactButton(false, Icons.delete, 'Erase'),
+                          _buildCompactButton(false, Icons.delete,
+                              AppLocalizations.of(context)!.erase),
                           const SizedBox(width: 8),
                           _buildResetButton(),
                           const SizedBox(width: 8),
@@ -125,20 +127,50 @@ class _DrawBadgeState extends State<DrawBadge> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildCompactShapeCard(
-                            context, DrawShape.freehand, Icons.gesture, 'Free'),
+                        Semantics(
+                          label: 'Free',
+                          child: _buildCompactShapeCard(
+                              context,
+                              DrawShape.freehand,
+                              Icons.gesture,
+                              AppLocalizations.of(context)!.free),
+                        ),
                         const SizedBox(width: 6),
-                        _buildCompactShapeCard(context, DrawShape.square,
-                            Icons.crop_square, 'Square'),
+                        Semantics(
+                          label: 'Square',
+                          child: _buildCompactShapeCard(
+                              context,
+                              DrawShape.square,
+                              Icons.crop_square,
+                              AppLocalizations.of(context)!.square),
+                        ),
                         const SizedBox(width: 6),
-                        _buildCompactShapeCard(context, DrawShape.rectangle,
-                            Icons.rectangle_outlined, 'Rect'),
+                        Semantics(
+                          label: 'Rect',
+                          child: _buildCompactShapeCard(
+                              context,
+                              DrawShape.rectangle,
+                              Icons.rectangle_outlined,
+                              AppLocalizations.of(context)!.rectangle),
+                        ),
                         const SizedBox(width: 6),
-                        _buildCompactShapeCard(context, DrawShape.circle,
-                            Icons.circle_outlined, 'Circle'),
+                        Semantics(
+                          label: 'Circle',
+                          child: _buildCompactShapeCard(
+                              context,
+                              DrawShape.circle,
+                              Icons.circle_outlined,
+                              AppLocalizations.of(context)!.circle),
+                        ),
                         const SizedBox(width: 6),
-                        _buildCompactShapeCard(context, DrawShape.triangle,
-                            Icons.change_history, 'Triangle'),
+                        Semantics(
+                          label: 'Triangle',
+                          child: _buildCompactShapeCard(
+                              context,
+                              DrawShape.triangle,
+                              Icons.change_history,
+                              AppLocalizations.of(context)!.triangle),
+                        ),
                       ],
                     ),
                   ),
@@ -190,12 +222,13 @@ class _DrawBadgeState extends State<DrawBadge> {
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         minimumSize: const Size(60, 40),
       ),
-      child: const Column(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.refresh, color: Colors.black, size: 20),
-          SizedBox(height: 2),
-          Text('Reset', style: TextStyle(color: Colors.black, fontSize: 10)),
+          const Icon(Icons.refresh, color: Colors.black, size: 20),
+          const SizedBox(height: 2),
+          Text(AppLocalizations.of(context)!.reset,
+              style: const TextStyle(color: Colors.black, fontSize: 10)),
         ],
       ),
     );
@@ -220,7 +253,8 @@ class _DrawBadgeState extends State<DrawBadge> {
         }
 
         fileHelper.generateClipartCache();
-        ToastUtils().showToast("Clipart Saved Successfully");
+        ToastUtils()
+            .showToast(AppLocalizations.of(context)!.clipartSavedSuccessfully);
 
         Future.delayed(const Duration(milliseconds: 800), () {
           Navigator.of(context).popUntil((route) => route.isFirst);
@@ -230,12 +264,13 @@ class _DrawBadgeState extends State<DrawBadge> {
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         minimumSize: const Size(60, 40),
       ),
-      child: const Column(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.save, color: Colors.black, size: 20),
-          SizedBox(height: 2),
-          Text('Save', style: TextStyle(color: Colors.black, fontSize: 10)),
+          const Icon(Icons.save, color: Colors.black, size: 20),
+          const SizedBox(height: 2),
+          Text(AppLocalizations.of(context)!.save,
+              style: const TextStyle(color: Colors.black, fontSize: 10)),
         ],
       ),
     );
@@ -263,7 +298,7 @@ class _DrawBadgeState extends State<DrawBadge> {
           Icon(Icons.category,
               color: _showShapeOptions ? colorPrimary : Colors.black, size: 20),
           const SizedBox(height: 2),
-          Text('Shapes',
+          Text('Shapes', // Using hardcoded string for semantic label
               style: TextStyle(
                   color: _showShapeOptions ? colorPrimary : Colors.black,
                   fontSize: 10)),
