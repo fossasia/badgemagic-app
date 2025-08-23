@@ -141,6 +141,8 @@
   "animationUp": "Up",
   "animationDown": "Down",
   "animationFixed": "Fixed",
+  "transition": "Transition",
+  "transitionTitle": "Transition",
   "animationSnowflake": "Snowflake",
   "animationPicture": "Picture",
   "animationLaser": "Laser",

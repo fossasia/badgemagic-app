@@ -130,6 +130,8 @@
   "animationUp": "ऊपर",
   "animationDown": "नीचे",
   "animationFixed": "स्थिर",
+  "transition": "ट्रांजीशन",
+  "transitionTitle": "ट्रांजीशन",
   "animationSnowflake": "हिमकण",
   "animationPicture": "तस्वीर",
   "animationLaser": "लेजर",

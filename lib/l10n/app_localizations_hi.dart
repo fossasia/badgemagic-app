@@ -187,10 +187,10 @@ class AppLocalizationsHi extends AppLocalizations {
   String get animation => 'एनिमेशन';
 
   @override
-  String get transition => 'ट्रांज़िशन';
+  String get transition => 'ट्रांजीशन';
 
   @override
-  String get transitionTitle => 'ट्रांज़िशन';
+  String get transitionTitle => 'ट्रांजीशन';
 
   @override
   String get effects => 'प्रभाव';
