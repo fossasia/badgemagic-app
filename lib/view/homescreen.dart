@@ -246,12 +246,27 @@ class _HomeScreenState extends State<HomeScreen>
                             : null,
                       ),
                       tabs: [
-                        Tab(text: AppLocalizations.of(context)!.speedTitle),
-                        Tab(text: AppLocalizations.of(context)!.animation),
-                        Tab(
-                            text:
-                                AppLocalizations.of(context)!.transitionTitle),
-                        Tab(text: AppLocalizations.of(context)!.effectsTitle),
+                        Semantics(
+                          label: 'Speed',
+                          child: Tab(
+                              text: AppLocalizations.of(context)!.speedTitle),
+                        ),
+                        Semantics(
+                          label: 'Animation',
+                          child: Tab(
+                              text: AppLocalizations.of(context)!.animation),
+                        ),
+                        Semantics(
+                          label: 'Transition',
+                          child: Tab(
+                              text: AppLocalizations.of(context)!
+                                  .transitionTitle),
+                        ),
+                        Semantics(
+                          label: 'Effects',
+                          child: Tab(
+                              text: AppLocalizations.of(context)!.effectsTitle),
+                        ),
                       ],
                     ),
                     SizedBox(

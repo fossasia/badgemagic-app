@@ -30,6 +30,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
   @override
   Widget build(BuildContext context) {
     return CommonScaffold(
+      title: AppLocalizations.of(context)!.aboutUs,
       index: 5,
       body: SingleChildScrollView(
         child: Padding(
@@ -202,7 +203,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         fit: BoxFit.contain,
                       ),
                       title: Text(
-                        'License',
+                        AppLocalizations.of(context)!.license,
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -210,7 +211,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         ),
                       ),
                       subtitle: Text(
-                        'Check Apache License 2.0 terms used on Badge Magic',
+                        '${AppLocalizations.of(context)!.checkApacheLicense} ${AppLocalizations.of(context)!.appTitle}',
                         style: GoogleFonts.sora(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -246,7 +247,6 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
           ),
         ),
       ),
-      title: 'Badge Magic',
     );
   }
 }

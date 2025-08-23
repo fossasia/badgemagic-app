@@ -58,17 +58,23 @@ class _BMDrawerState extends State<BMDrawer> {
             title: AppLocalizations.of(context)!.createBadges,
             routeName: '/',
           ),
-          _buildListTile(
-            index: 1,
-            assetIcon: "assets/icons/signature.png",
-            title: AppLocalizations.of(context)!.drawClipart,
-            routeName: '/drawBadge',
+          Semantics(
+            label: 'Draw Clipart',
+            child: _buildListTile(
+              index: 1,
+              assetIcon: "assets/icons/signature.png",
+              title: AppLocalizations.of(context)!.drawClipart,
+              routeName: '/drawBadge',
+            ),
           ),
-          _buildListTile(
-            index: 2,
-            assetIcon: "assets/icons/r_save.png",
-            title: AppLocalizations.of(context)!.savedBadges,
-            routeName: '/savedBadge',
+          Semantics(
+            label: 'Saved Badges',
+            child: _buildListTile(
+              index: 2,
+              assetIcon: "assets/icons/r_save.png",
+              title: AppLocalizations.of(context)!.savedBadges,
+              routeName: '/savedBadge',
+            ),
           ),
           _buildListTile(
             index: 3,

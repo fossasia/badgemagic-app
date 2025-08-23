@@ -104,6 +104,12 @@ abstract class AppLocalizations {
   /// **'Badge Magic'**
   String get appTitle;
 
+  /// No description provided for @checkApacheLicense.
+  ///
+  /// In en, this message translates to:
+  /// **'Check Apache License 2.0 terms used on'**
+  String get checkApacheLicense;
+
   /// No description provided for @saveButton.
   ///
   /// In en, this message translates to:

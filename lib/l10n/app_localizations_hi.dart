@@ -12,6 +12,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get appTitle => 'बैज मैजिक';
 
   @override
+  String get checkApacheLicense => 'Apache License 2.0 की शर्तें देखें जो';
+
+  @override
   String get saveButton => 'सहेजें';
 
   @override
@@ -178,7 +181,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get speed => 'गति';
 
   @override
-  String get speedTitle => 'Speed';
+  String get speedTitle => 'गति';
 
   @override
   String get animation => 'एनिमेशन';
@@ -187,13 +190,13 @@ class AppLocalizationsHi extends AppLocalizations {
   String get transition => 'ट्रांज़िशन';
 
   @override
-  String get transitionTitle => 'Transition';
+  String get transitionTitle => 'ट्रांज़िशन';
 
   @override
   String get effects => 'प्रभाव';
 
   @override
-  String get effectsTitle => 'Effects';
+  String get effectsTitle => 'प्रभाव';
 
   @override
   String get effectsTab => 'Effects';
@@ -217,7 +220,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get feet => 'पैर';
 
   @override
-  String get fishKiss => 'मछली का चुंबन';
+  String get fishKiss => 'मछली';
 
   @override
   String get diagonal => 'विकर्ण';

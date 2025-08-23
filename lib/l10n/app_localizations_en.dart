@@ -12,6 +12,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get appTitle => 'Badge Magic';
 
   @override
+  String get checkApacheLicense => 'Check Apache License 2.0 terms used on';
+
+  @override
   String get saveButton => 'Save';
 
   @override

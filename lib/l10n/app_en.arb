@@ -1,5 +1,6 @@
 {
   "appTitle": "Badge Magic",
+  "checkApacheLicense": "Check Apache License 2.0 terms used on",
   "saveButton": "Save",
   "save": "Save",
   "savedBadges": "Saved Badges",
