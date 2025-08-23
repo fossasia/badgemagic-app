@@ -4,8 +4,7 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
-import 'package:badgemagic/main.dart';
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/main.dart' as app;
 import 'package:badgemagic/constants.dart';
 import 'utils.dart';
 
@@ -22,14 +21,7 @@ void main() async {
 
   group('E2E Group', () {
     testWidgets('Take Screenshots', (tester) async {
-      await tester.pumpWidget(
-        const MaterialApp(
-          locale: Locale('en'),
-          localizationsDelegates: AppLocalizations.localizationsDelegates,
-          supportedLocales: AppLocalizations.supportedLocales,
-          home: MyApp(),
-        ),
-      );
+      app.main();
       await tester.pumpAndSettle();
 
       final homeScreenTitle = find.byKey(const ValueKey(homeScreenTitleKey));

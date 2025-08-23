@@ -241,7 +241,7 @@ class SaveBadgeDialog extends StatelessWidget {
                     }
                   },
                   child: Text(
-                    AppLocalizations.of(context)!.save,
+                    'Save',
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
