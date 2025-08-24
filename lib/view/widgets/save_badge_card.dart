@@ -6,7 +6,7 @@ import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/badge_slot_provider.dart';
+import 'package:badgemagic/providers/badge_slot_provider..dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';

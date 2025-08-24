@@ -5,12 +5,14 @@ import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
+
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
-import 'package:badgemagic/providers/badge_message_provider.dart';
+import 'package:badgemagic/providers/badge_message_provider.dart'
+    hide modeValueMap, speedMap;
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -28,9 +30,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:badgemagic/bademagic_module/utils/font_utils.dart';
-import 'package:badgemagic/view/font_picker.dart';
 
 class HomeScreen extends StatefulWidget {
   // Add parameters for saved badge data when editing
@@ -53,8 +52,6 @@ class _HomeScreenState extends State<HomeScreen>
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
         WidgetsBindingObserver {
-  String? _selectedFontFamily;
-
   late final TabController _tabController;
   AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
   late SpeedDialProvider speedDialProvider;
@@ -200,10 +197,6 @@ class _HomeScreenState extends State<HomeScreen>
                           onChanged: (value) {},
                           controller: inlineimagecontroller,
                           specialTextSpanBuilder: ImageBuilder(),
-                          style: (_selectedFontFamily != null &&
-                                  _selectedFontFamily!.isNotEmpty)
-                              ? GoogleFonts.getFont(_selectedFontFamily!)
-                              : null,
                           decoration: InputDecoration(
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(10.r),
@@ -215,25 +208,6 @@ class _HomeScreenState extends State<HomeScreen>
                                 });
                               },
                               icon: const Icon(Icons.tag_faces_outlined),
-                            ),
-                            suffixIcon: IconButton(
-                              icon: const Icon(Icons.font_download),
-                              onPressed: () async {
-                                final pickedFont = await showDialog<String?>(
-                                  context: context,
-                                  builder: (context) => FontPickerDialog(
-                                    selectedFont: _selectedFontFamily,
-                                    onFontSelected: (font) {
-                                      Navigator.of(context).pop(font);
-                                    },
-                                  ),
-                                );
-                                setState(() {
-                                  _selectedFontFamily = pickedFont;
-                                });
-                                // Immediately update the badge animation when font changes
-                                _controllerListner();
-                              },
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius:
@@ -294,7 +268,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           TransitionTab(),
                           AnimationTab(),
-                          EffectTab(fontFamily: _selectedFontFamily),
+                          EffectTab(),
                         ],
                       ),
                     ),
@@ -415,8 +389,6 @@ class _HomeScreenState extends State<HomeScreen>
                                                   isInverse: animationProvider
                                                       .isEffectActive(
                                                           InvertLEDEffect()),
-                                                  fontFamily:
-                                                      _selectedFontFamily,
                                                 );
                                               },
                                             );
@@ -524,12 +496,8 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _controllerListner() {
-    animationProvider.badgeAnimation(
-      inlineImageProvider.getController().text,
-      Converters(),
-      animationProvider.isEffectActive(InvertLEDEffect()),
-      textStyle: FontUtils.getTextStyle(_selectedFontFamily),
-    );
+    animationProvider.badgeAnimation(inlineImageProvider.getController().text,
+        Converters(), animationProvider.isEffectActive(InvertLEDEffect()));
   }
 
   @override

@@ -9,7 +9,7 @@ import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/badge_slot_provider.dart';
+import 'package:badgemagic/providers/badge_slot_provider..dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
