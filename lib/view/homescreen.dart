@@ -246,9 +246,9 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                       tabs: const [
                         Tab(text: 'Speed'),
-                        Tab(text: 'Animation'),
                         Tab(text: 'Transition'),
                         Tab(text: 'Effects'),
+                        Tab(text: 'Animation'),
                       ],
                     ),
                     SizedBox(
@@ -266,9 +266,9 @@ class _HomeScreenState extends State<HomeScreen>
                                 setState(() => isDialInteracting = false),
                             child: RadialDial(),
                           ),
-                          TransitionTab(),
-                          AnimationTab(),
-                          EffectTab(),
+                          const TransitionTab(),
+                          const EffectTab(),
+                          const AnimationTab(),
                         ],
                       ),
                     ),
