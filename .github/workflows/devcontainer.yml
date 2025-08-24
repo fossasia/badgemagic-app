@@ -11,7 +11,7 @@ jobs:
     permissions:
       packages: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Lowercase repository owner
         run: echo "REPO_OWNER_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
