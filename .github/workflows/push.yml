@@ -10,16 +10,6 @@ env:
   ANDROID_EMULATOR_ARCH: x86_64
   IPHONE_DEVICE_MODEL: iPhone 16 Pro Max
   IPAD_DEVICE_MODEL: iPad Pro 13-inch (M4)
-  BARECHECK_GITHUB_APP_TOKEN: ${{ secrets.BARECHECK_GITHUB_APP_TOKEN }}
-  ENCRYPTED_F10B5E0E5262_IV: ${{ secrets.ENCRYPTED_F10B5E0E5262_IV }}
-  ENCRYPTED_F10B5E0E5262_KEY: ${{ secrets.ENCRYPTED_F10B5E0E5262_KEY }}
-  ENCRYPTED_IOS_IV: ${{ secrets.ENCRYPTED_IOS_IV }}
-  ENCRYPTED_IOS_KEY: ${{ secrets.ENCRYPTED_IOS_KEY }}
-  STORE_PASS: ${{ secrets.STORE_PASS }}
-  ALIAS: ${{ secrets.ALIAS }}
-  KEY_PASS: ${{ secrets.KEY_PASS }}
-  MATCH_GIT_BASIC_AUTHORIZATION: ${{ secrets.MATCH_GIT_BASIC_AUTHORIZATION }}
-  MATCH_PASSWORD: ${{ secrets.MATCH_PASSWORD }}
 
 jobs:
   common:
@@ -236,6 +226,7 @@ jobs:
   screenshots-android:
     name: Screenshots (Android)
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
@@ -245,19 +236,36 @@ jobs:
           ANDROID_EMULATOR_API: ${{ env.ANDROID_EMULATOR_API }}
           ANDROID_EMULATOR_ARCH: ${{ env.ANDROID_EMULATOR_ARCH }}
 
-  screenshots-ios:
-    name: Screenshots (iOS)
+  screenshots-iphone:
+    name: Screenshots (iPhone)
     runs-on: macos-latest
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
-
       - name: Set up Xcode
         uses: maxim-lobanov/setup-xcode@v1.6.0
         with:
           xcode-version: latest-stable
 
-      - name: iOS Screenshot Workflow
-        uses: ./.github/actions/screenshot-ios
+      - uses: actions/checkout@v4
+
+      - name: iPhone Screenshot Workflow
+        uses: ./.github/actions/screenshot-iphone
         with:
           IPHONE_DEVICE_MODEL: ${{ env.IPHONE_DEVICE_MODEL }}
+  
+  screenshots-ipad:
+    name: Screenshots (iPad)
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with:
+          xcode-version: latest-stable
+
+      - uses: actions/checkout@v4
+
+      - name: iPad Screenshot Workflow
+        uses: ./.github/actions/screenshot-ipad
+        with:
           IPAD_DEVICE_MODEL: ${{ env.IPAD_DEVICE_MODEL }}
