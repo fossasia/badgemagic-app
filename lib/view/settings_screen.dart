@@ -11,7 +11,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
-  late String _selectedLanguage = 'en';
   String _selectedBadge = 'LSLED';
   final List<String> _badges = ['LSLED', 'VBLAB'];
 
@@ -25,7 +24,6 @@ class SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     // Initialize with current active app locale (fallback to 'en')
-    _selectedLanguage = appLocale.value?.languageCode ?? 'en';
   }
 
   @override
@@ -61,9 +59,7 @@ class SettingsScreenState extends State<SettingsScreen> {
               ],
               onChanged: (value) {
                 if (value != null) {
-                  setState(() {
-                    _selectedLanguage = value;
-                  });
+                  setState(() {});
                   // Update app locale
                   final newLocale = Locale(value);
                   appLocale.value = newLocale;
