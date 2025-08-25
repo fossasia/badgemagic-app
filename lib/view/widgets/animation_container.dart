@@ -1,6 +1,7 @@
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -37,23 +38,24 @@ class _AniContainerState extends State<AniContainer> {
   }
 
   String _getLocalizedAnimationName(String name, BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     switch (name) {
       case 'Left':
-        return AppLocalizations.of(context)!.animationLeft;
+        return l10n.animationLeft;
       case 'Right':
-        return AppLocalizations.of(context)!.animationRight;
+        return l10n.animationRight;
       case 'Up':
-        return AppLocalizations.of(context)!.animationUp;
+        return l10n.animationUp;
       case 'Down':
-        return AppLocalizations.of(context)!.animationDown;
+        return l10n.animationDown;
       case 'Fixed':
-        return AppLocalizations.of(context)!.animationFixed;
+        return l10n.animationFixed;
       case 'Snowflake':
-        return AppLocalizations.of(context)!.animationSnowflake;
+        return l10n.animationSnowflake;
       case 'Picture':
-        return AppLocalizations.of(context)!.animationPicture;
+        return l10n.animationPicture;
       case 'Laser':
-        return AppLocalizations.of(context)!.animationLaser;
+        return l10n.animationLaser;
       default:
         return name;
     }

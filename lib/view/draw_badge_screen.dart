@@ -2,7 +2,8 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/virtualbadge/view/draw_badge.dart';
@@ -60,6 +61,7 @@ class _DrawBadgeState extends State<DrawBadge> {
   @override
   Widget build(BuildContext context) {
     FileHelper fileHelper = FileHelper();
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
     return WillPopScope(
       onWillPop: () async {
@@ -68,7 +70,7 @@ class _DrawBadgeState extends State<DrawBadge> {
       },
       child: CommonScaffold(
         index: 1,
-        title: AppLocalizations.of(context)!.appTitle,
+        title: l10n.appTitle,
         body: LayoutBuilder(
           builder: (context, constraints) {
             return Column(
@@ -102,11 +104,9 @@ class _DrawBadgeState extends State<DrawBadge> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildCompactButton(true, Icons.edit,
-                              AppLocalizations.of(context)!.draw),
+                          _buildCompactButton(true, Icons.edit, l10n.draw),
                           const SizedBox(width: 8),
-                          _buildCompactButton(false, Icons.delete,
-                              AppLocalizations.of(context)!.erase),
+                          _buildCompactButton(false, Icons.delete, l10n.erase),
                           const SizedBox(width: 8),
                           _buildResetButton(),
                           const SizedBox(width: 8),
@@ -129,20 +129,14 @@ class _DrawBadgeState extends State<DrawBadge> {
                       children: [
                         Semantics(
                           label: 'Free',
-                          child: _buildCompactShapeCard(
-                              context,
-                              DrawShape.freehand,
-                              Icons.gesture,
-                              AppLocalizations.of(context)!.free),
+                          child: _buildCompactShapeCard(context,
+                              DrawShape.freehand, Icons.gesture, l10n.free),
                         ),
                         const SizedBox(width: 6),
                         Semantics(
                           label: 'Square',
-                          child: _buildCompactShapeCard(
-                              context,
-                              DrawShape.square,
-                              Icons.crop_square,
-                              AppLocalizations.of(context)!.square),
+                          child: _buildCompactShapeCard(context,
+                              DrawShape.square, Icons.crop_square, l10n.square),
                         ),
                         const SizedBox(width: 6),
                         Semantics(
@@ -151,7 +145,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                               context,
                               DrawShape.rectangle,
                               Icons.rectangle_outlined,
-                              AppLocalizations.of(context)!.rectangle),
+                              l10n.rectangle),
                         ),
                         const SizedBox(width: 6),
                         Semantics(
@@ -160,7 +154,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                               context,
                               DrawShape.circle,
                               Icons.circle_outlined,
-                              AppLocalizations.of(context)!.circle),
+                              l10n.circle),
                         ),
                         const SizedBox(width: 6),
                         Semantics(
@@ -169,7 +163,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                               context,
                               DrawShape.triangle,
                               Icons.change_history,
-                              AppLocalizations.of(context)!.triangle),
+                              l10n.triangle),
                         ),
                       ],
                     ),
@@ -227,7 +221,7 @@ class _DrawBadgeState extends State<DrawBadge> {
         children: [
           const Icon(Icons.refresh, color: Colors.black, size: 20),
           const SizedBox(height: 2),
-          Text(AppLocalizations.of(context)!.reset,
+          Text(GetIt.instance.get<LocalizationService>().l10n.reset,
               style: const TextStyle(color: Colors.black, fontSize: 10)),
         ],
       ),
@@ -253,8 +247,10 @@ class _DrawBadgeState extends State<DrawBadge> {
         }
 
         fileHelper.generateClipartCache();
-        ToastUtils()
-            .showToast(AppLocalizations.of(context)!.clipartSavedSuccessfully);
+        ToastUtils().showToast(GetIt.instance
+            .get<LocalizationService>()
+            .l10n
+            .clipartSavedSuccessfully);
 
         Future.delayed(const Duration(milliseconds: 800), () {
           Navigator.of(context).popUntil((route) => route.isFirst);
@@ -269,7 +265,7 @@ class _DrawBadgeState extends State<DrawBadge> {
         children: [
           const Icon(Icons.save, color: Colors.black, size: 20),
           const SizedBox(height: 2),
-          Text(AppLocalizations.of(context)!.save,
+          Text(GetIt.instance.get<LocalizationService>().l10n.save,
               style: const TextStyle(color: Colors.black, fontSize: 10)),
         ],
       ),

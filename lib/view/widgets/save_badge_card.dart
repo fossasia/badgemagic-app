@@ -7,7 +7,8 @@ import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
@@ -72,6 +73,7 @@ class SaveBadgeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     BadgeMessageProvider badge = BadgeMessageProvider();
     return GestureDetector(
         onLongPress: onLongPress,
@@ -146,22 +148,18 @@ class SaveBadgeCard extends StatelessWidget {
                             final shouldEdit = await showDialog<bool>(
                               context: context,
                               builder: (context) => AlertDialog(
-                                title: Text(
-                                    AppLocalizations.of(context)!.editBadge),
-                                content: Text(AppLocalizations.of(context)!
-                                    .editBadgeConfirmation),
+                                title: Text(l10n.editBadge),
+                                content: Text(l10n.editBadgeConfirmation),
                                 actions: [
                                   TextButton(
                                     onPressed: () =>
                                         Navigator.pop(context, false),
-                                    child:
-                                        Text(AppLocalizations.of(context)!.no),
+                                    child: Text(l10n.no),
                                   ),
                                   TextButton(
                                     onPressed: () =>
                                         Navigator.pop(context, true),
-                                    child:
-                                        Text(AppLocalizations.of(context)!.yes),
+                                    child: Text(l10n.yes),
                                   ),
                                 ],
                               ),

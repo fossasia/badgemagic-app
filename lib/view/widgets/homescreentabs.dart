@@ -1,5 +1,6 @@
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:badgemagic/view/widgets/animation_container.dart';
 import 'package:badgemagic/view/widgets/effects_container.dart';
 import 'package:flutter/material.dart';
@@ -22,22 +23,23 @@ class _EffectsTabState extends State<EffectTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         EffectContainer(
           effect: effInvert,
-          effectName: AppLocalizations.of(context)!.invertEffect,
+          effectName: l10n.invertEffect,
           index: 0,
         ),
         EffectContainer(
           effect: effFlash,
-          effectName: AppLocalizations.of(context)!.flashEffect,
+          effectName: l10n.flashEffect,
           index: 1,
         ),
         EffectContainer(
           effect: effMarque,
-          effectName: AppLocalizations.of(context)!.marqueeEffect,
+          effectName: l10n.marqueeEffect,
           index: 2,
         ),
       ],
@@ -56,6 +58,7 @@ class AnimationTab extends StatefulWidget {
 class _AnimationTabState extends State<AnimationTab> {
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -65,7 +68,7 @@ class _AnimationTabState extends State<AnimationTab> {
                 label: 'Left',
                 child: AniContainer(
                   animation: aniLeft,
-                  animationName: AppLocalizations.of(context)!.animationLeft,
+                  animationName: l10n.animationLeft,
                   index: 0,
                 ),
               ),
@@ -73,7 +76,7 @@ class _AnimationTabState extends State<AnimationTab> {
                 label: 'Right',
                 child: AniContainer(
                   animation: aniRight,
-                  animationName: AppLocalizations.of(context)!.animationRight,
+                  animationName: l10n.animationRight,
                   index: 1,
                 ),
               ),
@@ -81,7 +84,7 @@ class _AnimationTabState extends State<AnimationTab> {
                 label: 'Up',
                 child: AniContainer(
                   animation: aniUp,
-                  animationName: AppLocalizations.of(context)!.animationUp,
+                  animationName: l10n.animationUp,
                   index: 2,
                 ),
               ),
@@ -93,7 +96,7 @@ class _AnimationTabState extends State<AnimationTab> {
                 label: 'Down',
                 child: AniContainer(
                   animation: aniDown,
-                  animationName: AppLocalizations.of(context)!.animationDown,
+                  animationName: l10n.animationDown,
                   index: 3,
                 ),
               ),
@@ -101,7 +104,7 @@ class _AnimationTabState extends State<AnimationTab> {
                 label: 'Fixed',
                 child: AniContainer(
                   animation: aniFixed,
-                  animationName: AppLocalizations.of(context)!.animationFixed,
+                  animationName: l10n.animationFixed,
                   index: 4,
                 ),
               ),
@@ -109,8 +112,7 @@ class _AnimationTabState extends State<AnimationTab> {
                 label: 'Snowflake',
                 child: AniContainer(
                   animation: aniFixed,
-                  animationName:
-                      AppLocalizations.of(context)!.animationSnowflake,
+                  animationName: l10n.animationSnowflake,
                   index: 5,
                 ),
               ),
@@ -122,7 +124,7 @@ class _AnimationTabState extends State<AnimationTab> {
                 label: 'Picture',
                 child: AniContainer(
                   animation: aniPicture,
-                  animationName: AppLocalizations.of(context)!.picture,
+                  animationName: l10n.picture,
                   index: 6,
                 ),
               ),
@@ -130,7 +132,7 @@ class _AnimationTabState extends State<AnimationTab> {
                 label: 'Animation',
                 child: AniContainer(
                   animation: animation,
-                  animationName: AppLocalizations.of(context)!.animation,
+                  animationName: l10n.animation,
                   index: 7,
                 ),
               ),
@@ -138,7 +140,7 @@ class _AnimationTabState extends State<AnimationTab> {
                 label: 'Laser',
                 child: AniContainer(
                   animation: aniLaser,
-                  animationName: AppLocalizations.of(context)!.laser,
+                  animationName: l10n.laser,
                   index: 8,
                 ),
               ),

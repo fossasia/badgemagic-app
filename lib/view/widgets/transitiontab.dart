@@ -1,4 +1,5 @@
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:badgemagic/view/widgets/animation_container.dart';
 import 'package:flutter/material.dart';
 
@@ -13,6 +14,7 @@ class TransitionTab extends StatefulWidget {
 class _TransitionTabState extends State<TransitionTab> {
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -23,19 +25,19 @@ class _TransitionTabState extends State<TransitionTab> {
                 AniContainer(
                   animation: null,
                   icon: Icons.sports_esports,
-                  animationName: AppLocalizations.of(context)!.pacman,
+                  animationName: l10n.pacman,
                   index: 9,
                 ),
                 AniContainer(
                   animation: null,
                   icon: Icons.chevron_left,
-                  animationName: AppLocalizations.of(context)!.chevron,
+                  animationName: l10n.chevron,
                   index: 10,
                 ),
                 AniContainer(
                   animation: null,
                   icon: Icons.diamond,
-                  animationName: AppLocalizations.of(context)!.diamond,
+                  animationName: l10n.diamond,
                   index: 11,
                 ),
               ],
@@ -48,19 +50,19 @@ class _TransitionTabState extends State<TransitionTab> {
                 AniContainer(
                   animation: null,
                   icon: Icons.heart_broken,
-                  animationName: AppLocalizations.of(context)!.brokenHearts,
+                  animationName: l10n.brokenHearts,
                   index: 12,
                 ),
                 AniContainer(
                   animation: null,
                   icon: Icons.favorite_border,
-                  animationName: AppLocalizations.of(context)!.cupid,
+                  animationName: l10n.cupid,
                   index: 13,
                 ),
                 AniContainer(
                   animation: null,
                   icon: Icons.directions_walk,
-                  animationName: AppLocalizations.of(context)!.feet,
+                  animationName: l10n.feet,
                   index: 14,
                 ),
               ],
@@ -73,19 +75,19 @@ class _TransitionTabState extends State<TransitionTab> {
                 AniContainer(
                   animation: null,
                   icon: Icons.set_meal,
-                  animationName: AppLocalizations.of(context)!.fishKiss,
+                  animationName: l10n.fishKiss,
                   index: 15,
                 ),
                 AniContainer(
                   animation: null,
                   icon: Icons.change_history,
-                  animationName: AppLocalizations.of(context)!.diagonal,
+                  animationName: l10n.diagonal,
                   index: 16,
                 ),
                 AniContainer(
                   animation: null,
                   icon: Icons.warning,
-                  animationName: AppLocalizations.of(context)!.emergency,
+                  animationName: l10n.emergency,
                   index: 17,
                 ),
               ],
@@ -98,13 +100,13 @@ class _TransitionTabState extends State<TransitionTab> {
                 AniContainer(
                   animation: null,
                   icon: Icons.favorite,
-                  animationName: AppLocalizations.of(context)!.beatingHearts,
+                  animationName: l10n.beatingHearts,
                   index: 18,
                 ),
                 AniContainer(
                   animation: null,
                   icon: Icons.celebration,
-                  animationName: AppLocalizations.of(context)!.fireworks,
+                  animationName: l10n.fireworks,
                   index: 19,
                 ),
               ],

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import '../l10n/app_localizations.dart';
+import '../services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import '../../main.dart';
-import '../../services/language_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -24,20 +24,16 @@ class SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
-    // Initialize with current locale if available
-    final currentLocale = WidgetsBinding.instance.window.locale;
-    if (currentLocale.languageCode == 'hi') {
-      _selectedLanguage = 'hi';
-    } else {
-      _selectedLanguage = 'en'; // Default to English
-    }
+    // Initialize with current active app locale (fallback to 'en')
+    _selectedLanguage = appLocale.value?.languageCode ?? 'en';
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return Scaffold(
       appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.settings),
+        title: Text(l10n.settings),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -49,21 +45,18 @@ class SettingsScreenState extends State<SettingsScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Language Selection
-            Text(
-              AppLocalizations.of(context)!.language,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text(l10n.language, style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
-              value: _selectedLanguage,
+              value: Localizations.localeOf(context).languageCode,
               items: [
                 DropdownMenuItem(
                   value: 'en',
-                  child: Text(AppLocalizations.of(context)!.english),
+                  child: Text(l10n.english),
                 ),
                 DropdownMenuItem(
                   value: 'hi',
-                  child: Text(AppLocalizations.of(context)!.hindi),
+                  child: Text(l10n.hindi),
                 ),
               ],
               onChanged: (value) {
@@ -71,11 +64,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                   setState(() {
                     _selectedLanguage = value;
                   });
-                  // Update app locale and save preference
+                  // Update app locale
                   final newLocale = Locale(value);
                   appLocale.value = newLocale;
-                  // Save the selected language
-                  LanguageService.setLanguage(value);
+                  // Persist via LocalizationService
+                  GetIt.instance
+                      .get<LocalizationService>()
+                      .saveLocale(newLocale);
                 }
               },
               decoration: const InputDecoration(
@@ -88,10 +83,8 @@ class SettingsScreenState extends State<SettingsScreen> {
             const SizedBox(height: 24),
 
             // Badge Selection
-            Text(
-              AppLocalizations.of(context)!.selectBadge,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
+            Text(l10n.selectBadge,
+                style: Theme.of(context).textTheme.titleMedium),
             const SizedBox(height: 8),
             DropdownButtonFormField<String>(
               value: _selectedBadge,

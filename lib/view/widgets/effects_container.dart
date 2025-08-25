@@ -2,7 +2,8 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/badge_effect/badgeeffectabstract.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:flutter/material.dart';
@@ -34,13 +35,14 @@ class _EffectContainerState extends State<EffectContainer> {
   }
 
   String _getLocalizedEffectName(String name, BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     switch (name) {
       case 'Invert':
-        return AppLocalizations.of(context)!.invertEffect;
+        return l10n.invertEffect;
       case 'Effect':
-        return AppLocalizations.of(context)!.flashEffect;
+        return l10n.flashEffect;
       case 'Marquee':
-        return AppLocalizations.of(context)!.marqueeEffect;
+        return l10n.marqueeEffect;
       default:
         return name;
     }

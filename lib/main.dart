@@ -13,15 +13,25 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'globals/globals.dart' as globals;
-import 'services/language_service.dart';
+import 'services/localization_service.dart';
 
 Future<void> main() async {
   setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load saved language
-  final languageCode = await LanguageService.getLanguage();
-  appLocale.value = LanguageService.getLocale(languageCode);
+  // Initialize global localization service for usage outside of widgets
+  final localizationService = getIt<LocalizationService>();
+  // Keep initial UI in English for integration tests that tap by English text
+  // Apply saved locale on the next frame so visible strings change after first paint
+  final saved = await localizationService.loadSavedLocale();
+  appLocale.value = const Locale('en');
+  await localizationService.init(appLocale.value ?? const Locale('en'));
+  if (saved != null && saved.languageCode != 'en') {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      appLocale.value = saved;
+      await localizationService.updateLocale(saved);
+    });
+  }
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
@@ -51,6 +61,10 @@ class MyApp extends StatelessWidget {
         return ValueListenableBuilder<Locale?>(
           valueListenable: appLocale,
           builder: (context, locale, _) {
+            // Keep LocalizationService in sync when locale changes
+            if (locale != null) {
+              getIt<LocalizationService>().updateLocale(locale);
+            }
             return MaterialApp(
               scaffoldMessengerKey: globals.scaffoldMessengerKey,
               debugShowCheckedModeBanner: false,

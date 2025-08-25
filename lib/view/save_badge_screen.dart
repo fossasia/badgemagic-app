@@ -7,7 +7,7 @@ import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_animation/ani_animation.dart';
 import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
@@ -59,6 +59,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     BadgeMessageProvider badgeMessageProvider = BadgeMessageProvider();
     return MultiProvider(
       providers: [
@@ -73,7 +74,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         ),
       ],
       child: CommonScaffold(
-        title: AppLocalizations.of(context)!.savedBadges,
+        title: l10n.savedBadges,
         index: 2,
         actions: [
           TextButton(
@@ -81,14 +82,13 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
               final value = await fileHelper.importBadgeData(context);
               if (value) {
                 logger.d('value: $value');
-                toastUtils.showToast(
-                    AppLocalizations.of(context)!.badgeImportedSuccessfully);
+                toastUtils.showToast(l10n.badgeImportedSuccessfully);
                 await fileHelper.getBadgeDataFiles();
                 setState(() {});
               }
             },
             child: Text(
-              AppLocalizations.of(context)!.import,
+              l10n.import,
               style: const TextStyle(color: drawerHeaderTitle),
             ),
           ),
@@ -99,24 +99,22 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
               }
               return IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
-                tooltip: AppLocalizations.of(context)!.deleteSelected,
+                tooltip: l10n.deleteSelected,
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: Text(
-                          AppLocalizations.of(context)!.deleteSelectedBadges),
-                      content: Text(AppLocalizations.of(context)!
-                          .deleteBadgesConfirmation),
+                      title: Text(l10n.deleteSelectedBadges),
+                      content: Text(l10n.deleteBadgesConfirmation),
                       actions: [
                         TextButton(
                           onPressed: () => Navigator.pop(context, false),
-                          child: Text(AppLocalizations.of(context)!.cancel),
+                          child: Text(l10n.cancel),
                         ),
                         TextButton(
                           onPressed: () => Navigator.pop(context, true),
                           child: Text(
-                            AppLocalizations.of(context)!.delete,
+                            l10n.delete,
                             style: const TextStyle(color: Colors.red),
                           ),
                         ),
@@ -135,8 +133,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                     }
                     selectionProvider.clearSelections();
                     setState(() {});
-                    ToastUtils().showToast(AppLocalizations.of(context)!
-                        .badgesDeletedSuccessfully);
+                    ToastUtils().showToast(l10n.badgesDeletedSuccessfully);
                   }
                 },
               );
@@ -278,9 +275,9 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                 ),
                                 padding: EdgeInsets.symmetric(vertical: 12.h),
                               ),
-                              child: const Text(
-                                'Transfer',
-                                style: TextStyle(
+                              child: Text(
+                                l10n.transferButton,
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.w500,

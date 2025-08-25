@@ -1,4 +1,5 @@
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -7,13 +8,14 @@ Future<bool?> showSpecialAnimationDialog(
   return showDialog<bool>(
     context: context,
     builder: (context) {
+      final l10n = GetIt.instance.get<LocalizationService>().l10n;
       return AlertDialog(
-        title: Text(AppLocalizations.of(context)!.switchToSpecialAnimation),
+        title: Text(l10n.switchToSpecialAnimation),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(AppLocalizations.of(context)!.specialAnimationWarning),
+            Text(l10n.specialAnimationWarning),
             if (textToClear.isNotEmpty) ...[
               const SizedBox(height: 12),
               Row(
@@ -27,13 +29,11 @@ Future<bool?> showSpecialAnimationDialog(
                   ),
                   IconButton(
                     icon: const Icon(Icons.copy, size: 20),
-                    tooltip: AppLocalizations.of(context)!.copyText,
+                    tooltip: l10n.copyText,
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: textToClear));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                            content:
-                                Text(AppLocalizations.of(context)!.textCopied)),
+                        SnackBar(content: Text(l10n.textCopied)),
                       );
                     },
                   ),
@@ -45,11 +45,11 @@ Future<bool?> showSpecialAnimationDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: Text(AppLocalizations.of(context)!.cancel),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: Text(AppLocalizations.of(context)!.yes),
+            child: Text(l10n.yes),
           ),
         ],
       );

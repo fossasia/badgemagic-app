@@ -1,8 +1,9 @@
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
+import 'package:get_it/get_it.dart';
 
 class BMDrawer extends StatefulWidget {
   final int selectedIndex;
@@ -30,6 +31,7 @@ class _BMDrawerState extends State<BMDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return Drawer(
       backgroundColor: drawerHeaderTitle,
       child: ListView(
@@ -43,7 +45,7 @@ class _BMDrawerState extends State<BMDrawer> {
               ),
               child: Center(
                 child: Text(
-                  AppLocalizations.of(context)!.appTitle,
+                  l10n.appTitle,
                   style: const TextStyle(
                       color: drawerHeaderTitle,
                       fontSize: 25,
@@ -55,7 +57,7 @@ class _BMDrawerState extends State<BMDrawer> {
           _buildListTile(
             index: 0,
             icon: Icons.edit,
-            title: AppLocalizations.of(context)!.createBadges,
+            title: l10n.createBadges,
             routeName: '/',
           ),
           Semantics(
@@ -63,7 +65,7 @@ class _BMDrawerState extends State<BMDrawer> {
             child: _buildListTile(
               index: 1,
               assetIcon: "assets/icons/signature.png",
-              title: AppLocalizations.of(context)!.drawClipart,
+              title: l10n.drawClipart,
               routeName: '/drawBadge',
             ),
           ),
@@ -72,33 +74,33 @@ class _BMDrawerState extends State<BMDrawer> {
             child: _buildListTile(
               index: 2,
               assetIcon: "assets/icons/r_save.png",
-              title: AppLocalizations.of(context)!.savedBadges,
+              title: l10n.savedBadges,
               routeName: '/savedBadge',
             ),
           ),
           _buildListTile(
             index: 3,
             assetIcon: "assets/icons/r_save.png",
-            title: AppLocalizations.of(context)!.savedCliparts,
+            title: l10n.savedCliparts,
             routeName: '/savedClipart',
           ),
           _buildListTile(
             index: 4,
             assetIcon: "assets/icons/setting.png",
-            title: AppLocalizations.of(context)!.settings,
+            title: l10n.settings,
             routeName: '/settings',
           ),
           _buildListTile(
             index: 5,
             assetIcon: "assets/icons/r_team.png",
-            title: AppLocalizations.of(context)!.aboutUs,
+            title: l10n.aboutUs,
             routeName: '/aboutUs',
           ),
           const Divider(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
             child: Text(
-              AppLocalizations.of(context)!.other,
+              l10n.other,
               style: const TextStyle(
                 color: Colors.black54,
                 fontWeight: FontWeight.bold,
@@ -109,21 +111,21 @@ class _BMDrawerState extends State<BMDrawer> {
           _buildListTile(
             index: 6,
             assetIcon: "assets/icons/r_price.png",
-            title: AppLocalizations.of(context)!.buyBadge,
+            title: l10n.buyBadge,
             routeName: '/buyBadge',
             externalLink: 'https://badgemagic.fossasia.org/shop/',
           ),
           _buildListTile(
             index: 7,
             icon: Icons.share,
-            title: AppLocalizations.of(context)!.shareApp,
+            title: l10n.shareApp,
             routeName: '/share',
-            shareText: AppLocalizations.of(context)!.shareAppText,
+            shareText: l10n.shareAppText,
           ),
           _buildListTile(
             index: 8,
             icon: Icons.star,
-            title: AppLocalizations.of(context)!.rateUs,
+            title: l10n.rateUs,
             routeName: '/rateUs',
             externalLink: Platform.isIOS
                 ? 'https://apps.apple.com/us/app/badge-magic/id6740176888?action=write-review'
@@ -132,14 +134,14 @@ class _BMDrawerState extends State<BMDrawer> {
           _buildListTile(
             index: 9,
             assetIcon: "assets/icons/r_virus.png",
-            title: AppLocalizations.of(context)!.feedbackBugReports,
+            title: l10n.feedbackBugReports,
             routeName: '/feedback',
             externalLink: 'https://github.com/fossasia/badgemagic-app/issues',
           ),
           _buildListTile(
             index: 10,
             assetIcon: "assets/icons/r_insurance.png",
-            title: AppLocalizations.of(context)!.privacyPolicy,
+            title: l10n.privacyPolicy,
             routeName: '/privacyPolicy',
             externalLink: 'https://badgemagic.fossasia.org/privacy/',
           ),
@@ -191,11 +193,15 @@ class _BMDrawerState extends State<BMDrawer> {
         } else if (shareText != null) {
           Share.share(shareText);
         } else {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            routeName,
-            (route) => route.isFirst,
-          );
+          if (ModalRoute.of(context)?.settings.name == routeName) {
+            Navigator.pushReplacementNamed(context, routeName);
+          } else {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              routeName,
+              (route) => route.isFirst,
+            );
+          }
         }
       },
     );

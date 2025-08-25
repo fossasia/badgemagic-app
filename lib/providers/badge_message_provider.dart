@@ -16,6 +16,7 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/badge_animation/ani_diamond.dart';
 import 'package:badgemagic/badge_animation/ani_cupid.dart';
 import 'package:badgemagic/badge_animation/ani_feet.dart';
@@ -113,7 +114,8 @@ class BadgeMessageProvider {
       bool isSavedBadge,
       {TextStyle? textStyle}) async {
     if (await FlutterBluePlus.isSupported == false) {
-      ToastUtils().showErrorToast('Bluetooth is not supported by the device');
+      final l10n = GetIt.instance.get<LocalizationService>().l10n;
+      ToastUtils().showErrorToast(l10n.error);
       return;
     }
 
@@ -131,7 +133,8 @@ class BadgeMessageProvider {
         }
       } catch (_) {}
       if (mode != Mode.pacman && !isFireworks) {
-        ToastUtils().showErrorToast("Please enter a message");
+        final l10n = GetIt.instance.get<LocalizationService>().l10n;
+        ToastUtils().showErrorToast(l10n.pleaseEnterMessage);
         return;
       }
     }
@@ -140,7 +143,8 @@ class BadgeMessageProvider {
         await FlutterBluePlus.adapterState.first;
     if (adapterState != BluetoothAdapterState.on) {
       if (Platform.isAndroid) {
-        ToastUtils().showToast('Turning on Bluetooth...');
+        final l10n = GetIt.instance.get<LocalizationService>().l10n;
+        ToastUtils().showToast(l10n.loading);
         try {
           await FlutterBluePlus.turnOn();
         } catch (e) {
@@ -165,9 +169,8 @@ class BadgeMessageProvider {
           return;
         }
       } else if (Platform.isIOS) {
-        ToastUtils().showErrorToast(
-          'Bluetooth is OFF. Please enable it from Settings.',
-        );
+        final l10n = GetIt.instance.get<LocalizationService>().l10n;
+        ToastUtils().showErrorToast(l10n.error);
 
         try {
           adapterState = await FlutterBluePlus.adapterState
@@ -185,7 +188,8 @@ class BadgeMessageProvider {
           return;
         }
       } else {
-        ToastUtils().showErrorToast("Unsupported platform");
+        final l10n = GetIt.instance.get<LocalizationService>().l10n;
+        ToastUtils().showErrorToast(l10n.error);
         return;
       }
     }

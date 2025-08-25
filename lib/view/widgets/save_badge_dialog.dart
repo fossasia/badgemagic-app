@@ -8,7 +8,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 
 class SaveBadgeDialog extends StatelessWidget {
   final SpeedDialProvider speed;
@@ -26,10 +27,10 @@ class SaveBadgeDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     SavedBadgeProvider savedBadgeProvider = SavedBadgeProvider();
     TextEditingController badgeNameController = TextEditingController();
-    badgeNameController.text =
-        '${AppLocalizations.of(context)!.badge} ${DateTime.now().toString()}';
+    badgeNameController.text = '${l10n.badge} ${DateTime.now().toString()}';
 
     // Set up the initial selection to select all text when the dialog opens
     badgeNameController.selection = TextSelection(
@@ -53,7 +54,7 @@ class SaveBadgeDialog extends StatelessWidget {
             Expanded(
               flex: 1,
               child: Text(
-                AppLocalizations.of(context)!.saveBadge,
+                l10n.saveBadge,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -61,7 +62,7 @@ class SaveBadgeDialog extends StatelessWidget {
               ),
             ),
             Text(
-              AppLocalizations.of(context)!.badgeName,
+              l10n.badgeName,
               style: const TextStyle(
                 fontWeight: FontWeight.w400,
                 color: Colors.red,
@@ -88,7 +89,7 @@ class SaveBadgeDialog extends StatelessWidget {
                       Navigator.pop(context);
                     },
                     child: Text(
-                      AppLocalizations.of(context)!.cancel,
+                      l10n.cancel,
                       style: const TextStyle(color: Colors.red),
                     )),
                 TextButton(
@@ -125,26 +126,22 @@ class SaveBadgeDialog extends StatelessWidget {
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: Text(
-                              AppLocalizations.of(context)!.badgeNameExists),
-                          content: Text(
-                              AppLocalizations.of(context)!.badgeExistsMessage),
+                          title: Text(l10n.badgeNameExists),
+                          content: Text(l10n.badgeExistsMessage),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'rename'),
-                              child: Text(AppLocalizations.of(context)!.cancel),
+                              child: Text(l10n.cancel),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'update'),
-                              child:
-                                  Text(AppLocalizations.of(context)!.overwrite),
+                              child: Text(l10n.overwrite),
                             ),
                           ],
                         ),
                       );
                       if (result == 'rename') {
-                        ToastUtils().showToast(AppLocalizations.of(context)!
-                            .pleaseEnterNewBadgeName);
+                        ToastUtils().showToast(l10n.pleaseEnterNewBadgeName);
                         return;
                       } else if (result == 'update') {
                         savedBadgeProvider.saveBadgeData(
@@ -156,8 +153,7 @@ class SaveBadgeDialog extends StatelessWidget {
                           speed.getOuterValue(),
                           animationProvider.getAnimationIndex() ?? 1,
                         );
-                        ToastUtils().showToast(AppLocalizations.of(context)!
-                            .badgeUpdatedSuccessfully);
+                        ToastUtils().showToast(l10n.badgeUpdatedSuccessfully);
                         Future.delayed(const Duration(milliseconds: 100), () {
                           Navigator.of(context, rootNavigator: true)
                               .pushNamedAndRemoveUntil(
@@ -171,33 +167,30 @@ class SaveBadgeDialog extends StatelessWidget {
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
-                          title: Text(
-                              AppLocalizations.of(context)!.similarBadgeExists),
+                          title: Text(l10n.similarBadgeExists),
                           content: Builder(
                             builder: (context) {
                               final badgeName = caseInsensitiveMatch.substring(
                                   0, caseInsensitiveMatch.length - 5);
-                              final message = AppLocalizations.of(context)!
-                                  .similarBadgeExistsMessage(badgeName);
+                              final message =
+                                  l10n.similarBadgeExistsMessage(badgeName);
                               return Text(message);
                             },
                           ),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'rename'),
-                              child: Text(AppLocalizations.of(context)!.cancel),
+                              child: Text(l10n.cancel),
                             ),
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'update'),
-                              child:
-                                  Text(AppLocalizations.of(context)!.overwrite),
+                              child: Text(l10n.overwrite),
                             ),
                           ],
                         ),
                       );
                       if (result == 'rename') {
-                        ToastUtils().showToast(AppLocalizations.of(context)!
-                            .pleaseEnterNewBadgeName);
+                        ToastUtils().showToast(l10n.pleaseEnterNewBadgeName);
                         return;
                       } else if (result == 'update') {
                         final existingFilePath =
@@ -214,8 +207,7 @@ class SaveBadgeDialog extends StatelessWidget {
                           speed.getOuterValue(),
                           animationProvider.getAnimationIndex() ?? 1,
                         );
-                        ToastUtils().showToast(AppLocalizations.of(context)!
-                            .badgeUpdatedSuccessfully);
+                        ToastUtils().showToast(l10n.badgeUpdatedSuccessfully);
                         Future.delayed(const Duration(milliseconds: 100), () {
                           Navigator.of(context, rootNavigator: true)
                               .pushNamedAndRemoveUntil(
@@ -235,8 +227,7 @@ class SaveBadgeDialog extends StatelessWidget {
                         speed.getOuterValue(),
                         animationProvider.getAnimationIndex() ?? 1,
                       );
-                      ToastUtils().showToast(
-                          AppLocalizations.of(context)!.badgeSavedSuccessfully);
+                      ToastUtils().showToast(l10n.badgeSavedSuccessfully);
                       Navigator.of(context).pop();
                     }
                   },
