@@ -102,14 +102,14 @@ jobs:
           name: AAB Generated
           path: build/app/outputs/bundle
       
-      - name: Upload APK/AAB to apk branch
+      - name: Upload APK/AAB to app branch
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git clone --branch=apk https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} apk
-          cd apk
+          git clone --branch=app https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} app
+          cd app
           
           branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
 
@@ -121,8 +121,8 @@ jobs:
 
           echo "Copying new build files"
 
-          find ../build/app/outputs/flutter-apk -type f \( -name '*.apk' -o -name '*.aab' \) -exec cp -v {} . \;
-          find ../build/app/outputs/bundle -type f \( -name '*.apk' -o -name '*.aab' \) -exec cp -v {} . \;
+          find ../build/app/outputs/flutter-apk -type f \( -name '*release.apk' -o -name '*release.aab' \) -exec cp -v {} . \;
+          find ../build/app/outputs/bundle -type f \( -name '*release.apk' -o -name '*release.aab' \) -exec cp -v {} . \;
 
           ls
 
@@ -134,14 +134,14 @@ jobs:
 
           ls
 
-          echo "Pushing to apk branch"
+          echo "Pushing to app branch"
 
           git checkout --orphan temporary
           git add --all .
           git commit -am "[Auto] Update APK/AAB's from $branch ($(date +%Y-%m-%d.%H:%M:%S))"
-          git branch -D apk
-          git branch -m apk
-          git push --force origin apk
+          git branch -D app
+          git branch -m app
+          git push --force origin app
 
       - name: Push app in open testing track
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -158,6 +158,11 @@ jobs:
     needs: common
     runs-on: macos-latest
     steps:
+      - name: Set up Xcode
+        uses: maxim-lobanov/setup-xcode@v1.6.0
+        with:
+          xcode-version: latest-stable
+
       - uses: actions/checkout@v4
 
       - name: Prepare Build Keys
@@ -215,5 +220,5 @@ jobs:
       - name: Create and Upload Assets
         run: |
           echo "${{ needs.common.outputs.VERSION_CODE }}" > ./versionCode.txt
-          git clone --branch=apk https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} apk
-          gh release upload ${{ steps.run-release-drafter.outputs.tag_name }} apk/badge-magic-store-update-release.apk ./versionCode.txt --clobber
+          git clone --branch=app https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} app
+          gh release upload ${{ steps.run-release-drafter.outputs.tag_name }} app/badge-magic-store-update-release.apk ./versionCode.txt --clobber
