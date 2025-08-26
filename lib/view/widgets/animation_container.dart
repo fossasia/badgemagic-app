@@ -84,7 +84,7 @@ class _AniContainerState extends State<AniContainer> {
               ),
               Text(
                 widget.animationName,
-                style: TextStyle(fontSize: 8.sp),
+                style: TextStyle(fontSize: 10.sp),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
