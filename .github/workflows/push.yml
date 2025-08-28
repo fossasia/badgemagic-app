@@ -275,7 +275,7 @@ jobs:
     needs: common
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Debian Workflow
         uses: ./.github/actions/debian
@@ -311,7 +311,7 @@ jobs:
     needs: common
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: macOS Workflow
         uses: ./.github/actions/macos
@@ -351,7 +351,7 @@ jobs:
     needs: common
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Windows Workflow
         uses: ./.github/actions/windows
