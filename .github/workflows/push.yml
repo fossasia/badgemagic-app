@@ -143,12 +143,12 @@ jobs:
           git branch -m app
           git push --force origin app
 
-      - name: Push app in open testing track
+      - name: Push app in closed testing track
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
         run: |
           cd ./android
           git clone --branch=fastlane-android --depth=1 https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} fastlane
-          fastlane uploadToOpenTesting
+          fastlane uploadToClosedTesting
           if [[ $? -ne 0 ]]; then
               exit 1
           fi
