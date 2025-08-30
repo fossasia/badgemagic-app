@@ -105,4 +105,34 @@ jobs:
         uses: ./.github/actions/screenshot-ipad
         with:
           IPAD_DEVICE_MODEL: ${{ env.IPAD_DEVICE_MODEL }}
+
+  macos:
+    name: macOS Flutter Build
+    needs: common
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: macOS Workflow
+        uses: ./.github/actions/macos
+
+  windows:
+    name: Windows Flutter Build
+    needs: common
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Windows Workflow
+        uses: ./.github/actions/windows
+
+  debian:
+    name: Debian Flutter Build
+    needs: common
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Debian Workflow
+        uses: ./.github/actions/debian
       
