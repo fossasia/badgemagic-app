@@ -106,6 +106,12 @@ class _TransitionTabState extends State<TransitionTab> {
                   animationName: 'Fireworks',
                   index: 19,
                 ),
+                AniContainer(
+                  animation: null,
+                  icon: Icons.directions_bike, // Bicycle icon
+                  animationName: 'Cycle',
+                  index: 20,
+                ),
               ],
             ),
           ),
