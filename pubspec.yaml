@@ -20,7 +20,7 @@ version: 1.0.0+1
 
 environment:
   sdk: '>=3.3.4 <4.0.0'
-  flutter: '3.35.1'
+  flutter: '3.35.2'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -48,7 +48,7 @@ dependencies:
   go_router: ^16.2.0
   share_plus: ^11.1.0
   file_picker: ^10.3.2
-  google_fonts: ^6.2.1
+  google_fonts: ^6.3.1
   url_launcher: ^6.3.2
   image: ^4.5.4
 
