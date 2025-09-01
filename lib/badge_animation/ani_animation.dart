@@ -4,61 +4,26 @@ class AniAnimation extends BadgeAnimation {
   @override
   void processAnimation(int badgeHeight, int badgeWidth, int animationIndex,
       List<List<bool>> processGrid, List<List<bool>> canvas) {
-    int newWidth = processGrid[0].length;
-    int newHeight = processGrid.length;
-    int verticalOffset = (badgeHeight - newHeight) ~/ 2;
-    int displayWidth = newWidth > badgeWidth ? badgeWidth : newWidth;
-    int horizontalOffset = (badgeWidth - displayWidth) ~/ 2;
-    var totalAnimationLength = badgeWidth;
-    int frame = animationIndex % totalAnimationLength;
-    var firstHalf = frame < badgeWidth ~/ 2;
-    var secondHalf = frame >= badgeWidth ~/ 2;
-
+    int newGridHeight = processGrid.length;
+    int newGridWidth = processGrid[0].length;
     for (int i = 0; i < badgeHeight; i++) {
       for (int j = 0; j < badgeWidth; j++) {
-        bool lineShow = false;
-        bool bitmapShowcenter = false;
-        bool bitmapShowOut = false;
+        // Calculate the total number of frames that fit the badge width
+        int framesCount = (newGridWidth / badgeWidth).ceil();
 
-        int sourceRow = i - verticalOffset;
-        int sourceCol = j - horizontalOffset;
+        // Determine the current frame based on the animation value
+        int currentcountFrame = animationIndex ~/ badgeWidth % framesCount;
 
-        bool isWithinNewGrid = sourceRow >= 0 &&
-            sourceRow < newHeight &&
-            sourceCol >= 0 &&
-            sourceCol < displayWidth;
+        // Calculate the starting column for the current frame in newGrid
+        int startCol = currentcountFrame * badgeWidth;
 
-        int leftCenterCol = badgeWidth ~/ 2 - 1;
-        int rightCenterCol = badgeWidth ~/ 2;
+        bool isNewGridCell = i < newGridHeight && (startCol + j) < newGridWidth;
 
-        int maxDistance = leftCenterCol;
+        // Update the grid based on the current frame's data
+        bool animationCondition =
+            (isNewGridCell && processGrid[i][startCol + j]);
 
-        int currentAnimationIndex = animationIndex % (maxDistance + 1);
-
-        int leftColPos = leftCenterCol - currentAnimationIndex;
-        int rightColPos = rightCenterCol + currentAnimationIndex;
-
-        if (leftColPos < 0) leftColPos += badgeWidth;
-        if (rightColPos >= badgeWidth) rightColPos -= badgeWidth;
-
-        if (j == leftColPos || j == rightColPos) {
-          lineShow = true;
-        } else {
-          lineShow = false;
-        }
-
-        if (firstHalf) {
-          if (isWithinNewGrid && j > leftColPos && j < rightColPos) {
-            bitmapShowcenter = processGrid[sourceRow][sourceCol];
-          }
-        }
-        if (secondHalf) {
-          if (isWithinNewGrid && (j < leftColPos || j > rightColPos)) {
-            bitmapShowOut = processGrid[sourceRow][sourceCol];
-          }
-        }
-
-        canvas[i][j] = (lineShow || bitmapShowOut || bitmapShowcenter);
+        canvas[i][j] = animationCondition;
       }
     }
   }

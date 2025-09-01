@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui' as ui;
 
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
@@ -6,8 +7,31 @@ import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:path_provider/path_provider.dart';
 
 class InlineImageProvider extends ChangeNotifier {
+  // Reloads the savedBadgeCache from disk and notifies listeners
+  Future<void> reloadSavedBadgeCache() async {
+    final directory = await getApplicationDocumentsDirectory();
+    final files = directory.listSync();
+    final badgeFiles = files
+        .whereType<File>()
+        .where((file) =>
+            file.path.endsWith('.json') &&
+            !file.path.endsWith('badge_original_texts.json'))
+        .toList();
+    List<MapEntry<String, Map<String, dynamic>>> badgeList = [];
+    for (final file in badgeFiles) {
+      final contents = await file.readAsString();
+      try {
+        final data = json.decode(contents) as Map<String, dynamic>;
+        badgeList.add(MapEntry(file.uri.pathSegments.last, data));
+      } catch (_) {}
+    }
+    savedBadgeCache = badgeList;
+    notifyListeners();
+  }
+
   //boolean variable to check for isCacheInitialized
   bool isCacheInitialized = false;
 

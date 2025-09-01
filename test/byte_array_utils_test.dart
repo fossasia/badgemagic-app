@@ -36,7 +36,6 @@ void main() {
       final expectedBytes = [10, 20, 30, 40];
 
       final result = hexStringToByteArray(hexString);
-
       expect(result, equals(expectedBytes));
     });
 
