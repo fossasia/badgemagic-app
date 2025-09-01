@@ -4,17 +4,23 @@ import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
+import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/view/widgets/special_animation_dialog.dart';
+import 'package:badgemagic/bademagic_module/utils/converters.dart';
 
 class AniContainer extends StatefulWidget {
-  final String animation;
+  final String? animation;
   final String animationName;
   final int index;
+  final IconData? icon;
 
-  const AniContainer(
-      {super.key,
-      required this.animation,
-      required this.animationName,
-      required this.index});
+  const AniContainer({
+    super.key,
+    this.animation,
+    required this.animationName,
+    required this.index,
+    this.icon,
+  });
 
   @override
   State<AniContainer> createState() => _AniContainerState();
@@ -39,7 +45,25 @@ class _AniContainerState extends State<AniContainer> {
       height: 65.h,
       width: 110.w,
       child: GestureDetector(
-        onTap: () {
+        onTap: () async {
+          // Only show dialog for special animations (index >= 9)
+          if (widget.index >= 9) {
+            final textController =
+                Provider.of<InlineImageProvider>(context, listen: false)
+                    .getController();
+            if (textController.text.trim().isNotEmpty) {
+              final shouldSwitch = await showSpecialAnimationDialog(
+                  context, textController.text.trim());
+              if (shouldSwitch == true) {
+                textController.clear();
+                animationCardState.setAnimationMode(badgeAnimation);
+                // Force preview update for special animations
+                animationCardState.badgeAnimation('', Converters(), false);
+              }
+              // else do nothing
+              return;
+            }
+          }
           animationCardState.setAnimationMode(badgeAnimation);
         },
         child: Card(
@@ -52,11 +76,17 @@ class _AniContainerState extends State<AniContainer> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Flexible(
-                child: Image.asset(widget.animation, fit: BoxFit.fill),
+                child: widget.icon != null
+                    ? Icon(widget.icon, size: 36)
+                    : (widget.animation != null
+                        ? Image.asset(widget.animation!, fit: BoxFit.fill)
+                        : SizedBox.shrink()),
               ),
               Text(
                 widget.animationName,
-                style: TextStyle(fontSize: 9.sp),
+                style: TextStyle(fontSize: 8.sp),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ],
           ),

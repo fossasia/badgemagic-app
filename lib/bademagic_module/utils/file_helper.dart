@@ -28,9 +28,7 @@ class FileHelper {
 
   static Future<File> _writeToFile(String filename, String data) async {
     final path = await _getFilePath(filename);
-
     logger.d('Writing to file: $path');
-
     return File(path).writeAsString(data);
   }
 
@@ -54,10 +52,6 @@ class FileHelper {
         key++;
       }
     }
-    //storing the user drawn clipart to the badge in the form of a list
-    //the first element of the list is the filename and the second element is the key
-    //while parsing the vector we can take the filename and generate the hex for that vector
-    //therefore transfering the vector to the physiacl badge will be easier.
     imageCacheProvider.imageCache[[filename, key]] = imageData;
   }
 
@@ -199,19 +193,15 @@ class FileHelper {
     try {
       final path = await _getFilePath(filename);
       final file = File(path);
-
       if (await file.exists()) {
         final content = await file.readAsString();
-        final dynamic decodedData = jsonDecode(content);
-
-        // Automatically return decoded JSON as a dynamic type
-        return decodedData;
+        return jsonDecode(content);
       } else {
-        logger.d('File not found: $filename');
+        logger.i('File not found: $path');
         return null;
       }
     } catch (e) {
-      logger.e('Error reading file: $e');
+      logger.i('Error reading from file: $e');
       return null;
     }
   }
@@ -278,11 +268,27 @@ class FileHelper {
       // Save JSON string to the file
       File file = File(filePath);
       await file.writeAsString(jsonString);
-      imageCacheProvider.savedBadgeCache
-          .add(MapEntry("$filename.json", jsonData));
+
+      // Update the cache using the new utility method
+      _updateSavedBadgeCache(filename, jsonData);
+
       logger.i('Data saved to $filePath');
     } catch (e) {
       logger.i('Error saving data: $e');
+    }
+  }
+
+  // Utility method to update savedBadgeCache
+  void _updateSavedBadgeCache(String filename, Map<String, dynamic> jsonData) {
+    final cacheKey = "$filename.json";
+    final cache = imageCacheProvider.savedBadgeCache;
+    final existingIndex = cache.indexWhere((entry) => entry.key == cacheKey);
+    if (existingIndex >= 0) {
+      logger.i('Updating existing badge in cache: $cacheKey');
+      cache[existingIndex] = MapEntry(cacheKey, jsonData);
+    } else {
+      logger.i('Adding new badge to cache: $cacheKey');
+      cache.add(MapEntry(cacheKey, jsonData));
     }
   }
 
@@ -296,15 +302,16 @@ class FileHelper {
           file.path.endsWith('.json') &&
           !file.path.contains('data_')) {
         try {
-          // Read the JSON file
           String jsonString = await file.readAsString();
-
-          // Convert JSON string to Data object
           Map<String, dynamic> jsonData = jsonDecode(jsonString);
-          logger.d('JSON data: $jsonData');
 
-          // Add the Data object to the list with the filename as the key
-          badgeDataList.add(MapEntry(file.path.split('/').last, jsonData));
+          // Defensive: Only add if valid structure
+          if (jsonData.containsKey('messages') &&
+              jsonData['messages'] is List) {
+            badgeDataList.add(MapEntry(file.path.split('/').last, jsonData));
+          } else {
+            logger.i('Skipping invalid badge file: ${file.path}');
+          }
         } catch (e) {
           logger.i('Error parsing file ${file.path}: $e');
         }
@@ -315,9 +322,36 @@ class FileHelper {
 
 //function that takes JsonSData and returns the Data object
   Data jsonToData(Map<String, dynamic> jsonData) {
-    // Convert JSON data to Data object
-    Data data = Data.fromJson(jsonData);
-    return data;
+    try {
+      // Convert JSON data to Data object
+      Data data = Data.fromJson(jsonData);
+      return data;
+    } catch (e) {
+      // If there's an error with the 'messages' key missing, add it with default values
+      if (e.toString().contains("Missing \"messages\" key")) {
+        logger.w('Fixing missing "messages" key in badge data');
+
+        // Create a default message structure if missing
+        Map<String, dynamic> fixedJsonData =
+            Map<String, dynamic>.from(jsonData);
+        fixedJsonData['messages'] = [
+          {
+            'text': jsonData['text'] ?? ['00'],
+            'flash': jsonData['flash'] ?? false,
+            'marquee': jsonData['marquee'] ?? false,
+            'speed': jsonData['speed'] ?? '0x70', // Default to Speed.one
+            'mode': jsonData['mode'] ?? '0x00', // Default to Mode.left
+            'invert': jsonData['invert'] ?? false
+          }
+        ];
+
+        return Data.fromJson(fixedJsonData);
+      } else {
+        // For other errors, rethrow
+        logger.e('Error parsing badge data: $e');
+        rethrow;
+      }
+    }
   }
 
   Future<void> shareBadgeData(String filename) async {
@@ -348,7 +382,6 @@ class FileHelper {
     try {
       final directory = await getApplicationDocumentsDirectory();
       final filePath = '${directory.path}/$filename';
-
       File file = File(filePath);
       if (await file.exists()) {
         await file.delete();

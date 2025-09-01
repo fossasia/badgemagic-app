@@ -27,16 +27,19 @@ class WriteState extends NormalBleState {
               for (int attempt = 1; attempt <= 3; attempt++) {
                 try {
                   await characteristic.write(chunk, withoutResponse: false);
+                  logger.d("Chunk written successfully: $chunk");
                   success = true;
                   break;
                 } catch (e) {
-                  logger.e("Write failed, retrying ($attempt/3): $e");
+                  logger.e("Write failed (attempt $attempt/3): $e");
                 }
               }
               if (!success) {
                 throw Exception("Failed to transfer data. Please try again.");
               }
+              await Future.delayed(Duration(milliseconds: 50));
             }
+
             logger.d("Characteristic written successfully");
             return CompletedState(
                 isSuccess: true, message: "Data transferred successfully");

@@ -1,10 +1,6 @@
-name: "iOS Screenshots Workflow"
+name: "iPad Screenshots Workflow"
 
 inputs:
-  IPHONE_DEVICE_MODEL:
-    description: 'Model of the iPhone device to be used when running tests'
-    required: false
-    default: iPhone 16 Pro Max
   IPAD_DEVICE_MODEL:
     description: 'Model of the iPad device to be used when running tests'
     required: false
@@ -26,27 +22,17 @@ runs:
         flutter pub get
         pod install --repo-update
 
-    - name: Create iPhone Simulator
-      uses: futureware-tech/simulator-action@v4
-      with:
-        model: ${{ inputs.IPHONE_DEVICE_MODEL }}
-        wait_for_boot: true
-
     - name: Create iPad Simulator
+      id: ipad_sim
       uses: futureware-tech/simulator-action@v4
       with:
         model: ${{ inputs.IPAD_DEVICE_MODEL }}
         wait_for_boot: true
 
-    - name: Capture iPhone Screenshots
-      shell: bash
-      run: |
-        DEVICE_NAME="${{ inputs.IPHONE_DEVICE_MODEL }}" flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ inputs.IPHONE_DEVICE_MODEL }}"
-
     - name: Capture iPad Screenshots
       shell: bash
       run: |
-        DEVICE_NAME="${{ inputs.IPAD_DEVICE_MODEL }}" flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ inputs.IPAD_DEVICE_MODEL }}"
+        DEVICE_NAME="${{ inputs.IPAD_DEVICE_MODEL }}" flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d "${{ steps.ipad_sim.outputs.udid }}"
 
     - name: Update Fastlane Metadata
       if: ${{ github.event_name == 'push' }}
@@ -59,7 +45,7 @@ runs:
         git clone --branch=fastlane-ios --depth=1 https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} fastlane
         cd fastlane
         
-        rm -rf screenshots/*
+        rm -rf screenshots/iPad*
         cp -r ../../screenshots/. screenshots/
         
         # Force push to fastlane branch
@@ -73,5 +59,5 @@ runs:
     - name: Upload Screenshots
       uses: actions/upload-artifact@v4
       with:
-        name: iOS Screenshots
+        name: iPad Screenshots
         path: screenshots/*

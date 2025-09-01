@@ -7,13 +7,15 @@ class Message {
   final bool marquee;
   final Speed speed;
   final Mode mode;
+  final int? animationIndex; // 👈 NEW
 
   Message({
     required this.text,
     this.flash = false,
     this.marquee = false,
-    this.speed = Speed.one, // Default speed
-    this.mode = Mode.left, // Default mode
+    this.speed = Speed.one,
+    this.mode = Mode.left,
+    this.animationIndex, // 👈 NEW
   });
 
   // Convert Message object to JSON
@@ -21,8 +23,9 @@ class Message {
         'text': text,
         'flash': flash,
         'marquee': marquee,
-        'speed': speed.hexValue, // Use hexValue for serialization
-        'mode': mode.hexValue, // Use hexValue for serialization
+        'speed': speed.hexValue,
+        'mode': mode.hexValue,
+        if (animationIndex != null) 'animationIndex': animationIndex, // 👈 NEW
       };
 
   // Convert JSON to Message object
@@ -52,10 +55,9 @@ class Message {
       text: List<String>.from(textList),
       flash: (json['flash'] as bool?) ?? false,
       marquee: (json['marquee'] as bool?) ?? false,
-      speed: Speed.fromHex(
-          json['speed'] as String), // Using helper method for safety
-      mode: Mode.fromHex(
-          json['mode'] as String), // Using helper method for safety
+      speed: Speed.fromHex(json['speed'] as String),
+      mode: Mode.fromHex(json['mode'] as String),
+      animationIndex: json['animationIndex'] as int?, // 👈 NEW
     );
   }
 }

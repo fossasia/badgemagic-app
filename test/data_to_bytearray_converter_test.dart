@@ -113,6 +113,10 @@ void main() {
           speed: Speed.four,
           mode: Mode.fixed),
       Message(
+          text: await converters.messageTohex("Hii", false),
+          speed: Speed.five,
+          mode: Mode.animation),
+      Message(
           text: await converters.messageTohex('Hii', false),
           speed: Speed.six,
           mode: Mode.laser),
@@ -129,7 +133,7 @@ void main() {
     var result = converter.convert(data);
 
     expect(result[0].sublist(8, 16),
-        [0x01, 0x10, 0x22, 0x34, 0x58, 0x65, 0x76, 0x00]);
+        [0x01, 0x10, 0x22, 0x34, 0x45, 0x58, 0x66, 0x77]);
   });
 
   test(
