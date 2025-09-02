@@ -238,6 +238,12 @@ Future<void> transferFishAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
 
+Future<void> transferEqualizerAnimation(
+    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+  return customTransferEqualizerAnimation(
+      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+}
+
 Future<void> transferPacmanAnimation(
     BadgeMessageProvider badgeDataProvider, int speedLevel) async {
   return customTransferPacmanAnimation(

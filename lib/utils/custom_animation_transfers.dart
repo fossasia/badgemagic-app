@@ -876,6 +876,59 @@ List<List<int>> boolToIntBitmap(List<List<bool>> bitmap) {
   return bitmap.map((row) => row.map((b) => b ? 1 : 0).toList()).toList();
 }
 
+/// Transfers the Equalizer animation to the badge hardware using a callback,
+/// consistent with other customTransfer* helpers.
+Future<void> customTransferEqualizerAnimation(
+    Future<void> Function(DataTransferManager) transferData,
+    int speedLevel) async {
+  final adapterState = await FlutterBluePlus.adapterState.first;
+  if (adapterState != BluetoothAdapterState.on) {
+    ToastUtils().showErrorToast('Please turn on Bluetooth');
+    return;
+  }
+
+  const int badgeHeight = 11;
+  const int badgeWidth = 44;
+  const int hardwareFrameCount = 8; // The badge can store up to 8 frames
+  final Speed selectedSpeed = Speed.eight;
+  final logger = Logger();
+
+  logger.i('Starting Equalizer animation transfer...');
+
+  List<Message> equalizerFrames = [];
+
+  final equalizerAnimation = EqualizerAnimation();
+
+  for (int i = 0; i < hardwareFrameCount; i++) {
+    List<List<bool>> frameBitmap = List.generate(
+        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
+
+    List<List<bool>> processGrid = List.generate(
+        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
+
+    equalizerAnimation.processAnimation(
+        badgeHeight, badgeWidth, i, processGrid, frameBitmap);
+
+    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
+    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
+
+    logger.i('📊 Equalizer Frame $i hex: ${hexList.join(",")}');
+
+    equalizerFrames.add(Message(
+      text: hexList,
+      mode: Mode.fixed,
+      speed: selectedSpeed,
+      flash: false,
+      marquee: false,
+    ));
+  }
+
+  Data data = Data(messages: equalizerFrames);
+  DataTransferManager manager = DataTransferManager(data);
+  await transferData(manager);
+  logger.i('💡 Equalizer animation transfer completed successfully!');
+}
+
 void _drawDestroyEffect(
     List<List<bool>> canvas, int cx, int cy, int frame, int w, int h) {
   int length = frame + 1;
