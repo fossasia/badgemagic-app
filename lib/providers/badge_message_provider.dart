@@ -283,29 +283,3 @@ Future<void> transferCupidAnimation(
 List<List<int>> boolToIntBitmap(List<List<bool>> bitmap) {
   return bitmap.map((row) => row.map((b) => b ? 1 : 0).toList()).toList();
 }
-
-void _drawDestroyEffect(
-    List<List<bool>> canvas, int cx, int cy, int frame, int w, int h) {
-  int length = frame + 1;
-  List<List<int>> dirs = [
-    [1, 0],
-    [-1, 0],
-    [0, 1],
-    [0, -1],
-    [1, 1],
-    [1, -1],
-    [-1, 1],
-    [-1, -1]
-  ];
-  for (var d in dirs) {
-    for (int i = 1; i <= length; i++) {
-      int px = cx + d[0] * i;
-      int py = cy + d[1] * i;
-      if (py >= 0 && py < h && px >= 0 && px < w) {
-        canvas[py][px] = true;
-      }
-    }
-  }
-}
-
-/// Transfers the Equalizer animation to the badge hardware.
