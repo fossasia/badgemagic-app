@@ -149,6 +149,11 @@ class _AnimationTabState extends State<AnimationTab> {
                   animationName: 'Fireworks',
                   index: 19,
                 ),
+                AniContainer(
+                  animationName: 'Equalizer',
+                  index: 20, // This MUST match the index in your animationMap
+                  icon: Icons.equalizer,
+                )
               ],
             ),
           ),
