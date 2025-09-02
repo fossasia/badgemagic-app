@@ -109,6 +109,11 @@ class _TransitionTabState extends State<TransitionTab> {
                   animationName: l10n.fireworks,
                   index: 19,
                 ),
+                AniContainer(
+                  animationName: 'Equalizer',
+                  index: 20, // This MUST match the index in your animationMap
+                  icon: Icons.equalizer,
+                )
               ],
             ),
           ),
