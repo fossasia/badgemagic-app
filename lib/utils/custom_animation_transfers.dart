@@ -10,6 +10,7 @@ import 'package:badgemagic/badge_animation/ani_cupid.dart';
 import 'package:badgemagic/badge_animation/ani_diagonal.dart';
 import 'package:badgemagic/badge_animation/ani_diamond.dart';
 import 'package:badgemagic/badge_animation/ani_emergency.dart';
+import 'package:badgemagic/badge_animation/ani_equalizer.dart';
 import 'package:badgemagic/badge_animation/ani_feet.dart';
 import 'package:badgemagic/badge_animation/ani_fish.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -818,6 +819,57 @@ Future<void> customTransferCupidAnimation(
   } catch (e, st) {
     logger.e('⛔ Cupid animation transfer failed: $e\n$st');
   }
+}
+
+Future<void> customTransferEqualizerAnimation(
+    Future<void> Function(DataTransferManager) transferData,
+    int speedLevel) async {
+  final adapterState = await FlutterBluePlus.adapterState.first;
+  if (adapterState != BluetoothAdapterState.on) {
+    ToastUtils().showErrorToast('Please turn on Bluetooth');
+    return;
+  }
+
+  const int badgeHeight = 11;
+  const int badgeWidth = 44;
+  const int hardwareFrameCount = 8; // The badge can store up to 8 frames
+  final Speed selectedSpeed = Speed.eight;
+  final logger = Logger();
+
+  logger.i('Starting Equalizer animation transfer...');
+
+  List<Message> equalizerFrames = [];
+
+  final equalizerAnimation = EqualizerAnimation();
+
+  for (int i = 0; i < hardwareFrameCount; i++) {
+    List<List<bool>> frameBitmap = List.generate(
+        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
+
+    List<List<bool>> processGrid = List.generate(
+        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
+
+    equalizerAnimation.processAnimation(
+        badgeHeight, badgeWidth, i, processGrid, frameBitmap);
+
+    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
+    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
+
+    logger.i('📊 Equalizer Frame $i hex: ${hexList.join(",")}');
+
+    equalizerFrames.add(Message(
+      text: hexList,
+      mode: Mode.fixed,
+      speed: selectedSpeed,
+      flash: false,
+      marquee: false,
+    ));
+  }
+
+  Data data = Data(messages: equalizerFrames);
+  DataTransferManager manager = DataTransferManager(data);
+  await transferData(manager);
+  logger.i('💡 Equalizer animation transfer completed successfully!');
 }
 
 List<List<int>> boolToIntBitmap(List<List<bool>> bitmap) {
