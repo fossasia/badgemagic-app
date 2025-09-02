@@ -14,7 +14,14 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:badgemagic/utils/custom_animation_transfers.dart';
+import 'package:badgemagic/badge_animation/ani_diamond.dart';
+import 'package:badgemagic/badge_animation/ani_cupid.dart';
+import 'package:badgemagic/badge_animation/ani_feet.dart';
+import 'package:badgemagic/badge_animation/ani_diagonal.dart';
+import 'package:badgemagic/badge_animation/ani_emergency.dart';
+import 'package:badgemagic/badge_animation/ani_beating_hearts.dart';
+import 'package:badgemagic/badge_animation/ani_fireworks.dart';
+import 'package:badgemagic/badge_animation/ani_equalizer.dart'; // Import the new EqualizerAnimation
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -276,4 +283,81 @@ Future<void> transferCupidAnimation(
 
 List<List<int>> boolToIntBitmap(List<List<bool>> bitmap) {
   return bitmap.map((row) => row.map((b) => b ? 1 : 0).toList()).toList();
+}
+
+void _drawDestroyEffect(
+    List<List<bool>> canvas, int cx, int cy, int frame, int w, int h) {
+  int length = frame + 1;
+  List<List<int>> dirs = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+    [1, 1],
+    [1, -1],
+    [-1, 1],
+    [-1, -1]
+  ];
+  for (var d in dirs) {
+    for (int i = 1; i <= length; i++) {
+      int px = cx + d[0] * i;
+      int py = cy + d[1] * i;
+      if (py >= 0 && py < h && px >= 0 && px < w) {
+        canvas[py][px] = true;
+      }
+    }
+  }
+}
+
+/// Transfers the Equalizer animation to the badge hardware.
+Future<void> transferEqualizerAnimation(
+    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+  final adapterState = await FlutterBluePlus.adapterState.first;
+  if (adapterState != BluetoothAdapterState.on) {
+    ToastUtils().showErrorToast('Please turn on Bluetooth');
+    return;
+  }
+
+  const int badgeHeight = 11;
+  const int badgeWidth = 44;
+  const int hardwareFrameCount = 8; // The badge can store up to 8 frames
+  final Speed selectedSpeed = Speed.eight;
+  final logger = Logger();
+
+  logger.i('Starting Equalizer animation transfer...');
+
+  List<Message> equalizerFrames = [];
+
+  //  Create the animation object *before* the loop because it's stateful.
+  final equalizerAnimation = EqualizerAnimation();
+
+  for (int i = 0; i < hardwareFrameCount; i++) {
+    List<List<bool>> frameBitmap = List.generate(
+        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
+
+    List<List<bool>> processGrid = List.generate(
+        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
+
+    equalizerAnimation.processAnimation(
+        badgeHeight, badgeWidth, i, processGrid, frameBitmap);
+
+    // Convert the boolean bitmap to a hex string
+    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
+    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
+
+    logger.i('📊 Equalizer Frame $i hex: ${hexList.join(",")}');
+
+    equalizerFrames.add(Message(
+      text: hexList,
+      mode: Mode.fixed, // Each frame is sent as a fixed image
+      speed: selectedSpeed,
+      flash: false,
+      marquee: false,
+    ));
+  }
+
+  Data data = Data(messages: equalizerFrames);
+  DataTransferManager manager = DataTransferManager(data);
+  await badgeDataProvider.transferData(manager);
+  logger.i('💡 Equalizer animation transfer completed successfully!');
 }
