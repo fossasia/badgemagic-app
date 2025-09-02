@@ -1,0 +1,30 @@
+name: Auto Reply to Assign Requests
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  auto-reply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Check for assign keywords
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const keywords = require("./keywords.json");
+            const comment = context.payload.comment.body.toLowerCase();
+            const rx = /(?:assign\s*(?:me|this\s*to\s*me|pls|plz)|(?:pls|plz)\s*assign(?:\s*me)?|please\s*(?:assign|let\s*me\s*work\s*on\s*this)|kindly\s*assign(?:\s*this\s*to\s*me)?|can\s*i\s*(?:work\s*on|take|try|pick\s*this\s*up)|may\s*i\s*work\s*on\s*this|could\s*you\s*assign\s*me|would\s*you\s*assign\s*me|can\s*you\s*(?:please\s*)?assign(?:\s*this\s*to\s*me)?|i\s*(?:want\s*to|would\s*like\s*to|’d\s*like\s*to|will|'ll|can)\s*(?:work\s*on|fix|take|pick\s*this\s*up)|let\s*me\s*(?:handle|take\s*this\s*one?|pick\s*this\s*up)|wanna\s*work\s*on\s*this|lemme\s*take\s*this|dibs(?:\s*on\s*this)?|me\s*please)/i;
+
+            if (rx.test(comment)) {
+              const issueNumber = context.payload.issue.number;
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issueNumber,
+                body: "Please go ahead and create a PR when you are ready. We do not formally assign issues. Contributors are free to pick up any open issue based on their availability. You can open a PR or even a draft PR to let others know that you’re working on it."
+              });
+            }
