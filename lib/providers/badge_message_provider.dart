@@ -280,12 +280,6 @@ Future<void> transferCupidAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
 
-Future<void> transferEqualizerAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
-  return customTransferEqualizerAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
-}
-
 List<List<int>> boolToIntBitmap(List<List<bool>> bitmap) {
   return bitmap.map((row) => row.map((b) => b ? 1 : 0).toList()).toList();
 }
