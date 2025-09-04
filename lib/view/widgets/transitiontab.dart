@@ -12,7 +12,7 @@ class TransitionTab extends StatefulWidget {
 
 class _TransitionTabState extends State<TransitionTab> {
   final ScrollController _scrollController = ScrollController();
-    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   @override
   void dispose() {

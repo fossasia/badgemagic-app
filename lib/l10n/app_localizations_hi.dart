@@ -233,6 +233,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get fireworks => 'पटाखे';
 
   @override
+  String get equalizer => 'इक्वलाइज़र';
+
+  @override
   String get switchToSpecialAnimation => 'स्पेशल एनिमेशन लगाएं?';
 
   @override

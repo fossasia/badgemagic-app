@@ -536,6 +536,12 @@ abstract class AppLocalizations {
   /// **'Fireworks'**
   String get fireworks;
 
+  /// No description provided for @equalizer.
+  ///
+  /// In en, this message translates to:
+  /// **'Equalizer'**
+  String get equalizer;
+
   /// No description provided for @switchToSpecialAnimation.
   ///
   /// In en, this message translates to:

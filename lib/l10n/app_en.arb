@@ -78,6 +78,7 @@
   "emergency": "Emergency",
   "beatingHearts": "Beating Hearts",
   "fireworks": "Fireworks",
+  "equalizer": "Equalizer",
   "switchToSpecialAnimation": "Switch to Special Animation?",
   "specialAnimationWarning": "Selecting this animation will overwrite your current text.",
   "copyText": "Copy text",
