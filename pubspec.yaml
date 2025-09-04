@@ -39,13 +39,13 @@ dependencies:
   provider: ^6.1.5
   flutter_blue_plus: ^1.35.5
   logger: ^2.6.1
-  flutter_svg: ^2.2.0
+  flutter_svg: ^2.2.1
   get_it: ^8.0.3
   flutter_screenutil: ^5.9.3
   extended_text_field: ^16.0.2
   path_provider: ^2.1.5
   uuid: ^4.5.0
-  go_router: ^16.2.0
+  go_router: ^16.2.1
   share_plus: ^11.1.0
   file_picker: ^10.3.2
   google_fonts: ^6.3.1

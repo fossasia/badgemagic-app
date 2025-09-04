@@ -185,6 +185,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ? const NeverScrollableScrollPhysics()
                     : const AlwaysScrollableScrollPhysics(),
                 child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     AnimationBadge(),
                     Container(
@@ -252,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ],
                     ),
                     SizedBox(
-                      height: 250.h,
+                      height: 350.h,
                       child: TabBarView(
                         physics: const NeverScrollableScrollPhysics(),
                         controller: _tabController,
@@ -277,168 +278,150 @@ class _HomeScreenState extends State<HomeScreen>
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Container(
-                          padding: EdgeInsets.symmetric(vertical: 20.h),
                           child: Consumer<AnimationBadgeProvider>(
                             builder: (context, animationProvider, _) {
                               final isSpecial = animationProvider
                                   .isSpecialAnimationSelected();
+
                               if (isSpecial) {
-                                // Only show Transfer button, centered
-                                return Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Container(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 20.h),
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          await animationProvider
-                                              .handleAnimationTransfer(
-                                            badgeData: badgeData,
-                                            inlineImageProvider:
-                                                inlineImageProvider,
-                                            speedDialProvider:
-                                                speedDialProvider,
-                                            flash: animationProvider
-                                                .isEffectActive(FlashEffect()),
-                                            marquee: animationProvider
-                                                .isEffectActive(
-                                                    MarqueeEffect()),
-                                            invert: animationProvider
-                                                .isEffectActive(
-                                                    InvertLEDEffect()),
-                                          );
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 33.w, vertical: 8.h),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(2.r),
-                                            color: mdGrey400,
-                                          ),
-                                          child: const Text('Transfer'),
-                                        ),
-                                      ),
+                                // Only Transfer button (for special animations)
+                                return GestureDetector(
+                                  onTap: () async {
+                                    await animationProvider
+                                        .handleAnimationTransfer(
+                                      badgeData: badgeData,
+                                      inlineImageProvider: inlineImageProvider,
+                                      speedDialProvider: speedDialProvider,
+                                      flash: animationProvider
+                                          .isEffectActive(FlashEffect()),
+                                      marquee: animationProvider
+                                          .isEffectActive(MarqueeEffect()),
+                                      invert: animationProvider
+                                          .isEffectActive(InvertLEDEffect()),
+                                    );
+                                  },
+                                  child: Container(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 33.w, vertical: 8.h),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(2.r),
+                                      color: mdGrey400,
                                     ),
-                                  ],
+                                    child: const Text('Transfer'),
+                                  ),
                                 );
                               } else {
-                                // Show both Save and Transfer as before
+                                // Save + Transfer buttons
                                 return Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Container(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 20.h),
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          if (inlineimagecontroller.text
-                                              .trim()
-                                              .isEmpty) {
-                                            ToastUtils().showToast(
-                                                "Please enter a message");
-                                            return;
+                                    // Save button
+                                    GestureDetector(
+                                      onTap: () async {
+                                        if (inlineimagecontroller.text
+                                            .trim()
+                                            .isEmpty) {
+                                          ToastUtils().showToast(
+                                              "Please enter a message");
+                                          return;
+                                        }
+
+                                        if (widget.savedBadgeFilename != null) {
+                                          // Update existing badge
+                                          SavedBadgeProvider
+                                              savedBadgeProvider =
+                                              SavedBadgeProvider();
+                                          String baseFilename =
+                                              widget.savedBadgeFilename!;
+                                          if (baseFilename.endsWith('.json')) {
+                                            baseFilename =
+                                                baseFilename.substring(
+                                                    0, baseFilename.length - 5);
                                           }
-                                          // If we're editing an existing badge, update it instead of showing save dialog
-                                          if (widget.savedBadgeFilename !=
-                                              null) {
-                                            SavedBadgeProvider
-                                                savedBadgeProvider =
-                                                SavedBadgeProvider();
-                                            String baseFilename =
-                                                widget.savedBadgeFilename!;
-                                            if (baseFilename
-                                                .endsWith('.json')) {
-                                              baseFilename =
-                                                  baseFilename.substring(0,
-                                                      baseFilename.length - 5);
-                                            }
-                                            await savedBadgeProvider
-                                                .updateBadgeData(
-                                              baseFilename, // Pass the filename without .json extension
-                                              inlineimagecontroller.text,
-                                              animationProvider.isEffectActive(
-                                                  FlashEffect()),
-                                              animationProvider.isEffectActive(
-                                                  MarqueeEffect()),
-                                              animationProvider.isEffectActive(
-                                                  InvertLEDEffect()),
-                                              speedDialProvider.getOuterValue(),
-                                              animationProvider
-                                                      .getAnimationIndex() ??
-                                                  1,
-                                            );
-                                            ToastUtils().showToast(
-                                                "Badge Updated Successfully");
-                                            Navigator.pushNamedAndRemoveUntil(
-                                                context,
-                                                '/savedBadge',
-                                                (route) => false);
-                                          } else {
-                                            // Show save dialog for new badges
-                                            showDialog(
-                                              context: context,
-                                              builder: (context) {
-                                                return SaveBadgeDialog(
-                                                  speed: speedDialProvider,
-                                                  animationProvider:
-                                                      animationProvider,
-                                                  textController:
-                                                      inlineimagecontroller,
-                                                  isInverse: animationProvider
-                                                      .isEffectActive(
-                                                          InvertLEDEffect()),
-                                                );
-                                              },
-                                            );
-                                          }
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 33.w, vertical: 8.h),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(2.r),
-                                            color: mdGrey400,
-                                          ),
-                                          child: const Text('Save'),
+
+                                          await savedBadgeProvider
+                                              .updateBadgeData(
+                                            baseFilename,
+                                            inlineimagecontroller.text,
+                                            animationProvider
+                                                .isEffectActive(FlashEffect()),
+                                            animationProvider.isEffectActive(
+                                                MarqueeEffect()),
+                                            animationProvider.isEffectActive(
+                                                InvertLEDEffect()),
+                                            speedDialProvider.getOuterValue(),
+                                            animationProvider
+                                                    .getAnimationIndex() ??
+                                                1,
+                                          );
+
+                                          ToastUtils().showToast(
+                                              "Badge Updated Successfully");
+                                          Navigator.pushNamedAndRemoveUntil(
+                                            context,
+                                            '/savedBadge',
+                                            (route) => false,
+                                          );
+                                        } else {
+                                          // Save new badge dialog
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) {
+                                              return SaveBadgeDialog(
+                                                speed: speedDialProvider,
+                                                animationProvider:
+                                                    animationProvider,
+                                                textController:
+                                                    inlineimagecontroller,
+                                                isInverse: animationProvider
+                                                    .isEffectActive(
+                                                        InvertLEDEffect()),
+                                              );
+                                            },
+                                          );
+                                        }
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 33.w, vertical: 8.h),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(2.r),
+                                          color: mdGrey400,
                                         ),
+                                        child: const Text('Save'),
                                       ),
                                     ),
-                                    SizedBox(width: 100.w),
-                                    Container(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 20.h),
-                                      child: GestureDetector(
-                                        onTap: () async {
-                                          await animationProvider
-                                              .handleAnimationTransfer(
-                                            badgeData: badgeData,
-                                            inlineImageProvider:
-                                                inlineImageProvider,
-                                            speedDialProvider:
-                                                speedDialProvider,
-                                            flash: animationProvider
-                                                .isEffectActive(FlashEffect()),
-                                            marquee: animationProvider
-                                                .isEffectActive(
-                                                    MarqueeEffect()),
-                                            invert: animationProvider
-                                                .isEffectActive(
-                                                    InvertLEDEffect()),
-                                          );
-                                        },
-                                        child: Container(
-                                          padding: EdgeInsets.symmetric(
-                                              horizontal: 20.w, vertical: 8.h),
-                                          decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(2.r),
-                                            color: mdGrey400,
-                                          ),
-                                          child: const Text('Transfer'),
+
+                                    SizedBox(width: 40.w),
+
+                                    // Transfer button
+                                    GestureDetector(
+                                      onTap: () async {
+                                        await animationProvider
+                                            .handleAnimationTransfer(
+                                          badgeData: badgeData,
+                                          inlineImageProvider:
+                                              inlineImageProvider,
+                                          speedDialProvider: speedDialProvider,
+                                          flash: animationProvider
+                                              .isEffectActive(FlashEffect()),
+                                          marquee: animationProvider
+                                              .isEffectActive(MarqueeEffect()),
+                                          invert:
+                                              animationProvider.isEffectActive(
+                                                  InvertLEDEffect()),
+                                        );
+                                      },
+                                      child: Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 33.w, vertical: 8.h),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(2.r),
+                                          color: mdGrey400,
                                         ),
+                                        child: const Text('Transfer'),
                                       ),
                                     ),
                                   ],
@@ -448,7 +431,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                         ),
                       ],
-                    )
+                    ),
                   ],
                 ),
               ),
