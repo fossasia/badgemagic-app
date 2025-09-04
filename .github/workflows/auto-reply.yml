@@ -20,9 +20,10 @@ jobs:
           script: |
             const comment = context.payload.comment.body.toLowerCase();
             const author = context.payload.comment.user.login;
+            const userType = context.payload.comment.user.type;
 
             // Skip bot comments (including this workflow)
-            if (author.endsWith("[bot]")) {
+            if (author.endsWith("[bot]") || userType === "Bot") {
               return;
             }
 
