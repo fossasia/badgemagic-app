@@ -2,6 +2,8 @@ import 'package:badgemagic/providers/getitlocator.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/view/about_us_screen.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
+import 'package:badgemagic/view/create_frames_screen.dart';
+import 'package:badgemagic/view/saved_frames_screen.dart';
 import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/save_badge_screen.dart';
 import 'package:badgemagic/view/saved_clipart.dart';
@@ -51,6 +53,8 @@ class MyApp extends StatelessWidget {
             '/savedClipart': (context) => const SavedClipart(),
             '/aboutUs': (context) => const AboutUsScreen(),
             '/settings': (context) => const SettingsScreen(),
+            '/createFrames': (context) => const CreateFramesScreen(),
+            '/savedFrames': (context) => const SavedFramesScreen(),
           },
         );
       },

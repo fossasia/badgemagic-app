@@ -38,6 +38,12 @@ class FileHelper {
     return 'data_${timestamp}_$uniqueId.json';
   }
 
+  static String _generateFramesFilename() {
+    final String uniqueId = uuid.v4();
+    final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+    return 'frames_${timestamp}_$uniqueId.json';
+  }
+
   // Add a new image to the cache
   void addToCache(Uint8List imageData, String filename) {
     int key;
@@ -187,6 +193,31 @@ class FileHelper {
 
     //Add the image to the image cache after saving it to a file
     await _addImageDataToCache(image, filename);
+  }
+
+  Future<void> saveFrameAnimation(List<List<List<int>>> frames) async {
+    final filename = _generateFramesFilename();
+    final jsonData = jsonEncode(frames);
+    await _writeToFile(filename, jsonData);
+  }
+
+  Future<void> saveFrameAnimationWithName(
+      String name, List<List<List<int>>> frames, int speed) async {
+    // Sanitize name for filesystem
+    String sanitized = name
+        .trim()
+        .replaceAll(RegExp(r"[^A-Za-z0-9 _.-]"), "")
+        .replaceAll(" ", "_");
+    if (sanitized.isEmpty) {
+      sanitized = "untitled";
+    }
+    final filename = 'frames_${sanitized}.json';
+    final Map<String, dynamic> payload = {
+      'frames': frames,
+      'speed': speed,
+    };
+    final jsonData = jsonEncode(payload);
+    await _writeToFile(filename, jsonData);
   }
 
   Future<dynamic> readFromFile(String filename) async {
