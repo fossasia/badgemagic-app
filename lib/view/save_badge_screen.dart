@@ -91,8 +91,9 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
           ),
           Consumer<BadgeSlotProvider>(
             builder: (context, selectionProvider, _) {
-              if (selectionProvider.selectedBadges.isEmpty)
+              if (selectionProvider.selectedBadges.isEmpty) {
                 return SizedBox.shrink();
+              }
               return IconButton(
                 icon: const Icon(Icons.delete, color: Colors.red),
                 tooltip: 'Delete Selected',
