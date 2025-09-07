@@ -35,9 +35,12 @@ class _BMBadgeState extends State<BMBadge> {
 
   void _handlePanStart(DragStartDetails details) {
     dragStart = _getLocalPosition(details.globalPosition);
+    drawProvider.pushToUndoStack(); // Save state for undo
   }
 
   void _handlePanUpdate(DragUpdateDetails details) {
+    if (dragStart == null) return; // Safety check
+
     final localPosition = _getLocalPosition(details.globalPosition);
     final shape = drawProvider.selectedShape;
 
@@ -49,8 +52,7 @@ class _BMBadgeState extends State<BMBadge> {
     switch (shape) {
       case DrawShape.freehand:
         _drawLine(start.x, start.y, end.x, end.y, preview: false);
-        dragStart = localPosition;
-        drawProvider.commitGridUpdate();
+        dragStart = localPosition; // update for next stroke segment
         break;
       case DrawShape.square:
         int size = ((end.x - start.x).abs() + (end.y - start.y).abs()) ~/ 2;
@@ -70,13 +72,12 @@ class _BMBadgeState extends State<BMBadge> {
         _drawTriangle(start.x, start.y, height, preview: true);
         break;
     }
-
-    // ignore: invalid_use_of_protected_member, invalid_use_of_visible_for_testing_member
-    drawProvider.notifyListeners();
   }
 
   void _handlePanEnd(DragEndDetails details) {
-    drawProvider.commitGridUpdate();
+    if (drawProvider.selectedShape != DrawShape.freehand) {
+      drawProvider.commitGridUpdate();
+    }
     dragStart = null;
   }
 
@@ -142,6 +143,7 @@ class _BMBadgeState extends State<BMBadge> {
   @override
   Widget build(BuildContext context) {
     final width = MediaQuery.of(context).size.width;
+
     return ChangeNotifierProvider.value(
       value: drawProvider,
       child: GestureDetector(
