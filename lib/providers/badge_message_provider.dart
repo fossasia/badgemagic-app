@@ -11,7 +11,7 @@ import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
-import 'package:badgemagic/utils/custom_animation_transfers.dart';
+import 'package:badgemagic/utils/custom_transfers/transfers.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart'; // Import the new EqualizerAnimation
@@ -280,6 +280,4 @@ Future<void> transferCupidAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
 
-List<List<int>> boolToIntBitmap(List<List<bool>> bitmap) {
-  return bitmap.map((row) => row.map((b) => b ? 1 : 0).toList()).toList();
-}
+// helper moved to utils/custom_transfers/common.dart
