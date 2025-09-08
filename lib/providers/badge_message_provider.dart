@@ -280,4 +280,10 @@ Future<void> transferCupidAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
 
+Future<void> transferCycleAnimation(
+    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+  return customTransferCycleAnimation(
+      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+}
+
 // helper moved to utils/custom_transfers/common.dart
