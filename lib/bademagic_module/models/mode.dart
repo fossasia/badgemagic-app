@@ -13,7 +13,8 @@ enum Mode {
   diamond('0x0B'), // Diamond animation mode
   feet('0x0C'), // Feet animation mode
   brokenhearts('0x0D'), // Broken Hearts animation mode
-  cupid('0x0E'); // Cupid animation mode
+  cupid('0x0E'), // Cupid animation mode
+  cycle('0x0F'); // Cycle animation mode
 
   final String hexValue;
   const Mode(this.hexValue);
