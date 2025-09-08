@@ -24,6 +24,7 @@ import 'package:badgemagic/badge_animation/ani_emergency.dart';
 import 'package:badgemagic/badge_animation/ani_beating_hearts.dart';
 import 'package:badgemagic/badge_animation/ani_fireworks.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart'; // Import the new EqualizerAnimation
+import 'package:badgemagic/badge_animation/ani_cycle.dart';
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -41,6 +42,7 @@ Map<int, Mode> modeValueMap = {
   12: Mode.brokenhearts, // Broken Hearts mode (use fixed or define if needed)
   13: Mode.cupid, // Cupid mode (use fixed or define if needed)
   14: Mode.feet, // Feet animation mode
+  15: Mode.cycle, // Cycle animation mode
 };
 
 Map<int, Speed> speedMap = {
@@ -119,19 +121,27 @@ class BadgeMessageProvider {
     }
 
     if (controllerData.getController().text.isEmpty && isSavedBadge == false) {
-      // Allow empty text if Pacman or Fireworks mode is selected
+      // Allow empty text if Pacman, Fireworks, or Cycle mode is selected
       // Fireworks: Mode.fixed and animation index 19
+      // Cycle: Mode.cycle and animation index 20
       bool isFireworks = false;
+      bool isCycle = false;
       try {
         // Try to get animation index from modeValueMap
         int fireworksIndex = 19;
+        int cycleIndex = 20;
         if (mode == Mode.fixed &&
             modeValueMap.containsKey(fireworksIndex) &&
             modeValueMap[fireworksIndex] == Mode.fixed) {
           isFireworks = true;
         }
+        if (mode == Mode.cycle &&
+            modeValueMap.containsKey(cycleIndex) &&
+            modeValueMap[cycleIndex] == Mode.cycle) {
+          isCycle = true;
+        }
       } catch (_) {}
-      if (mode != Mode.pacman && !isFireworks) {
+      if (mode != Mode.pacman && !isFireworks && !isCycle) {
         ToastUtils().showErrorToast("Please enter a message");
         return;
       }
@@ -491,6 +501,56 @@ Future<void> transferFishAnimation(
     logger.i('🐟 Fish animation transfer completed successfully!');
   } catch (e, st) {
     logger.e('⛔ Fish animation transfer failed: $e\n$st');
+  }
+}
+
+/// Transfers the Cycle animation to the badge, even if the homescreen text box is empty.
+Future<void> transferCycleAnimation(
+    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+  final adapterState = await FlutterBluePlus.adapterState.first;
+  if (adapterState != BluetoothAdapterState.on) {
+    ToastUtils().showErrorToast('Please turn on Bluetooth');
+    return;
+  } // Use the framesPerCycle from CycleAnimation
+
+  // Use the same speed logic as Diamond/Cupid: always use Speed.eight for seamless animation
+  // Cycle animation uses 8 selected frames from infinite back-and-forth movement
+  final Speed selectedSpeed = Speed.eight;
+  final logger = Logger();
+
+  logger.i('Starting Cycle animation transfer...');
+
+  List<Message> cycleFrames = [];
+
+  // Get the 8 carefully selected frames from the transferFrames method
+  List<List<List<bool>>> selectedFrames = CycleAnimation().transferFrames();
+
+  for (int i = 0; i < selectedFrames.length; i++) {
+    List<List<bool>> frameBitmap = selectedFrames[i];
+
+    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
+    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
+
+    logger.i(
+        '🚴 Cycle Frame $i hex: ${hexList.join(",")} speed: ${selectedSpeed.toString()} (hex: ${selectedSpeed.hexValue})');
+
+    cycleFrames.add(Message(
+      text: hexList,
+      mode: Mode.fixed,
+      speed: selectedSpeed,
+      flash: false,
+      marquee: false,
+    ));
+  }
+
+  Data data = Data(messages: cycleFrames);
+  logger.i('🚴 Cycle Data object created. Starting transfer...');
+
+  try {
+    await badgeDataProvider.transferData(DataTransferManager(data));
+    logger.i('🚴 Cycle animation transfer completed successfully!');
+  } catch (e, st) {
+    logger.e('⛔ Cycle animation transfer failed: $e\n$st');
   }
 }
 
