@@ -98,12 +98,14 @@ class _TransitionTabState extends State<TransitionTab> {
                   icon: Icons.equalizer,
                   animationName: 'Equalizer',
                   index: 20),
+            ]),
+            _buildTileRow([
               AniContainer(
                 animation: null,
                 icon: Icons.directions_bike,
                 animationName: 'Cycle',
                 index: 21,
-              ),
+              )
             ]),
           ],
         ),
@@ -115,15 +117,22 @@ class _TransitionTabState extends State<TransitionTab> {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: tiles
-            .map((tile) => Expanded(
+        mainAxisAlignment: tiles.length == 1
+            ? MainAxisAlignment.center
+            : MainAxisAlignment.spaceEvenly,
+        children: tiles.map((tile) {
+          return tiles.length == 1
+              ? Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: tile,
+                )
+              : Expanded(
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 4.0),
                     child: tile,
                   ),
-                ))
-            .toList(),
+                );
+        }).toList(),
       ),
     );
   }
