@@ -155,6 +155,31 @@ For this mode it is required that both the workstation and the device are on the
 
 Enable Wireless debugging as per the [documentation](https://developer.android.com/tools/adb#wireless-android11-command-line), then **pair** `adb pair <IP>:<PORT>` and **connect** `adb connect <IP>:<PORT>` and you should be able to find your device via `adb devices`.
 
+## Building for Android (API Flavors)
+
+This project uses product flavors to support both pre-Android 11 and Android 11+ devices. **You must specify a flavor when building or running for Android!**
+
+- **For Android 10 and below:**
+  ```sh
+  flutter build apk --flavor preApi30 -t lib/main.dart
+  flutter run --flavor preApi30 -t lib/main.dart
+  ```
+  Output: `build/app/outputs/flutter-apk/app-preapi30-release.apk`
+
+- **For Android 11 and above:**
+  ```sh
+  flutter build apk --flavor postApi30 -t lib/main.dart
+  flutter run --flavor postApi30 -t lib/main.dart
+  ```
+  Output: `build/app/outputs/flutter-apk/app-postapi30-release.apk`
+
+If you do not specify a flavor, the build will fail due to missing `minSdkVersion` and `targetSdkVersion` in the default configuration.
+
+**Developer Note:**
+- This is a standard practice for multi-target Android projects (such as those distributed on F-Droid).
+- It ensures clarity and prevents accidental builds for the wrong Android version.
+- If you want extra convenience, you can create local shell scripts or aliases, e.g., `run-pre.sh` with `flutter run --flavor preApi30 -t lib/main.dart` for faster development.
+- Always check the README for up-to-date build instructions.
 
 ## LICENSE
 

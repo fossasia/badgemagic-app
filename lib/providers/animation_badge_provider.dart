@@ -17,6 +17,13 @@ import 'package:badgemagic/badge_animation/ani_pacman.dart';
 import 'package:badgemagic/badge_animation/ani_chevron_left.dart';
 import 'package:badgemagic/badge_animation/ani_diamond.dart';
 import 'package:badgemagic/badge_animation/ani_broken_hearts.dart';
+import 'package:badgemagic/badge_animation/ani_cupid.dart';
+import 'package:badgemagic/badge_animation/ani_feet.dart';
+import 'package:badgemagic/badge_animation/ani_fish.dart';
+import 'package:badgemagic/badge_animation/ani_diagonal.dart';
+import 'package:badgemagic/badge_animation/ani_emergency.dart';
+import 'package:badgemagic/badge_animation/ani_beating_hearts.dart';
+import 'package:badgemagic/badge_animation/ani_fireworks.dart';
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 import 'package:badgemagic/badge_effect/badgeeffectabstract.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
@@ -24,15 +31,6 @@ import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
-
-import 'package:badgemagic/badge_animation/ani_cupid.dart';
-import 'package:badgemagic/badge_animation/ani_feet.dart';
-import 'package:badgemagic/badge_animation/ani_fish.dart';
-import 'package:badgemagic/badge_animation/ani_diagonal.dart';
-
-import 'package:badgemagic/badge_animation/ani_emergency.dart';
-import 'package:badgemagic/badge_animation/ani_beating_hearts.dart';
-import 'package:badgemagic/badge_animation/ani_fireworks.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart'; // new import of EqualizerAnimation
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
 
@@ -272,6 +270,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required bool flash,
     required bool marquee,
     required bool invert,
+    required BuildContext context,
   }) async {
     final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();
@@ -315,6 +314,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         modeValueMap[aniIndex],
         null,
         false,
+        context,
       );
     }
   }
