@@ -144,7 +144,6 @@ class BadgeMessageProvider {
       // Fireworks: Mode.fixed and animation index 19
       // Cycle: Mode.cycle and animation index 20
       bool isFireworks = false;
-      bool isCycle = false;
       try {
         // Try to get animation index from modeValueMap
         int fireworksIndex = 19;
@@ -157,7 +156,6 @@ class BadgeMessageProvider {
         if (mode == Mode.cycle &&
             modeValueMap.containsKey(cycleIndex) &&
             modeValueMap[cycleIndex] == Mode.cycle) {
-          isCycle = true;
         }
       } catch (_) {}
       if (mode != Mode.pacman && !isFireworks) {
