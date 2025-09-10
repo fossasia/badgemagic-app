@@ -155,8 +155,7 @@ class BadgeMessageProvider {
         }
         if (mode == Mode.cycle &&
             modeValueMap.containsKey(cycleIndex) &&
-            modeValueMap[cycleIndex] == Mode.cycle) {
-        }
+            modeValueMap[cycleIndex] == Mode.cycle) {}
       } catch (_) {}
       if (mode != Mode.pacman && !isFireworks) {
         final l10n = GetIt.instance.get<LocalizationService>().l10n;
