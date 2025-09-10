@@ -1,13 +1,20 @@
 import 'dart:async';
 import 'package:badgemagic/bademagic_module/bluetooth/connect_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'base_ble_state.dart';
 
 class ScanState extends NormalBleState {
   final DataTransferManager manager;
+  final BadgeScanMode mode;
+  final List<String> allowedNames;
 
-  ScanState({required this.manager});
+  ScanState({
+    required this.manager,
+    required this.mode,
+    required this.allowedNames,
+  });
 
   @override
   Future<BleState?> processState() async {
@@ -25,21 +32,35 @@ class ScanState extends NormalBleState {
           if (isCompleted || results.isEmpty) return;
 
           try {
+            final normalizedAllowedNames = allowedNames
+                .map((e) => e.trim().toLowerCase())
+                .where((e) => e.isNotEmpty)
+                .toList();
+
             final foundDevice = results.firstWhere(
-              (r) => r.advertisementData.serviceUuids.contains(
-                Guid("0000fee0-0000-1000-8000-00805f9b34fb"),
-              ),
+              (result) {
+                final matchesUuid = result.advertisementData.serviceUuids
+                    .contains(Guid("0000fee0-0000-1000-8000-00805f9b34fb"));
+
+                final deviceName = result.device.name.trim().toLowerCase();
+                final matchesName = mode == BadgeScanMode.any ||
+                    normalizedAllowedNames.contains(deviceName);
+
+                return matchesUuid && matchesName;
+              },
               orElse: () => throw Exception("Matching device not found."),
             );
 
             isCompleted = true;
-            await FlutterBluePlus.stopScan();
+            FlutterBluePlus.stopScan();
             toast.showToast('Device found. Connecting...');
-            nextStateCompleter.complete(
-              ConnectState(scanResult: foundDevice, manager: manager),
-            );
-          } catch (_) {
-            // Ignore and keep scanning
+
+            nextStateCompleter.complete(ConnectState(
+              scanResult: foundDevice,
+              manager: manager,
+            ));
+          } catch (e) {
+            logger.w("No matching device found in this batch: $e");
           }
         },
         onError: (e) {
@@ -54,12 +75,11 @@ class ScanState extends NormalBleState {
           }
         },
       );
-
       await FlutterBluePlus.startScan(
         withServices: [Guid("0000fee0-0000-1000-8000-00805f9b34fb")],
-        removeIfGone: const Duration(seconds: 5),
+        removeIfGone: Duration(seconds: 5),
         continuousUpdates: true,
-        timeout: const Duration(seconds: 15),
+        timeout: const Duration(seconds: 15), // Reduced scan timeout.
       );
 
       await Future.delayed(const Duration(seconds: 1));

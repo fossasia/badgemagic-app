@@ -1,6 +1,5 @@
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
@@ -11,8 +10,11 @@ import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'package:badgemagic/badge_animation/ani_cycle.dart';
 import 'package:badgemagic/badge_animation/ani_fish.dart';
+import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -23,6 +25,8 @@ import 'package:badgemagic/badge_animation/ani_diagonal.dart';
 import 'package:badgemagic/badge_animation/ani_emergency.dart';
 import 'package:badgemagic/badge_animation/ani_beating_hearts.dart';
 import 'package:badgemagic/badge_animation/ani_fireworks.dart';
+import 'package:badgemagic/badge_animation/ani_equalizer.dart';
+import 'package:provider/provider.dart'; // Import the new EqualizerAnimation
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -40,6 +44,7 @@ Map<int, Mode> modeValueMap = {
   12: Mode.brokenhearts, // Broken Hearts mode (use fixed or define if needed)
   13: Mode.cupid, // Cupid mode (use fixed or define if needed)
   14: Mode.feet, // Feet animation mode
+  15: Mode.cycle, // Cycle animation mode
 };
 
 Map<int, Speed> speedMap = {
@@ -91,14 +96,28 @@ class BadgeMessageProvider {
     }
   }
 
-  Future<void> transferData(DataTransferManager manager) async {
+  Future<void> transferData(
+    DataTransferManager manager, {
+    BuildContext? context,
+  }) async {
+    final scanProvider = context != null
+        ? Provider.of<BadgeScanProvider>(context, listen: false)
+        : null;
+
+    final BleState initialState = ScanState(
+      manager: manager,
+      mode: scanProvider?.mode ?? BadgeScanMode.any,
+      allowedNames: scanProvider?.getSelectedBadgeNames() ?? <String>[],
+    );
+
+    BleState? state = initialState;
     DateTime now = DateTime.now();
-    BleState? state = ScanState(manager: manager);
+
     while (state != null) {
       state = await state.process();
     }
 
-    logger.d("Time to transfer data is = ${DateTime.now().difference(now)}");
+    logger.d("Time to transfer data: ${DateTime.now().difference(now)}");
     logger.d(".......Data transfer completed.......");
   }
 
@@ -111,6 +130,7 @@ class BadgeMessageProvider {
       Mode? mode,
       Map<String, dynamic>? jsonData,
       bool isSavedBadge,
+      BuildContext context,
       {TextStyle? textStyle}) async {
     if (await FlutterBluePlus.isSupported == false) {
       ToastUtils().showErrorToast('Bluetooth is not supported by the device');
@@ -118,19 +138,27 @@ class BadgeMessageProvider {
     }
 
     if (controllerData.getController().text.isEmpty && isSavedBadge == false) {
-      // Allow empty text if Pacman or Fireworks mode is selected
+      // Allow empty text if Pacman, Fireworks, or Cycle mode is selected
       // Fireworks: Mode.fixed and animation index 19
+      // Cycle: Mode.cycle and animation index 20
       bool isFireworks = false;
+      bool isCycle = false;
       try {
         // Try to get animation index from modeValueMap
         int fireworksIndex = 19;
+        int cycleIndex = 20;
         if (mode == Mode.fixed &&
             modeValueMap.containsKey(fireworksIndex) &&
             modeValueMap[fireworksIndex] == Mode.fixed) {
           isFireworks = true;
         }
+        if (mode == Mode.cycle &&
+            modeValueMap.containsKey(cycleIndex) &&
+            modeValueMap[cycleIndex] == Mode.cycle) {
+          isCycle = true;
+        }
       } catch (_) {}
-      if (mode != Mode.pacman && !isFireworks) {
+      if (mode != Mode.pacman && !isFireworks && !isCycle) {
         ToastUtils().showErrorToast("Please enter a message");
         return;
       }
@@ -490,6 +518,56 @@ Future<void> transferFishAnimation(
     logger.i('🐟 Fish animation transfer completed successfully!');
   } catch (e, st) {
     logger.e('⛔ Fish animation transfer failed: $e\n$st');
+  }
+}
+
+/// Transfers the Cycle animation to the badge, even if the homescreen text box is empty.
+Future<void> transferCycleAnimation(
+    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+  final adapterState = await FlutterBluePlus.adapterState.first;
+  if (adapterState != BluetoothAdapterState.on) {
+    ToastUtils().showErrorToast('Please turn on Bluetooth');
+    return;
+  } // Use the framesPerCycle from CycleAnimation
+
+  // Use the same speed logic as Diamond/Cupid: always use Speed.eight for seamless animation
+  // Cycle animation uses 8 selected frames from infinite back-and-forth movement
+  final Speed selectedSpeed = Speed.eight;
+  final logger = Logger();
+
+  logger.i('Starting Cycle animation transfer...');
+
+  List<Message> cycleFrames = [];
+
+  // Get the 8 carefully selected frames from the transferFrames method
+  List<List<List<bool>>> selectedFrames = CycleAnimation().transferFrames();
+
+  for (int i = 0; i < selectedFrames.length; i++) {
+    List<List<bool>> frameBitmap = selectedFrames[i];
+
+    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
+    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
+
+    logger.i(
+        '🚴 Cycle Frame $i hex: ${hexList.join(",")} speed: ${selectedSpeed.toString()} (hex: ${selectedSpeed.hexValue})');
+
+    cycleFrames.add(Message(
+      text: hexList,
+      mode: Mode.fixed,
+      speed: selectedSpeed,
+      flash: false,
+      marquee: false,
+    ));
+  }
+
+  Data data = Data(messages: cycleFrames);
+  logger.i('🚴 Cycle Data object created. Starting transfer...');
+
+  try {
+    await badgeDataProvider.transferData(DataTransferManager(data));
+    logger.i('🚴 Cycle animation transfer completed successfully!');
+  } catch (e, st) {
+    logger.e('⛔ Cycle animation transfer failed: $e\n$st');
   }
 }
 
@@ -1082,4 +1160,57 @@ void _drawDestroyEffect(
       }
     }
   }
+}
+
+/// Transfers the Equalizer animation to the badge hardware.
+Future<void> transferEqualizerAnimation(
+    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+  final adapterState = await FlutterBluePlus.adapterState.first;
+  if (adapterState != BluetoothAdapterState.on) {
+    ToastUtils().showErrorToast('Please turn on Bluetooth');
+    return;
+  }
+
+  const int badgeHeight = 11;
+  const int badgeWidth = 44;
+  const int hardwareFrameCount = 8; // The badge can store up to 8 frames
+  final Speed selectedSpeed = Speed.eight;
+  final logger = Logger();
+
+  logger.i('Starting Equalizer animation transfer...');
+
+  List<Message> equalizerFrames = [];
+
+  //  Create the animation object *before* the loop because it's stateful.
+  final equalizerAnimation = EqualizerAnimation();
+
+  for (int i = 0; i < hardwareFrameCount; i++) {
+    List<List<bool>> frameBitmap = List.generate(
+        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
+
+    List<List<bool>> processGrid = List.generate(
+        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
+
+    equalizerAnimation.processAnimation(
+        badgeHeight, badgeWidth, i, processGrid, frameBitmap);
+
+    // Convert the boolean bitmap to a hex string
+    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
+    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
+
+    logger.i('📊 Equalizer Frame $i hex: ${hexList.join(",")}');
+
+    equalizerFrames.add(Message(
+      text: hexList,
+      mode: Mode.fixed, // Each frame is sent as a fixed image
+      speed: selectedSpeed,
+      flash: false,
+      marquee: false,
+    ));
+  }
+
+  Data data = Data(messages: equalizerFrames);
+  DataTransferManager manager = DataTransferManager(data);
+  await badgeDataProvider.transferData(manager);
+  logger.i('💡 Equalizer animation transfer completed successfully!');
 }
