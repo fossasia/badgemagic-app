@@ -228,7 +228,6 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                             badgeData['messages'][0]);
                                         badgeDataList.add(message);
                                       }
-
                                       while (badgeDataList.length < 8) {
                                         badgeDataList.add(Message(text: []));
                                       }
@@ -254,15 +253,15 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                       final data =
                                           Data(messages: badgeDataList);
                                       badgeMessageProvider.checkAndTransfer(
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        null,
-                                        data.toJson(),
-                                        true,
-                                      );
+                                          null,
+                                          null,
+                                          null,
+                                          null,
+                                          null,
+                                          null,
+                                          data.toJson(),
+                                          true,
+                                          context);
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(

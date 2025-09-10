@@ -55,7 +55,14 @@ runs:
         cache: true
         flutter-version-file: pubspec.yaml
 
-    - name: Create Android Screenshots
+    - name: Create Android Screenshots (preApi30)
+      uses: reactivecircus/android-emulator-runner@v2
+      with:
+        api-level: ${{ inputs.ANDROID_EMULATOR_API }}
+        arch: ${{ inputs.ANDROID_EMULATOR_ARCH }}
+        script: flutter drive --flavor preApi30 --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d emulator
+
+    - name: Create Android Screenshots (postApi30)
       uses: reactivecircus/android-emulator-runner@v2
       with:
         api-level: ${{ inputs.ANDROID_EMULATOR_API }}
@@ -66,7 +73,7 @@ runs:
         emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect -noaudio -no-boot-anim -camera-back none
         disable-animations: true
         script: |
-          DEVICE_NAME="Pixel 6" flutter drive --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d emulator
+          DEVICE_NAME="Pixel 6" flutter drive --flavor postApi30 --driver=test_integration/test_driver.dart --target=test_integration/screenshots.dart -d emulator
 
     - name: Update Fastlane Metadata
       if: ${{ github.event_name == 'push' }}
