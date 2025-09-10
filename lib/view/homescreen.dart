@@ -17,6 +17,7 @@ import 'package:badgemagic/providers/badge_message_provider.dart'
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/special_text_field.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
@@ -31,10 +32,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
-import 'package:badgemagic/services/localization_service.dart';
 
 class HomeScreen extends StatefulWidget {
-  // Add parameters for saved badge data when editing
   final String? savedBadgeFilename;
   final int? initialSpeed;
 
@@ -77,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen>
     _setPortraitOrientation();
     speedDialProvider = SpeedDialProvider(animationProvider);
 
-    // If initialSpeed is provided, set it immediately
     if (widget.initialSpeed != null) {
       speedDialProvider.setDialValue(widget.initialSpeed!);
     }
@@ -85,7 +83,6 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       inlineImageProvider.setContext(context);
 
-      // Apply saved badge data if we're editing a saved badge
       if (widget.savedBadgeFilename != null) {
         await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
       }
@@ -94,19 +91,16 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: 4, vsync: this);
   }
 
-  // Loads badge data from disk and populates controllers/providers for editing
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
     try {
       final (badgeText, badgeData, savedData) =
           await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
 
-      // Set the text in the controller
       inlineimagecontroller.text = badgeText;
 
-      // Set animation effects
-      animationProvider.removeEffect(effectMap[0]); // Invert
-      animationProvider.removeEffect(effectMap[1]); // Flash
-      animationProvider.removeEffect(effectMap[2]); // Marquee
+      animationProvider.removeEffect(effectMap[0]);
+      animationProvider.removeEffect(effectMap[1]);
+      animationProvider.removeEffect(effectMap[2]);
 
       final message = badgeData.messages[0];
       if (message.flash) {
@@ -121,11 +115,9 @@ class _HomeScreenState extends State<HomeScreen>
         animationProvider.addEffect(effectMap[0]);
       }
 
-      // Set animation mode
       int modeValue = BadgeLoaderHelper.parseAnimationMode(message.mode);
       animationProvider.setAnimationMode(animationMap[modeValue]);
 
-      // Set speed
       try {
         int speedDialValue = Speed.getIntValue(message.speed);
         speedDialProvider.setDialValue(speedDialValue);
@@ -148,6 +140,42 @@ class _HomeScreenState extends State<HomeScreen>
     ]);
   }
 
+  void handleTextChange() {
+    final currentText = inlineimagecontroller.text;
+    final selection = inlineimagecontroller.selection;
+
+    if (animationProvider.isSpecialAnimationSelected() &&
+        currentText.isNotEmpty) {
+      animationProvider.resetToTextAnimation();
+      animationProvider.badgeAnimation(currentText, Converters(),
+          animationProvider.isEffectActive(InvertLEDEffect()));
+      setState(() {});
+    }
+
+    if (previousText.length > currentText.length) {
+      final deletionIndex = selection.baseOffset;
+      final regex = RegExp(r'<<\d+>>');
+      final matches = regex.allMatches(previousText);
+
+      bool placeholderDeleted = false;
+      for (final match in matches) {
+        if (deletionIndex > match.start && deletionIndex < match.end) {
+          inlineimagecontroller.text =
+              previousText.replaceRange(match.start, match.end, '');
+          inlineimagecontroller.selection =
+              TextSelection.collapsed(offset: match.start);
+          placeholderDeleted = true;
+          break;
+        }
+      }
+      if (!placeholderDeleted) {
+        previousText = inlineimagecontroller.text;
+      }
+    } else {
+      previousText = currentText;
+    }
+  }
+
   Future<void> _startImageCaching() async {
     if (!inlineImageProvider.isCacheInitialized) {
       await inlineImageProvider.generateImageCache();
@@ -165,6 +193,14 @@ class _HomeScreenState extends State<HomeScreen>
     animationProvider.stopAnimation();
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _controllerListner() {
+    animationProvider.badgeAnimation(
+      inlineImageProvider.getController().text,
+      Converters(),
+      animationProvider.isEffectActive(InvertLEDEffect()),
+    );
   }
 
   @override
@@ -214,344 +250,282 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ],
           child: DefaultTabController(
-              length: 4,
-              child: CommonScaffold(
-                index: 0,
-                title: l10n.appTitle,
-                body: SafeArea(
-                  child: SingleChildScrollView(
-                    physics: isDialInteracting
-                        ? const NeverScrollableScrollPhysics()
-                        : const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AnimationBadge(),
-                        Container(
-                          margin: EdgeInsets.all(15.w),
-                          child: Material(
-                            color: drawerHeaderTitle,
-                            borderRadius: BorderRadius.circular(10.r),
-                            elevation: 4,
-                            child: ExtendedTextField(
-                              onChanged: (value) {},
-                              controller: inlineimagecontroller,
-                              specialTextSpanBuilder: ImageBuilder(),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                ),
-                                prefixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      isPrefixIconClicked =
-                                          !isPrefixIconClicked;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.tag_faces_outlined),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10.r)),
-                                  borderSide: BorderSide(color: colorPrimary),
-                                ),
+            length: 4,
+            child: CommonScaffold(
+              index: 0,
+              title: l10n.appTitle,
+              body: SafeArea(
+                child: SingleChildScrollView(
+                  physics: isDialInteracting
+                      ? const NeverScrollableScrollPhysics()
+                      : const AlwaysScrollableScrollPhysics(),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      AnimationBadge(),
+                      Container(
+                        margin: EdgeInsets.all(15.w),
+                        child: Material(
+                          color: drawerHeaderTitle,
+                          borderRadius: BorderRadius.circular(10.r),
+                          elevation: 4,
+                          child: ExtendedTextField(
+                            onChanged: (value) {},
+                            controller: inlineimagecontroller,
+                            specialTextSpanBuilder: ImageBuilder(),
+                            decoration: InputDecoration(
+                              border: OutlineInputBorder(
+                                borderRadius: BorderRadius.circular(10.r),
+                              ),
+                              prefixIcon: IconButton(
+                                onPressed: () {
+                                  setState(() {
+                                    isPrefixIconClicked = !isPrefixIconClicked;
+                                  });
+                                },
+                                icon: const Icon(Icons.tag_faces_outlined),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderRadius:
+                                    BorderRadius.all(Radius.circular(10.r)),
+                                borderSide: BorderSide(color: colorPrimary),
                               ),
                             ),
                           ),
                         ),
-                        Visibility(
-                            visible: isPrefixIconClicked,
-                            child: Container(
-                                height: 170.h,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10.r),
-                                    color: Colors.grey[200]),
-                                margin: EdgeInsets.symmetric(horizontal: 15.w),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 10.h, horizontal: 10.w),
-                                child: VectorGridView())),
-                        TabBar(
-                          isScrollable: false,
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          labelStyle: TextStyle(fontSize: 12),
-                          unselectedLabelStyle: TextStyle(fontSize: 12),
-                          labelColor: Colors.black,
-                          unselectedLabelColor: mdGrey400,
-                          indicatorColor: colorPrimary,
+                      ),
+                      Visibility(
+                        visible: isPrefixIconClicked,
+                        child: Container(
+                          height: 170.h,
+                          decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10.r),
+                              color: Colors.grey[200]),
+                          margin: EdgeInsets.symmetric(horizontal: 15.w),
+                          padding: EdgeInsets.symmetric(
+                              vertical: 10.h, horizontal: 10.w),
+                          child: VectorGridView(),
+                        ),
+                      ),
+                      TabBar(
+                        isScrollable: false,
+                        indicatorSize: TabBarIndicatorSize.tab,
+                        labelStyle: TextStyle(fontSize: 12),
+                        unselectedLabelStyle: TextStyle(fontSize: 12),
+                        labelColor: Colors.black,
+                        unselectedLabelColor: mdGrey400,
+                        indicatorColor: colorPrimary,
+                        controller: _tabController,
+                        splashFactory: InkRipple.splashFactory,
+                        overlayColor: WidgetStateProperty.resolveWith<Color?>(
+                          (states) => states.contains(WidgetState.pressed)
+                              ? dividerColor
+                              : null,
+                        ),
+                        tabs: [
+                          Tab(
+                              key: const ValueKey('tab_speed'),
+                              text: l10n.speedTitle),
+                          Tab(
+                              key: const ValueKey('tab_animation'),
+                              text: l10n.animation),
+                          Tab(
+                              key: const ValueKey('tab_transition'),
+                              text: l10n.transitionTitle),
+                          Tab(
+                              key: const ValueKey('tab_effects'),
+                              text: l10n.effectsTitle),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 350.h,
+                        child: TabBarView(
+                          physics: const NeverScrollableScrollPhysics(),
                           controller: _tabController,
-                          splashFactory: InkRipple.splashFactory,
-                          overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                            (states) => states.contains(WidgetState.pressed)
-                                ? dividerColor
-                                : null,
-                          ),
-                          tabs: [
-                            Tab(
-                                key: const ValueKey('tab_speed'),
-                                text: l10n.speedTitle),
-                            Tab(
-                                key: const ValueKey('tab_animation'),
-                                text: l10n.animation),
-                            Tab(
-                                key: const ValueKey('tab_transition'),
-                                text: l10n.transitionTitle),
-                            Tab(
-                                key: const ValueKey('tab_effects'),
-                                text: l10n.effectsTitle),
+                          children: [
+                            GestureDetector(
+                              onPanDown: (_) =>
+                                  setState(() => isDialInteracting = true),
+                              onPanCancel: () =>
+                                  setState(() => isDialInteracting = false),
+                              onPanEnd: (_) =>
+                                  setState(() => isDialInteracting = false),
+                              child: RadialDial(),
+                            ),
+                            TransitionTab(),
+                            AnimationTab(),
+                            EffectTab(),
                           ],
                         ),
-                        SizedBox(
-                          height: 350.h,
-                          child: TabBarView(
-                            physics: const NeverScrollableScrollPhysics(),
-                            controller: _tabController,
-                            children: [
-                              GestureDetector(
-                                onPanDown: (_) =>
-                                    setState(() => isDialInteracting = true),
-                                onPanCancel: () =>
-                                    setState(() => isDialInteracting = false),
-                                onPanEnd: (_) =>
-                                    setState(() => isDialInteracting = false),
-                                child: RadialDial(),
-                              ),
-                              TransitionTab(),
-                              AnimationTab(),
-                              EffectTab(),
-                            ],
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Container(
-                              child: Consumer<AnimationBadgeProvider>(
-                                builder: (context, animationProvider, _) {
-                                  final isSpecial = animationProvider
-                                      .isSpecialAnimationSelected();
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            child: Consumer<AnimationBadgeProvider>(
+                              builder: (context, animationProvider, _) {
+                                final isSpecial = animationProvider
+                                    .isSpecialAnimationSelected();
 
-                                  if (isSpecial) {
-                                    // Only Transfer button (for special animations)
-                                    return GestureDetector(
-                                      onTap: () async {
-                                        await animationProvider
-                                            .handleAnimationTransfer(
-                                          badgeData: badgeData,
-                                          inlineImageProvider:
-                                              inlineImageProvider,
-                                          speedDialProvider: speedDialProvider,
-                                          flash: animationProvider
-                                              .isEffectActive(FlashEffect()),
-                                          marquee: animationProvider
-                                              .isEffectActive(MarqueeEffect()),
-                                          invert:
+                                if (isSpecial) {
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      await animationProvider
+                                          .handleAnimationTransfer(
+                                        badgeData: badgeData,
+                                        inlineImageProvider:
+                                            inlineImageProvider,
+                                        speedDialProvider: speedDialProvider,
+                                        flash: animationProvider
+                                            .isEffectActive(FlashEffect()),
+                                        marquee: animationProvider
+                                            .isEffectActive(MarqueeEffect()),
+                                        invert: animationProvider
+                                            .isEffectActive(InvertLEDEffect()),
+                                        context: context,
+                                      );
+                                    },
+                                    child: Container(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 33.w, vertical: 8.h),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(2.r),
+                                        color: mdGrey400,
+                                      ),
+                                      child: Text(l10n.transferButton),
+                                    ),
+                                  );
+                                } else {
+                                  return Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      GestureDetector(
+                                        onTap: () async {
+                                          if (inlineimagecontroller.text
+                                              .trim()
+                                              .isEmpty) {
+                                            ToastUtils().showToast(
+                                                "Please enter a message");
+                                            return;
+                                          }
+
+                                          if (widget.savedBadgeFilename !=
+                                              null) {
+                                            SavedBadgeProvider
+                                                savedBadgeProvider =
+                                                SavedBadgeProvider();
+                                            String baseFilename =
+                                                widget.savedBadgeFilename!;
+                                            if (baseFilename
+                                                .endsWith('.json')) {
+                                              baseFilename =
+                                                  baseFilename.substring(0,
+                                                      baseFilename.length - 5);
+                                            }
+
+                                            await savedBadgeProvider
+                                                .updateBadgeData(
+                                              baseFilename,
+                                              inlineimagecontroller.text,
+                                              animationProvider.isEffectActive(
+                                                  FlashEffect()),
+                                              animationProvider.isEffectActive(
+                                                  MarqueeEffect()),
                                               animationProvider.isEffectActive(
                                                   InvertLEDEffect()),
-                                      context: context,
-                                        );
-                                      },
-                                      child: Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 33.w, vertical: 8.h),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(2.r),
-                                          color: mdGrey400,
-                                        ),
-                                        child: Text(l10n.transferButton),
-                                      ),
-                                    );
-                                  } else {
-                                    // Save + Transfer buttons
-                                    return Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        // Save button
-                                        GestureDetector(
-                                          onTap: () async {
-                                            if (inlineimagecontroller.text
-                                                .trim()
-                                                .isEmpty) {
-                                              ToastUtils().showToast(
-                                                  "Please enter a message");
-                                              return;
-                                            }
-
-                                            if (widget.savedBadgeFilename !=
-                                                null) {
-                                              // Update existing badge
-                                              SavedBadgeProvider
-                                                  savedBadgeProvider =
-                                                  SavedBadgeProvider();
-                                              String baseFilename =
-                                                  widget.savedBadgeFilename!;
-                                              if (baseFilename
-                                                  .endsWith('.json')) {
-                                                baseFilename =
-                                                    baseFilename.substring(
-                                                        0,
-                                                        baseFilename.length -
-                                                            5);
-                                              }
-
-                                              await savedBadgeProvider
-                                                  .updateBadgeData(
-                                                baseFilename,
-                                                inlineimagecontroller.text,
-                                                animationProvider
-                                                    .isEffectActive(
-                                                        FlashEffect()),
-                                                animationProvider
-                                                    .isEffectActive(
-                                                        MarqueeEffect()),
-                                                animationProvider
-                                                    .isEffectActive(
-                                                        InvertLEDEffect()),
-                                                speedDialProvider
-                                                    .getOuterValue(),
-                                                animationProvider
-                                                        .getAnimationIndex() ??
-                                                    1,
-                                              );
-
-                                              ToastUtils().showToast(
-                                                  "Badge Updated Successfully");
-                                              Navigator.pushNamedAndRemoveUntil(
-                                                context,
-                                                '/savedBadge',
-                                                (route) => false,
-                                              );
-                                            } else {
-                                              // Save new badge dialog
-                                              showDialog(
-                                                context: context,
-                                                builder: (context) {
-                                                  return SaveBadgeDialog(
-                                                    speed: speedDialProvider,
-                                                    animationProvider:
-                                                        animationProvider,
-                                                    textController:
-                                                        inlineimagecontroller,
-                                                    isInverse: animationProvider
-                                                        .isEffectActive(
-                                                            InvertLEDEffect()),
-                                                  );
-                                                },
-                                              );
-                                            }
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 33.w,
-                                                vertical: 8.h),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(2.r),
-                                              color: mdGrey400,
-                                            ),
-                                            child: Text(l10n.saveButton),
-                                          ),
-                                        ),
-
-                                        SizedBox(width: 40.w),
-
-                                        // Transfer button
-                                        GestureDetector(
-                                          onTap: () async {
-                                            await animationProvider
-                                                .handleAnimationTransfer(
-                                              badgeData: badgeData,
-                                              inlineImageProvider:
-                                                  inlineImageProvider,
-                                              speedDialProvider:
-                                                  speedDialProvider,
-                                              flash: animationProvider
-                                                  .isEffectActive(
-                                                      FlashEffect()),
-                                              marquee: animationProvider
-                                                  .isEffectActive(
-                                                      MarqueeEffect()),
-                                              invert: animationProvider
-                                                  .isEffectActive(
-                                                      InvertLEDEffect()),
-                                          context: context,
+                                              speedDialProvider.getOuterValue(),
+                                              animationProvider
+                                                      .getAnimationIndex() ??
+                                                  1,
                                             );
-                                          },
-                                          child: Container(
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 33.w,
-                                                vertical: 8.h),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(2.r),
-                                              color: mdGrey400,
-                                            ),
-                                            child: Text(l10n.transferButton),
+
+                                            ToastUtils().showToast(
+                                                "Badge Updated Successfully");
+                                            Navigator.pushNamedAndRemoveUntil(
+                                              context,
+                                              '/savedBadge',
+                                              (route) => false,
+                                            );
+                                          } else {
+                                            showDialog(
+                                              context: context,
+                                              builder: (context) {
+                                                return SaveBadgeDialog(
+                                                  speed: speedDialProvider,
+                                                  animationProvider:
+                                                      animationProvider,
+                                                  textController:
+                                                      inlineimagecontroller,
+                                                  isInverse: animationProvider
+                                                      .isEffectActive(
+                                                          InvertLEDEffect()),
+                                                );
+                                              },
+                                            );
+                                          }
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 33.w, vertical: 8.h),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(2.r),
+                                            color: mdGrey400,
                                           ),
+                                          child: Text(l10n.saveButton),
                                         ),
-                                      ],
-                                    );
-                                  }
-                                },
-                              ),
+                                      ),
+                                      SizedBox(width: 40.w),
+                                      GestureDetector(
+                                        onTap: () async {
+                                          await animationProvider
+                                              .handleAnimationTransfer(
+                                            badgeData: badgeData,
+                                            inlineImageProvider:
+                                                inlineImageProvider,
+                                            speedDialProvider:
+                                                speedDialProvider,
+                                            flash: animationProvider
+                                                .isEffectActive(FlashEffect()),
+                                            marquee: animationProvider
+                                                .isEffectActive(
+                                                    MarqueeEffect()),
+                                            invert: animationProvider
+                                                .isEffectActive(
+                                                    InvertLEDEffect()),
+                                            context: context,
+                                          );
+                                        },
+                                        child: Container(
+                                          padding: EdgeInsets.symmetric(
+                                              horizontal: 33.w, vertical: 8.h),
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(2.r),
+                                            color: mdGrey400,
+                                          ),
+                                          child: Text(l10n.transferButton),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+                              },
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                scaffoldKey: const Key(homeScreenTitleKey),
-              )),
+              ),
+              scaffoldKey: const Key(homeScreenTitleKey),
+            ),
+          ),
         );
       },
-    );
-  }
-
-  void handleTextChange() {
-    final currentText = inlineimagecontroller.text;
-    final selection = inlineimagecontroller.selection;
-
-    // Always reset to text animation if a special animation is selected and user types
-    if (animationProvider.isSpecialAnimationSelected() &&
-        currentText.isNotEmpty) {
-      animationProvider.resetToTextAnimation();
-      animationProvider.badgeAnimation(currentText, Converters(),
-          animationProvider.isEffectActive(InvertLEDEffect()));
-      setState(() {}); // Ensure UI updates
-    }
-
-    if (previousText.length > currentText.length) {
-      final deletionIndex = selection.baseOffset;
-      final regex = RegExp(r'<<\d+>>');
-      final matches = regex.allMatches(previousText);
-
-      bool placeholderDeleted = false;
-      for (final match in matches) {
-        if (deletionIndex > match.start && deletionIndex < match.end) {
-          inlineimagecontroller.text =
-              previousText.replaceRange(match.start, match.end, '');
-          inlineimagecontroller.selection =
-              TextSelection.collapsed(offset: match.start);
-          placeholderDeleted = true;
-          break;
-        }
-      }
-      if (!placeholderDeleted) {
-        previousText = inlineimagecontroller.text;
-      }
-    } else {
-      previousText = currentText;
-    }
-  }
-
-  void _controllerListner() {
-    animationProvider.badgeAnimation(
-      inlineImageProvider.getController().text,
-      Converters(),
-      animationProvider.isEffectActive(InvertLEDEffect()),
     );
   }
 

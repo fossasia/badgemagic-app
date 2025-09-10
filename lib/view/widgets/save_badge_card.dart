@@ -7,8 +7,6 @@ import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
-import 'package:badgemagic/services/localization_service.dart';
-import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
@@ -39,7 +37,6 @@ class SaveBadgeCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     BadgeMessageProvider badge = BadgeMessageProvider();
     return Container(
       width: 370.w,
