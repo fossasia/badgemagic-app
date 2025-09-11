@@ -135,6 +135,7 @@ class BadgeMessageProvider {
       try {
         // Try to get animation index from modeValueMap
         int fireworksIndex = 19;
+        int cycleIndex = 20;
         if (mode == Mode.fixed &&
             modeValueMap.containsKey(fireworksIndex) &&
             modeValueMap[fireworksIndex] == Mode.fixed) {
