@@ -111,6 +111,8 @@ class _AniContainerState extends State<AniContainer> {
               Text(
                 _getLocalizedAnimationName(widget.animationName, context),
                 style: TextStyle(fontSize: 9.sp),
+                 overflow: TextOverflow.ellipsis,
+                maxLines: 1,
               ),
             ],
           ),

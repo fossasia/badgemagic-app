@@ -14,6 +14,7 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
+import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -32,6 +33,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
@@ -182,6 +184,35 @@ class _HomeScreenState extends State<HomeScreen>
       setState(() {
         inlineImageProvider.isCacheInitialized = true;
       });
+    }
+  }
+
+  TextStyle _getFontStyle(String fontName) {
+    const baseStyle = TextStyle(fontSize: 12);
+    switch (fontName) {
+      case 'Roboto':
+        return GoogleFonts.roboto(
+            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+      case 'Open Sans':
+        return GoogleFonts.openSans(
+            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+      case 'Lato':
+        return GoogleFonts.lato(
+            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+      case 'Poppins':
+        return GoogleFonts.poppins(
+            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+      case 'Montserrat':
+        return GoogleFonts.montserrat(
+            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+      case 'Orbitron':
+        return GoogleFonts.orbitron(
+            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+      case 'Lexend':
+        return GoogleFonts.lexend(
+            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+      default:
+        return baseStyle;
     }
   }
 

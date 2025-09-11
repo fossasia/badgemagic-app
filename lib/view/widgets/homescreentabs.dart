@@ -47,7 +47,7 @@ class _EffectsTabState extends State<EffectTab> {
   }
 }
 
-//Animation tab to show animation choices for the user
+// Animation tab to show special animations
 class AnimationTab extends StatefulWidget {
   const AnimationTab({super.key});
 
@@ -62,91 +62,105 @@ class _AnimationTabState extends State<AnimationTab> {
     return SingleChildScrollView(
       child: Column(
         children: [
-          Row(
-            children: [
-              Semantics(
-                label: 'Left',
-                child: AniContainer(
-                  animation: aniLeft,
-                  animationName: l10n.animationLeft,
-                  index: 0,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              children: [
+                AniContainer(
+                  animation: null,
+                  icon: Icons.sports_esports, // Pacman icon
+                  animationName: l10n.pacman,
+                  index: 9,
                 ),
-              ),
-              Semantics(
-                label: 'Right',
-                child: AniContainer(
-                  animation: aniRight,
-                  animationName: l10n.animationRight,
-                  index: 1,
+                AniContainer(
+                  animation: null,
+                  icon: Icons.chevron_left, // Chevron icon
+                  animationName: l10n.chevron,
+                  index: 10,
                 ),
-              ),
-              Semantics(
-                label: 'Up',
-                child: AniContainer(
-                  animation: aniUp,
-                  animationName: l10n.animationUp,
-                  index: 2,
+                AniContainer(
+                  animation: null,
+                  icon: Icons.diamond, // Diamond icon
+                  animationName: l10n.diamond,
+                  index: 11,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          Row(
-            children: [
-              Semantics(
-                label: 'Down',
-                child: AniContainer(
-                  animation: aniDown,
-                  animationName: l10n.animationDown,
-                  index: 3,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              children: [
+                AniContainer(
+                  animation: null,
+                  icon: Icons.heart_broken, // Broken Hearts icon
+                  animationName: l10n.brokenHearts,
+                  index: 12,
                 ),
-              ),
-              Semantics(
-                label: 'Fixed',
-                child: AniContainer(
-                  animation: aniFixed,
-                  animationName: l10n.animationFixed,
-                  index: 4,
+                AniContainer(
+                  animation: null,
+                  icon: Icons.favorite_border, // Cupid icon
+                  animationName: l10n.cupid,
+                  index: 13,
                 ),
-              ),
-              Semantics(
-                label: 'Snowflake',
-                child: AniContainer(
-                  animation: aniFixed,
-                  animationName: l10n.animationSnowflake,
-                  index: 5,
+                AniContainer(
+                  animation: null,
+                  icon: Icons.directions_walk, // Feet animation icon
+                  animationName: l10n.feet,
+                  index: 14,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          Row(
-            children: [
-              Semantics(
-                label: 'Picture',
-                child: AniContainer(
-                  animation: aniPicture,
-                  animationName: l10n.picture,
-                  index: 6,
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              children: [
+                AniContainer(
+                  animation: null,
+                  icon: Icons.set_meal, // Fish icon
+                  animationName: l10n.fishKiss,
+                  index: 15,
                 ),
-              ),
-              Semantics(
-                label: 'Animation',
-                child: AniContainer(
-                  animation: animation,
-                  animationName: l10n.animation,
-                  index: 7,
+                AniContainer(
+                  animation: null,
+                  icon: Icons.change_history, // V shape icon
+                  animationName: l10n.diagonal,
+                  index: 16,
                 ),
-              ),
-              Semantics(
-                label: 'Laser',
-                child: AniContainer(
-                  animation: aniLaser,
-                  animationName: l10n.laser,
-                  index: 8,
+                AniContainer(
+                  animation: null,
+                  icon: Icons.warning, // Emergency/alert icon
+                  animationName: l10n.emergency,
+                  index: 17,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          // Special animations moved to Transition tab.
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              children: [
+                AniContainer(
+                  animation: null,
+                  icon: Icons.favorite, // Heart icon
+                  animationName: l10n.beatingHearts,
+                  index: 18,
+                ),
+                AniContainer(
+                  animation: null,
+                  icon: Icons.celebration, // Fireworks icon
+                  animationName: l10n.fireworks,
+                  index: 19,
+                ),
+                AniContainer(
+                  animationName: l10n.equalizer,
+                  index: 20, // This MUST match the index in your animationMap
+                  icon: Icons.equalizer,
+                )
+              ],
+            ),
+          ),
         ],
       ),
     );
