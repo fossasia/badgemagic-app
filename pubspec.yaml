@@ -20,7 +20,7 @@ version: 1.0.0+1
 
 environment:
   sdk: '>=3.3.4 <4.0.0'
-  flutter: '3.35.1'
+  flutter: '3.35.3'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -31,24 +31,25 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  shared_preferences: 2.5.3
 
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.6
   provider: ^6.1.5
-  flutter_blue_plus: ^1.35.5
+  flutter_blue_plus: ^1.35.10
   logger: ^2.6.1
-  flutter_svg: ^2.2.0
+  flutter_svg: ^2.2.1
   get_it: ^8.0.3
   flutter_screenutil: ^5.9.3
   extended_text_field: ^16.0.2
   path_provider: ^2.1.5
   uuid: ^4.5.0
-  go_router: ^16.0.0
-  share_plus: ^11.0.0
-  file_picker: ^10.2.0
-  google_fonts: ^6.2.1
+  go_router: ^16.2.1
+  share_plus: ^11.1.0
+  file_picker: ^10.3.2
+  google_fonts: ^6.3.1
   url_launcher: ^6.3.2
   image: ^4.5.4
 
@@ -110,4 +111,3 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
-

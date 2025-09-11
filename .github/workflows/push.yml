@@ -19,11 +19,30 @@ jobs:
       VERSION_NAME: ${{ steps.flutter-version.outputs.VERSION_NAME }}
       VERSION_CODE: ${{ steps.flutter-version.outputs.VERSION_CODE }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Common Workflow
         uses: ./.github/actions/common
-        
+
+      - name: Build preApi30 APK
+        run: flutter build apk --flavor preApi30 -t lib/main.dart
+
+      - name: Build postApi30 APK
+        run: flutter build apk --flavor postApi30 -t lib/main.dart
+
+      - name: Upload preApi30 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-preapi30-release.apk
+          path: build/app/outputs/flutter-apk/app-preapi30-release.apk
+
+      - name: Upload postApi30 APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-postapi30-release.apk
+          path: build/app/outputs/flutter-apk/app-postapi30-release.apk
+
+
       - name: Hydrate and Update Version
         id: flutter-version
         run: |
@@ -71,7 +90,7 @@ jobs:
     needs: common
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Prepare Build Keys
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -163,7 +182,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Prepare Build Keys
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -207,7 +226,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Run Release Drafter
         id: run-release-drafter
@@ -228,7 +247,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Android Screenshot Workflow
         uses: ./.github/actions/screenshot-android
@@ -246,7 +265,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: iPhone Screenshot Workflow
         uses: ./.github/actions/screenshot-iphone
@@ -263,9 +282,125 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: iPad Screenshot Workflow
         uses: ./.github/actions/screenshot-ipad
         with:
           IPAD_DEVICE_MODEL: ${{ env.IPAD_DEVICE_MODEL }}
+
+  debian:
+    name: Debian Flutter Build
+    needs: common
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Debian Workflow
+        uses: ./.github/actions/debian
+        with:
+          VERSION_NAME: ${{ needs.common.outputs.VERSION_NAME }}
+          VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
+
+      - name: Upload Debian Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Debian Build
+          path: build/linux/x64/release/bundle/
+
+      - name: Push Debian Build to app branch
+        shell: bash
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git clone --branch=app https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} app
+          cd app
+          branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+          cp -r ../build/linux/x64/release/bundle/* .
+          git checkout --orphan temporary
+          git add --all
+          git commit -m "[Auto] Update Debian build from $branch ($(date +%Y-%m-%d.%H:%M:%S))"
+          git branch -D app
+          git branch -m app
+          git push --force origin app
+
+  macos:
+    name: macOS Flutter Build
+    needs: common
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: macOS Workflow
+        uses: ./.github/actions/macos
+        with:
+          VERSION_NAME: ${{ needs.common.outputs.VERSION_NAME }}
+          VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
+
+      - name: Upload macOS Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: macOS Build
+          path: build/macos/Build/Products/Release/
+
+      - name: Push macOS Build to app branch
+        shell: bash
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git clone --branch=app https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} app
+          cd app
+          branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+
+          # Copy all macOS build artifacts to root
+          cp -r ../build/macos/Build/Products/Release/* .
+
+          git checkout --orphan temporary
+          git add --all
+          git commit -m "[Auto] Update macOS build from $branch ($(date +%Y-%m-%d.%H:%M:%S))"
+          git branch -D app
+          git branch -m app
+          git push --force origin app
+
+
+  windows:
+    name: Windows Flutter Build
+    needs: common
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Windows Workflow
+        uses: ./.github/actions/windows
+        with:
+          VERSION_NAME: ${{ needs.common.outputs.VERSION_NAME }}
+          VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
+
+      - name: Upload Windows Build
+        uses: actions/upload-artifact@v4
+        with:
+          name: Windows Build
+          path: build/windows/x64/runner/Release/
+
+      - name: Push Windows Build to app branch
+        shell: bash
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git clone --branch=app https://${{ github.repository_owner }}:${{ github.token }}@github.com/${{ github.repository }} app
+          cd app
+          branch=${GITHUB_HEAD_REF:-${GITHUB_REF#refs/heads/}}
+
+          # Copy all Windows build artifacts to root
+          cp -r ../build/windows/x64/runner/Release/* .
+
+          git checkout --orphan temporary
+          git add --all
+          git commit -m "[Auto] Update Windows build from $branch ($(date +%Y-%m-%d.%H:%M:%S))"
+          git branch -D app
+          git branch -m app
+          git push --force origin app
+
