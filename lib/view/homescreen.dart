@@ -33,7 +33,6 @@ import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   // Add parameters for saved badge data when editing
-
   final String? savedBadgeFilename;
   final int? initialSpeed;
 
@@ -53,29 +52,34 @@ class _HomeScreenState extends State<HomeScreen>
         AutomaticKeepAliveClientMixin,
         WidgetsBindingObserver {
   late final TabController _tabController;
-  AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
+  final AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
   late SpeedDialProvider speedDialProvider;
-  BadgeMessageProvider badgeData = BadgeMessageProvider();
-  ImageUtils imageUtils = ImageUtils();
-  InlineImageProvider inlineImageProvider =
+  final BadgeMessageProvider badgeData = BadgeMessageProvider();
+  final ImageUtils imageUtils = ImageUtils();
+  final InlineImageProvider inlineImageProvider =
       GetIt.instance<InlineImageProvider>();
-  bool isPrefixIconClicked = false;
-  int textfieldLength = 0;
-  String previousText = '';
   final TextEditingController inlineimagecontroller =
       GetIt.instance.get<InlineImageProvider>().getController();
+
+  bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
+  String previousText = '';
+  String _cachedText = '';
   String errorVal = "";
 
   @override
   void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
     speedDialProvider = SpeedDialProvider(animationProvider);
+
     // If initialSpeed is provided, set it immediately
     if (widget.initialSpeed != null) {
       speedDialProvider.setDialValue(widget.initialSpeed!);
     }
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       inlineImageProvider.setContext(context);
 
@@ -85,8 +89,6 @@ class _HomeScreenState extends State<HomeScreen>
       }
     });
     _startImageCaching();
-    super.initState();
-
     _tabController = TabController(length: 4, vsync: this);
   }
 
@@ -95,12 +97,15 @@ class _HomeScreenState extends State<HomeScreen>
     try {
       final (badgeText, badgeData, savedData) =
           await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
+
       // Set the text in the controller
       inlineimagecontroller.text = badgeText;
+
       // Set animation effects
       animationProvider.removeEffect(effectMap[0]); // Invert
       animationProvider.removeEffect(effectMap[1]); // Flash
       animationProvider.removeEffect(effectMap[2]); // Marquee
+
       final message = badgeData.messages[0];
       if (message.flash) {
         animationProvider.addEffect(effectMap[1]);
@@ -113,9 +118,11 @@ class _HomeScreenState extends State<HomeScreen>
           savedData['invert'] == true) {
         animationProvider.addEffect(effectMap[0]);
       }
+
       // Set animation mode
       int modeValue = BadgeLoaderHelper.parseAnimationMode(message.mode);
       animationProvider.setAnimationMode(animationMap[modeValue]);
+
       // Set speed
       try {
         int speedDialValue = Speed.getIntValue(message.speed);
@@ -123,6 +130,7 @@ class _HomeScreenState extends State<HomeScreen>
       } catch (e) {
         speedDialProvider.setDialValue(1);
       }
+
       ToastUtils().showToast(
           "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
     } catch (e) {
@@ -149,11 +157,34 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
-    inlineimagecontroller.removeListener(handleTextChange);
-    animationProvider.stopAnimation();
     WidgetsBinding.instance.removeObserver(this);
+    inlineimagecontroller.removeListener(handleTextChange);
+    inlineimagecontroller.removeListener(_controllerListner);
+    animationProvider.stopAnimation();
     _tabController.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (state == AppLifecycleState.resumed) {
+      if (inlineimagecontroller.text.trim().isEmpty &&
+          _cachedText.trim().isNotEmpty) {
+        inlineimagecontroller.text = _cachedText;
+      }
+      animationProvider.badgeAnimation(
+        inlineimagecontroller.text,
+        Converters(),
+        animationProvider.isEffectActive(InvertLEDEffect()),
+      );
+      if (mounted) setState(() {});
+    } else if (state == AppLifecycleState.paused) {
+      _cachedText = inlineimagecontroller.text;
+      animationProvider.stopAnimation();
+    } else if (state == AppLifecycleState.inactive) {
+      animationProvider.stopAnimation();
+    }
   }
 
   @override
@@ -298,6 +329,7 @@ class _HomeScreenState extends State<HomeScreen>
                                           .isEffectActive(MarqueeEffect()),
                                       invert: animationProvider
                                           .isEffectActive(InvertLEDEffect()),
+                                      context: context,
                                     );
                                   },
                                   child: Container(
@@ -411,6 +443,7 @@ class _HomeScreenState extends State<HomeScreen>
                                           invert:
                                               animationProvider.isEffectActive(
                                                   InvertLEDEffect()),
+                                          context: context,
                                         );
                                       },
                                       child: Container(
@@ -479,25 +512,13 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _controllerListner() {
-    animationProvider.badgeAnimation(inlineImageProvider.getController().text,
-        Converters(), animationProvider.isEffectActive(InvertLEDEffect()));
+    animationProvider.badgeAnimation(
+      inlineImageProvider.getController().text,
+      Converters(),
+      animationProvider.isEffectActive(InvertLEDEffect()),
+    );
   }
 
   @override
   bool get wantKeepAlive => true;
-
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    super.didChangeAppLifecycleState(state);
-    if (state == AppLifecycleState.resumed) {
-      inlineimagecontroller.clear();
-      previousText = '';
-      animationProvider.stopAllAnimations.call(); // If method exists
-      animationProvider.initializeAnimation.call(); // If method exists
-      if (mounted) setState(() {});
-    } else if (state == AppLifecycleState.paused ||
-        state == AppLifecycleState.inactive) {
-      animationProvider.stopAnimation();
-    }
-  }
 }

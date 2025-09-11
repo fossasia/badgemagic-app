@@ -66,7 +66,12 @@ class _EffectContainerState extends State<EffectContainer> {
                   fit: BoxFit.contain,
                 ),
               ),
-              Text(widget.effectName),
+              Text(
+                widget.effectName,
+                style: TextStyle(fontSize: 10.sp),
+                overflow: TextOverflow.ellipsis,
+                maxLines: 1,
+              ),
             ],
           ),
         ),
