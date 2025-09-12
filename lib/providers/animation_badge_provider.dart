@@ -271,6 +271,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required bool marquee,
     required bool invert,
     required BuildContext context,
+    required ConnectionType connectionType,
   }) async {
     final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();

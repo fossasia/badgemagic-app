@@ -8,6 +8,12 @@ const drawBadgeScreen = "bm_db_screen";
 const savedClipartScreen = "bm_sc_screen";
 const savedBadgeScreen = "bm_sb_screen";
 
+// lib/constants/connection_type.dart
+enum ConnectionType {
+  bluetooth,
+  usb,
+}
+
 //Colors used in the app
 // Primary Colors
 const Color colorPrimary = Color(0xFFD32F2F);

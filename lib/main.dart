@@ -2,6 +2,7 @@ import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/getitlocator.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/transfer_provider.dart'; // ADD THIS IMPORT
 import 'package:badgemagic/view/about_us_screen.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/homescreen.dart';
@@ -48,6 +49,10 @@ Future<void> main() async {
           create: (context) => getIt<FontProvider>()),
       ChangeNotifierProvider<BadgeScanProvider>(
         create: (_) => getIt<BadgeScanProvider>(),
+      ),
+      // ADD THE TRANSFER PROVIDER HERE
+      ChangeNotifierProvider<TransferProvider>(
+        create: (context) => TransferProvider(), // Create a new instance
       ),
     ],
     child: const MyApp(),
