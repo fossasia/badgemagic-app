@@ -23,26 +23,7 @@ jobs:
 
       - name: Common Workflow
         uses: ./.github/actions/common
-
-      - name: Build preApi30 APK
-        run: flutter build apk --flavor preApi30 -t lib/main.dart
-
-      - name: Build postApi30 APK
-        run: flutter build apk --flavor postApi30 -t lib/main.dart
-
-      - name: Upload preApi30 APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-preapi30-release.apk
-          path: build/app/outputs/flutter-apk/app-preapi30-release.apk
-
-      - name: Upload postApi30 APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: app-postapi30-release.apk
-          path: build/app/outputs/flutter-apk/app-postapi30-release.apk
-
-
+        
       - name: Hydrate and Update Version
         id: flutter-version
         run: |

@@ -3,6 +3,9 @@ import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
+import 'package:get_it/get_it.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/main.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -12,8 +15,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class SettingsScreenState extends State<SettingsScreen> {
-  String selectedLanguage = 'ENGLISH';
-  final List<String> languages = ['ENGLISH', 'CHINESE'];
+  String selectedLanguage = 'en';
+  final List<String> languages = ['en', 'hi'];
 
   late BadgeScanMode _scanMode;
   late List<TextEditingController> _controllers;
@@ -44,6 +47,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return Consumer<BadgeScanProvider>(
       builder: (context, provider, child) {
         if (!provider.isLoaded) {
@@ -63,20 +67,44 @@ class SettingsScreenState extends State<SettingsScreen> {
 
         return CommonScaffold(
           index: 4,
-          title: 'Badge Magic',
+          title: l10n.settings,
           body: Padding(
             padding: const EdgeInsets.all(16.0),
             child: ListView(
               children: [
-                const Text('Language',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(l10n.language,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                _buildDropdown(
-                  selectedValue: selectedLanguage,
-                  values: languages,
-                  onChanged: (value) =>
-                      setState(() => selectedLanguage = value),
+                DropdownButtonFormField<String>(
+                  value: Localizations.localeOf(context).languageCode,
+                  items: [
+                    DropdownMenuItem(
+                      value: 'en',
+                      child: Text(l10n.english),
+                    ),
+                    DropdownMenuItem(
+                      value: 'hi',
+                      child: Text(l10n.hindi),
+                    ),
+                  ],
+                  onChanged: (value) {
+                    if (value != null) {
+                      setState(() {
+                        selectedLanguage = value;
+                      });
+                      final newLocale = Locale(value);
+                      appLocale.value = newLocale;
+                      GetIt.instance
+                          .get<LocalizationService>()
+                          .saveLocale(newLocale);
+                    }
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
                 ),
                 const SizedBox(height: 24),
                 const Text('Badge Scan Mode',
@@ -223,33 +251,34 @@ class SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildDropdown({
-    required String selectedValue,
-    required List<String> values,
-    required Function(String) onChanged,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: 12),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          value: selectedValue,
-          isExpanded: true,
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
-          onChanged: (String? newValue) {
-            if (newValue != null) onChanged(newValue);
-          },
-          items: values.map<DropdownMenuItem<String>>((String value) {
-            return DropdownMenuItem<String>(
-              value: value,
-              child: Text(value, style: const TextStyle(color: Colors.black)),
-            );
-          }).toList(),
-        ),
-      ),
-    );
-  }
+//   Widget _buildDropdown({
+//     required String selectedValue,
+//     required List<String> values,
+//     required Function(String) onChanged,
+//   }) {
+//     return Container(
+//       decoration: BoxDecoration(
+//         color: Colors.white,
+//         borderRadius: BorderRadius.circular(8),
+//       ),
+//       padding: const EdgeInsets.symmetric(horizontal: 12),
+//       child: DropdownButtonHideUnderline(
+//         child: DropdownButton<String>(
+//           value: selectedValue,
+//           isExpanded: true,
+//           icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
+//           onChanged: (String? newValue) {
+//             if (newValue != null) onChanged(newValue);
+//           },
+//           items: values.map<DropdownMenuItem<String>>((String value) {
+//             return DropdownMenuItem<String>(
+//               value: value,
+//               child: Text(value, style: const TextStyle(color: Colors.black)),
+//             );
+//           }).toList(),
+//         ),
+//       ),
+//     );
+//   }
+// }
 }

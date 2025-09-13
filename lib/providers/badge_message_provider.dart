@@ -11,6 +11,7 @@ import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/utils/custom_transfers/transfers.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
@@ -122,7 +123,8 @@ class BadgeMessageProvider {
       BuildContext context,
       {TextStyle? textStyle}) async {
     if (await FlutterBluePlus.isSupported == false) {
-      ToastUtils().showErrorToast('Bluetooth is not supported by the device');
+      final l10n = GetIt.instance.get<LocalizationService>().l10n;
+      ToastUtils().showErrorToast(l10n.error);
       return;
     }
 
@@ -133,14 +135,19 @@ class BadgeMessageProvider {
       try {
         // Try to get animation index from modeValueMap
         int fireworksIndex = 19;
+        int cycleIndex = 20;
         if (mode == Mode.fixed &&
             modeValueMap.containsKey(fireworksIndex) &&
             modeValueMap[fireworksIndex] == Mode.fixed) {
           isFireworks = true;
         }
+        if (mode == Mode.cycle &&
+            modeValueMap.containsKey(cycleIndex) &&
+            modeValueMap[cycleIndex] == Mode.cycle) {}
       } catch (_) {}
       if (mode != Mode.pacman && !isFireworks) {
-        ToastUtils().showErrorToast("Please enter a message");
+        final l10n = GetIt.instance.get<LocalizationService>().l10n;
+        ToastUtils().showErrorToast(l10n.pleaseEnterMessage);
         return;
       }
     }
@@ -149,7 +156,8 @@ class BadgeMessageProvider {
         await FlutterBluePlus.adapterState.first;
     if (adapterState != BluetoothAdapterState.on) {
       if (Platform.isAndroid) {
-        ToastUtils().showToast('Turning on Bluetooth...');
+        final l10n = GetIt.instance.get<LocalizationService>().l10n;
+        ToastUtils().showToast(l10n.loading);
         try {
           await FlutterBluePlus.turnOn();
         } catch (e) {
@@ -174,9 +182,8 @@ class BadgeMessageProvider {
           return;
         }
       } else if (Platform.isIOS) {
-        ToastUtils().showErrorToast(
-          'Bluetooth is OFF. Please enable it from Settings.',
-        );
+        final l10n = GetIt.instance.get<LocalizationService>().l10n;
+        ToastUtils().showErrorToast(l10n.error);
 
         try {
           adapterState = await FlutterBluePlus.adapterState
@@ -194,7 +201,8 @@ class BadgeMessageProvider {
           return;
         }
       } else {
-        ToastUtils().showErrorToast("Unsupported platform");
+        final l10n = GetIt.instance.get<LocalizationService>().l10n;
+        ToastUtils().showErrorToast(l10n.error);
         return;
       }
     }
