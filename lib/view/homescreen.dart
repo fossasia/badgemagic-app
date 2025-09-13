@@ -200,54 +200,22 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
 Future<void> _handleTransfer(
-  BuildContext context,
-  ConnectionType method,
-  AnimationBadgeProvider animationProvider,
-) async {
+    BuildContext context,
+    ConnectionType method,
+    AnimationBadgeProvider animationProvider,
+  ) async {
   try {
-    final badgeDataProvider = BadgeMessageProvider();
-
-    // Generate Badge data
-    final data = await badgeDataProvider.generateData(
-      badgeDataProvider.controllerData.getController().text,
-      animationProvider.isEffectActive(FlashEffect()),
-      animationProvider.isEffectActive(MarqueeEffect()),
-      animationProvider.isEffectActive(InvertLEDEffect()),
-      Speed.one,
-      Mode.left,
-      null,
+    await animationProvider.handleAnimationTransfer(
+      badgeData: badgeData,
+      inlineImageProvider: inlineImageProvider,
+      speedDialProvider: speedDialProvider,
+      flash: animationProvider.isEffectActive(FlashEffect()),
+      marquee: animationProvider.isEffectActive(MarqueeEffect()),
+      invert: animationProvider.isEffectActive(InvertLEDEffect()),
+      context: context,
+      connectionType: method, // BLE or USB handled internally
     );
-
-    final manager = DataTransferManager(data);
-
-    if (method == ConnectionType.usb) {
-      print("🔌 Attempting USB transfer...");
-      final usb = UsbCdc();
-      final opened = await usb.openDevice();
-      if (!opened) throw Exception("Failed to open USB device");
-
-      final payloadBuilder = PayloadBuilder(manager: manager);
-      final usbChunks = await payloadBuilder.buildPayloads();
-
-      print("USB payload chunks prepared: ${usbChunks.length}");
-      for (var i = 0; i < usbChunks.length; i++) {
-        await usb.write(usbChunks[i]);
-        print("USB chunk $i sent (${usbChunks[i].length} bytes)");
-      }
-
-      await usb.close();
-      print("✅ USB transfer completed successfully");
-      ToastUtils().showToast("USB transfer completed successfully!");
-
-    } else if (method == ConnectionType.bluetooth) {
-      print("🔵 Attempting Bluetooth transfer...");
-      await badgeDataProvider.transferData(manager, context: context);
-      print("✅ Bluetooth transfer completed successfully");
-      ToastUtils().showToast("Bluetooth transfer completed successfully!");
-    }
-
   } catch (e) {
-    print("❌ Transfer failed: $e");
     ToastUtils().showToast("Transfer failed: ${e.toString()}");
   } finally {
     final transferProvider =

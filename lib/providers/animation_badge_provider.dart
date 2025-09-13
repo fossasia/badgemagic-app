@@ -1,4 +1,10 @@
 import 'dart:async';
+import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/bademagic_module/models/mode.dart';
+import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'package:badgemagic/bademagic_module/usb/payload_builder.dart';
+import 'package:badgemagic/bademagic_module/usb/usb_write_state.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -264,19 +270,21 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   /// Handles animation transfer selection logic for the current animation index.
   Future<void> handleAnimationTransfer({
-    required BadgeMessageProvider badgeData,
-    required InlineImageProvider inlineImageProvider,
-    required SpeedDialProvider speedDialProvider,
-    required bool flash,
-    required bool marquee,
-    required bool invert,
-    required BuildContext context,
-    required ConnectionType connectionType,
-  }) async {
-    final int aniIndex = getAnimationIndex() ?? 0;
-    final int selectedSpeed = speedDialProvider.getOuterValue();
+  required BadgeMessageProvider badgeData,
+  required InlineImageProvider inlineImageProvider,
+  required SpeedDialProvider speedDialProvider,
+  required bool flash,
+  required bool marquee,
+  required bool invert,
+  required BuildContext context,
+  required ConnectionType connectionType,
+}) async {
+  final int aniIndex = getAnimationIndex() ?? 0;
+  final int selectedSpeed = speedDialProvider.getOuterValue();
+
+  if (connectionType == ConnectionType.bluetooth) {
+    // Existing BLE transfers
     if (aniIndex == 9) {
-      // Pacman
       await transferPacmanAnimation(badgeData, selectedSpeed);
     } else if (aniIndex == 10) {
       await transferChevronAnimation(badgeData, selectedSpeed);
@@ -318,5 +326,32 @@ class AnimationBadgeProvider extends ChangeNotifier {
         context,
       );
     }
+  } else if (connectionType == ConnectionType.usb) {
+    // USB transfer path
+    if (inlineImageProvider.getController().text.trim().isEmpty) {
+    ToastUtils().showToast("Please enter a message");
+    return;
   }
+    try {
+      final data = await badgeData.generateData(
+        inlineImageProvider.getController().text,
+        flash,
+        marquee,
+        invert,
+        Speed.one,
+        Mode.left,
+        null,
+      );
+
+      final manager = DataTransferManager(data);
+      final builder = PayloadBuilder(manager: manager);
+      final usbWriteState = UsbWriteState(builder: builder);
+
+      await usbWriteState.process(); // Toasts handled inside UsbWriteState
+    } catch (e) {
+      ToastUtils().showToast("USB transfer failed: ${e.toString()}");
+    }
+  }
+}
+
 }

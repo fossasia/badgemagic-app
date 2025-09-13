@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 import 'package:logger/logger.dart';
-import 'package:badgemagic/bademagic_module/usb/usb_serial.dart';
+import 'package:usb_serial/usb_serial.dart';
 
 /// Wrapper around usb_serial for BadgeMagic devices
 class UsbCdc {
@@ -9,15 +9,18 @@ class UsbCdc {
 
   /// Open the first available USB device
   Future<bool> openDevice() async {
-    final devices = await UsbSerial.listDevices();
-    logger.d("USB devices found: $devices");
+    final devices = await listDevices();
 
-    if (devices.isEmpty) {
-      logger.e("No USB devices found");
-      return false;
-    }
+      // Filter for FOSSASIA badges
+  final fossasiaDevices = devices.where((device) =>
+    device.vid == 0x0416 && device.pid == 0x5020).toList();
 
-    final device = devices.first; // pick the first device
+    if (fossasiaDevices.isEmpty) {
+    logger.e("No FOSSASIA badge found");
+    return false;
+  }
+
+      final device = fossasiaDevices.first; // pick the first device
     _port = await device.create();
     if (_port == null) {
       logger.e("Failed to create USB port");
@@ -30,7 +33,6 @@ class UsbCdc {
       return false;
     }
 
-    // Typical CDC ACM settings
     await _port!.setPortParameters(
       115200,
       UsbPort.DATABITS_8,
@@ -64,4 +66,12 @@ class UsbCdc {
       logger.e("Error closing USB port: $e");
     }
   }
+
+  /// New helper: list connected USB devices
+  Future<List<UsbDevice>> listDevices() async {
+    final devices = await UsbSerial.listDevices();
+    logger.d("Listing USB devices: $devices");
+    return devices;
+  }
 }
+

@@ -55,6 +55,10 @@ dependencies:
   google_fonts: ^6.3.1
   url_launcher: ^6.3.2
   image: ^4.5.4
+  usb_serial:
+    git:
+      url: https://github.com/tushar11kh/usbserial.git
+      ref: master
 
 dev_dependencies:
   flutter_test:
