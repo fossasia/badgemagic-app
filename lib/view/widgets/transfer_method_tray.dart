@@ -76,7 +76,7 @@ class TransferMethodTray extends StatelessWidget {
           // Cancel button
           TextButton(
             onPressed: onCancel,
-            child: const Text('Cancel'),
+            child: const Text('Cancel',style: TextStyle(color: colorPrimaryDark),),
           ),
         ],
       ),
@@ -98,17 +98,14 @@ class TransferMethodTray extends StatelessWidget {
             width: 60,
             height: 60,
             decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+              color: colorPrimary.withOpacity(0.1),
               shape: BoxShape.circle,
-              border: Border.all(
-                color: Theme.of(context).colorScheme.primary,
-                width: 2,
-              ),
+              border: Border.all(color: colorPrimary, width: 2),
             ),
             child: Icon(
               icon,
               size: 30,
-              color: Theme.of(context).colorScheme.primary,
+              color: colorPrimary,
             ),
           ),
           const SizedBox(height: 8),

@@ -1,5 +1,8 @@
 import 'dart:async';
 
+import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
@@ -32,12 +35,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 import 'package:badgemagic/providers/transfer_provider.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/view/widgets/transfer_method_tray.dart';
+
+import 'package:badgemagic/bademagic_module/usb/payload_builder.dart';
+import 'package:badgemagic/bademagic_module/usb/usb_cdc.dart';
 
 class HomeScreen extends StatefulWidget {
   // Add parameters for saved badge data when editing
@@ -192,27 +199,66 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  Future<void> _handleTransfer(BuildContext context, ConnectionType method,
-      AnimationBadgeProvider animationProvider) async {
-    try {
-      await animationProvider.handleAnimationTransfer(
-        badgeData: badgeData,
-        inlineImageProvider: inlineImageProvider,
-        speedDialProvider: speedDialProvider,
-        flash: animationProvider.isEffectActive(FlashEffect()),
-        marquee: animationProvider.isEffectActive(MarqueeEffect()),
-        invert: animationProvider.isEffectActive(InvertLEDEffect()),
-        context: context,
-        connectionType: method,
-      );
-    } catch (e) {
-      ToastUtils().showToast("Transfer failed: ${e.toString()}");
-    } finally {
-      final transferProvider =
-          Provider.of<TransferProvider>(context, listen: false);
-      transferProvider.reset();
+Future<void> _handleTransfer(
+  BuildContext context,
+  ConnectionType method,
+  AnimationBadgeProvider animationProvider,
+) async {
+  try {
+    final badgeDataProvider = BadgeMessageProvider();
+
+    // Generate Badge data
+    final data = await badgeDataProvider.generateData(
+      badgeDataProvider.controllerData.getController().text,
+      animationProvider.isEffectActive(FlashEffect()),
+      animationProvider.isEffectActive(MarqueeEffect()),
+      animationProvider.isEffectActive(InvertLEDEffect()),
+      Speed.one,
+      Mode.left,
+      null,
+    );
+
+    final manager = DataTransferManager(data);
+
+    if (method == ConnectionType.usb) {
+      print("🔌 Attempting USB transfer...");
+      final usb = UsbCdc();
+      final opened = await usb.openDevice();
+      if (!opened) throw Exception("Failed to open USB device");
+
+      final payloadBuilder = PayloadBuilder(manager: manager);
+      final usbChunks = await payloadBuilder.buildPayloads();
+
+      print("USB payload chunks prepared: ${usbChunks.length}");
+      for (var i = 0; i < usbChunks.length; i++) {
+        await usb.write(usbChunks[i]);
+        print("USB chunk $i sent (${usbChunks[i].length} bytes)");
+      }
+
+      await usb.close();
+      print("✅ USB transfer completed successfully");
+      ToastUtils().showToast("USB transfer completed successfully!");
+
+    } else if (method == ConnectionType.bluetooth) {
+      print("🔵 Attempting Bluetooth transfer...");
+      await badgeDataProvider.transferData(manager, context: context);
+      print("✅ Bluetooth transfer completed successfully");
+      ToastUtils().showToast("Bluetooth transfer completed successfully!");
     }
+
+  } catch (e) {
+    print("❌ Transfer failed: $e");
+    ToastUtils().showToast("Transfer failed: ${e.toString()}");
+  } finally {
+    final transferProvider =
+        Provider.of<TransferProvider>(context, listen: false);
+    transferProvider.reset();
   }
+}
+
+
+
+
 
   @override
   void dispose() {
