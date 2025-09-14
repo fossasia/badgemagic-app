@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:logger/logger.dart';
+import 'package:logger/Logger.dart';
 import 'package:usb_serial/usb_serial.dart';
 
 /// Wrapper around usb_serial for BadgeMagic devices
@@ -7,20 +7,30 @@ class UsbCdc {
   final logger = Logger();
   UsbPort? _port;
 
-  /// Open the first available USB device
+  // FOSSASIA BadgeMagic Device IDs - BOTH MODES
+  static const int normalVendorId = 4348;      // 0x10FC - Normal mode
+  static const int normalProductId = 55200;    // 0x55E0 - Normal mode
+  static const int bootloaderVendorId = 1046;  // 0x0416 - Bootloader mode  
+  static const int bootloaderProductId = 20512;// 0x5020 - Bootloader mode
+
+  /// Open the first available FOSSASIA USB device
   Future<bool> openDevice() async {
     final devices = await listDevices();
 
-      // Filter for FOSSASIA badges
-  final fossasiaDevices = devices.where((device) =>
-    device.vid == 0x0416 && device.pid == 0x5020).toList();
+    // Filter for FOSSASIA badges - BOTH MODES
+    final fossasiaDevices = devices.where((device) =>
+      (device.vid == normalVendorId && device.pid == normalProductId) ||
+      (device.vid == bootloaderVendorId && device.pid == bootloaderProductId)
+    ).toList();
 
     if (fossasiaDevices.isEmpty) {
-    logger.e("No FOSSASIA badge found");
-    return false;
-  }
+      logger.e("No FOSSASIA badge found. Available devices: $devices");
+      return false;
+    }
 
-      final device = fossasiaDevices.first; // pick the first device
+    final device = fossasiaDevices.first;
+    logger.d("Found FOSSASIA device: ${device.vid}:${device.pid}");
+    
     _port = await device.create();
     if (_port == null) {
       logger.e("Failed to create USB port");
@@ -67,11 +77,24 @@ class UsbCdc {
     }
   }
 
-  /// New helper: list connected USB devices
+  /// List connected USB devices with better logging
   Future<List<UsbDevice>> listDevices() async {
-    final devices = await UsbSerial.listDevices();
-    logger.d("Listing USB devices: $devices");
-    return devices;
+    try {
+      final devices = await UsbSerial.listDevices();
+      logger.d("USB devices found: ${devices.map((d) => 'VID:${d.vid?.toRadixString(16)} PID:${d.pid?.toRadixString(16)}').toList()}");
+      return devices;
+    } catch (e) {
+      logger.e("Error listing USB devices: $e");
+      return [];
+    }
+  }
+
+  /// Helper to check if any FOSSASIA device is connected
+  Future<bool> isFossasiaDeviceConnected() async {
+    final devices = await listDevices();
+    return devices.any((device) =>
+      (device.vid == normalVendorId && device.pid == normalProductId) ||
+      (device.vid == bootloaderVendorId && device.pid == bootloaderProductId)
+    );
   }
 }
-

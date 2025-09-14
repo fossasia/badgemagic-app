@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- FOSSASIA BadgeMagic Device -->
-    <usb-device vendor-id="1046" product-id="20512" />
+    <!-- FOSSASIA BadgeMagic - badgemagic firmware -->
+    <usb-device vendor-id="4348" product-id="55200" />      <!-- 0x10FC, 0x55E0 -->
+    
+    <!-- FOSSASIA BadgeMagic - rust badgemagic -->  
+    <usb-device vendor-id="1046" product-id="20512" />      <!-- 0x0416, 0x5020 -->
 </resources>
