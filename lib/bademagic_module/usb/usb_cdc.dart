@@ -31,6 +31,12 @@ class UsbCdc {
     final device = fossasiaDevices.first;
     logger.d("Found FOSSASIA device: ${device.vid}:${device.pid}");
     
+      // ✅ ADD THIS BOOTLOADER DETECTION
+  if (device.vid == bootloaderVendorId && device.pid == bootloaderProductId) {
+    logger.e("Device is in bootloader mode - cannot transfer data");
+    throw Exception("Device is in bootloader mode. Please disconnect, then connect without holding any buttons.");
+  }
+
     _port = await device.create();
     if (_port == null) {
       logger.e("Failed to create USB port");
