@@ -2,6 +2,8 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/virtualbadge/view/draw_badge.dart';
@@ -59,6 +61,7 @@ class _DrawBadgeState extends State<DrawBadge> {
   @override
   Widget build(BuildContext context) {
     FileHelper fileHelper = FileHelper();
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
     return WillPopScope(
       onWillPop: () async {
@@ -67,7 +70,7 @@ class _DrawBadgeState extends State<DrawBadge> {
       },
       child: CommonScaffold(
         index: 1,
-        title: 'BadgeMagic',
+        title: l10n.appTitle,
         body: LayoutBuilder(
           builder: (context, constraints) {
             return Column(
@@ -97,25 +100,32 @@ class _DrawBadgeState extends State<DrawBadge> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      // Main action buttons - centered and closer together
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          _buildCompactButton(true, Icons.edit, 'Draw'),
-                          const SizedBox(width: 8),
-                          _buildCompactButton(false, Icons.delete, 'Erase'),
-                          const SizedBox(width: 8),
-                          _buildResetButton(),
-                          const SizedBox(width: 8),
-                          _buildSaveButton(fileHelper),
-                          const SizedBox(width: 8),
-                          _buildShapesToggleButton(),
+                          Flexible(
+                              child: _buildCompactButton(
+                                  true, Icons.edit, l10n.draw)),
+                          const SizedBox(width: 2),
+                          Flexible(
+                              child: _buildCompactButton(
+                                  false, Icons.delete, l10n.erase)),
+                          const SizedBox(width: 2),
+                          Flexible(child: _buildResetButton()),
+                          const SizedBox(width: 2),
+                          Flexible(child: _buildSaveButton(fileHelper)),
+                          const SizedBox(width: 2),
+                          Flexible(child: _buildShapesToggleButton()),
+                          const SizedBox(width: 2),
+                          Flexible(child: _buildUndoButton()),
+                          const SizedBox(width: 2),
+                          Flexible(child: _buildRedoButton()),
                         ],
                       ),
+                      const SizedBox(height: 8),
                     ],
                   ),
                 ),
-
                 // Shape options - only show when toggled, fixed height
                 if (_showShapeOptions)
                   Container(
@@ -124,20 +134,44 @@ class _DrawBadgeState extends State<DrawBadge> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildCompactShapeCard(
-                            context, DrawShape.freehand, Icons.gesture, 'Free'),
-                        const SizedBox(width: 6),
-                        _buildCompactShapeCard(context, DrawShape.square,
-                            Icons.crop_square, 'Square'),
-                        const SizedBox(width: 6),
-                        _buildCompactShapeCard(context, DrawShape.rectangle,
-                            Icons.rectangle_outlined, 'Rect'),
-                        const SizedBox(width: 6),
-                        _buildCompactShapeCard(context, DrawShape.circle,
-                            Icons.circle_outlined, 'Circle'),
-                        const SizedBox(width: 6),
-                        _buildCompactShapeCard(context, DrawShape.triangle,
-                            Icons.change_history, 'Triangle'),
+                        Semantics(
+                          label: 'Free',
+                          child: _buildCompactShapeCard(context,
+                              DrawShape.freehand, Icons.gesture, l10n.free),
+                        ),
+                        const SizedBox(width: 2),
+                        Semantics(
+                          label: 'Square',
+                          child: _buildCompactShapeCard(context,
+                              DrawShape.square, Icons.crop_square, l10n.square),
+                        ),
+                        const SizedBox(width: 2),
+                        Semantics(
+                          label: 'Rect',
+                          child: _buildCompactShapeCard(
+                              context,
+                              DrawShape.rectangle,
+                              Icons.rectangle_outlined,
+                              l10n.rectangle),
+                        ),
+                        const SizedBox(width: 2),
+                        Semantics(
+                          label: 'Circle',
+                          child: _buildCompactShapeCard(
+                              context,
+                              DrawShape.circle,
+                              Icons.circle_outlined,
+                              l10n.circle),
+                        ),
+                        const SizedBox(width: 2),
+                        Semantics(
+                          label: 'Triangle',
+                          child: _buildCompactShapeCard(
+                              context,
+                              DrawShape.triangle,
+                              Icons.change_history,
+                              l10n.triangle),
+                        ),
                       ],
                     ),
                   ),
@@ -189,12 +223,13 @@ class _DrawBadgeState extends State<DrawBadge> {
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         minimumSize: const Size(60, 40),
       ),
-      child: const Column(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.refresh, color: Colors.black, size: 20),
-          SizedBox(height: 2),
-          Text('Reset', style: TextStyle(color: Colors.black, fontSize: 10)),
+          const Icon(Icons.refresh, color: Colors.black, size: 20),
+          const SizedBox(height: 2),
+          Text(GetIt.instance.get<LocalizationService>().l10n.reset,
+              style: const TextStyle(color: Colors.black, fontSize: 10)),
         ],
       ),
     );
@@ -202,7 +237,7 @@ class _DrawBadgeState extends State<DrawBadge> {
 
   Widget _buildSaveButton(FileHelper fileHelper) {
     return TextButton(
-      onPressed: () {
+      onPressed: () async {
         List<List<int>> badgeGrid = drawToggle
             .getDrawViewGrid()
             .map((e) => e.map((e) => e ? 1 : 0).toList())
@@ -211,30 +246,34 @@ class _DrawBadgeState extends State<DrawBadge> {
             Converters.convertBitmapToLEDHex(badgeGrid, false);
 
         if (widget.isSavedCard!) {
-          fileHelper.updateBadgeText(widget.filename!, hexString);
+          await fileHelper.updateBadgeText(widget.filename!, hexString);
         } else if (widget.isSavedClipart!) {
-          fileHelper.updateClipart(widget.filename!, badgeGrid);
+          await fileHelper.updateClipart(widget.filename!, badgeGrid);
         } else {
-          fileHelper.saveImage(drawToggle.getDrawViewGrid());
+          await fileHelper.saveImage(drawToggle.getDrawViewGrid());
         }
 
         fileHelper.generateClipartCache();
-        ToastUtils().showToast("Clipart Saved Successfully");
+        ToastUtils().showToast(GetIt.instance
+            .get<LocalizationService>()
+            .l10n
+            .clipartSavedSuccessfully);
 
-        Future.delayed(const Duration(milliseconds: 800), () {
+        if (mounted) {
           Navigator.of(context).popUntil((route) => route.isFirst);
-        });
+        }
       },
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
         minimumSize: const Size(60, 40),
       ),
-      child: const Column(
+      child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(Icons.save, color: Colors.black, size: 20),
-          SizedBox(height: 2),
-          Text('Save', style: TextStyle(color: Colors.black, fontSize: 10)),
+          const Icon(Icons.save, color: Colors.black, size: 20),
+          const SizedBox(height: 2),
+          Text(GetIt.instance.get<LocalizationService>().l10n.save,
+              style: const TextStyle(color: Colors.black, fontSize: 10)),
         ],
       ),
     );
@@ -262,12 +301,68 @@ class _DrawBadgeState extends State<DrawBadge> {
           Icon(Icons.category,
               color: _showShapeOptions ? colorPrimary : Colors.black, size: 20),
           const SizedBox(height: 2),
-          Text('Shapes',
+          Text('Shapes', // Using hardcoded string for semantic label
               style: TextStyle(
                   color: _showShapeOptions ? colorPrimary : Colors.black,
                   fontSize: 10)),
         ],
       ),
+    );
+  }
+
+  Widget _buildUndoButton() {
+    return AnimatedBuilder(
+      animation: drawToggle,
+      builder: (context, _) {
+        final bool canUndo = drawToggle.canUndo;
+        final Color buttonColor = canUndo ? Colors.black : Colors.grey;
+
+        return TextButton(
+          onPressed: canUndo
+              ? () {
+                  drawToggle.undo();
+                }
+              : null,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+            minimumSize: const Size(60, 40),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.undo, color: buttonColor, size: 20),
+              const SizedBox(height: 2),
+              Text('Undo', style: TextStyle(color: buttonColor, fontSize: 10)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildRedoButton() {
+    return AnimatedBuilder(
+      animation: drawToggle,
+      builder: (context, _) {
+        final bool canRedo = drawToggle.canRedo;
+        final Color buttonColor = canRedo ? Colors.black : Colors.grey;
+
+        return TextButton(
+          onPressed: canRedo ? drawToggle.redo : null,
+          style: TextButton.styleFrom(
+            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
+            minimumSize: const Size(60, 40),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.redo, color: buttonColor, size: 20),
+              const SizedBox(height: 2),
+              Text('Redo', style: TextStyle(color: buttonColor, fontSize: 10)),
+            ],
+          ),
+        );
+      },
     );
   }
 

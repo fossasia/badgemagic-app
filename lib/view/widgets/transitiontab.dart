@@ -1,7 +1,10 @@
+import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/widgets/animation_container.dart';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 
-// Transition tab to show special animations
+// Transition tab to show basic animations
 class TransitionTab extends StatefulWidget {
   const TransitionTab({super.key});
 
@@ -10,104 +13,76 @@ class TransitionTab extends StatefulWidget {
 }
 
 class _TransitionTabState extends State<TransitionTab> {
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return SingleChildScrollView(
       child: Column(
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              children: [
-                AniContainer(
-                  animation: null,
-                  icon: Icons.sports_esports, // Pacman icon
-                  animationName: 'Pacman',
-                  index: 9,
-                ),
-                AniContainer(
-                  animation: null,
-                  icon: Icons.chevron_left, // Chevron icon
-                  animationName: 'Chevron',
-                  index: 10,
-                ),
-                AniContainer(
-                  animation: null,
-                  icon: Icons.diamond, // Diamond icon
-                  animationName: 'Diamond',
-                  index: 11,
-                ),
-              ],
-            ),
+          Row(
+            children: [
+              AniContainer(
+                animation: aniLeft,
+                animationName: l10n.animationLeft,
+                index: 0,
+              ),
+              AniContainer(
+                animation: aniRight,
+                animationName: l10n.animationRight,
+                index: 1,
+              ),
+              AniContainer(
+                animation: aniUp,
+                animationName: l10n.animationUp,
+                index: 2,
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              children: [
-                AniContainer(
-                  animation: null,
-                  icon: Icons.heart_broken, // Broken Hearts icon
-                  animationName: 'Broken Hearts',
-                  index: 12,
-                ),
-                AniContainer(
-                  animation: null,
-                  icon: Icons.favorite_border, // Cupid icon
-                  animationName: 'Cupid',
-                  index: 13,
-                ),
-                AniContainer(
-                  animation: null,
-                  icon: Icons.directions_walk, // Feet animation icon
-                  animationName: 'Feet',
-                  index: 14,
-                ),
-              ],
-            ),
+          Row(
+            children: [
+              AniContainer(
+                animation: aniDown,
+                animationName: l10n.animationDown,
+                index: 3,
+              ),
+              AniContainer(
+                animation: aniFixed,
+                animationName: l10n.animationFixed,
+                index: 4,
+              ),
+              AniContainer(
+                animation: animation,
+                animationName: l10n.animation,
+                index: 5,
+              ),
+            ],
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              children: [
-                AniContainer(
-                  animation: null,
-                  icon: Icons.set_meal, // Fish icon
-                  animationName: 'Fish Kiss',
-                  index: 15,
-                ),
-                AniContainer(
-                  animation: null,
-                  icon: Icons.change_history, // V shape icon
-                  animationName: 'Diagonal',
-                  index: 16,
-                ),
-                AniContainer(
-                  animation: null,
-                  icon: Icons.warning, // Emergency/alert icon
-                  animationName: 'Emergency',
-                  index: 17,
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              children: [
-                AniContainer(
-                  animation: null,
-                  icon: Icons.favorite, // Heart icon
-                  animationName: 'Beating Hearts',
-                  index: 18,
-                ),
-                AniContainer(
-                  animation: null,
-                  icon: Icons.celebration, // Fireworks icon
-                  animationName: 'Fireworks',
-                  index: 19,
-                ),
-              ],
-            ),
+          Row(
+            children: [
+              AniContainer(
+                animation: aniSnowflake,
+                animationName: l10n.animationSnowflake,
+                index: 6,
+              ),
+              AniContainer(
+                animation: aniPicture,
+                animationName: l10n.animationPicture,
+                index: 7,
+              ),
+              AniContainer(
+                animation: aniLaser,
+                animationName: l10n.animationLaser,
+                index: 8,
+              ),
+            ],
           ),
         ],
       ),

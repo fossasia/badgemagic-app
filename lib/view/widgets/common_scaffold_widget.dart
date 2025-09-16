@@ -20,6 +20,7 @@ class CommonScaffold extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -36,7 +37,6 @@ class CommonScaffold extends StatelessWidget {
         }),
         backgroundColor: colorPrimary,
         title: Text(
-          key: scaffoldKey,
           title,
           style: const TextStyle(color: Colors.white),
         ),
