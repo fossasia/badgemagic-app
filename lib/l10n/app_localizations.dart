@@ -1088,11 +1088,65 @@ abstract class AppLocalizations {
   /// **'Circle'**
   String get circle;
 
+  /// No description provided for @connectToBadgesWithNames.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to badges with the following names'**
+  String get connectToBadgesWithNames;
+
+  /// No description provided for @selectAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Select All'**
+  String get selectAll;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clearAll;
+
+  /// No description provided for @addMore.
+  ///
+  /// In en, this message translates to:
+  /// **'Add More'**
+  String get addMore;
+
+  /// No description provided for @scanSettingsSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan settings saved'**
+  String get scanSettingsSaved;
+
+  /// No description provided for @saveSettings.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Settings'**
+  String get saveSettings;
+
+  /// No description provided for @connectToAnyBadge.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect to any badge'**
+  String get connectToAnyBadge;
+
+  /// No description provided for @badgeNameHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge name'**
+  String get badgeNameHint;
+
   /// No description provided for @triangle.
   ///
   /// In en, this message translates to:
   /// **'Triangle'**
   String get triangle;
+
+  /// No description provided for @badgeScanMode.
+  ///
+  /// In en, this message translates to:
+  /// **'Badge Scan Mode'**
+  String get badgeScanMode;
 }
 
 class _AppLocalizationsDelegate
