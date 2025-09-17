@@ -128,8 +128,9 @@ class FireworksAnimation extends BadgeAnimation {
 
       // Spike extends beyond the circle
       int spikeLength = radius + 1;
-      if (radius >= 3)
+      if (radius >= 3) {
         spikeLength = radius + 2; // Longer spikes for bigger fireworks
+      }
 
       for (int r = radius + 1; r <= spikeLength; r++) {
         int x = cx + (r * cos(angle)).round();
