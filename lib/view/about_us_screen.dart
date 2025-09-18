@@ -3,6 +3,8 @@ import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 
 class AboutUsScreen extends StatefulWidget {
   const AboutUsScreen({super.key});
@@ -28,7 +30,9 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return CommonScaffold(
+      title: l10n.aboutUs,
       index: 5,
       body: SingleChildScrollView(
         child: Padding(
@@ -64,9 +68,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       ),
                       const SizedBox(height: 30),
                       Text(
-                        'Badge Magic is an app to control LED name badges. '
-                        'The goal is to provide options to portray names, graphics, and simple animations on LED badges. '
-                        'For the data transfer from the smartphone to the LED badge we use Bluetooth. The project is based on the work of Nihlcem.',
+                        l10n.aboutBadgeMagic,
                         textAlign: TextAlign.justify,
                         style: GoogleFonts.sora(
                           wordSpacing: 3,
@@ -82,7 +84,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         children: [
                           Flexible(
                             child: Text(
-                              'Developed by',
+                              l10n.developedBy,
                               style: GoogleFonts.sora(
                                 fontWeight: FontWeight.w500,
                                 color: Colors.grey,
@@ -96,7 +98,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                               onTap: () => openUrl(
                                   'https://github.com/fossasia/badgemagic-app/graphs/contributors'),
                               child: Text(
-                                'FOSSASIA contributors',
+                                l10n.fossasiaContributors,
                                 style: GoogleFonts.sora(
                                   fontWeight: FontWeight.w500,
                                   color: Colors.red,
@@ -131,7 +133,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                     Padding(
                       padding: EdgeInsets.only(left: 12.0, top: 12.0),
                       child: Text(
-                        'Contact With Us',
+                        l10n.contactWithUs,
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -146,7 +148,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         fit: BoxFit.contain,
                       ),
                       title: Text(
-                        'GitHub',
+                        l10n.github,
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -154,7 +156,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         ),
                       ),
                       subtitle: Text(
-                        'Fork the repo and push changes or submit new issues.',
+                        l10n.githubDescription,
                         style: GoogleFonts.sora(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -187,7 +189,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                     Padding(
                       padding: const EdgeInsets.all(12.0),
                       child: Text(
-                        "License",
+                        l10n.license,
                         style: GoogleFonts.sora(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
@@ -202,7 +204,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         fit: BoxFit.contain,
                       ),
                       title: Text(
-                        'License',
+                        l10n.license,
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -210,7 +212,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         ),
                       ),
                       subtitle: Text(
-                        'Check Apache License 2.0 terms used on Badge Magic',
+                        '${l10n.checkApacheLicense} ${l10n.appTitle}',
                         style: GoogleFonts.sora(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
@@ -246,7 +248,6 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
           ),
         ),
       ),
-      title: 'Badge Magic',
     );
   }
 }

@@ -1,7 +1,9 @@
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
+import 'package:get_it/get_it.dart';
 
 class BMDrawer extends StatefulWidget {
   final int selectedIndex;
@@ -29,6 +31,7 @@ class _BMDrawerState extends State<BMDrawer> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return Drawer(
       backgroundColor: drawerHeaderTitle,
       child: ListView(
@@ -36,14 +39,14 @@ class _BMDrawerState extends State<BMDrawer> {
         children: [
           AspectRatio(
             aspectRatio: 16 / 9,
-            child: const DrawerHeader(
+            child: DrawerHeader(
               decoration: BoxDecoration(
                 color: Colors.red,
               ),
               child: Center(
                 child: Text(
-                  'Badge Magic',
-                  style: TextStyle(
+                  l10n.appTitle,
+                  style: const TextStyle(
                       color: drawerHeaderTitle,
                       fontSize: 25,
                       fontWeight: FontWeight.bold),
@@ -54,45 +57,51 @@ class _BMDrawerState extends State<BMDrawer> {
           _buildListTile(
             index: 0,
             icon: Icons.edit,
-            title: 'Create Badges',
+            title: l10n.createBadges,
             routeName: '/',
           ),
-          _buildListTile(
-            index: 1,
-            assetIcon: "assets/icons/signature.png",
-            title: 'Draw Clipart',
-            routeName: '/drawBadge',
+          Semantics(
+            label: 'Draw Clipart',
+            child: _buildListTile(
+              index: 1,
+              assetIcon: "assets/icons/signature.png",
+              title: l10n.drawClipart,
+              routeName: '/drawBadge',
+            ),
           ),
-          _buildListTile(
-            index: 2,
-            assetIcon: "assets/icons/r_save.png",
-            title: 'Saved Badges',
-            routeName: '/savedBadge',
+          Semantics(
+            label: 'Saved Badges',
+            child: _buildListTile(
+              index: 2,
+              assetIcon: "assets/icons/r_save.png",
+              title: l10n.savedBadges,
+              routeName: '/savedBadge',
+            ),
           ),
           _buildListTile(
             index: 3,
             assetIcon: "assets/icons/r_save.png",
-            title: 'Saved Cliparts',
+            title: l10n.savedCliparts,
             routeName: '/savedClipart',
           ),
           _buildListTile(
             index: 4,
             assetIcon: "assets/icons/setting.png",
-            title: 'Settings',
+            title: l10n.settings,
             routeName: '/settings',
           ),
           _buildListTile(
             index: 5,
             assetIcon: "assets/icons/r_team.png",
-            title: 'About Us',
+            title: l10n.aboutUs,
             routeName: '/aboutUs',
           ),
           const Divider(),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 18.0, vertical: 10),
             child: Text(
-              'Other',
-              style: TextStyle(
+              l10n.other,
+              style: const TextStyle(
                 color: Colors.black54,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
@@ -102,22 +111,21 @@ class _BMDrawerState extends State<BMDrawer> {
           _buildListTile(
             index: 6,
             assetIcon: "assets/icons/r_price.png",
-            title: 'Buy Badge',
+            title: l10n.buyBadge,
             routeName: '/buyBadge',
             externalLink: 'https://badgemagic.fossasia.org/shop/',
           ),
           _buildListTile(
             index: 7,
             icon: Icons.share,
-            title: 'Share',
+            title: l10n.shareApp,
             routeName: '/share',
-            shareText:
-                'Badge Magic is an app to control LED name badges. This app provides features to portray names, graphics and simple animations on LED badges.You can also download it from below link https://play.google.com/store/apps/details?id=org.fossasia.badgemagic',
+            shareText: l10n.shareAppText,
           ),
           _buildListTile(
             index: 8,
             icon: Icons.star,
-            title: 'Rate Us',
+            title: l10n.rateUs,
             routeName: '/rateUs',
             externalLink: Platform.isIOS
                 ? 'https://apps.apple.com/us/app/badge-magic/id6740176888?action=write-review'
@@ -126,14 +134,14 @@ class _BMDrawerState extends State<BMDrawer> {
           _buildListTile(
             index: 9,
             assetIcon: "assets/icons/r_virus.png",
-            title: 'Feedback/Bug Reports',
+            title: l10n.feedbackBugReports,
             routeName: '/feedback',
             externalLink: 'https://github.com/fossasia/badgemagic-app/issues',
           ),
           _buildListTile(
             index: 10,
             assetIcon: "assets/icons/r_insurance.png",
-            title: 'Privacy Policy',
+            title: l10n.privacyPolicy,
             routeName: '/privacyPolicy',
             externalLink: 'https://badgemagic.fossasia.org/privacy/',
           ),
@@ -146,7 +154,7 @@ class _BMDrawerState extends State<BMDrawer> {
     required int index,
     IconData? icon,
     String? assetIcon,
-    required String title,
+    required dynamic title,
     required String routeName,
     String? externalLink,
     String? shareText,
@@ -163,14 +171,16 @@ class _BMDrawerState extends State<BMDrawer> {
               height: 18,
               color: currentIndex == index ? colorAccent : Colors.black,
             ),
-      title: Text(
-        title,
-        style: TextStyle(
-          color: currentIndex == index ? colorAccent : Colors.black,
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        ),
-      ),
+      title: title is String
+          ? Text(
+              title,
+              style: TextStyle(
+                color: currentIndex == index ? colorAccent : Colors.black,
+                fontWeight: FontWeight.bold,
+                fontSize: 14,
+              ),
+            )
+          : title,
       selected: currentIndex == index,
       selectedTileColor: dividerColor,
       onTap: () {
@@ -183,11 +193,15 @@ class _BMDrawerState extends State<BMDrawer> {
         } else if (shareText != null) {
           Share.share(shareText);
         } else {
-          Navigator.pushNamedAndRemoveUntil(
-            context,
-            routeName,
-            (route) => route.isFirst,
-          );
+          if (ModalRoute.of(context)?.settings.name == routeName) {
+            Navigator.pushReplacementNamed(context, routeName);
+          } else {
+            Navigator.pushNamedAndRemoveUntil(
+              context,
+              routeName,
+              (route) => route.isFirst,
+            );
+          }
         }
       },
     );

@@ -15,7 +15,12 @@ runs:
 
     - name: Validate Code Format
       shell: bash
-      run: dart format --output=none --set-exit-if-changed .
+      run: |
+        # Format all files except generated ones
+        find . -name "*.dart" \
+          -not -path "*/lib/l10n/*.dart" \
+          -not -path "*/generated/*" \
+          -not -path "*/build/*" | xargs dart format --output=none --set-exit-if-changed
 
     - name: Analyze Code
       shell: bash

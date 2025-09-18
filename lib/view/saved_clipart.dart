@@ -1,6 +1,7 @@
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/view/widgets/clipart_list_view.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -36,10 +37,11 @@ class _SavedClipartState extends State<SavedClipart> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return CommonScaffold(
       index: 3,
       key: const Key(savedClipartScreen),
-      title: "Saved Clipart",
+      title: l10n.savedClipartTitle,
       body: imageprovider.clipartsCache.isEmpty
           ? Center(
               child: Column(
@@ -55,20 +57,16 @@ class _SavedClipartState extends State<SavedClipart> {
                   SizedBox(
                     height: 20.h,
                   ),
-                  Text(
-                    'No saved clipart!',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 20.sp,
-                    ),
-                  ),
-                  Text(
-                    'Looks like there are no saved cliparts yet.',
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 14.sp,
-                    ),
-                  ),
+                  Text(l10n.noSavedClipart,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 20.sp,
+                      )),
+                  Text(l10n.noSavedClipartMessage,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontSize: 14.sp,
+                      )),
                 ],
               ),
             )

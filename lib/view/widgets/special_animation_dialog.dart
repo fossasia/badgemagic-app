@@ -1,3 +1,5 @@
+import 'package:badgemagic/services/localization_service.dart';
+import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -6,14 +8,14 @@ Future<bool?> showSpecialAnimationDialog(
   return showDialog<bool>(
     context: context,
     builder: (context) {
+      final l10n = GetIt.instance.get<LocalizationService>().l10n;
       return AlertDialog(
-        title: const Text('Switch to Special Animation?'),
+        title: Text(l10n.switchToSpecialAnimation),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-                'Selecting this animation will overwrite your current text.'),
+            Text(l10n.specialAnimationWarning),
             if (textToClear.isNotEmpty) ...[
               const SizedBox(height: 12),
               Row(
@@ -27,12 +29,11 @@ Future<bool?> showSpecialAnimationDialog(
                   ),
                   IconButton(
                     icon: const Icon(Icons.copy, size: 20),
-                    tooltip: 'Copy text',
+                    tooltip: l10n.copyText,
                     onPressed: () {
                       Clipboard.setData(ClipboardData(text: textToClear));
                       ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                            content: Text('Text copied to clipboard!')),
+                        SnackBar(content: Text(l10n.textCopied)),
                       );
                     },
                   ),
@@ -44,11 +45,11 @@ Future<bool?> showSpecialAnimationDialog(
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Yes'),
+            child: Text(l10n.yes),
           ),
         ],
       );
