@@ -1,3 +1,4 @@
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
@@ -107,19 +108,18 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text('Badge Scan Mode',
-                    style:
-                        TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(l10n.badgeScanMode,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 RadioListTile<BadgeScanMode>(
-                  title: const Text('Connect to any badge'),
+                  title: Text(l10n.connectToAnyBadge),
                   value: BadgeScanMode.any,
                   groupValue: _scanMode,
                   onChanged: (value) => setState(() => _scanMode = value!),
                 ),
                 RadioListTile<BadgeScanMode>(
-                  title:
-                      const Text('Connect to badges with the following names'),
+                  title: Text(l10n.connectToBadgesWithNames),
                   value: BadgeScanMode.specific,
                   groupValue: _scanMode,
                   onChanged: (value) => setState(() => _scanMode = value!),
@@ -136,11 +136,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                             children: [
                               TextButton(
                                 onPressed: () => provider.selectAll(),
-                                child: const Text('Select All'),
+                                child: Text(l10n.selectAll),
                               ),
                               TextButton(
                                 onPressed: () => provider.clearSelection(),
-                                child: const Text('Clear All'),
+                                child: Text(l10n.clearAll),
                               ),
                             ],
                           ),
@@ -202,8 +202,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                               padding: const EdgeInsets.only(right: 12),
                               child: TextField(
                                 controller: controller,
-                                decoration: const InputDecoration(
-                                  hintText: 'Badge name',
+                                decoration: InputDecoration(
+                                  hintText: l10n.badgeNameHint,
                                   border: InputBorder.none,
                                   contentPadding:
                                       EdgeInsets.symmetric(vertical: 12),
@@ -226,22 +226,36 @@ class SettingsScreenState extends State<SettingsScreen> {
                       provider.addBadgeName(''); // Add empty badge name
                     }),
                     icon: const Icon(Icons.add),
-                    label: const Text('Add More'),
+                    label: Text(l10n.addMore),
                   ),
                 ],
                 const SizedBox(height: 24),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    provider.setMode(_scanMode);
-                    provider.setBadgeNames(
-                      _controllers.map((c) => c.text.trim()).toList(),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Scan settings saved')),
-                    );
-                  },
-                  icon: const Icon(Icons.save),
-                  label: const Text("Save Settings"),
+                Center(
+                  child: GestureDetector(
+                    onTap: () {
+                      provider.setMode(_scanMode);
+                      provider.setBadgeNames(
+                        _controllers.map((c) => c.text.trim()).toList(),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.scanSettingsSaved)),
+                      );
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 40, vertical: 10),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(4),
+                        color: mdGrey400,
+                      ),
+                      child: Text(
+                        l10n.saveSettings,
+                        style: const TextStyle(
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                  ),
                 )
               ],
             ),

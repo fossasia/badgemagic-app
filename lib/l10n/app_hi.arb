@@ -6,7 +6,7 @@
   "settings": "सेटिंग्स",
   "language": "भाषा",
   "selectBadge": "बैज चुनें",
-  "english": "अंग्रेजी",
+  "english": "English",
   "hindi": "हिंदी",
   "save": "सेव करें",
   "cancel": "रद्द करें",
@@ -190,5 +190,14 @@
   "rectangle": "लंबा चौकोर",
   "circle": "गोला",
   "triangle": "तिकोना",
-  "clipartSavedSuccessfully": "तस्वीर सेव हो गई"
+  "clipartSavedSuccessfully": "तस्वीर सेव हो गई",
+  "badgeScanMode": "बैज स्कैन मोड",
+  "connectToBadgesWithNames": "निम्नलिखित नामों वाले बैज से कनेक्ट करें",
+  "selectAll": "सभी चुनें",
+  "clearAll": "सभी हटाएं",
+  "addMore": "और जोड़ें",
+  "scanSettingsSaved": "स्कैन सेटिंग्स सेव हो गईं",
+  "saveSettings": "सेटिंग्स सेव करें",
+  "connectToAnyBadge": "किसी भी बैज से कनेक्ट करें",
+  "badgeNameHint": "बैज का नाम"
 }
