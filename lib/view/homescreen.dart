@@ -305,18 +305,23 @@ class _HomeScreenState extends State<HomeScreen>
                                             value: fontProvider.selectedFont,
                                             icon: const Icon(
                                                 Icons.arrow_drop_down),
+                                            iconEnabledColor: mdGrey400,
+                                            style: TextStyle(
+                                              color: mdGrey400,
+                                              fontSize: 12.sp,
+                                            ),
                                             hint: Text(
                                               'Font',
                                               style: TextStyle(
                                                 fontSize: 12.sp,
-                                                color: Colors.grey[600],
+                                                color: mdGrey400,
                                               ),
                                             ),
                                             items: [
                                               const DropdownMenuItem(
                                                 value: null,
                                                 child: Text(
-                                                  'Default Font',
+                                                  'Default',
                                                   style: TextStyle(
                                                     fontSize: 12,
                                                   ),
