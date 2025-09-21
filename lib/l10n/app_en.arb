@@ -200,6 +200,15 @@
   "square": "Square",
   "rectangle": "Rectangle",
   "circle": "Circle",
+  "connectToBadgesWithNames": "Connect to badges with the following names",
+  "selectAll": "Select All",
+  "clearAll": "Clear All",
+  "addMore": "Add More",
+  "scanSettingsSaved": "Scan settings saved",
+  "saveSettings": "Save Settings",
+  "connectToAnyBadge": "Connect to any badge",
+  "badgeNameHint": "Badge name",
   "triangle": "Triangle",
-  "clipartSavedSuccessfully": "Clipart saved successfully"
+  "clipartSavedSuccessfully": "Clipart saved successfully",
+  "badgeScanMode": "Badge Scan Mode"
 }

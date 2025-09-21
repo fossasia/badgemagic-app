@@ -8,14 +8,17 @@ class CommonScaffold extends StatelessWidget {
   final Key? scaffoldKey;
   final int index;
   final List<Widget>? actions;
+  final Widget? bottomNavigationBar; // 👈 Added
 
-  const CommonScaffold(
-      {super.key,
-      required this.body,
-      required this.title,
-      this.scaffoldKey,
-      this.actions,
-      required this.index});
+  const CommonScaffold({
+    super.key,
+    required this.body,
+    required this.title,
+    this.scaffoldKey,
+    this.actions,
+    required this.index,
+    this.bottomNavigationBar, // 👈 Added
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +51,7 @@ class CommonScaffold extends StatelessWidget {
         selectedIndex: index,
       ),
       body: body,
+      bottomNavigationBar: bottomNavigationBar, // 👈 Forwarded
     );
   }
 }

@@ -194,34 +194,34 @@ packages:
     dependency: "direct main"
     description:
       name: flutter_blue_plus
-      sha256: defbcd03d09a1bada1913c9f8c6cb07b29d05355922a25856396784f41a3a6bf
+      sha256: "69a8c87c11fc792e8cf0f997d275484fbdb5143ac9f0ac4d424429700cb4e0ed"
       url: "https://pub.dev"
     source: hosted
-    version: "1.36.6"
+    version: "1.36.8"
   flutter_blue_plus_android:
     dependency: transitive
     description:
       name: flutter_blue_plus_android
-      sha256: "43ad196acb2c6f52af851b08053e5470e7d0ba828c3e77460e4a790d8dec3305"
+      sha256: "6f7fe7e69659c30af164a53730707edc16aa4d959e4c208f547b893d940f853d"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.3"
+    version: "7.0.4"
   flutter_blue_plus_darwin:
     dependency: transitive
     description:
       name: flutter_blue_plus_darwin
-      sha256: b2de238fa7052e1544d0b1cc231096dc5701a74855ead776339d53113d2e5d71
+      sha256: "682982862c1d964f4d54a3fb5fccc9e59a066422b93b7e22079aeecd9c0d38f8"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.2"
+    version: "7.0.3"
   flutter_blue_plus_linux:
     dependency: transitive
     description:
       name: flutter_blue_plus_linux
-      sha256: "10ebd36034bf77a8266a22d8191be90f62dda6cb2459fbbc21c09cdb1e279919"
+      sha256: "56b0c45edd0a2eec8f85bd97a26ac3cd09447e10d0094fed55587bf0592e3347"
       url: "https://pub.dev"
     source: hosted
-    version: "7.0.2"
+    version: "7.0.3"
   flutter_blue_plus_platform_interface:
     dependency: transitive
     description:
