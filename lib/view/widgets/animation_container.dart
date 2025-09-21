@@ -103,14 +103,14 @@ class _AniContainerState extends State<AniContainer> {
             children: [
               Flexible(
                 child: widget.icon != null
-                    ? Icon(widget.icon, size: 36)
+                    ? Icon(widget.icon, size: 36, color: Colors.grey[500])
                     : (widget.animation != null
                         ? Image.asset(widget.animation!, fit: BoxFit.fill)
                         : SizedBox.shrink()),
               ),
               Text(
                 _getLocalizedAnimationName(widget.animationName, context),
-                style: TextStyle(fontSize: 9.sp),
+                style: TextStyle(fontSize: 9.sp, color: Colors.black),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 1,
               ),
