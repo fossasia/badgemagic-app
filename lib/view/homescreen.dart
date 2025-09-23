@@ -303,8 +303,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         return DropdownButtonHideUnderline(
                                           child: DropdownButton<String>(
                                             value: fontProvider.selectedFont,
-                                            icon: const Icon(
-                                                Icons.arrow_drop_down),
+                                            icon: const SizedBox.shrink(),
                                             iconEnabledColor: mdGrey400,
                                             style: TextStyle(
                                               color: mdGrey400,
@@ -318,12 +317,14 @@ class _HomeScreenState extends State<HomeScreen>
                                               ),
                                             ),
                                             items: [
-                                              const DropdownMenuItem(
+                                              DropdownMenuItem(
                                                 value: null,
                                                 child: Text(
                                                   'Default',
-                                                  style: TextStyle(
+                                                  style: const TextStyle(
                                                     fontSize: 12,
+                                                  ).copyWith(
+                                                    color: Colors.black,
                                                   ),
                                                 ),
                                               ),
@@ -334,10 +335,43 @@ class _HomeScreenState extends State<HomeScreen>
                                                         child: Text(
                                                           font,
                                                           style: _getFontStyle(
-                                                              font),
+                                                            font,
+                                                          ).copyWith(
+                                                            color: Colors.black,
+                                                          ),
                                                         ),
                                                       ))
                                             ],
+                                            selectedItemBuilder: (context) {
+                                              final List<String?> options = [
+                                                null,
+                                                ...fontProvider.availableFonts,
+                                              ];
+                                              return options.map((opt) {
+                                                final String label =
+                                                    opt ?? 'Default';
+                                                return Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      label,
+                                                      style: TextStyle(
+                                                        color: mdGrey400,
+                                                        fontSize: 12.sp,
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    const Icon(
+                                                      Icons.arrow_drop_down,
+                                                      size: 16,
+                                                      color: mdGrey400,
+                                                    ),
+                                                  ],
+                                                );
+                                              }).toList();
+                                            },
                                             onChanged: (String? newFont) {
                                               fontProvider.changeFont(newFont);
                                               animationProvider.badgeAnimation(
