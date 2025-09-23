@@ -371,10 +371,13 @@ class _HomeScreenState extends State<HomeScreen>
                           TabBar(
                             isScrollable: false,
                             indicatorSize: TabBarIndicatorSize.tab,
-                            labelStyle: TextStyle(fontSize: 12),
-                            unselectedLabelStyle: TextStyle(fontSize: 12),
-                            labelColor: Colors.black,
-                            unselectedLabelColor: mdGrey400,
+                            labelStyle: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w600),
+                            unselectedLabelStyle: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w600),
+                            labelColor: const Color.fromARGB(255, 12, 12, 12),
+                            unselectedLabelColor:
+                                const Color.fromARGB(255, 146, 121, 121),
                             indicatorColor: colorPrimary,
                             controller: _tabController,
                             splashFactory: InkRipple.splashFactory,
@@ -442,7 +445,7 @@ class _HomeScreenState extends State<HomeScreen>
                           if (isSpecial) {
                             // Only Transfer button (for special animations)
                             return SizedBox(
-                              height: 24.h,
+                              height: 32.h,
                               child: GestureDetector(
                                 onTap: () async {
                                   await animationProvider

@@ -677,13 +677,13 @@ abstract class AppLocalizations {
   /// No description provided for @flashEffect.
   ///
   /// In en, this message translates to:
-  /// **'Flash Effect'**
+  /// **'Flash'**
   String get flashEffect;
 
   /// No description provided for @marqueeEffect.
   ///
   /// In en, this message translates to:
-  /// **'Marquee Effect'**
+  /// **'Marquee'**
   String get marqueeEffect;
 
   /// No description provided for @slow.
