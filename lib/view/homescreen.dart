@@ -572,17 +572,20 @@ class _HomeScreenState extends State<HomeScreen>
                                         context: context,
                                       );
                                     },
-                                    child: Container(
-                                      height: 32.h,
-                                      alignment: Alignment.center,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 16.w, vertical: 8.h),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(8.r),
-                                        color: mdGrey400,
+                                    child: Padding(
+                                      padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                      child :  Container(
+                                        height: 32.h,
+                                        alignment: Alignment.center,
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 16.w, vertical: 8.h),
+                                        decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          color: mdGrey400,
+                                        ),
+                                        child: Text(l10n.transferButton),
                                       ),
-                                      child: Text(l10n.transferButton),
                                     ),
                                   ),
                                 ),
