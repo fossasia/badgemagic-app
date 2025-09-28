@@ -94,7 +94,7 @@ class _AniContainerState extends State<AniContainer> {
         child: Card(
           surfaceTintColor: Colors.white,
           color: animationCardState.isAnimationActive(badgeAnimation)
-              ? colorAccent
+              ? colorPrimaryDark
               : drawerHeaderTitle,
           elevation: 5,
           child: Column(
