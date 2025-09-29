@@ -433,7 +433,7 @@ class _HomeScreenState extends State<HomeScreen>
                     Positioned(
                       left: 16.w,
                       right: 16.w,
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+                      bottom: 16.h,
                       child: Consumer<AnimationBadgeProvider>(
                         builder: (context, animationProvider, _) {
                           final isSpecial =
