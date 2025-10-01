@@ -45,7 +45,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get selectBadge => 'बैज चुनें';
 
   @override
-  String get english => 'अंग्रेजी';
+  String get english => 'English';
 
   @override
   String get hindi => 'हिंदी';
@@ -517,5 +517,33 @@ class AppLocalizationsHi extends AppLocalizations {
   String get circle => 'गोला';
 
   @override
+  String get connectToBadgesWithNames =>
+      'निम्नलिखित नामों वाले बैज से कनेक्ट करें';
+
+  @override
+  String get selectAll => 'सभी चुनें';
+
+  @override
+  String get clearAll => 'सभी हटाएं';
+
+  @override
+  String get addMore => 'और जोड़ें';
+
+  @override
+  String get scanSettingsSaved => 'स्कैन सेटिंग्स सेव हो गईं';
+
+  @override
+  String get saveSettings => 'सेटिंग्स सेव करें';
+
+  @override
+  String get connectToAnyBadge => 'किसी भी बैज से कनेक्ट करें';
+
+  @override
+  String get badgeNameHint => 'बैज का नाम';
+
+  @override
   String get triangle => 'तिकोना';
+
+  @override
+  String get badgeScanMode => 'बैज स्कैन मोड';
 }
