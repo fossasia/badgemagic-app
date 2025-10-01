@@ -216,8 +216,9 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                               onPressed: selectionProvider
                                       .selectedBadges.isNotEmpty
                                   ? () async {
-                                      final selectedBadges =
-                                          selectionProvider.selectedBadges;
+                                      // Use transferable badges (first 8 slots only)
+                                      final selectedBadges = selectionProvider
+                                          .getTransferableBadges();
                                       List<Message> badgeDataList = [];
 
                                       for (var badgeKey in selectedBadges) {
