@@ -16,6 +16,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'globals/globals.dart' as globals;
 import 'services/localization_service.dart';
+import 'package:badgemagic/providers/transfer_provider.dart';
 
 Future<void> main() async {
   setupLocator();
@@ -47,7 +48,9 @@ Future<void> main() async {
       ChangeNotifierProvider<FontProvider>(
           create: (context) => getIt<FontProvider>()),
       ChangeNotifierProvider<BadgeScanProvider>(
-        create: (_) => getIt<BadgeScanProvider>(),
+          create: (_) => getIt<BadgeScanProvider>()),
+      ChangeNotifierProvider<TransferProvider>(
+        create: (context) => TransferProvider(), // Create a new instance
       ),
     ],
     child: const MyApp(),

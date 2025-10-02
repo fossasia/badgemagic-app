@@ -1,4 +1,8 @@
 import 'dart:async';
+import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/bademagic_module/usb/payload_builder.dart';
+import 'package:badgemagic/bademagic_module/usb/usb_write_state.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -271,51 +275,78 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required bool marquee,
     required bool invert,
     required BuildContext context,
+    required ConnectionType connectionType,
   }) async {
     final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();
-    if (aniIndex == 9) {
-      // Pacman
-      await transferPacmanAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 10) {
-      await transferChevronAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 11) {
-      await transferDiamondAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 12) {
-      await transferBrokenHeartsAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 13) {
-      await transferCupidAnimation(badgeData, selectedSpeed);
-      setAnimationMode(CupidAnimation());
-      _animationIndex = 0;
-      if (_timer == null || !_timer!.isActive) startTimer();
-    } else if (aniIndex == 14) {
-      await transferFeetAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 15) {
-      await transferFishAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 16) {
-      await transferDiagonalAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 17) {
-      await transferEmergencyAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 18) {
-      await transferBeatingHeartsAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 19) {
-      await transferFireworksAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 20) {
-      await transferEqualizerAnimation(badgeData, selectedSpeed);
-    } else if (aniIndex == 21) {
-      await transferCycleAnimation(badgeData, selectedSpeed);
-    } else {
-      await badgeData.checkAndTransfer(
-        inlineImageProvider.getController().text,
-        flash,
-        marquee,
-        invert,
-        selectedSpeed,
-        modeValueMap[aniIndex],
-        null,
-        false,
-        context,
-      );
+    if (connectionType == ConnectionType.bluetooth) {
+      if (aniIndex == 9) {
+        // Pacman
+        await transferPacmanAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 10) {
+        await transferChevronAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 11) {
+        await transferDiamondAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 12) {
+        await transferBrokenHeartsAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 13) {
+        await transferCupidAnimation(badgeData, selectedSpeed);
+        setAnimationMode(CupidAnimation());
+        _animationIndex = 0;
+        if (_timer == null || !_timer!.isActive) startTimer();
+      } else if (aniIndex == 14) {
+        await transferFeetAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 15) {
+        await transferFishAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 16) {
+        await transferDiagonalAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 17) {
+        await transferEmergencyAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 18) {
+        await transferBeatingHeartsAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 19) {
+        await transferFireworksAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 20) {
+        await transferEqualizerAnimation(badgeData, selectedSpeed);
+      } else if (aniIndex == 21) {
+        await transferCycleAnimation(badgeData, selectedSpeed);
+      } else {
+        await badgeData.checkAndTransfer(
+          inlineImageProvider.getController().text,
+          flash,
+          marquee,
+          invert,
+          selectedSpeed,
+          modeValueMap[aniIndex],
+          null,
+          false,
+          context,
+        );
+      }
+    } else if (connectionType == ConnectionType.usb) {
+      if (inlineImageProvider.getController().text.trim().isEmpty) {
+        ToastUtils().showToast("Error: Please enter a message");
+        return;
+      }
+      try {
+        final data = await badgeData.generateData(
+          inlineImageProvider.getController().text,
+          flash,
+          marquee,
+          invert,
+          speedMap[selectedSpeed],
+          modeValueMap[aniIndex],
+          null,
+        );
+
+        final manager = DataTransferManager(data);
+        final builder = PayloadBuilder(manager: manager);
+        final usbWriteState = UsbWriteState(builder: builder);
+
+        await usbWriteState.process(); // Toasts handled inside UsbWriteState
+      } catch (e) {
+        logger.e("USB transfer error: $e");
+      }
     }
   }
 }
