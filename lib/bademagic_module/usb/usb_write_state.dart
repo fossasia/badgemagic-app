@@ -2,8 +2,6 @@ import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/completed_state.dart';
 import 'package:badgemagic/bademagic_module/usb/payload_builder.dart';
 import 'package:badgemagic/bademagic_module/usb/usb_cdc.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:flutter/foundation.dart'; // for kIsWeb, Platform checks
 import 'dart:io' show Platform;
 import 'package:flutter/services.dart'; // for MissingPluginException
 

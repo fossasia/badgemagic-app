@@ -11,9 +11,7 @@ import 'package:badgemagic/providers/transfer_provider.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
-import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:get_it/get_it.dart';
 import 'package:badgemagic/view/widgets/transfer_method_tray.dart';
 
 class AndroidHomeUI {

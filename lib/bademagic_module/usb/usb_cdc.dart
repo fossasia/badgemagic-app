@@ -1,5 +1,5 @@
 import 'dart:typed_data';
-import 'package:logger/Logger.dart';
+import 'package:logger/logger.dart';
 import 'package:usb_serial/usb_serial.dart';
 
 /// Wrapper around usb_serial for BadgeMagic devices
