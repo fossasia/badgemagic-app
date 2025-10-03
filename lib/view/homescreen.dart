@@ -18,13 +18,14 @@ import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
+import 'package:badgemagic/providers/transfer_provider.dart';
 import 'package:badgemagic/services/localization_service.dart';
-import 'package:badgemagic/view/android_usb_transfer_ui/home_ui.dart';
 import 'package:badgemagic/view/special_text_field.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
-import 'package:badgemagic/view/widgets/transitiontab.dart';
 import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
+import 'package:badgemagic/view/widgets/transfer_method_tray.dart';
+import 'package:badgemagic/view/widgets/transitiontab.dart';
 import 'package:badgemagic/view/widgets/speedial.dart';
 import 'package:badgemagic/view/widgets/vectorview.dart';
 import 'package:badgemagic/virtualbadge/view/animated_badge.dart';
@@ -95,52 +96,6 @@ class _HomeScreenState extends State<HomeScreen>
     });
     _startImageCaching();
     _tabController = TabController(length: 4, vsync: this);
-  }
-
-  Future<void> _handleSave() async {
-    if (inlineimagecontroller.text.trim().isEmpty) {
-      ToastUtils().showToast("Please enter a message");
-      return;
-    }
-
-    if (widget.savedBadgeFilename != null) {
-      // Update existing badge
-      SavedBadgeProvider savedBadgeProvider = SavedBadgeProvider();
-      String baseFilename = widget.savedBadgeFilename!;
-      if (baseFilename.endsWith('.json')) {
-        baseFilename = baseFilename.substring(0, baseFilename.length - 5);
-      }
-
-      await savedBadgeProvider.updateBadgeData(
-        baseFilename,
-        inlineimagecontroller.text,
-        animationProvider.isEffectActive(FlashEffect()),
-        animationProvider.isEffectActive(MarqueeEffect()),
-        animationProvider.isEffectActive(InvertLEDEffect()),
-        speedDialProvider.getOuterValue(),
-        animationProvider.getAnimationIndex() ?? 1,
-      );
-
-      ToastUtils().showToast("Badge Updated Successfully");
-      Navigator.pushNamedAndRemoveUntil(
-        context,
-        '/savedBadge',
-        (route) => false,
-      );
-    } else {
-      // Save new badge dialog
-      showDialog(
-        context: context,
-        builder: (context) {
-          return SaveBadgeDialog(
-            speed: speedDialProvider,
-            animationProvider: animationProvider,
-            textController: inlineimagecontroller,
-            isInverse: animationProvider.isEffectActive(InvertLEDEffect()),
-          );
-        },
-      );
-    }
   }
 
   // Loads badge data from disk and populates controllers/providers for editing
@@ -297,305 +252,382 @@ class _HomeScreenState extends State<HomeScreen>
               index: 0,
               title: l10n.appTitle,
               body: SafeArea(
-                child: Theme.of(context).platform == TargetPlatform.android
-                    ? AndroidHomeUI.buildAndroidUI(
-                        context: context,
-                        l10n: l10n,
-                        inlineImageProvider: inlineImageProvider,
-                        animationProvider: animationProvider,
-                        speedDialProvider: speedDialProvider,
-                        badgeData: badgeData,
-                        isPrefixIconClicked: isPrefixIconClicked,
-                        isDialInteracting: isDialInteracting,
-                        tabController: _tabController,
-                        inlineImageController: inlineimagecontroller,
-                        onSavePressed: _handleSave,
-                        onPrefixIconPressed: () {
-                          setState(() {
-                            isPrefixIconClicked = !isPrefixIconClicked;
-                          });
-                        },
-                        onDialInteractingChanged: (value) {
-                          setState(() => isDialInteracting = value);
-                        },
-                        vectorGridView: VectorGridView(),
-                        animationBadge: AnimationBadge(),
-                        radialDial: RadialDial(),
-                        transitionTab: const TransitionTab(),
-                        effectTab: const EffectTab(),
-                        animationTab: const AnimationTab(),
-                      )
-                    : Stack(
+                child: Stack(
+                  children: [
+                    // Scrollable content
+                    SingleChildScrollView(
+                      physics: isDialInteracting
+                          ? const NeverScrollableScrollPhysics()
+                          : const AlwaysScrollableScrollPhysics(),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          // Scrollable content
-                          SingleChildScrollView(
-                            physics: isDialInteracting
-                                ? const NeverScrollableScrollPhysics()
-                                : const AlwaysScrollableScrollPhysics(),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                AnimationBadge(),
-                                Container(
-                                  margin: EdgeInsets.all(15.w),
-                                  child: Material(
-                                    color: drawerHeaderTitle,
+                          AnimationBadge(),
+                          Container(
+                            margin: EdgeInsets.all(15.w),
+                            child: Material(
+                              color: drawerHeaderTitle,
+                              borderRadius: BorderRadius.circular(10.r),
+                              elevation: 4,
+                              child: ExtendedTextField(
+                                onChanged: (value) {},
+                                controller: inlineimagecontroller,
+                                specialTextSpanBuilder: ImageBuilder(),
+                                style: Provider.of<FontProvider>(context)
+                                            .selectedFont !=
+                                        null
+                                    ? _getFontStyle(
+                                            Provider.of<FontProvider>(context)
+                                                .selectedFont!)
+                                        .copyWith(fontSize: 14)
+                                    : const TextStyle(fontSize: 14),
+                                decoration: InputDecoration(
+                                  border: OutlineInputBorder(
                                     borderRadius: BorderRadius.circular(10.r),
-                                    elevation: 4,
-                                    child: ExtendedTextField(
-                                      onChanged: (value) {},
-                                      controller: inlineimagecontroller,
-                                      specialTextSpanBuilder: ImageBuilder(),
-                                      style: Provider.of<FontProvider>(context)
-                                                  .selectedFont !=
-                                              null
-                                          ? _getFontStyle(
-                                                  Provider.of<FontProvider>(
-                                                          context)
-                                                      .selectedFont!)
-                                              .copyWith(fontSize: 14)
-                                          : const TextStyle(fontSize: 14),
-                                      decoration: InputDecoration(
-                                        border: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.r),
-                                        ),
-                                        focusedBorder: OutlineInputBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.r),
-                                          borderSide:
-                                              BorderSide(color: colorPrimary),
-                                        ),
-                                        prefixIcon: IconButton(
-                                          onPressed: () {
-                                            setState(() {
-                                              isPrefixIconClicked =
-                                                  !isPrefixIconClicked;
-                                            });
-                                          },
-                                          icon: const Icon(
-                                              Icons.tag_faces_outlined),
-                                        ),
-                                        suffixIcon: Padding(
-                                          padding: EdgeInsets.only(right: 8.w),
-                                          child: Consumer<FontProvider>(
-                                            builder:
-                                                (context, fontProvider, _) {
-                                              return DropdownButtonHideUnderline(
-                                                child: DropdownButton<String>(
-                                                  value:
-                                                      fontProvider.selectedFont,
-                                                  icon: const SizedBox.shrink(),
-                                                  iconEnabledColor: mdGrey400,
-                                                  style: TextStyle(
-                                                    color: mdGrey400,
-                                                    fontSize: 12.sp,
+                                  ),
+                                  focusedBorder: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(10.r),
+                                    borderSide: BorderSide(color: colorPrimary),
+                                  ),
+                                  prefixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        isPrefixIconClicked =
+                                            !isPrefixIconClicked;
+                                      });
+                                    },
+                                    icon: const Icon(Icons.tag_faces_outlined),
+                                  ),
+                                  suffixIcon: Padding(
+                                    padding: EdgeInsets.only(right: 8.w),
+                                    child: Consumer<FontProvider>(
+                                      builder: (context, fontProvider, _) {
+                                        return DropdownButtonHideUnderline(
+                                          child: DropdownButton<String>(
+                                            value: fontProvider.selectedFont,
+                                            icon: const SizedBox.shrink(),
+                                            iconEnabledColor: mdGrey400,
+                                            style: TextStyle(
+                                              color: mdGrey400,
+                                              fontSize: 12.sp,
+                                            ),
+                                            hint: Text(
+                                              'Font',
+                                              style: TextStyle(
+                                                fontSize: 12.sp,
+                                                color: mdGrey400,
+                                              ),
+                                            ),
+                                            items: [
+                                              DropdownMenuItem(
+                                                value: null,
+                                                child: Text(
+                                                  'Default',
+                                                  style: const TextStyle(
+                                                    fontSize: 12,
+                                                  ).copyWith(
+                                                    color: Colors.black,
                                                   ),
-                                                  hint: Text(
-                                                    'Font',
-                                                    style: TextStyle(
-                                                      fontSize: 12.sp,
+                                                ),
+                                              ),
+                                              ...fontProvider.availableFonts
+                                                  .map((font) =>
+                                                      DropdownMenuItem(
+                                                        value: font,
+                                                        child: Text(
+                                                          font,
+                                                          style: _getFontStyle(
+                                                            font,
+                                                          ).copyWith(
+                                                            color: Colors.black,
+                                                          ),
+                                                        ),
+                                                      ))
+                                            ],
+                                            selectedItemBuilder: (context) {
+                                              final List<String?> options = [
+                                                null,
+                                                ...fontProvider.availableFonts,
+                                              ];
+                                              return options.map((opt) {
+                                                final String label =
+                                                    opt ?? 'Default';
+                                                return Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      label,
+                                                      style: TextStyle(
+                                                        color: mdGrey400,
+                                                        fontSize: 12.sp,
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    const Icon(
+                                                      Icons.arrow_drop_down,
+                                                      size: 16,
                                                       color: mdGrey400,
                                                     ),
-                                                  ),
-                                                  items: [
-                                                    DropdownMenuItem(
-                                                      value: null,
-                                                      child: Text(
-                                                        'Default',
-                                                        style: const TextStyle(
-                                                          fontSize: 12,
-                                                        ).copyWith(
-                                                          color: Colors.black,
-                                                        ),
-                                                      ),
-                                                    ),
-                                                    ...fontProvider
-                                                        .availableFonts
-                                                        .map((font) =>
-                                                            DropdownMenuItem(
-                                                              value: font,
-                                                              child: Text(
-                                                                font,
-                                                                style:
-                                                                    _getFontStyle(
-                                                                  font,
-                                                                ).copyWith(
-                                                                  color: Colors
-                                                                      .black,
-                                                                ),
-                                                              ),
-                                                            ))
                                                   ],
-                                                  selectedItemBuilder:
-                                                      (context) {
-                                                    final List<String?>
-                                                        options = [
-                                                      null,
-                                                      ...fontProvider
-                                                          .availableFonts,
-                                                    ];
-                                                    return options.map((opt) {
-                                                      final String label =
-                                                          opt ?? 'Default';
-                                                      return Row(
-                                                        mainAxisSize:
-                                                            MainAxisSize.min,
-                                                        children: [
-                                                          Text(
-                                                            label,
-                                                            style: TextStyle(
-                                                              color: mdGrey400,
-                                                              fontSize: 12.sp,
-                                                            ),
-                                                            overflow:
-                                                                TextOverflow
-                                                                    .ellipsis,
-                                                          ),
-                                                          const Icon(
-                                                            Icons
-                                                                .arrow_drop_down,
-                                                            size: 16,
-                                                            color: mdGrey400,
-                                                          ),
-                                                        ],
-                                                      );
-                                                    }).toList();
-                                                  },
-                                                  onChanged: (String? newFont) {
-                                                    fontProvider
-                                                        .changeFont(newFont);
-                                                    animationProvider
-                                                        .badgeAnimation(
-                                                      inlineimagecontroller
-                                                          .text,
-                                                      Converters(),
-                                                      animationProvider
-                                                          .isEffectActive(
-                                                              InvertLEDEffect()),
-                                                    );
-                                                  },
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          8.r),
-                                                  elevation: 2,
-                                                  isDense: true,
-                                                ),
+                                                );
+                                              }).toList();
+                                            },
+                                            onChanged: (String? newFont) {
+                                              fontProvider.changeFont(newFont);
+                                              animationProvider.badgeAnimation(
+                                                inlineimagecontroller.text,
+                                                Converters(),
+                                                animationProvider
+                                                    .isEffectActive(
+                                                        InvertLEDEffect()),
                                               );
                                             },
+                                            borderRadius:
+                                                BorderRadius.circular(8.r),
+                                            elevation: 2,
+                                            isDense: true,
                                           ),
-                                        ),
-                                      ),
+                                        );
+                                      },
                                     ),
                                   ),
                                 ),
-                                Visibility(
-                                    visible: isPrefixIconClicked,
-                                    child: Container(
-                                        height: 170.h,
-                                        decoration: BoxDecoration(
-                                            borderRadius:
-                                                BorderRadius.circular(10.r),
-                                            color: Colors.grey[200]),
-                                        margin: EdgeInsets.symmetric(
-                                            horizontal: 15.w),
-                                        padding: EdgeInsets.symmetric(
-                                            vertical: 10.h, horizontal: 10.w),
-                                        child: VectorGridView())),
-                                TabBar(
-                                  isScrollable: false,
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  labelStyle: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600),
-                                  unselectedLabelStyle: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600),
-                                  labelColor:
-                                      const Color.fromARGB(255, 12, 12, 12),
-                                  unselectedLabelColor:
-                                      const Color.fromARGB(255, 146, 121, 121),
-                                  indicatorColor: colorPrimary,
-                                  controller: _tabController,
-                                  splashFactory: InkRipple.splashFactory,
-                                  overlayColor:
-                                      MaterialStateProperty.resolveWith<Color?>(
-                                    (states) =>
-                                        states.contains(MaterialState.pressed)
-                                            ? dividerColor
-                                            : null,
-                                  ),
-                                  tabs: [
-                                    Tab(
-                                        key: const ValueKey('tab_speed'),
-                                        text: l10n.speedTitle),
-                                    Tab(
-                                        key: const ValueKey('tab_transition'),
-                                        text: l10n.transitionTitle),
-                                    Tab(
-                                        key: const ValueKey('tab_effects'),
-                                        text: l10n.effectsTitle),
-                                    Tab(
-                                        key: const ValueKey('tab_animation'),
-                                        text: l10n.animation),
-                                  ],
+                              ),
+                            ),
+                          ),
+                          Visibility(
+                              visible: isPrefixIconClicked,
+                              child: Container(
+                                  height: 170.h,
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10.r),
+                                      color: Colors.grey[200]),
+                                  margin:
+                                      EdgeInsets.symmetric(horizontal: 15.w),
+                                  padding: EdgeInsets.symmetric(
+                                      vertical: 10.h, horizontal: 10.w),
+                                  child: VectorGridView())),
+                          TabBar(
+                            isScrollable: false,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            labelStyle: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w600),
+                            unselectedLabelStyle: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w600),
+                            labelColor: const Color.fromARGB(255, 12, 12, 12),
+                            unselectedLabelColor:
+                                const Color.fromARGB(255, 146, 121, 121),
+                            indicatorColor: colorPrimary,
+                            controller: _tabController,
+                            splashFactory: InkRipple.splashFactory,
+                            overlayColor:
+                                MaterialStateProperty.resolveWith<Color?>(
+                              (states) => states.contains(MaterialState.pressed)
+                                  ? dividerColor
+                                  : null,
+                            ),
+                            tabs: [
+                              Tab(
+                                  key: const ValueKey('tab_speed'),
+                                  text: l10n.speedTitle),
+                              Tab(
+                                  key: const ValueKey('tab_transition'),
+                                  text: l10n.transitionTitle),
+                              Tab(
+                                  key: const ValueKey('tab_effects'),
+                                  text: l10n.effectsTitle),
+                              Tab(
+                                  key: const ValueKey('tab_animation'),
+                                  text: l10n.animation),
+                            ],
+                          ),
+                          SizedBox(
+                            height: 350.h,
+                            child: TabBarView(
+                              physics: const NeverScrollableScrollPhysics(),
+                              controller: _tabController,
+                              children: [
+                                GestureDetector(
+                                  onPanDown: (_) =>
+                                      setState(() => isDialInteracting = true),
+                                  onPanCancel: () =>
+                                      setState(() => isDialInteracting = false),
+                                  onPanEnd: (_) =>
+                                      setState(() => isDialInteracting = false),
+                                  child: RadialDial(),
                                 ),
-                                SizedBox(
-                                  height: 350.h,
-                                  child: TabBarView(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    controller: _tabController,
-                                    children: [
-                                      GestureDetector(
-                                        onPanDown: (_) => setState(
-                                            () => isDialInteracting = true),
-                                        onPanCancel: () => setState(
-                                            () => isDialInteracting = false),
-                                        onPanEnd: (_) => setState(
-                                            () => isDialInteracting = false),
-                                        child: RadialDial(),
-                                      ),
-                                      const TransitionTab(),
-                                      const EffectTab(),
-                                      const AnimationTab(),
-                                    ],
-                                  ),
-                                ),
-
-                                // Add a spacer so last content isn't hidden behind the floating buttons
-                                SizedBox(
-                                    height:
-                                        MediaQuery.of(context).padding.bottom +
-                                            110.h),
+                                const TransitionTab(),
+                                const EffectTab(),
+                                const AnimationTab(),
                               ],
                             ),
                           ),
 
-                          // Floating bottom buttons (overlay) so they don't push or block content
-                          Positioned(
-                            left: 16.w,
-                            right: 16.w,
-                            bottom: 16.h,
-                            child: Consumer<AnimationBadgeProvider>(
-                              builder: (context, animationProvider, _) {
-                                final isSpecial = animationProvider
-                                    .isSpecialAnimationSelected();
+                          // Add a spacer so last content isn't hidden behind the floating buttons
+                          SizedBox(
+                              height: MediaQuery.of(context).padding.bottom +
+                                  110.h),
+                        ],
+                      ),
+                    ),
 
-                                if (isSpecial) {
-                                  // Only Transfer button (for special animations)
-                                  return SizedBox(
-                                    height: 32.h,
-                                    child: GestureDetector(
-                                      onTap: () async {
+                    // Floating bottom buttons (overlay) so they don't push or block content
+                    Positioned(
+                      left: 16.w,
+                      right: 16.w,
+                      bottom: 16.h,
+                      child: Consumer<AnimationBadgeProvider>(
+                        builder: (context, animationProvider, _) {
+                          final isSpecial =
+                              animationProvider.isSpecialAnimationSelected();
+
+                          if (isSpecial) {
+                            // Only Transfer button (for special animations)
+                            return SizedBox(
+                              height: 32.h,
+                              child: GestureDetector(
+                                onTap: () async {
+                                  // Platform-specific transfer logic
+                                  if (Theme.of(context).platform ==
+                                      TargetPlatform.android) {
+                                    // Android: Show transfer tray
+                                    final transferProvider =
+                                        Provider.of<TransferProvider>(context,
+                                            listen: false);
+                                    transferProvider.openTray();
+                                  } else {
+                                    // Other platforms: Direct BLE transfer
+                                    await animationProvider
+                                        .handleAnimationTransfer(
+                                      badgeData: badgeData,
+                                      inlineImageProvider: inlineImageProvider,
+                                      speedDialProvider: speedDialProvider,
+                                      flash: animationProvider
+                                          .isEffectActive(FlashEffect()),
+                                      marquee: animationProvider
+                                          .isEffectActive(MarqueeEffect()),
+                                      invert: animationProvider
+                                          .isEffectActive(InvertLEDEffect()),
+                                      context: context,
+                                      connectionType: ConnectionType
+                                          .bluetooth, // Always BLE for non-Android
+                                    );
+                                  }
+                                },
+                                child: Container(
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.w, vertical: 8.h),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    color: mdGrey400,
+                                  ),
+                                  child: Text(l10n.transferButton),
+                                ),
+                              ),
+                            );
+                          } else {
+                            // Save + Transfer buttons (side by side, expanded)
+                            return Row(
+                              children: [
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      if (inlineimagecontroller.text
+                                          .trim()
+                                          .isEmpty) {
+                                        ToastUtils().showToast(
+                                            "Please enter a message");
+                                        return;
+                                      }
+                                      if (widget.savedBadgeFilename != null) {
+                                        // Update existing badge
+                                        SavedBadgeProvider savedBadgeProvider =
+                                            SavedBadgeProvider();
+                                        String baseFilename =
+                                            widget.savedBadgeFilename!;
+                                        if (baseFilename.endsWith('.json')) {
+                                          baseFilename = baseFilename.substring(
+                                              0, baseFilename.length - 5);
+                                        }
+                                        await savedBadgeProvider
+                                            .updateBadgeData(
+                                          baseFilename,
+                                          inlineimagecontroller.text,
+                                          animationProvider
+                                              .isEffectActive(FlashEffect()),
+                                          animationProvider
+                                              .isEffectActive(MarqueeEffect()),
+                                          animationProvider.isEffectActive(
+                                              InvertLEDEffect()),
+                                          speedDialProvider.getOuterValue(),
+                                          animationProvider
+                                                  .getAnimationIndex() ??
+                                              1,
+                                        );
+                                        ToastUtils().showToast(
+                                            "Badge Updated Successfully");
+                                        Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          '/savedBadge',
+                                          (route) => false,
+                                        );
+                                      } else {
+                                        // Save new badge dialog
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return SaveBadgeDialog(
+                                              speed: speedDialProvider,
+                                              animationProvider:
+                                                  animationProvider,
+                                              textController:
+                                                  inlineimagecontroller,
+                                              isInverse: animationProvider
+                                                  .isEffectActive(
+                                                      InvertLEDEffect()),
+                                            );
+                                          },
+                                        );
+                                      }
+                                    },
+                                    child: Container(
+                                      height: 32.h,
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 16.w, vertical: 8.h),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        color: mdGrey400,
+                                      ),
+                                      child: Text(l10n.saveButton),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 12.w),
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      // Platform-specific transfer logic
+                                      if (Theme.of(context).platform ==
+                                          TargetPlatform.android) {
+                                        // Android: Show transfer tray
+                                        final transferProvider =
+                                            Provider.of<TransferProvider>(
+                                                context,
+                                                listen: false);
+                                        transferProvider.openTray();
+                                      } else {
+                                        // Other platforms: Direct BLE transfer
                                         await animationProvider
                                             .handleAnimationTransfer(
                                           badgeData: badgeData,
                                           inlineImageProvider:
                                               inlineImageProvider,
                                           speedDialProvider: speedDialProvider,
-                                          connectionType:
-                                              ConnectionType.bluetooth,
                                           flash: animationProvider
                                               .isEffectActive(FlashEffect()),
                                           marquee: animationProvider
@@ -604,93 +636,73 @@ class _HomeScreenState extends State<HomeScreen>
                                               animationProvider.isEffectActive(
                                                   InvertLEDEffect()),
                                           context: context,
+                                          connectionType: ConnectionType
+                                              .bluetooth, // Always BLE for non-Android
                                         );
-                                      },
-                                      child: Container(
-                                        alignment: Alignment.center,
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 16.w, vertical: 8.h),
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
-                                          color: mdGrey400,
-                                        ),
-                                        child: Text(l10n.transferButton),
+                                      }
+                                    },
+                                    child: Container(
+                                      height: 32.h,
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 16.w, vertical: 8.h),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        color: mdGrey400,
                                       ),
+                                      child: Text(l10n.transferButton),
                                     ),
-                                  );
-                                } else {
-                                  // Save + Transfer buttons (side by side, expanded)
-                                  return Row(
-                                    children: [
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () async {
-                                            _handleSave();
-                                          },
-                                          child: Container(
-                                            height: 32.h,
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 16.w,
-                                                vertical: 8.h),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.r),
-                                              color: mdGrey400,
-                                            ),
-                                            child: Text(l10n.saveButton),
-                                          ),
-                                        ),
-                                      ),
-                                      SizedBox(width: 12.w),
-                                      Expanded(
-                                        child: GestureDetector(
-                                          onTap: () async {
-                                            await animationProvider
-                                                .handleAnimationTransfer(
-                                              badgeData: badgeData,
-                                              inlineImageProvider:
-                                                  inlineImageProvider,
-                                              speedDialProvider:
-                                                  speedDialProvider,
-                                              connectionType:
-                                                  ConnectionType.bluetooth,
-                                              flash: animationProvider
-                                                  .isEffectActive(
-                                                      FlashEffect()),
-                                              marquee: animationProvider
-                                                  .isEffectActive(
-                                                      MarqueeEffect()),
-                                              invert: animationProvider
-                                                  .isEffectActive(
-                                                      InvertLEDEffect()),
-                                              context: context,
-                                            );
-                                          },
-                                          child: Container(
-                                            height: 32.h,
-                                            alignment: Alignment.center,
-                                            padding: EdgeInsets.symmetric(
-                                                horizontal: 16.w,
-                                                vertical: 8.h),
-                                            decoration: BoxDecoration(
-                                              borderRadius:
-                                                  BorderRadius.circular(8.r),
-                                              color: mdGrey400,
-                                            ),
-                                            child: Text(l10n.transferButton),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  );
-                                }
-                              },
-                            ),
-                          ),
-                        ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          }
+                        },
                       ),
+                    ),
+                    Consumer<TransferProvider>(
+                      builder: (context, transferProvider, _) {
+                        if (transferProvider.showTray) {
+                          return Positioned.fill(
+                            child: GestureDetector(
+                              onTap: () {
+                                transferProvider.closeTray();
+                              },
+                              child: Container(
+                                color: Colors.black.withOpacity(0.3),
+                              ),
+                            ),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
+
+// Transfer Method Tray (only slides up on Android)
+                    Consumer<TransferProvider>(
+                      builder: (context, transferProvider, _) {
+                        return AnimatedPositioned(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeOut,
+                          bottom: transferProvider.showTray ? 0 : -300,
+                          left: 0,
+                          right: 0,
+                          child: TransferMethodTray(
+                            onMethodSelected: (method) async {
+                              transferProvider.selectMethod(method);
+                              await _handleTransfer(
+                                  context, method, animationProvider);
+                            },
+                            onCancel: () {
+                              transferProvider.closeTray();
+                            },
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
               scaffoldKey: const Key(homeScreenTitleKey),
             ),
@@ -743,6 +755,31 @@ class _HomeScreenState extends State<HomeScreen>
       Converters(),
       animationProvider.isEffectActive(InvertLEDEffect()),
     );
+  }
+
+  Future<void> _handleTransfer(
+    BuildContext context,
+    ConnectionType method,
+    AnimationBadgeProvider animationProvider,
+  ) async {
+    try {
+      await animationProvider.handleAnimationTransfer(
+        badgeData: badgeData,
+        inlineImageProvider: inlineImageProvider,
+        speedDialProvider: speedDialProvider,
+        flash: animationProvider.isEffectActive(FlashEffect()),
+        marquee: animationProvider.isEffectActive(MarqueeEffect()),
+        invert: animationProvider.isEffectActive(InvertLEDEffect()),
+        context: context,
+        connectionType: method,
+      );
+    } catch (e) {
+      ToastUtils().showToast("Transfer failed: ${e.toString()}");
+    } finally {
+      final transferProvider =
+          Provider.of<TransferProvider>(context, listen: false);
+      transferProvider.reset();
+    }
   }
 
   @override
