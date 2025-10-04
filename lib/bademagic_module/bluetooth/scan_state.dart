@@ -85,10 +85,32 @@ class ScanState extends NormalBleState {
       await Future.delayed(const Duration(seconds: 1));
 
       if (!isCompleted) {
-        isCompleted = true;
-        FlutterBluePlus.stopScan();
-        toast.showErrorToast('Device not found.');
-        nextStateCompleter.completeError(Exception('Device not found.'));
+        // If no devices found with service filter, try scanning all devices
+        logger.d("No devices found with service filter, trying broad scan...");
+        await FlutterBluePlus.stopScan();
+        await Future.delayed(const Duration(milliseconds: 500));
+
+        await FlutterBluePlus.startScan(
+          removeIfGone: Duration(seconds: 5),
+          continuousUpdates: true,
+          timeout: const Duration(seconds: 5), // Shorter timeout for broad scan
+        );
+
+        await Future.delayed(const Duration(seconds: 2));
+      }
+
+      if (!isCompleted) {
+        // Try connecting to known devices by MAC address as fallback
+        logger.d("No devices found via scanning, trying known devices...");
+        final knownDeviceFound =
+            await _tryKnownDevices(nextStateCompleter, isCompleted);
+
+        if (!knownDeviceFound && !isCompleted) {
+          isCompleted = true;
+          FlutterBluePlus.stopScan();
+          toast.showErrorToast('Device not found.');
+          nextStateCompleter.completeError(Exception('Device not found.'));
+        }
       }
 
       return await nextStateCompleter.future;
@@ -99,5 +121,58 @@ class ScanState extends NormalBleState {
       await subscription?.cancel();
       await FlutterBluePlus.stopScan();
     }
+  }
+
+  Future<bool> _tryKnownDevices(
+      Completer<BleState?> completer, bool isCompleted) async {
+    final knownDevices = [
+      '5C:53:10:B7:AC:F6', 
+    ];
+
+    for (final macAddress in knownDevices) {
+      if (isCompleted) break;
+
+      try {
+        logger.d("Trying to connect to known device: $macAddress");
+
+        // Create a BluetoothDevice from MAC address
+        final device = BluetoothDevice.fromId(macAddress);
+
+        // Create a mock ScanResult for the known device
+        final mockScanResult = ScanResult(
+          device: device,
+          advertisementData: AdvertisementData(
+            advName:
+                'LSLED', // Default name, will be updated if device has a name
+            serviceUuids: [Guid("0000fee0-0000-1000-8000-00805f9b34fb")],
+            txPowerLevel: 0,
+            appearance: 0,
+            manufacturerData: {},
+            serviceData: {},
+            connectable: true,
+          ),
+          rssi: -50,
+          timeStamp: DateTime.now(),
+        );
+
+        logger.d("Created mock scan result for device: ${device.name}");
+
+        // Try to connect to this device - only complete if not already completed
+        if (!completer.isCompleted) {
+          completer.complete(ConnectState(
+            scanResult: mockScanResult,
+            manager: manager,
+          ));
+          logger.d("Successfully initiated connection to known device");
+          return true;
+        } else {
+          logger.d("Completer already completed, skipping");
+        }
+      } catch (e) {
+        logger.w("Failed to connect to known device $macAddress: $e");
+        continue;
+      }
+    }
+    return false;
   }
 }

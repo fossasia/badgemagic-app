@@ -200,6 +200,29 @@ class BadgeMessageProvider {
           logger.e('Error while waiting for Bluetooth to turn on: $e');
           return;
         }
+      } else if (Platform.isLinux) {
+        final l10n = GetIt.instance.get<LocalizationService>().l10n;
+        ToastUtils()
+            .showToast('Please ensure Bluetooth is enabled on your system.');
+
+        try {
+          adapterState = await FlutterBluePlus.adapterState
+              .where((state) => state == BluetoothAdapterState.on)
+              .first
+              .timeout(
+            const Duration(seconds: 10),
+            onTimeout: () {
+              ToastUtils()
+                  .showErrorToast('Bluetooth is not available or not enabled.');
+              throw Exception('Bluetooth not available');
+            },
+          );
+        } catch (e) {
+          logger.e('Error while waiting for Bluetooth adapter state: $e');
+          ToastUtils().showErrorToast(
+              'Bluetooth is not available. Please check your system settings.');
+          return;
+        }
       } else {
         final l10n = GetIt.instance.get<LocalizationService>().l10n;
         ToastUtils().showErrorToast(l10n.error);
