@@ -86,7 +86,6 @@ class _AniContainerState extends State<AniContainer> {
                 // Force preview update for special animations
                 animationCardState.badgeAnimation('', Converters(), false);
               }
-              // else do nothing
               return;
             }
           }
@@ -95,7 +94,7 @@ class _AniContainerState extends State<AniContainer> {
         child: Card(
           surfaceTintColor: Colors.white,
           color: animationCardState.isAnimationActive(badgeAnimation)
-              ? colorAccent
+              ? colorPrimaryDark
               : drawerHeaderTitle,
           elevation: 5,
           child: Column(
@@ -103,16 +102,42 @@ class _AniContainerState extends State<AniContainer> {
             children: [
               Flexible(
                 child: widget.icon != null
-                    ? Icon(widget.icon, size: 36)
+                    ? Icon(
+                        widget.icon,
+                        size: 36,
+                        color:
+                            animationCardState.isAnimationActive(badgeAnimation)
+                                ? Colors.white
+                                : const Color.fromARGB(255, 117, 117, 117),
+                      )
                     : (widget.animation != null
-                        ? Image.asset(widget.animation!, fit: BoxFit.fill)
+                        ? Image.asset(
+                            widget.animation!,
+                            fit: BoxFit.fill,
+                            color: animationCardState
+                                    .isAnimationActive(badgeAnimation)
+                                ? Colors.white
+                                : null,
+                            colorBlendMode: animationCardState
+                                    .isAnimationActive(badgeAnimation)
+                                ? BlendMode.srcIn
+                                : null,
+                          )
                         : SizedBox.shrink()),
               ),
-              Text(
-                _getLocalizedAnimationName(widget.animationName, context),
-                style: TextStyle(fontSize: 9.sp),
-                overflow: TextOverflow.ellipsis,
-                maxLines: 1,
+              Padding(
+                padding: EdgeInsets.only(bottom: 6.h),
+                child: Text(
+                  _getLocalizedAnimationName(widget.animationName, context),
+                  style: TextStyle(
+                    fontSize: 9.sp,
+                    color: animationCardState.isAnimationActive(badgeAnimation)
+                        ? Colors.white
+                        : Colors.black,
+                  ),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1,
+                ),
               ),
             ],
           ),

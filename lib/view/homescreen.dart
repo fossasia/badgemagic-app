@@ -303,22 +303,28 @@ class _HomeScreenState extends State<HomeScreen>
                                         return DropdownButtonHideUnderline(
                                           child: DropdownButton<String>(
                                             value: fontProvider.selectedFont,
-                                            icon: const Icon(
-                                                Icons.arrow_drop_down),
+                                            icon: const SizedBox.shrink(),
+                                            iconEnabledColor: mdGrey400,
+                                            style: TextStyle(
+                                              color: mdGrey400,
+                                              fontSize: 12.sp,
+                                            ),
                                             hint: Text(
                                               'Font',
                                               style: TextStyle(
                                                 fontSize: 12.sp,
-                                                color: Colors.grey[600],
+                                                color: mdGrey400,
                                               ),
                                             ),
                                             items: [
-                                              const DropdownMenuItem(
+                                              DropdownMenuItem(
                                                 value: null,
                                                 child: Text(
-                                                  'Default Font',
-                                                  style: TextStyle(
+                                                  'Default',
+                                                  style: const TextStyle(
                                                     fontSize: 12,
+                                                  ).copyWith(
+                                                    color: Colors.black,
                                                   ),
                                                 ),
                                               ),
@@ -329,10 +335,43 @@ class _HomeScreenState extends State<HomeScreen>
                                                         child: Text(
                                                           font,
                                                           style: _getFontStyle(
-                                                              font),
+                                                            font,
+                                                          ).copyWith(
+                                                            color: Colors.black,
+                                                          ),
                                                         ),
                                                       ))
                                             ],
+                                            selectedItemBuilder: (context) {
+                                              final List<String?> options = [
+                                                null,
+                                                ...fontProvider.availableFonts,
+                                              ];
+                                              return options.map((opt) {
+                                                final String label =
+                                                    opt ?? 'Default';
+                                                return Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Text(
+                                                      label,
+                                                      style: TextStyle(
+                                                        color: mdGrey400,
+                                                        fontSize: 12.sp,
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                    const Icon(
+                                                      Icons.arrow_drop_down,
+                                                      size: 16,
+                                                      color: mdGrey400,
+                                                    ),
+                                                  ],
+                                                );
+                                              }).toList();
+                                            },
                                             onChanged: (String? newFont) {
                                               fontProvider.changeFont(newFont);
                                               animationProvider.badgeAnimation(
@@ -371,10 +410,13 @@ class _HomeScreenState extends State<HomeScreen>
                           TabBar(
                             isScrollable: false,
                             indicatorSize: TabBarIndicatorSize.tab,
-                            labelStyle: TextStyle(fontSize: 12),
-                            unselectedLabelStyle: TextStyle(fontSize: 12),
-                            labelColor: Colors.black,
-                            unselectedLabelColor: mdGrey400,
+                            labelStyle: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w600),
+                            unselectedLabelStyle: TextStyle(
+                                fontSize: 12, fontWeight: FontWeight.w600),
+                            labelColor: const Color.fromARGB(255, 12, 12, 12),
+                            unselectedLabelColor:
+                                const Color.fromARGB(255, 146, 121, 121),
                             indicatorColor: colorPrimary,
                             controller: _tabController,
                             splashFactory: InkRipple.splashFactory,
@@ -433,7 +475,7 @@ class _HomeScreenState extends State<HomeScreen>
                     Positioned(
                       left: 16.w,
                       right: 16.w,
-                      bottom: MediaQuery.of(context).viewInsets.bottom + 16.h,
+                      bottom: 16.h,
                       child: Consumer<AnimationBadgeProvider>(
                         builder: (context, animationProvider, _) {
                           final isSpecial =
@@ -442,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen>
                           if (isSpecial) {
                             // Only Transfer button (for special animations)
                             return SizedBox(
-                              height: 24.h,
+                              height: 32.h,
                               child: GestureDetector(
                                 onTap: () async {
                                   await animationProvider

@@ -59,7 +59,7 @@ class RadialDialPainter extends CustomPainter {
     );
 
     final progressPaint = Paint()
-      ..color = colorAccent
+      ..color = colorPrimaryDark
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.square
       ..strokeWidth = 9.w;
@@ -205,7 +205,7 @@ class _RadialDialState extends State<RadialDial> {
           painter: RadialDialPainter(
             value: outerValueProvider.getOuterValue().toDouble(),
             max: maxValue,
-            color: colorAccent,
+            color: colorPrimaryDark,
           ),
           child: SizedBox(
             width: 200.w,
@@ -232,7 +232,7 @@ class _RadialDialState extends State<RadialDial> {
             painter: InnerPointerPainter(
               value: outerValueProvider.getOuterValue().toDouble(),
               max: maxValue,
-              color: colorAccent,
+              color: colorPrimaryDark,
             ),
             child: SizedBox(
               width: 120.w,
