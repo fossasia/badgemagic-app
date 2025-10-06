@@ -126,7 +126,7 @@ class ScanState extends NormalBleState {
   Future<bool> _tryKnownDevices(
       Completer<BleState?> completer, bool isCompleted) async {
     final knownDevices = [
-      '5C:53:10:B7:AC:F6', 
+      '5C:53:10:B7:AC:F6',
     ];
 
     for (final macAddress in knownDevices) {
