@@ -8,18 +8,22 @@ class CommonScaffold extends StatelessWidget {
   final Key? scaffoldKey;
   final int index;
   final List<Widget>? actions;
+  final Widget? bottomNavigationBar; // 👈 Added
 
-  const CommonScaffold(
-      {super.key,
-      required this.body,
-      required this.title,
-      this.scaffoldKey,
-      this.actions,
-      required this.index});
+  const CommonScaffold({
+    super.key,
+    required this.body,
+    required this.title,
+    this.scaffoldKey,
+    this.actions,
+    required this.index,
+    this.bottomNavigationBar, // 👈 Added
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: scaffoldKey,
       backgroundColor: Colors.white,
       resizeToAvoidBottomInset: true,
       appBar: AppBar(
@@ -36,7 +40,6 @@ class CommonScaffold extends StatelessWidget {
         }),
         backgroundColor: colorPrimary,
         title: Text(
-          key: scaffoldKey,
           title,
           style: const TextStyle(color: Colors.white),
         ),
@@ -48,6 +51,7 @@ class CommonScaffold extends StatelessWidget {
         selectedIndex: index,
       ),
       body: body,
+      bottomNavigationBar: bottomNavigationBar, // 👈 Forwarded
     );
   }
 }
