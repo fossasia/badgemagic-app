@@ -5,10 +5,34 @@ class SnowFlakeAnimation extends BadgeAnimation {
   void processAnimation(int badgeHeight, int badgeWidth, int animationIndex,
       List<List<bool>> processGrid, List<List<bool>> canvas) {
     int newWidth = processGrid[0].length;
-    int totalAnimationLength = badgeHeight * 16;
-    int frame = animationIndex % totalAnimationLength;
+    int newHeight = processGrid.length;
 
-    int horizontalOffset = (badgeWidth - newWidth) ~/ 2;
+    // Calculate the total number of frames that fit the badge width
+    int framesCount = (newWidth / badgeWidth).ceil();
+
+    // Calculate the total animation length for one complete snowflake cycle
+    int snowflakeCycleLength = badgeHeight * 16;
+
+    // For transfer optimization: limit to 8 frames maximum
+    int maxFrames = 8;
+    int effectiveFramesCount = framesCount.clamp(1, maxFrames);
+
+    // Calculate the total length for one complete text scroll cycle
+    int totalCycleLength = snowflakeCycleLength * effectiveFramesCount;
+
+    // Get the current position in the overall cycle
+    int cyclePosition = animationIndex % totalCycleLength;
+
+    // Determine which text section we're currently showing
+    int currentFrame = cyclePosition ~/ snowflakeCycleLength;
+
+    // Calculate the starting column for the current frame in newGrid
+    int startCol = currentFrame * badgeWidth;
+
+    // Get the frame within the current snowflake cycle
+    int frame = cyclePosition % snowflakeCycleLength;
+
+    int horizontalOffset = (badgeWidth - newWidth).clamp(0, badgeWidth) ~/ 2;
 
     bool phase1 = frame < badgeHeight * 4;
     bool phase2 = frame >= badgeHeight * 4 && frame < badgeHeight * 8;
@@ -22,9 +46,9 @@ class SnowFlakeAnimation extends BadgeAnimation {
 
         if (fallPosition >= 0 && fallPosition < badgeHeight) {
           for (int col = 0; col < badgeWidth; col++) {
-            int sourceCol = col - horizontalOffset;
+            int sourceCol = startCol + col - horizontalOffset;
             bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
-            if (isWithinNewGrid) {
+            if (isWithinNewGrid && row < newHeight) {
               canvas[fallPosition][col] = processGrid[row][sourceCol];
             }
           }
@@ -38,9 +62,9 @@ class SnowFlakeAnimation extends BadgeAnimation {
 
         if (fallOutPosition < row) {
           for (int col = 0; col < badgeWidth; col++) {
-            int sourceCol = col - horizontalOffset;
+            int sourceCol = startCol + col - horizontalOffset;
             bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
-            if (isWithinNewGrid) {
+            if (isWithinNewGrid && row < newHeight) {
               canvas[row][col] = processGrid[row][sourceCol];
             }
           }
@@ -52,9 +76,11 @@ class SnowFlakeAnimation extends BadgeAnimation {
           }
 
           for (int col = 0; col < badgeWidth; col++) {
-            int sourceCol = col - horizontalOffset;
+            int sourceCol = startCol + col - horizontalOffset;
             bool isWithinNewGrid = sourceCol >= 0 && sourceCol < newWidth;
-            if (isWithinNewGrid && fallOutPosition < badgeHeight) {
+            if (isWithinNewGrid &&
+                fallOutPosition < badgeHeight &&
+                row < newHeight) {
               canvas[fallOutPosition][col] = processGrid[row][sourceCol];
             }
           }

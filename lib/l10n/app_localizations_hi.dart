@@ -182,7 +182,7 @@ class AppLocalizationsHi extends AppLocalizations {
   String get speedTitle => 'स्पीड';
 
   @override
-  String get animation => 'एनिमेशन';
+  String get animation => 'डॉट-मैट्रिक्स';
 
   @override
   String get transition => 'बदलाव';
