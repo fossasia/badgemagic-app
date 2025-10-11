@@ -201,7 +201,6 @@ class BadgeMessageProvider {
           return;
         }
       } else if (Platform.isLinux) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
         ToastUtils()
             .showToast('Please ensure Bluetooth is enabled on your system.');
 
