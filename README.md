@@ -36,6 +36,10 @@ Up to Android version 11
 
 Please talk to us on the badge-magic [Gitter channel here](https://gitter.im/fossasia/badge-magic).
 
+## Translations
+
+Translators can support the project on Weblate here: https://hosted.weblate.org/projects/fossasia/badge-magic-app/
+
 ## Available Devices
 
 There are a number of devices with Bluetooth on the market. As far as we can tell they are mostly from the same manufacturer. When you get a org.fossasia.badgemagic.device ensure it comes with Bluetooth. There are devices that don't support Bluetooth. These are not supported in the app currently.
