@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'package:badgemagic/constants.dart';
 import 'package:logger/logger.dart';
 import 'package:usb_serial/usb_serial.dart';
 
@@ -6,12 +7,6 @@ import 'package:usb_serial/usb_serial.dart';
 class UsbCdc {
   final logger = Logger();
   UsbPort? _port;
-
-  // FOSSASIA BadgeMagic Device IDs - BOTH MODES
-  static const int normalVendorId = 4348; // 0x10FC - Normal mode
-  static const int normalProductId = 55200; // 0x55E0 - Normal mode
-  static const int bootloaderVendorId = 1046; // 0x0416 - Bootloader mode
-  static const int bootloaderProductId = 20512; // 0x5020 - Bootloader mode
 
   /// Open the first available FOSSASIA USB device
   Future<bool> openDevice() async {

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/usb/payload_builder.dart';
 import 'package:badgemagic/bademagic_module/usb/usb_write_state.dart';
@@ -277,6 +278,11 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required BuildContext context,
     required ConnectionType connectionType,
   }) async {
+    // DEFENSIVE CHECK - though UI should prevent this
+    if (connectionType == ConnectionType.usb && !Platform.isAndroid) {
+      ToastUtils().showToast("USB transfer is only available on Android");
+      return;
+    }
     final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();
     if (connectionType == ConnectionType.bluetooth) {

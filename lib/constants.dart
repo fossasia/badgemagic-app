@@ -29,6 +29,12 @@ const Color mdGrey400 = Color(0xFFBDBDBD);
 const Color dividerColor = Color(0xFFE0E0E0);
 const Color drawerHeaderTitle = Color(0xFFFFFFFF);
 
+// USB Configuration
+const int normalVendorId = 4348; // 0x10FC - Normal mode
+const int normalProductId = 55200; // 0x55E0 - Normal mode
+const int bootloaderVendorId = 1046; // 0x0416 - Bootloader mode
+const int bootloaderProductId = 20512; // 0x5020 - Bootloader mode
+
 //path to all the animation assets used
 const String animation = 'assets/animations/ic_anim_animation.gif';
 const String aniLeft = 'assets/animations/ic_anim_left.gif';

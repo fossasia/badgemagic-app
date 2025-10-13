@@ -58,7 +58,7 @@ dependencies:
   usb_serial:
     git:
       url: https://github.com/tushar11kh/usbserial.git
-      ref: master
+      ref: 886d3a6b2e6831020586c99af6ae9d1b3bf35115
 
 dev_dependencies:
   flutter_test:
