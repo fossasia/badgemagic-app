@@ -51,6 +51,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get hindi => 'Hindi';
 
   @override
+  String get italian => 'Italian';
+
+  @override
   String get cancel => 'Cancel';
 
   @override
