@@ -5,7 +5,10 @@ extension FirstOrNullExtension<E> on Iterable<E> {
 }
 
 class BadgeSlotProvider with ChangeNotifier {
-  // Maps selected badge key -> assigned slot number (1..8)
+  // Maps selected badge key -> selection order (0-based index)
+  final Map<String, int> _badgeKeyToSelectionOrder = {};
+
+  // Maps selected badge key -> assigned slot number (1..8) for transfer
   final Map<String, int> _badgeKeyToSlot = {};
 
   // Available slot numbers pool
@@ -13,25 +16,28 @@ class BadgeSlotProvider with ChangeNotifier {
 
   static const int maxSelectedBadges = 8;
 
-  Set<String> get selectedBadges => _badgeKeyToSlot.keys.toSet();
+  Set<String> get selectedBadges => _badgeKeyToSelectionOrder.keys.toSet();
 
-  bool isSelected(String badgeKey) => _badgeKeyToSlot.containsKey(badgeKey);
+  bool isSelected(String badgeKey) =>
+      _badgeKeyToSelectionOrder.containsKey(badgeKey);
 
   bool get canSelectMore =>
-      _badgeKeyToSlot.length < maxSelectedBadges && _availableSlots.isNotEmpty;
+      _badgeKeyToSelectionOrder.length < maxSelectedBadges;
 
   int? getSlotForBadge(String badgeKey) => _badgeKeyToSlot[badgeKey];
 
   List<String> getSelectionsOrderedBySlot() {
-    final entries = _badgeKeyToSlot.entries.toList()
+    final entries = _badgeKeyToSelectionOrder.entries.toList()
       ..sort((a, b) => a.value.compareTo(b.value));
     return entries.map((e) => e.key).toList();
   }
 
   /// ✅ Updated reorderSlots to perform push-down insertion
   void reorderSlots(String fromBadgeKey, String toBadgeKey) {
-    if (!_badgeKeyToSlot.containsKey(fromBadgeKey) ||
-        !_badgeKeyToSlot.containsKey(toBadgeKey)) return;
+    if (!_badgeKeyToSelectionOrder.containsKey(fromBadgeKey) ||
+        !_badgeKeyToSelectionOrder.containsKey(toBadgeKey)) {
+      return;
+    }
 
     final orderedKeys = getSelectionsOrderedBySlot();
     orderedKeys.remove(fromBadgeKey);
@@ -39,44 +45,50 @@ class BadgeSlotProvider with ChangeNotifier {
 
     orderedKeys.insert(toIndex, fromBadgeKey);
 
-    _badgeKeyToSlot.clear();
-    _availableSlots
-      ..clear()
-      ..addAll({1, 2, 3, 4, 5, 6, 7, 8});
-
+    // Update selection order
+    _badgeKeyToSelectionOrder.clear();
     for (int i = 0; i < orderedKeys.length; i++) {
-      final slot = i + 1;
-      _badgeKeyToSlot[orderedKeys[i]] = slot;
-      _availableSlots.remove(slot);
+      _badgeKeyToSelectionOrder[orderedKeys[i]] = i;
     }
 
+    // Keep original slot assignments - don't reassign slots
+    // The slot numbers should remain as they were originally assigned
     notifyListeners();
   }
 
   void toggleSelection(String badgeKey) {
-    if (_badgeKeyToSlot.containsKey(badgeKey)) {
-      // Unselect: free its slot
+    if (_badgeKeyToSelectionOrder.containsKey(badgeKey)) {
+      // Unselect: remove from selection order and slot
+      _badgeKeyToSelectionOrder.remove(badgeKey);
       final freedSlot = _badgeKeyToSlot.remove(badgeKey);
+
       if (freedSlot != null) {
         _availableSlots.add(freedSlot);
       }
+
+      // Don't reassign slot numbers - keep original slots for remaining badges
       notifyListeners();
       return;
     }
 
-    if (_badgeKeyToSlot.length >= maxSelectedBadges ||
-        _availableSlots.isEmpty) {
+    if (_badgeKeyToSelectionOrder.length >= maxSelectedBadges) {
       return; // Cannot select more
     }
 
-    // Assign smallest available slot
+    // Add to selection order (append to end)
+    final newOrder = _badgeKeyToSelectionOrder.length;
+    _badgeKeyToSelectionOrder[badgeKey] = newOrder;
+
+    // Assign lowest available slot number
     final smallest = _availableSlots.reduce((a, b) => a < b ? a : b);
     _availableSlots.remove(smallest);
     _badgeKeyToSlot[badgeKey] = smallest;
+
     notifyListeners();
   }
 
   void clearSelections() {
+    _badgeKeyToSelectionOrder.clear();
     _badgeKeyToSlot.clear();
     _availableSlots
       ..clear()

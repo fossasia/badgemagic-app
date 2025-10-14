@@ -174,34 +174,8 @@ class _BadgeListViewState extends State<BadgeListView> {
 
         return Consumer<BadgeSlotProvider>(
           builder: (context, slotProvider, _) {
-            // Sort badges: selected ones first (by slot order), then unselected
-            final selectedBadges = slotProvider.getSelectionsOrderedBySlot();
-            final selectedBadgeKeys = selectedBadges.toSet();
-
-            final selectedBadgeEntries =
-                <MapEntry<String, Map<String, dynamic>>>[];
-            final unselectedBadgeEntries =
-                <MapEntry<String, Map<String, dynamic>>>[];
-
-            for (final badge in allBadges) {
-              if (selectedBadgeKeys.contains(badge.key)) {
-                selectedBadgeEntries.add(badge);
-              } else {
-                unselectedBadgeEntries.add(badge);
-              }
-            }
-
-            // Sort selected badges by their slot number
-            selectedBadgeEntries.sort((a, b) {
-              final slotA = slotProvider.getSlotForBadge(a.key) ?? 999;
-              final slotB = slotProvider.getSlotForBadge(b.key) ?? 999;
-              return slotA.compareTo(slotB);
-            });
-
-            final sortedBadges = [
-              ...selectedBadgeEntries,
-              ...unselectedBadgeEntries
-            ];
+            // Keep badges in their original order - no sorting or rearrangement
+            final sortedBadges = allBadges;
 
             return Padding(
               padding:
@@ -221,10 +195,8 @@ class _BadgeListViewState extends State<BadgeListView> {
                     final badgeData = sortedBadges[index];
                     final badgeKey = badgeData.key;
                     final isSelected = slotProvider.isSelected(badgeKey);
-                    final isInSelectedSection =
-                        index < selectedBadgeEntries.length;
 
-                    if (isInSelectedSection && isSelected) {
+                    if (isSelected) {
                       // Make selected badges draggable
                       return Container(
                         key: ValueKey(badgeKey),
