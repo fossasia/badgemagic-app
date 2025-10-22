@@ -51,6 +51,9 @@ class AppLocalizationsHi extends AppLocalizations {
   String get hindi => 'हिंदी';
 
   @override
+  String get italian => 'Italian';
+
+  @override
   String get cancel => 'रद्द करें';
 
   @override
