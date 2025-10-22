@@ -426,19 +426,56 @@ class _HomeScreenState extends State<HomeScreen>
                                   ? dividerColor
                                   : null,
                             ),
+                            labelPadding: EdgeInsets.symmetric(horizontal: 4.0),
                             tabs: [
                               Tab(
-                                  key: const ValueKey('tab_speed'),
-                                  text: l10n.speedTitle),
+                                key: const ValueKey('tab_speed'),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    l10n.speedTitle,
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.visible,
+                                  ),
+                                ),
+                              ),
                               Tab(
-                                  key: const ValueKey('tab_transition'),
-                                  text: l10n.transitionTitle),
+                                key: const ValueKey('tab_transition'),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    l10n.transitionTitle,
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.visible,
+                                  ),
+                                ),
+                              ),
                               Tab(
-                                  key: const ValueKey('tab_effects'),
-                                  text: l10n.effectsTitle),
+                                key: const ValueKey('tab_effects'),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    l10n.effectsTitle,
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.visible,
+                                  ),
+                                ),
+                              ),
                               Tab(
-                                  key: const ValueKey('tab_animation'),
-                                  text: l10n.animation),
+                                key: const ValueKey('tab_animation'),
+                                child: FittedBox(
+                                  fit: BoxFit.scaleDown,
+                                  child: Text(
+                                    l10n.animation,
+                                    maxLines: 1,
+                                    softWrap: false,
+                                    overflow: TextOverflow.visible,
+                                  ),
+                                ),
+                              ),
                             ],
                           ),
                           SizedBox(
