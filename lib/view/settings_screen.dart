@@ -78,7 +78,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                         fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
-                  value: Localizations.localeOf(context).languageCode,
+                  initialValue: Localizations.localeOf(context).languageCode,
                   items: [
                     DropdownMenuItem(
                       value: 'en',

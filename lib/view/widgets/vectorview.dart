@@ -18,8 +18,12 @@ class _VectorGridViewState extends State<VectorGridView> {
     List keys = inlineImageProvider.imageCache.keys.toList();
     return GridView.builder(
       shrinkWrap: true,
+      physics: const AlwaysScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 9,
+        childAspectRatio: 1.0,
+        crossAxisSpacing: 4.0,
+        mainAxisSpacing: 4.0,
       ),
       itemBuilder: (context, index) {
         if (index == keys.length) {
