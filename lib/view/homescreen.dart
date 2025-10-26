@@ -69,10 +69,12 @@ class _HomeScreenState extends State<HomeScreen>
   String previousText = '';
   String _cachedText = '';
   String errorVal = "";
+  late final ScrollController _vectorScrollController;
 
   @override
   void initState() {
     super.initState();
+    _vectorScrollController = ScrollController();
     WidgetsBinding.instance.addObserver(this);
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
@@ -182,6 +184,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    _vectorScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
     inlineimagecontroller.removeListener(_controllerListner);
@@ -489,11 +492,13 @@ class _HomeScreenState extends State<HomeScreen>
                                 padding: EdgeInsets.symmetric(
                                     vertical: 10.h, horizontal: 10.w),
                                 child: Scrollbar(
+                                  controller: _vectorScrollController,
                                   thumbVisibility: true,
                                   trackVisibility: true,
                                   thickness: 4.0,
                                   radius: const Radius.circular(10),
-                                  child: VectorGridView(),
+                                  child: VectorGridView(
+                                      controller: _vectorScrollController),
                                 ),
                               ),
                             ),
