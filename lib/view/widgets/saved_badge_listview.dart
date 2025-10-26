@@ -174,8 +174,22 @@ class _BadgeListViewState extends State<BadgeListView> {
 
         return Consumer<BadgeSlotProvider>(
           builder: (context, slotProvider, _) {
-            // Keep badges in their original order - no sorting or rearrangement
-            final sortedBadges = allBadges;
+            // Create a list with both badge and its sort key (visual order if exists, else original index)
+            final badgesWithSortKey = <_BadgeWithSortKey>[];
+
+            for (int i = 0; i < allBadges.length; i++) {
+              final visualOrder = slotProvider.getVisualOrder(allBadges[i].key);
+              // Use visual order if it exists, otherwise use original file index
+              final sortKey = visualOrder ?? i;
+              badgesWithSortKey.add(_BadgeWithSortKey(allBadges[i], sortKey));
+            }
+
+            // Sort by sort key
+            badgesWithSortKey.sort((a, b) => a.sortKey.compareTo(b.sortKey));
+
+            // Build final result
+            final sortedBadges =
+                badgesWithSortKey.map((item) => item.badge).toList();
 
             return Padding(
               padding:
@@ -377,4 +391,11 @@ class _BadgeListViewState extends State<BadgeListView> {
       },
     );
   }
+}
+
+class _BadgeWithSortKey {
+  final MapEntry<String, Map<String, dynamic>> badge;
+  final int sortKey;
+
+  _BadgeWithSortKey(this.badge, this.sortKey);
 }
