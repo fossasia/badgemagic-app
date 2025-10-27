@@ -30,75 +30,89 @@ class BadgeSlotProvider with ChangeNotifier {
 
   int? getSlotForBadge(String badgeKey) => _badgeKeyToSlot[badgeKey];
 
+  /// Get the slot number for a badge based on its position in the first 8 items
+  /// This is for display purposes (showing 1-8 on the first 8 badges)
+  int? getPositionSlotForBadge(String badgeKey, int positionInList) {
+    // First 8 positions get slot numbers 1-8
+    if (positionInList < 8) {
+      return positionInList + 1;
+    }
+    return null;
+  }
+
   List<String> getSelectionsOrderedBySlot() {
     final entries = _badgeKeyToSelectionOrder.entries.toList()
       ..sort((a, b) => a.value.compareTo(b.value));
     return entries.map((e) => e.key).toList();
   }
 
-  /// Swaps slot assignments between two badges when drag and drop occurs
-  void reorderSlots(String fromBadgeKey, String toBadgeKey) {
-    if (!_badgeKeyToSelectionOrder.containsKey(fromBadgeKey) ||
-        !_badgeKeyToSelectionOrder.containsKey(toBadgeKey)) {
-      return;
+  /// Swaps visual positions between two badges when drag and drop occurs
+  /// Also swaps selection state when one badge is selected and the other is not
+  void reorderSlots(
+      String fromBadgeKey, String toBadgeKey, int fromIndex, int toIndex) {
+    final isFromSelected = _badgeKeyToSelectionOrder.containsKey(fromBadgeKey);
+    final isToSelected = _badgeKeyToSelectionOrder.containsKey(toBadgeKey);
+
+    // Swap selection states if one is selected and the other is not
+    if (isFromSelected && !isToSelected) {
+      // Case 1: Dragging a selected badge onto an unselected badge
+      // Swap selection states: unselect fromBadgeKey, select toBadgeKey
+
+      // Get the slot number and selection order from fromBadgeKey
+      final slotNumber = _badgeKeyToSlot[fromBadgeKey];
+      final selectionOrder = _badgeKeyToSelectionOrder[fromBadgeKey];
+
+      // Remove fromBadgeKey from selection
+      _badgeKeyToSelectionOrder.remove(fromBadgeKey);
+      if (slotNumber != null) {
+        _badgeKeyToSlot.remove(fromBadgeKey);
+        _availableSlots.add(slotNumber);
+      }
+
+      // Select toBadgeKey with the freed slot
+      if (slotNumber != null) {
+        _availableSlots.remove(slotNumber);
+        _badgeKeyToSlot[toBadgeKey] = slotNumber;
+        _badgeKeyToSelectionOrder[toBadgeKey] = selectionOrder!;
+      }
+    } else if (!isFromSelected && isToSelected) {
+      // Case 2: Dragging an unselected badge onto a selected badge
+      // Swap selection states: select fromBadgeKey, unselect toBadgeKey
+
+      // Get the slot number and selection order from toBadgeKey
+      final slotNumber = _badgeKeyToSlot[toBadgeKey];
+      final selectionOrder = _badgeKeyToSelectionOrder[toBadgeKey];
+
+      // Remove toBadgeKey from selection
+      _badgeKeyToSelectionOrder.remove(toBadgeKey);
+      if (slotNumber != null) {
+        _badgeKeyToSlot.remove(toBadgeKey);
+        _availableSlots.add(slotNumber);
+      }
+
+      // Select fromBadgeKey with the freed slot
+      if (slotNumber != null) {
+        _availableSlots.remove(slotNumber);
+        _badgeKeyToSlot[fromBadgeKey] = slotNumber;
+        _badgeKeyToSelectionOrder[fromBadgeKey] = selectionOrder!;
+      }
     }
 
-    // Swap the slot assignments
-    final fromSlot = _badgeKeyToSlot[fromBadgeKey];
-    final toSlot = _badgeKeyToSlot[toBadgeKey];
-
-    if (fromSlot != null && toSlot != null) {
-      _badgeKeyToSlot[fromBadgeKey] = toSlot;
-      _badgeKeyToSlot[toBadgeKey] = fromSlot;
+    // Assign visual order if badges don't have one
+    // Use current index as fallback for visual order
+    if (!_badgeKeyToVisualOrder.containsKey(fromBadgeKey)) {
+      _badgeKeyToVisualOrder[fromBadgeKey] = fromIndex;
+    }
+    if (!_badgeKeyToVisualOrder.containsKey(toBadgeKey)) {
+      _badgeKeyToVisualOrder[toBadgeKey] = toIndex;
     }
 
-    // Swap the visual order assignments
-    final fromVisual = _badgeKeyToVisualOrder[fromBadgeKey];
-    final toVisual = _badgeKeyToVisualOrder[toBadgeKey];
+    // Now swap the visual order values
+    final fromVisual = _badgeKeyToVisualOrder[fromBadgeKey]!;
+    final toVisual = _badgeKeyToVisualOrder[toBadgeKey]!;
 
-    if (fromVisual != null && toVisual != null) {
-      // Both have visual order, swap them
-      _badgeKeyToVisualOrder[fromBadgeKey] = toVisual;
-      _badgeKeyToVisualOrder[toBadgeKey] = fromVisual;
-    } else if (fromVisual == null && toVisual == null) {
-      // Neither has visual order, assign them based on slots after swap
-      // Use the swapped slot numbers as visual order
-      if (fromSlot != null && toSlot != null) {
-        _badgeKeyToVisualOrder[fromBadgeKey] = toSlot;
-        _badgeKeyToVisualOrder[toBadgeKey] = fromSlot;
-      }
-    } else if (fromVisual == null) {
-      // fromBadgeKey doesn't have visual order yet
-      if (toSlot != null) {
-        _badgeKeyToVisualOrder[fromBadgeKey] = toSlot;
-      }
-      if (toVisual != null && fromSlot != null) {
-        _badgeKeyToVisualOrder[toBadgeKey] = fromSlot;
-      } else if (fromSlot != null) {
-        _badgeKeyToVisualOrder[toBadgeKey] = fromSlot;
-      }
-    } else {
-      // toBadgeKey doesn't have visual order yet
-      if (fromSlot != null && toSlot != null) {
-        _badgeKeyToVisualOrder[fromBadgeKey] = toSlot;
-        _badgeKeyToVisualOrder[toBadgeKey] = fromSlot;
-      }
-    }
-
-    // Update selection order to reflect the slot positions
-    // Sort badges by their slot numbers (1, 2, 3, etc.)
-    final allBadgeKeys = _badgeKeyToSlot.keys.toList();
-    allBadgeKeys.sort((a, b) {
-      final slotA = _badgeKeyToSlot[a] ?? 0;
-      final slotB = _badgeKeyToSlot[b] ?? 0;
-      return slotA.compareTo(slotB);
-    });
-
-    // Reassign selection order based on sorted slot positions
-    _badgeKeyToSelectionOrder.clear();
-    for (int i = 0; i < allBadgeKeys.length; i++) {
-      _badgeKeyToSelectionOrder[allBadgeKeys[i]] = i;
-    }
+    _badgeKeyToVisualOrder[fromBadgeKey] = toVisual;
+    _badgeKeyToVisualOrder[toBadgeKey] = fromVisual;
 
     notifyListeners();
   }

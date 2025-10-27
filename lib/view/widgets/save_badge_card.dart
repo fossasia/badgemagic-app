@@ -26,6 +26,7 @@ class SaveBadgeCard extends StatelessWidget {
   final VoidCallback? onLongPress;
   final VoidCallback? onTap;
   final bool showDragHandle;
+  final int? positionInList; // Position in the sorted list (0-based)
 
   SaveBadgeCard({
     super.key,
@@ -35,6 +36,7 @@ class SaveBadgeCard extends StatelessWidget {
     this.onLongPress,
     this.onTap,
     this.showDragHandle = false,
+    this.positionInList,
   });
 
   // Helper methods to safely access badge data properties
@@ -392,41 +394,25 @@ class SaveBadgeCard extends StatelessWidget {
                 ],
               ),
             ),
-            // Slot overlay badge when selected (only if BadgeSlotProvider is available)
-            Positioned(
-              top: 16,
-              left: 16,
-              child: Builder(
-                builder: (context) {
-                  try {
-                    return Consumer<BadgeSlotProvider>(
-                      builder: (context, selectionProvider, _) {
-                        final slot =
-                            selectionProvider.getSlotForBadge(badgeData.key);
-                        if (slot == null) return const SizedBox.shrink();
-                        return Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.65),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            'Slot $slot',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w600),
-                          ),
-                        );
-                      },
-                    );
-                  } catch (e) {
-                    // BadgeSlotProvider not available in this context
-                    return const SizedBox.shrink();
-                  }
-                },
+            // Slot overlay badge for first 8 positions
+            if (positionInList != null && positionInList! < 8)
+              Positioned(
+                top: 16,
+                left: 16,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withOpacity(0.65),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    '${positionInList! + 1}',
+                    style: const TextStyle(
+                        color: Colors.white, fontWeight: FontWeight.w600),
+                  ),
+                ),
               ),
-            ),
             // Drag handle for reordering
             if (showDragHandle)
               Positioned(

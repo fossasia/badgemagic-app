@@ -216,25 +216,53 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                               onPressed: selectionProvider
                                       .selectedBadges.isNotEmpty
                                   ? () async {
-                                      // Use transferable badges (first 8 slots only)
-                                      final selectedBadges = selectionProvider
-                                          .getTransferableBadges();
+                                      // Get all badges sorted by visual order
+                                      final allBadges =
+                                          provider.savedBadgeCache.toList();
+
+                                      // Sort by visual order if available
+                                      allBadges.sort((a, b) {
+                                        final visualA = selectionProvider
+                                            .getVisualOrder(a.key);
+                                        final visualB = selectionProvider
+                                            .getVisualOrder(b.key);
+
+                                        if (visualA != null &&
+                                            visualB != null) {
+                                          return visualA.compareTo(visualB);
+                                        }
+                                        if (visualA != null) return -1;
+                                        if (visualB != null) return 1;
+                                        return 0; // Both null, keep original order
+                                      });
+
+                                      // Take first 8 badges
+                                      final firstEightBadges =
+                                          allBadges.take(8).toList();
+
                                       List<Message> badgeDataList = [];
 
-                                      for (var badgeKey in selectedBadges) {
-                                        Map<String, dynamic> badgeData =
-                                            provider.savedBadgeCache
-                                                .firstWhere((element) =>
-                                                    element.key == badgeKey)
-                                                .value;
+                                      // For each of the 8 positions
+                                      for (var badgeEntry in firstEightBadges) {
+                                        final isSelected = selectionProvider
+                                            .isSelected(badgeEntry.key);
 
-                                        final message = Message.fromJson(
-                                            badgeData['messages'][0]);
-                                        badgeDataList.add(message);
+                                        if (isSelected) {
+                                          // Badge is selected, use its data
+                                          final message = Message.fromJson(
+                                              badgeEntry.value['messages'][0]);
+                                          badgeDataList.add(message);
+                                        } else {
+                                          // Badge is not selected, send empty
+                                          badgeDataList.add(Message(text: []));
+                                        }
                                       }
+
+                                      // Fill remaining slots if less than 8 badges
                                       while (badgeDataList.length < 8) {
                                         badgeDataList.add(Message(text: []));
                                       }
+
                                       if (badgeDataList
                                               .where(
                                                   (msg) => msg.text.isNotEmpty)

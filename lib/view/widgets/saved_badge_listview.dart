@@ -82,45 +82,14 @@ class _BadgeListViewState extends State<BadgeListView> {
             ),
             SizedBox(width: 16.w),
             Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    badgeKey.substring(0, badgeKey.length - 5),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                      color: Colors.black87,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                  SizedBox(height: 6.h),
-                  Container(
-                    padding:
-                        EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                    decoration: BoxDecoration(
-                      color: colorPrimary,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: colorPrimary.withOpacity(0.3),
-                          spreadRadius: 1,
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
-                        ),
-                      ],
-                    ),
-                    child: Text(
-                      'Slot ${slotProvider.getSlotForBadge(badgeKey) ?? '?'}',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ),
-                ],
+              child: Text(
+                badgeKey.substring(0, badgeKey.length - 5),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  color: Colors.black87,
+                ),
+                overflow: TextOverflow.ellipsis,
               ),
             ),
           ],
@@ -210,58 +179,142 @@ class _BadgeListViewState extends State<BadgeListView> {
                     final badgeKey = badgeData.key;
                     final isSelected = slotProvider.isSelected(badgeKey);
 
-                    if (isSelected) {
-                      // Make selected badges draggable
-                      return Container(
-                        key: ValueKey(badgeKey),
-                        margin: EdgeInsets.symmetric(
-                            vertical: 4.h, horizontal: 8.w),
-                        child: LongPressDraggable<String>(
-                          data: badgeKey,
-                          hapticFeedbackOnStart: true,
-                          delay: const Duration(milliseconds: 200),
-                          // Use pointer drag anchor for better control
-                          dragAnchorStrategy: pointerDragAnchorStrategy,
-                          onDragStarted: () {
+                    // All badges can be dragged, regardless of selection state
+                    return Container(
+                      key: ValueKey(badgeKey),
+                      margin:
+                          EdgeInsets.symmetric(vertical: 4.h, horizontal: 8.w),
+                      child: LongPressDraggable<String>(
+                        data: badgeKey,
+                        hapticFeedbackOnStart: true,
+                        delay: const Duration(milliseconds: 200),
+                        // Use pointer drag anchor for better control
+                        dragAnchorStrategy: pointerDragAnchorStrategy,
+                        onDragStarted: () {
+                          setState(() {
+                            _draggingItem = badgeKey;
+                          });
+                          HapticFeedback.mediumImpact();
+                        },
+                        onDragUpdate: (details) {
+                          _handleDragUpdate(details, context);
+                        },
+                        onDragEnd: (details) {
+                          setState(() {
+                            _draggingItem = null;
+                            _hoveredIndex = null;
+                          });
+                        },
+                        onDraggableCanceled: (velocity, offset) {
+                          setState(() {
+                            _draggingItem = null;
+                            _hoveredIndex = null;
+                          });
+                        },
+                        feedback: _buildDragFeedback(badgeKey, slotProvider),
+                        childWhenDragging: AnimatedOpacity(
+                          opacity: 0.4,
+                          duration: const Duration(milliseconds: 200),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12.dg),
+                              border: Border.all(
+                                color: colorPrimary.withOpacity(0.3),
+                                width: 2,
+                                style: BorderStyle.solid,
+                              ),
+                            ),
+                            child: SaveBadgeCard(
+                              badgeData: badgeData,
+                              refreshBadgesCallback:
+                                  widget.refreshBadgesCallback,
+                              isSelected: isSelected,
+                              showDragHandle:
+                                  index < 8, // Show drag handle on first 8
+                              positionInList: index,
+                              onLongPress: () {
+                                slotProvider.toggleSelection(badgeKey);
+                                if (widget.onSelectionChanged != null) {
+                                  widget.onSelectionChanged!();
+                                }
+                              },
+                              onTap: () {
+                                if (slotProvider.selectedBadges.isNotEmpty) {
+                                  slotProvider.toggleSelection(badgeKey);
+                                  if (widget.onSelectionChanged != null) {
+                                    widget.onSelectionChanged!();
+                                  }
+                                }
+                              },
+                            ),
+                          ),
+                        ),
+                        child: DragTarget<String>(
+                          onWillAcceptWithDetails: (details) {
+                            // Allow dropping any badge on any other badge
+                            return details.data != badgeKey;
+                          },
+                          onAcceptWithDetails: (details) {
+                            // Find the indices of the two badges being swapped
+                            int fromIndex = -1, toIndex = index;
+                            for (int i = 0; i < sortedBadges.length; i++) {
+                              if (sortedBadges[i].key == details.data) {
+                                fromIndex = i;
+                                break;
+                              }
+                            }
+
+                            if (fromIndex != -1) {
+                              slotProvider.reorderSlots(
+                                  details.data, badgeKey, fromIndex, toIndex);
+                              if (widget.onSelectionChanged != null) {
+                                widget.onSelectionChanged!();
+                              }
+                              HapticFeedback.lightImpact();
+                            }
+                          },
+                          onMove: (details) {
                             setState(() {
-                              _draggingItem = badgeKey;
+                              _hoveredIndex = index;
                             });
-                            HapticFeedback.mediumImpact();
                           },
-                          onDragUpdate: (details) {
-                            _handleDragUpdate(details, context);
-                          },
-                          onDragEnd: (details) {
+                          onLeave: (data) {
                             setState(() {
-                              _draggingItem = null;
                               _hoveredIndex = null;
                             });
                           },
-                          onDraggableCanceled: (velocity, offset) {
-                            setState(() {
-                              _draggingItem = null;
-                              _hoveredIndex = null;
-                            });
-                          },
-                          feedback: _buildDragFeedback(badgeKey, slotProvider),
-                          childWhenDragging: AnimatedOpacity(
-                            opacity: 0.4,
-                            duration: const Duration(milliseconds: 200),
-                            child: Container(
+                          builder: (context, candidateData, rejectedData) {
+                            final isHovering = candidateData.isNotEmpty;
+
+                            return AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOutCubic,
+                              transform: Matrix4.identity()
+                                ..scale(isHovering ? 1.02 : 1.0),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(12.dg),
-                                border: Border.all(
-                                  color: colorPrimary.withOpacity(0.3),
-                                  width: 2,
-                                  style: BorderStyle.solid,
-                                ),
+                                border: isHovering
+                                    ? Border.all(color: colorPrimary, width: 3)
+                                    : null,
+                                boxShadow: isHovering
+                                    ? [
+                                        BoxShadow(
+                                          color: colorPrimary.withOpacity(0.4),
+                                          spreadRadius: 3,
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ]
+                                    : null,
                               ),
                               child: SaveBadgeCard(
                                 badgeData: badgeData,
                                 refreshBadgesCallback:
                                     widget.refreshBadgesCallback,
                                 isSelected: isSelected,
-                                showDragHandle: true,
+                                showDragHandle:
+                                    index < 8, // Show drag handle on first 8
+                                positionInList: index,
                                 onLongPress: () {
                                   slotProvider.toggleSelection(badgeKey);
                                   if (widget.onSelectionChanged != null) {
@@ -277,111 +330,11 @@ class _BadgeListViewState extends State<BadgeListView> {
                                   }
                                 },
                               ),
-                            ),
-                          ),
-                          child: DragTarget<String>(
-                            onWillAcceptWithDetails: (details) {
-                              return details.data != badgeKey &&
-                                  slotProvider.isSelected(details.data);
-                            },
-                            onAcceptWithDetails: (details) {
-                              slotProvider.reorderSlots(details.data, badgeKey);
-                              if (widget.onSelectionChanged != null) {
-                                widget.onSelectionChanged!();
-                              }
-                              HapticFeedback.lightImpact();
-                            },
-                            onMove: (details) {
-                              setState(() {
-                                _hoveredIndex = index;
-                              });
-                            },
-                            onLeave: (data) {
-                              setState(() {
-                                _hoveredIndex = null;
-                              });
-                            },
-                            builder: (context, candidateData, rejectedData) {
-                              final isHovering = candidateData.isNotEmpty;
-
-                              return AnimatedContainer(
-                                duration: const Duration(milliseconds: 300),
-                                curve: Curves.easeOutCubic,
-                                transform: Matrix4.identity()
-                                  ..scale(isHovering ? 1.02 : 1.0),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12.dg),
-                                  border: isHovering
-                                      ? Border.all(
-                                          color: colorPrimary, width: 3)
-                                      : null,
-                                  boxShadow: isHovering
-                                      ? [
-                                          BoxShadow(
-                                            color:
-                                                colorPrimary.withOpacity(0.4),
-                                            spreadRadius: 3,
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ]
-                                      : null,
-                                ),
-                                child: SaveBadgeCard(
-                                  badgeData: badgeData,
-                                  refreshBadgesCallback:
-                                      widget.refreshBadgesCallback,
-                                  isSelected: isSelected,
-                                  showDragHandle: true,
-                                  onLongPress: () {
-                                    slotProvider.toggleSelection(badgeKey);
-                                    if (widget.onSelectionChanged != null) {
-                                      widget.onSelectionChanged!();
-                                    }
-                                  },
-                                  onTap: () {
-                                    if (slotProvider
-                                        .selectedBadges.isNotEmpty) {
-                                      slotProvider.toggleSelection(badgeKey);
-                                      if (widget.onSelectionChanged != null) {
-                                        widget.onSelectionChanged!();
-                                      }
-                                    }
-                                  },
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      );
-                    } else {
-                      // Non-selected badges or unselected section
-                      return Container(
-                        key: ValueKey(badgeKey),
-                        margin: EdgeInsets.symmetric(
-                            vertical: 4.h, horizontal: 8.w),
-                        child: SaveBadgeCard(
-                          badgeData: badgeData,
-                          refreshBadgesCallback: widget.refreshBadgesCallback,
-                          isSelected: isSelected,
-                          showDragHandle: false,
-                          onLongPress: () {
-                            slotProvider.toggleSelection(badgeKey);
-                            if (widget.onSelectionChanged != null) {
-                              widget.onSelectionChanged!();
-                            }
-                          },
-                          onTap: () {
-                            if (slotProvider.selectedBadges.isNotEmpty) {
-                              slotProvider.toggleSelection(badgeKey);
-                              if (widget.onSelectionChanged != null) {
-                                widget.onSelectionChanged!();
-                              }
-                            }
+                            );
                           },
                         ),
-                      );
-                    }
+                      ),
+                    );
                   },
                 ),
               ),
