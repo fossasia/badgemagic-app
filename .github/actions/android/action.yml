@@ -52,7 +52,7 @@ runs:
         flutter build appbundle --build-name $VERSION_NAME --build-number $VERSION_CODE
 
     - name: Store APK file
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: apk-files
         path: |
