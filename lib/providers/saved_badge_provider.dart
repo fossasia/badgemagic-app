@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:get_it/get_it.dart';
 
 Map<int, Speed> speedMap = {
@@ -405,4 +406,30 @@ class SavedBadgeProvider extends ChangeNotifier {
   }
 
   Map<String, dynamic> getSavedBadgeDataMap() => savedBadgeData;
+
+  /// Shows a confirmation dialog before editing a badge
+  /// Returns true if user confirms, false otherwise
+  Future<bool> showEditBadgeConfirmation(BuildContext context) async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(l10n.editBadge),
+        content: Text(l10n.editBadgeConfirmation),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(l10n.no),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(l10n.yes),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
+  }
 }

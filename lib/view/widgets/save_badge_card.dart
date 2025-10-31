@@ -8,7 +8,7 @@ import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
-import 'package:badgemagic/view/draw_badge_screen.dart';
+import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -102,23 +102,20 @@ class SaveBadgeCard extends StatelessWidget {
                         Icons.edit,
                         color: Colors.black,
                       ),
-                      onPressed: () {
-                        List<List<int>> data = hexStringToBool(file
-                                .jsonToData(badgeData.value)
-                                .messages[0]
-                                .text
-                                .join())
-                            .map((e) => e.map((e) => e ? 1 : 0).toList())
-                            .toList();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => DrawBadge(
-                              filename: badgeData.key,
-                              isSavedCard: true,
-                              badgeGrid: data,
+                      onPressed: () async {
+                        // Show confirmation dialog before editing
+                        final confirmed =
+                            await provider.showEditBadgeConfirmation(context);
+                        if (confirmed) {
+                          // Navigate to HomeScreen for editing the badge
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => HomeScreen(
+                                savedBadgeFilename: badgeData.key,
+                              ),
                             ),
-                          ),
-                        );
+                          );
+                        }
                       },
                     ),
                     IconButton(
