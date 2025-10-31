@@ -9,6 +9,7 @@ import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/homescreen.dart';
+import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
