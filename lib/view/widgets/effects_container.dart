@@ -58,7 +58,6 @@ class _EffectContainerState extends State<EffectContainer> {
     return Container(
       margin: EdgeInsets.all(5.w),
       height: 90.h,
-      width: 110.w,
       child: GestureDetector(
         onTap: () {
           effectCardState.isEffectActive(badgeEffect)
