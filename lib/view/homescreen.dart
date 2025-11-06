@@ -36,7 +36,6 @@ import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class HomeScreen extends StatefulWidget {
-  // Add parameters for saved badge data when editing
   final String? savedBadgeFilename;
   final int? initialSpeed;
 
@@ -70,16 +69,17 @@ class _HomeScreenState extends State<HomeScreen>
   String previousText = '';
   String _cachedText = '';
   String errorVal = "";
+  late final ScrollController _vectorScrollController;
 
   @override
   void initState() {
     super.initState();
+    _vectorScrollController = ScrollController();
     WidgetsBinding.instance.addObserver(this);
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
     speedDialProvider = SpeedDialProvider(animationProvider);
 
-    // If initialSpeed is provided, set it immediately
     if (widget.initialSpeed != null) {
       speedDialProvider.setDialValue(widget.initialSpeed!);
     }
@@ -87,7 +87,6 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       inlineImageProvider.setContext(context);
 
-      // Apply saved badge data if we're editing a saved badge
       if (widget.savedBadgeFilename != null) {
         await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
       }
@@ -96,19 +95,16 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: 4, vsync: this);
   }
 
-  // Loads badge data from disk and populates controllers/providers for editing
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
     try {
       final (badgeText, badgeData, savedData) =
           await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
 
-      // Set the text in the controller
       inlineimagecontroller.text = badgeText;
 
-      // Set animation effects
-      animationProvider.removeEffect(effectMap[0]); // Invert
-      animationProvider.removeEffect(effectMap[1]); // Flash
-      animationProvider.removeEffect(effectMap[2]); // Marquee
+      animationProvider.removeEffect(effectMap[0]);
+      animationProvider.removeEffect(effectMap[1]);
+      animationProvider.removeEffect(effectMap[2]);
 
       final message = badgeData.messages[0];
       if (message.flash) {
@@ -123,11 +119,9 @@ class _HomeScreenState extends State<HomeScreen>
         animationProvider.addEffect(effectMap[0]);
       }
 
-      // Set animation mode
       int modeValue = BadgeLoaderHelper.parseAnimationMode(message.mode);
       animationProvider.setAnimationMode(animationMap[modeValue]);
 
-      // Set speed
       try {
         int speedDialValue = Speed.getIntValue(message.speed);
         speedDialProvider.setDialValue(speedDialValue);
@@ -190,6 +184,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    _vectorScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
     inlineimagecontroller.removeListener(_controllerListner);
@@ -249,10 +244,10 @@ class _HomeScreenState extends State<HomeScreen>
             child: CommonScaffold(
               index: 0,
               title: l10n.appTitle,
+              scaffoldKey: const Key(homeScreenTitleKey),
               body: SafeArea(
                 child: Stack(
                   children: [
-                    // Scrollable content
                     SingleChildScrollView(
                       physics: isDialInteracting
                           ? const NeverScrollableScrollPhysics()
@@ -261,8 +256,9 @@ class _HomeScreenState extends State<HomeScreen>
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           AnimationBadge(),
-                          Container(
-                            margin: EdgeInsets.all(15.w),
+                          Padding(
+                            padding: EdgeInsets.symmetric(
+                                horizontal: 15.w, vertical: 12.h),
                             child: Material(
                               color: drawerHeaderTitle,
                               borderRadius: BorderRadius.circular(10.r),
@@ -287,6 +283,10 @@ class _HomeScreenState extends State<HomeScreen>
                                     borderRadius: BorderRadius.circular(10.r),
                                     borderSide: BorderSide(color: colorPrimary),
                                   ),
+                                  contentPadding: EdgeInsets.symmetric(
+                                    horizontal: 12.w,
+                                    vertical: 12.h,
+                                  ),
                                   prefixIcon: IconButton(
                                     onPressed: () {
                                       setState(() {
@@ -295,9 +295,18 @@ class _HomeScreenState extends State<HomeScreen>
                                       });
                                     },
                                     icon: const Icon(Icons.tag_faces_outlined),
+                                    padding: EdgeInsets.zero,
+                                    constraints: const BoxConstraints(),
+                                    splashRadius: 24,
                                   ),
-                                  suffixIcon: Padding(
-                                    padding: EdgeInsets.only(right: 8.w),
+                                  suffixIcon: Container(
+                                    constraints: BoxConstraints(
+                                      maxWidth:
+                                          MediaQuery.of(context).size.width *
+                                              0.280,
+                                    ),
+                                    padding:
+                                        EdgeInsets.only(left: 8.w, right: 8.w),
                                     child: Consumer<FontProvider>(
                                       builder: (context, fontProvider, _) {
                                         return DropdownButtonHideUnderline(
@@ -305,6 +314,9 @@ class _HomeScreenState extends State<HomeScreen>
                                             value: fontProvider.selectedFont,
                                             icon: const SizedBox.shrink(),
                                             iconEnabledColor: mdGrey400,
+                                            dropdownColor: Colors.white,
+                                            itemHeight: 48,
+                                            isExpanded: true,
                                             style: TextStyle(
                                               color: mdGrey400,
                                               fontSize: 12.sp,
@@ -315,32 +327,90 @@ class _HomeScreenState extends State<HomeScreen>
                                                 fontSize: 12.sp,
                                                 color: mdGrey400,
                                               ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
+                                            alignment:
+                                                AlignmentDirectional.centerEnd,
+                                            padding: EdgeInsets.zero,
                                             items: [
                                               DropdownMenuItem(
                                                 value: null,
-                                                child: Text(
-                                                  'Default',
-                                                  style: const TextStyle(
-                                                    fontSize: 12,
-                                                  ).copyWith(
-                                                    color: Colors.black,
+                                                child: Container(
+                                                  padding: EdgeInsets.symmetric(
+                                                      horizontal: 16.w,
+                                                      vertical: 8.h),
+                                                  decoration: BoxDecoration(
+                                                    color: fontProvider
+                                                                .selectedFont ==
+                                                            null
+                                                        ? dividerColor
+                                                        : Colors.transparent,
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            4),
+                                                  ),
+                                                  child: Text(
+                                                    'Default',
+                                                    style: TextStyle(
+                                                      fontSize: 12.sp,
+                                                      color: fontProvider
+                                                                  .selectedFont ==
+                                                              null
+                                                          ? colorAccent
+                                                          : Colors.black,
+                                                      fontWeight: fontProvider
+                                                                  .selectedFont ==
+                                                              null
+                                                          ? FontWeight.bold
+                                                          : FontWeight.normal,
+                                                    ),
+                                                    overflow:
+                                                        TextOverflow.ellipsis,
+                                                    maxLines: 1,
                                                   ),
                                                 ),
                                               ),
                                               ...fontProvider.availableFonts
-                                                  .map((font) =>
-                                                      DropdownMenuItem(
-                                                        value: font,
-                                                        child: Text(
-                                                          font,
-                                                          style: _getFontStyle(
-                                                            font,
-                                                          ).copyWith(
-                                                            color: Colors.black,
-                                                          ),
-                                                        ),
-                                                      ))
+                                                  .map(
+                                                (font) => DropdownMenuItem(
+                                                  value: font,
+                                                  child: Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 16.w,
+                                                            vertical: 8.h),
+                                                    decoration: BoxDecoration(
+                                                      color: fontProvider
+                                                                  .selectedFont ==
+                                                              font
+                                                          ? dividerColor
+                                                          : Colors.transparent,
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              4),
+                                                    ),
+                                                    child: Text(
+                                                      font,
+                                                      style: _getFontStyle(font)
+                                                          .copyWith(
+                                                        color: fontProvider
+                                                                    .selectedFont ==
+                                                                font
+                                                            ? colorAccent
+                                                            : Colors.black,
+                                                        fontWeight: fontProvider
+                                                                    .selectedFont ==
+                                                                font
+                                                            ? FontWeight.bold
+                                                            : FontWeight.normal,
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                    ),
+                                                  ),
+                                                ),
+                                              )
                                             ],
                                             selectedItemBuilder: (context) {
                                               final List<String?> options = [
@@ -350,25 +420,35 @@ class _HomeScreenState extends State<HomeScreen>
                                               return options.map((opt) {
                                                 final String label =
                                                     opt ?? 'Default';
-                                                return Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Text(
-                                                      label,
-                                                      style: TextStyle(
-                                                        color: mdGrey400,
-                                                        fontSize: 12.sp,
+                                                return Container(
+                                                  padding: EdgeInsets.only(
+                                                    left: 4.w,
+                                                    right: 4.w,
+                                                  ),
+                                                  child: Row(
+                                                    mainAxisSize:
+                                                        MainAxisSize.min,
+                                                    children: [
+                                                      Flexible(
+                                                        child: Text(
+                                                          label,
+                                                          style: TextStyle(
+                                                            color: mdGrey400,
+                                                            fontSize: 12.sp,
+                                                          ),
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                          maxLines: 1,
+                                                        ),
                                                       ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                    ),
-                                                    const Icon(
-                                                      Icons.arrow_drop_down,
-                                                      size: 16,
-                                                      color: mdGrey400,
-                                                    ),
-                                                  ],
+                                                      SizedBox(width: 2.w),
+                                                      Icon(
+                                                        Icons.arrow_drop_down,
+                                                        size: 18,
+                                                        color: mdGrey400,
+                                                      ),
+                                                    ],
+                                                  ),
                                                 );
                                               }).toList();
                                             },
@@ -386,6 +466,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                 BorderRadius.circular(8.r),
                                             elevation: 2,
                                             isDense: true,
+                                            menuMaxHeight: 300.h,
                                           ),
                                         );
                                       },
@@ -395,83 +476,123 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                             ),
                           ),
-                          Visibility(
+                          AnimatedSize(
+                            duration: const Duration(milliseconds: 300),
+                            curve: Curves.easeInOut,
+                            child: Visibility(
                               visible: isPrefixIconClicked,
                               child: Container(
-                                  height: 170.h,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10.r),
-                                      color: Colors.grey[200]),
-                                  margin:
-                                      EdgeInsets.symmetric(horizontal: 15.w),
-                                  padding: EdgeInsets.symmetric(
-                                      vertical: 10.h, horizontal: 10.w),
-                                  child: VectorGridView())),
-                          TabBar(
-                            isScrollable: false,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            labelStyle: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w600),
-                            unselectedLabelStyle: TextStyle(
-                                fontSize: 12, fontWeight: FontWeight.w600),
-                            labelColor: const Color.fromARGB(255, 12, 12, 12),
-                            unselectedLabelColor:
-                                const Color.fromARGB(255, 146, 121, 121),
-                            indicatorColor: colorPrimary,
-                            controller: _tabController,
-                            splashFactory: InkRipple.splashFactory,
-                            overlayColor:
-                                MaterialStateProperty.resolveWith<Color?>(
-                              (states) => states.contains(MaterialState.pressed)
-                                  ? dividerColor
-                                  : null,
-                            ),
-                            tabs: [
-                              Tab(
-                                  key: const ValueKey('tab_speed'),
-                                  text: l10n.speedTitle),
-                              Tab(
-                                  key: const ValueKey('tab_transition'),
-                                  text: l10n.transitionTitle),
-                              Tab(
-                                  key: const ValueKey('tab_effects'),
-                                  text: l10n.effectsTitle),
-                              Tab(
-                                  key: const ValueKey('tab_animation'),
-                                  text: l10n.animation),
-                            ],
-                          ),
-                          SizedBox(
-                            height: 350.h,
-                            child: TabBarView(
-                              physics: const NeverScrollableScrollPhysics(),
-                              controller: _tabController,
-                              children: [
-                                GestureDetector(
-                                  onPanDown: (_) =>
-                                      setState(() => isDialInteracting = true),
-                                  onPanCancel: () =>
-                                      setState(() => isDialInteracting = false),
-                                  onPanEnd: (_) =>
-                                      setState(() => isDialInteracting = false),
-                                  child: RadialDial(),
+                                height: isPrefixIconClicked ? 170.h : 0,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                  color: Colors.grey[200],
                                 ),
-                                const TransitionTab(),
-                                const EffectTab(),
-                                const AnimationTab(),
+                                margin: EdgeInsets.symmetric(
+                                    horizontal: 15.w, vertical: 8.h),
+                                padding: EdgeInsets.symmetric(
+                                    vertical: 10.h, horizontal: 10.w),
+                                child: Scrollbar(
+                                  controller: _vectorScrollController,
+                                  thumbVisibility: true,
+                                  trackVisibility: true,
+                                  thickness: 4.0,
+                                  radius: const Radius.circular(10),
+                                  child: VectorGridView(
+                                      controller: _vectorScrollController),
+                                ),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: EdgeInsets.only(top: 8.h),
+                            child: TabBar(
+                              isScrollable: false,
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              labelStyle: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w600,
+                                letterSpacing: 0.3,
+                              ),
+                              unselectedLabelStyle: TextStyle(
+                                fontSize: 14.sp,
+                                fontWeight: FontWeight.w500,
+                              ),
+                              labelColor: Colors.black,
+                              unselectedLabelColor: mdGrey400,
+                              indicatorColor: colorPrimary,
+                              controller: _tabController,
+                              splashFactory: InkRipple.splashFactory,
+                              overlayColor:
+                                  WidgetStateProperty.resolveWith<Color?>(
+                                (states) => states.contains(WidgetState.pressed)
+                                    ? dividerColor
+                                    : null,
+                              ),
+                              labelPadding:
+                                  EdgeInsets.symmetric(horizontal: 4.w),
+                              tabs: [
+                                Tab(
+                                  key: const ValueKey('tab_speed'),
+                                  text: l10n.speedTitle,
+                                ),
+                                Tab(
+                                  key: const ValueKey('tab_transition'),
+                                  text: l10n.transitionTitle,
+                                ),
+                                Tab(
+                                  key: const ValueKey('tab_effects'),
+                                  text: l10n.effectsTitle,
+                                ),
+                                Tab(
+                                  key: const ValueKey('tab_animation'),
+                                  text: l10n.animation,
+                                ),
                               ],
                             ),
                           ),
+                          LayoutBuilder(
+                            builder: (context, constraints) {
+                              final screenHeight =
+                                  MediaQuery.of(context).size.height;
+                              final availableHeight = screenHeight * 0.45;
 
-                          // Add a spacer so last content isn't hidden behind the floating buttons
-                          SizedBox(
-                              height: MediaQuery.of(context).padding.bottom +
-                                  110.h),
+                              return ConstrainedBox(
+                                constraints: BoxConstraints(
+                                  minHeight: 220.h,
+                                  maxHeight: availableHeight,
+                                ),
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 8.w, vertical: 12.h),
+                                  child: TabBarView(
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    controller: _tabController,
+                                    children: [
+                                      Center(
+                                        child: GestureDetector(
+                                          onPanDown: (_) => setState(
+                                              () => isDialInteracting = true),
+                                          onPanCancel: () => setState(
+                                              () => isDialInteracting = false),
+                                          onPanEnd: (_) => setState(
+                                              () => isDialInteracting = false),
+                                          child: RadialDial(),
+                                        ),
+                                      ),
+                                      const TransitionTab(),
+                                      const EffectTab(),
+                                      const AnimationTab(),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                          SizedBox(height: 100.h),
                         ],
                       ),
                     ),
-
-                    // Floating bottom buttons (overlay) so they don't push or block content
                     Positioned(
                       left: 16.w,
                       right: 16.w,
@@ -482,7 +603,6 @@ class _HomeScreenState extends State<HomeScreen>
                               animationProvider.isSpecialAnimationSelected();
 
                           if (isSpecial) {
-                            // Only Transfer button (for special animations)
                             return SizedBox(
                               height: 32.h,
                               child: GestureDetector(
@@ -514,7 +634,6 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                             );
                           } else {
-                            // Save + Transfer buttons (side by side, expanded)
                             return Row(
                               children: [
                                 Expanded(
@@ -529,7 +648,6 @@ class _HomeScreenState extends State<HomeScreen>
                                       }
 
                                       if (widget.savedBadgeFilename != null) {
-                                        // Update existing badge
                                         SavedBadgeProvider savedBadgeProvider =
                                             SavedBadgeProvider();
                                         String baseFilename =
@@ -563,7 +681,6 @@ class _HomeScreenState extends State<HomeScreen>
                                           (route) => false,
                                         );
                                       } else {
-                                        // Save new badge dialog
                                         showDialog(
                                           context: context,
                                           builder: (context) {
@@ -595,7 +712,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 12.w),
+                                SizedBox(width: 24.w),
                                 Expanded(
                                   child: GestureDetector(
                                     onTap: () async {
@@ -637,7 +754,6 @@ class _HomeScreenState extends State<HomeScreen>
                   ],
                 ),
               ),
-              scaffoldKey: const Key(homeScreenTitleKey),
             ),
           ),
         );
