@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/virtualbadge/view/badge_paint.dart';
+import 'package:badgemagic/bademagic_module/utils/badge_utils.dart';
 
 class BMBadge extends StatefulWidget {
   final void Function(DrawBadgeProvider provider)? providerInit;
@@ -15,7 +16,12 @@ class BMBadge extends StatefulWidget {
 
 class _BMBadgeState extends State<BMBadge> {
   final drawProvider = DrawBadgeProvider();
+  final badgeUtils = BadgeUtils();
   Offset? dragStart;
+
+  // Badge dimensions
+  static const int gridWidth = 44;
+  static const int gridHeight = 11;
 
   @override
   void initState() {
@@ -26,26 +32,76 @@ class _BMBadgeState extends State<BMBadge> {
     }
   }
 
-  double get _cellSize => MediaQuery.of(context).size.width / 44;
+  // Get the actual rendering dimensions
+  Size _getBadgeRenderSize() {
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return Size.zero;
+    return renderBox.size;
+  }
 
   Offset _getLocalPosition(Offset globalPosition) {
-    final renderBox = context.findRenderObject() as RenderBox;
+    final renderBox = context.findRenderObject() as RenderBox?;
+    if (renderBox == null) return Offset.zero;
     return renderBox.globalToLocal(globalPosition);
+  }
+
+  // Convert local position to grid coordinates accounting for badge rendering
+  ({int x, int y}) _localToGrid(Offset localPosition) {
+    final size = _getBadgeRenderSize();
+    if (size == Size.zero) return (x: 0, y: 0);
+
+    // Get badge offsets and dimensions (same as BadgePaint)
+    MapEntry<double, double> badgeOffsetBackground =
+        badgeUtils.getBadgeOffsetBackground(size);
+    double offsetHeightBadgeBackground = badgeOffsetBackground.key;
+    double offsetWidthBadgeBackground = badgeOffsetBackground.value;
+
+    MapEntry<double, double> badgeSize = badgeUtils.getBadgeSize(
+        offsetHeightBadgeBackground, offsetWidthBadgeBackground, size);
+    double badgeHeight = badgeSize.key;
+    double badgeWidth = badgeSize.value;
+
+    // Calculate cell size (matching BadgePaint)
+    var cellSize = badgeWidth / gridWidth;
+
+    // Get cell start coordinates (matching BadgePaint)
+    MapEntry<double, double> cellStartCoordinate =
+        badgeUtils.getCellStartCoordinate(offsetWidthBadgeBackground,
+            offsetHeightBadgeBackground, badgeWidth, badgeHeight);
+    double cellStartX = cellStartCoordinate.key;
+    double cellStartY = cellStartCoordinate.value;
+
+    // Convert touch position to grid coordinates
+    // Accounting for the 0.93 horizontal compression factor used in rendering
+    double relativeX = localPosition.dx - cellStartX;
+    double relativeY = localPosition.dy - cellStartY;
+
+    int col = (relativeX / (cellSize * 0.93)).floor().clamp(0, gridWidth - 1);
+    int row = (relativeY / cellSize).floor().clamp(0, gridHeight - 1);
+
+    return (x: row, y: col);
   }
 
   void _handlePanStart(DragStartDetails details) {
     dragStart = _getLocalPosition(details.globalPosition);
     drawProvider.pushToUndoStack(); // Save state for undo
+
+    // Ensure the initial touch point is rendered immediately for freehand
+    if (drawProvider.selectedShape == DrawShape.freehand && dragStart != null) {
+      final gridPos = _localToGrid(dragStart!);
+      drawProvider.setCell(gridPos.x, gridPos.y, drawProvider.getIsDrawing(),
+          preview: false);
+    }
   }
 
   void _handlePanUpdate(DragUpdateDetails details) {
-    if (dragStart == null) return; // Safety check
+    if (dragStart == null) return;
 
     final localPosition = _getLocalPosition(details.globalPosition);
     final shape = drawProvider.selectedShape;
 
-    final start = drawProvider.getGridPosition(dragStart!, _cellSize);
-    final end = drawProvider.getGridPosition(localPosition, _cellSize);
+    final start = _localToGrid(dragStart!);
+    final end = _localToGrid(localPosition);
 
     drawProvider.clearPreviewGrid();
 
@@ -152,11 +208,11 @@ class _BMBadgeState extends State<BMBadge> {
         onPanUpdate: _handlePanUpdate,
         onPanEnd: _handlePanEnd,
         child: AspectRatio(
-          aspectRatio: 3.2,
+          aspectRatio: 4.0,
           child: Consumer<DrawBadgeProvider>(
             builder: (_, value, __) => CustomPaint(
               painter: BadgePaint(grid: value.getDrawViewGrid()),
-              size: Size(width, width / 3.2),
+              size: Size(width, width / 4.0),
             ),
           ),
         ),
