@@ -27,20 +27,26 @@ class _EffectsTabState extends State<EffectTab> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        EffectContainer(
-          effect: effInvert,
-          effectName: l10n.invertEffect,
-          index: 0,
+        Expanded(
+          child: EffectContainer(
+            effect: effInvert,
+            effectName: l10n.invertEffect,
+            index: 0,
+          ),
         ),
-        EffectContainer(
-          effect: effFlash,
-          effectName: l10n.flashEffect,
-          index: 1,
+        Expanded(
+          child: EffectContainer(
+            effect: effFlash,
+            effectName: l10n.flashEffect,
+            index: 1,
+          ),
         ),
-        EffectContainer(
-          effect: effMarque,
-          effectName: l10n.marqueeEffect,
-          index: 2,
+        Expanded(
+          child: EffectContainer(
+            effect: effMarque,
+            effectName: l10n.marqueeEffect,
+            index: 2,
+          ),
         ),
       ],
     );
@@ -64,88 +70,112 @@ class _AnimationTabState extends State<AnimationTab> {
         children: [
           Row(
             children: [
-              AniContainer(
-                animation: null,
-                icon: Icons.sports_esports, // Pacman icon
-                animationName: l10n.pacman,
-                index: 9,
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.sports_esports, // Pacman icon
+                  animationName: l10n.pacman,
+                  index: 9,
+                ),
               ),
-              AniContainer(
-                animation: null,
-                icon: Icons.chevron_left, // Chevron icon
-                animationName: l10n.chevron,
-                index: 10,
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.chevron_left, // Chevron icon
+                  animationName: l10n.chevron,
+                  index: 10,
+                ),
               ),
-              AniContainer(
-                animation: null,
-                icon: Icons.diamond, // Diamond icon
-                animationName: l10n.diamond,
-                index: 11,
-              ),
-            ],
-          ),
-          Row(
-            children: [
-              AniContainer(
-                animation: null,
-                icon: Icons.heart_broken, // Broken Hearts icon
-                animationName: l10n.brokenHearts,
-                index: 12,
-              ),
-              AniContainer(
-                animation: null,
-                icon: Icons.favorite_border, // Cupid icon
-                animationName: l10n.cupid,
-                index: 13,
-              ),
-              AniContainer(
-                animation: null,
-                icon: Icons.directions_walk, // Feet animation icon
-                animationName: l10n.feet,
-                index: 14,
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.diamond, // Diamond icon
+                  animationName: l10n.diamond,
+                  index: 11,
+                ),
               ),
             ],
           ),
           Row(
             children: [
-              AniContainer(
-                animation: null,
-                icon: Icons.set_meal, // Fish icon
-                animationName: l10n.fishKiss,
-                index: 15,
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.heart_broken, // Broken Hearts icon
+                  animationName: l10n.brokenHearts,
+                  index: 12,
+                ),
               ),
-              AniContainer(
-                animation: null,
-                icon: Icons.change_history, // V shape icon
-                animationName: l10n.diagonal,
-                index: 16,
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.favorite_border, // Cupid icon
+                  animationName: l10n.cupid,
+                  index: 13,
+                ),
               ),
-              AniContainer(
-                animation: null,
-                icon: Icons.warning, // Emergency/alert icon
-                animationName: l10n.emergency,
-                index: 17,
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.directions_walk, // Feet animation icon
+                  animationName: l10n.feet,
+                  index: 14,
+                ),
               ),
             ],
           ),
           Row(
             children: [
-              AniContainer(
-                animation: null,
-                icon: Icons.favorite, // Heart icon
-                animationName: l10n.beatingHearts,
-                index: 18,
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.set_meal, // Fish icon
+                  animationName: l10n.fishKiss,
+                  index: 15,
+                ),
               ),
-              AniContainer(
-                animation: null,
-                icon: Icons.celebration, // Fireworks icon
-                animationName: l10n.fireworks,
-                index: 19,
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.change_history, // V shape icon
+                  animationName: l10n.diagonal,
+                  index: 16,
+                ),
               ),
-              AniContainer(
-                animationName: l10n.equalizer,
-                index: 20, // This MUST match the index in your animationMap
-                icon: Icons.equalizer,
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.warning, // Emergency/alert icon
+                  animationName: l10n.emergency,
+                  index: 17,
+                ),
+              ),
+            ],
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.favorite, // Heart icon
+                  animationName: l10n.beatingHearts,
+                  index: 18,
+                ),
+              ),
+              Expanded(
+                child: AniContainer(
+                  animation: null,
+                  icon: Icons.celebration, // Fireworks icon
+                  animationName: l10n.fireworks,
+                  index: 19,
+                ),
+              ),
+              Expanded(
+                child: AniContainer(
+                  animationName: l10n.equalizer,
+                  index: 20, // This MUST match the index in your animationMap
+                  icon: Icons.equalizer,
+                ),
               )
             ],
           ),
