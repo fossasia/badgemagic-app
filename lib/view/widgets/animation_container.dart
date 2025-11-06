@@ -69,7 +69,6 @@ class _AniContainerState extends State<AniContainer> {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
       height: 65.h,
-      width: 110.w,
       child: GestureDetector(
         onTap: () async {
           // Only show dialog for special animations (index >= 9)
