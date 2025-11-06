@@ -91,13 +91,13 @@ jobs:
           VERSION_CODE: ${{needs.common.outputs.VERSION_CODE}}
 
       - name: Upload APK
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: APK Generated
           path: build/app/outputs/flutter-apk
   
       - name: Upload AAB Release
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: AAB Generated
           path: build/app/outputs/bundle
@@ -284,7 +284,7 @@ jobs:
           VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
 
       - name: Upload Debian Build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Debian Build
           path: build/linux/x64/release/bundle/
@@ -320,7 +320,7 @@ jobs:
           VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
 
       - name: Upload macOS Build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: macOS Build
           path: build/macos/Build/Products/Release/
@@ -360,7 +360,7 @@ jobs:
           VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
 
       - name: Upload Windows Build
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: Windows Build
           path: build/windows/x64/runner/Release/
