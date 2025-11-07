@@ -8,7 +8,73 @@
 
 **Magically Create Text and Draw Cliparts on LED Name Badges using Bluetooth**
 
-The Badge Magic Android app lets you create moving text and draw clipart for LED name badges. The app provides options to portray names, cliparts, and simple animations on the badges. For the org.fossasia.badgemagic.data transfer from the smartphone to the LED badge it uses Bluetooth. The project is based on the work of [Nilhcem](https://github.com/Nilhcem).
+The Badge Magic app is a comprehensive LED badge management system that lets you create, customize, save, and transfer dynamic text and graphics to LED name badges via Bluetooth. The app features an intuitive interface with multiple creation modes, extensive animation options, and powerful customization tools.
+
+## Key Features
+
+### 🎨 **Multi-Mode Creation**
+- **Text Mode**: Create animated text with 22 different transition effects
+- **Draw Mode**: Freehand drawing with shape tools (square, rectangle, circle, triangle)
+- **Clipart Mode**: Import and use pre-made graphics
+- **Animation Mode**: Advanced animations including Pacman, hearts, fireworks, and more
+
+### 🎭 **Animation & Effects**
+- **22 Animation Types**: Left, Right, Up, Down, Fixed, Snowflake, Picture, Laser, Pacman, Chevron, Diamond, Broken Hearts, Cupid, Feet, Fish, Diagonal, Emergency, Beating Hearts, Fireworks, Digital Rain (Equalizer), and Cycle
+- **3 Visual Effects**: Flash, Invert, and Marquee
+- **Speed Control**: 8-speed radial dial for precise animation timing
+- **Transition Tab**: Quick access to basic animations
+
+### 💾 **Badge Management**
+- **Save & Edit**: Save badges with original text preservation for easy editing
+- **Custom Slot Decider**: Select up to 8 badges for batch operations
+- **Import/Export**: Share badges between devices
+- **Badge Library**: Organized collection of saved creations
+
+### 🎯 **Drawing Tools**
+- **Shape Tools**: Freehand, Square, Rectangle, Circle, Triangle
+- **Undo/Redo**: Full drawing history support
+- **Grid-Based**: Precise 11×44 LED grid editing
+- **Real-time Preview**: See changes as you draw
+
+### 📱 **User Interface**
+- **4 Main Tabs**: Speed, Transition, Effects, and Animation
+- **Multi-language Support**: English and Hindi
+- **Settings Screen**: Bluetooth device management and scan preferences
+- **Navigation Drawer**: Easy access to all features
+
+### 🔧 **Advanced Features**
+- **Bluetooth Alias Management**: Rename and manage connected devices
+- **Scan Settings**: Configure device discovery preferences
+- **Cross-Platform Support**: Works on Android, iOS, and Linux (mobile and desktop platforms)
+
+The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and has been significantly expanded with modern features and improved user experience.
+
+## How It Works
+
+### Creating Badges
+1. **Text Creation**: Enter your message in the text field and choose from 22 different animations
+2. **Speed Control**: Use the radial dial to set animation speed (8 levels from slow to very fast)
+3. **Effects**: Apply visual effects like flash, invert, or marquee
+4. **Preview**: See your badge in real-time on the virtual LED display
+5. **Save**: Store your creation with a custom name for future use
+
+### Drawing Badges
+1. **Shape Tools**: Choose from freehand, square, rectangle, circle, or triangle
+2. **Grid Editing**: Draw pixel-perfect on the 11×44 LED grid
+3. **Undo/Redo**: Full drawing history support
+4. **Save as Clipart**: Store your drawings for reuse
+
+### Badge Management
+1. **Saved Badges**: Access your library of created badges
+2. **Custom Slot Selection**: Select up to 8 badges for batch operations
+3. **Edit Mode**: Modify existing badges while preserving original text
+4. **Import/Export**: Share badges between devices
+
+### Bluetooth Transfer
+1. **Device Discovery**: Automatic scanning for compatible LED badges
+2. **Connection**: Secure Bluetooth Low Energy connection
+3. **Transfer**: Send your badge data to the physical device
+4. **Settings**: Configure scan preferences and device aliases
 
 ## Get Stable Versions
 
@@ -26,23 +92,22 @@ The Badge Magic Android app lets you create moving text and draw clipart for LED
 * [Latest Release Build](https://github.com/fossasia/badgemagic-app/raw/apk/badge-magic-development-release.apk) in the apk branch
 
 ## Permissions
-* **Bluetooth**: For sending org.fossasia.badgemagic.data to the badge.
-* **Storage**: For storing and saving badges.
+* **Bluetooth**: For connecting to and sending data to LED badges
+* **Storage**: For saving and loading badge designs and clipart
+* **Location** (Android 11 and below): Required by Android for Bluetooth Low Energy device discovery. For more information, see the [Android documentation](https://source.android.com/devices/bluetooth/ble)
 
-Up to Android version 11
-* **GPS Location**: This has been the standard set by Android for use with Bluetooth Low Energy (BLE) devices. For more information, please read the notes on [Android website](https://source.android.com/devices/bluetooth/ble).
+## Supported Platforms
+* **Android**: Full feature support with native Bluetooth integration
+* **iOS**: Complete functionality with TestFlight beta testing
+* **Linux**: Desktop support for development and testing
 
 ## Communication
 
 Please talk to us on the badge-magic [Gitter channel here](https://gitter.im/fossasia/badge-magic).
 
-## Translations
-
-Translators can support the project on Weblate here: https://hosted.weblate.org/projects/fossasia/badge-magic-app/
-
 ## Available Devices
 
-There are a number of devices with Bluetooth on the market. As far as we can tell they are mostly from the same manufacturer. When you get a org.fossasia.badgemagic.device ensure it comes with Bluetooth. There are devices that don't support Bluetooth. These are not supported in the app currently.
+There are a number of devices with Bluetooth on the market. As far as we can tell they are mostly from the same manufacturer. When you get a device ensure it comes with Bluetooth. There are devices that don't support Bluetooth. These are not supported in the app currently.
 * Get one from the [FOSSASIA Shop here](https://fossasia.com/product/led-badge/)
 
 ## Screenshots
@@ -62,6 +127,22 @@ There are a number of devices with Bluetooth on the market. As far as we can tel
     </td>
   </tr>
 </table>
+
+### App Interface Overview
+
+The app features a modern, tabbed interface with four main sections:
+
+1. **Speed Tab**: Radial dial for controlling animation speed (8 levels)
+2. **Transition Tab**: Quick access to basic text animations (Left, Right, Up, Down, Fixed)
+3. **Effects Tab**: Visual effects (Flash, Invert, Marquee)
+4. **Animation Tab**: Advanced animations including Pacman, Hearts, Fireworks, and more
+
+### Key Screens
+
+- **Home Screen**: Main creation interface with text input and animation controls
+- **Draw Badge Screen**: Pixel-perfect drawing with shape tools and undo/redo
+- **Saved Badges Screen**: Badge library with custom slot selection for batch operations
+- **Settings Screen**: Bluetooth device management and language preferences
 
 ## Reverse-Engineering Bluetooth LE Devices
 
