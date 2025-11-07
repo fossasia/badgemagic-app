@@ -45,8 +45,7 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 ### 🔧 **Advanced Features**
 - **Bluetooth Alias Management**: Rename and manage connected devices
 - **Scan Settings**: Configure device discovery preferences
-- **Platform Support**: Android, iOS, and Linux compatibility
-- **Cross-Platform**: Works on mobile and desktop platforms
+- **Cross-Platform Support**: Works on Android, iOS, and Linux (mobile and desktop platforms)
 
 The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and has been significantly expanded with modern features and improved user experience.
 
