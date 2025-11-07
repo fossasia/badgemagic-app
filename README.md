@@ -100,7 +100,6 @@ The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and ha
 * **Android**: Full feature support with native Bluetooth integration
 * **iOS**: Complete functionality with TestFlight beta testing
 * **Linux**: Desktop support for development and testing
-* **Cross-Platform**: Flutter-based architecture ensures consistent experience
 
 ## Communication
 
