@@ -71,7 +71,8 @@ class _TransitionTabState extends State<TransitionTab> {
               Expanded(
                 child: AniContainer(
                   animation: animation,
-                  animationName: l10n.animation,
+                  // Display as "Dot-Matrix" in UI instead of "Animation"
+                  animationName: 'Dot-Matrix',
                   index: 5,
                 ),
               ),

@@ -8,22 +8,21 @@ class AniAnimation extends BadgeAnimation {
     int newGridWidth = processGrid[0].length;
     for (int i = 0; i < badgeHeight; i++) {
       for (int j = 0; j < badgeWidth; j++) {
-        // Calculate the total number of frames that fit the badge width
+        // Calculate the total number of frames available in the source grid
+        // (each frame is badgeWidth wide)
         int framesCount = (newGridWidth / badgeWidth).ceil();
 
-        // Determine the current frame based on the animation value
-        int currentcountFrame = animationIndex ~/ badgeWidth % framesCount;
+        // Determine the current frame based on the animation index.
+        // The provider increments animationIndex once per timer tick, so
+        // use modulo to select the correct frame (one tick = one frame).
+        int currentFrame = (framesCount > 0) ? (animationIndex % framesCount) : 0;
 
-        // Calculate the starting column for the current frame in newGrid
-        int startCol = currentcountFrame * badgeWidth;
+        // Calculate the starting column for the current frame in processGrid
+        int startCol = currentFrame * badgeWidth;
 
+        // Check bounds and copy the corresponding cell from processGrid
         bool isNewGridCell = i < newGridHeight && (startCol + j) < newGridWidth;
-
-        // Update the grid based on the current frame's data
-        bool animationCondition =
-            (isNewGridCell && processGrid[i][startCol + j]);
-
-        canvas[i][j] = animationCondition;
+        canvas[i][j] = (isNewGridCell && processGrid[i][startCol + j]);
       }
     }
   }
