@@ -7,9 +7,10 @@ import 'package:badgemagic/view/widgets/clipart_list_view.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
+import 'package:badgemagic/utils/custom_transfers/layout_config.dart';
 
 class SavedClipart extends StatefulWidget {
   const SavedClipart({super.key});
@@ -38,6 +39,7 @@ class _SavedClipartState extends State<SavedClipart> {
   @override
   Widget build(BuildContext context) {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    final layout = useLayoutConfig(context);
     return CommonScaffold(
       index: 3,
       key: const Key(savedClipartScreen),
@@ -48,24 +50,22 @@ class _SavedClipartState extends State<SavedClipart> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Padding(
-                    padding: EdgeInsets.only(left: 50.0.w),
+                    padding: EdgeInsets.only(left: layout.padding * 3),
                     child: SvgPicture.asset(
                       'assets/icons/empty_badge.svg',
-                      height: 200.h,
+                      height: layout.iconSize * 8,
                     ),
                   ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
+                  SizedBox(height: layout.spacing * 2),
                   Text(l10n.noSavedClipart,
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 20.sp,
+                        fontSize: 20 * layout.fontScale,
                       )),
                   Text(l10n.noSavedClipartMessage,
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14.sp,
+                        fontSize: 14 * layout.fontScale,
                       )),
                 ],
               ),

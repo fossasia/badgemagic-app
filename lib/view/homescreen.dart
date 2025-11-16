@@ -1,4 +1,5 @@
 import 'dart:async';
+// import 'dart:collection';
 
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
@@ -11,6 +12,7 @@ import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
+import 'package:badgemagic/providers/app_settings_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
 import 'package:badgemagic/providers/font_provider.dart';
@@ -18,6 +20,7 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/utils/custom_transfers/layout_config.dart';
 import 'package:badgemagic/view/special_text_field.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
@@ -30,6 +33,7 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -153,7 +157,8 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   TextStyle _getFontStyle(String fontName) {
-    const baseStyle = TextStyle(fontSize: 12);
+    final layout = useLayoutConfig(context);
+    var baseStyle = TextStyle(fontSize: 14*layout.fontScale);
     switch (fontName) {
       case 'Roboto':
         return GoogleFonts.roboto(
@@ -219,6 +224,7 @@ class _HomeScreenState extends State<HomeScreen>
     super.build(context);
     InlineImageProvider inlineImageProvider =
         Provider.of<InlineImageProvider>(context);
+    final layout = useLayoutConfig(context);
 
     return ValueListenableBuilder<Locale?>(
       valueListenable: appLocale,
@@ -257,34 +263,34 @@ class _HomeScreenState extends State<HomeScreen>
                           AnimationBadge(),
                           Padding(
                             padding: EdgeInsets.symmetric(
-                                horizontal: 15.w, vertical: 12.h),
+                                horizontal: layout.padding, vertical: layout.spacing),
                             child: Material(
                               color: drawerHeaderTitle,
-                              borderRadius: BorderRadius.circular(10.r),
+                              borderRadius: BorderRadius.circular(layout.cornerRadius),
                               elevation: 4,
                               child: ExtendedTextField(
                                 onChanged: (value) {},
                                 controller: inlineimagecontroller,
-                                specialTextSpanBuilder: ImageBuilder(),
+                                specialTextSpanBuilder: ImageBuilder(layoutConfig: layout),
                                 style: Provider.of<FontProvider>(context)
                                             .selectedFont !=
                                         null
                                     ? _getFontStyle(
                                             Provider.of<FontProvider>(context)
                                                 .selectedFont!)
-                                        .copyWith(fontSize: 14)
-                                    : const TextStyle(fontSize: 14),
+                                        .copyWith(fontSize: 14*layout.fontScale)
+                                    : TextStyle(fontSize: 14*layout.fontScale),
                                 decoration: InputDecoration(
                                   border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.r),
+                                    borderRadius: BorderRadius.circular(layout.cornerRadius),
                                   ),
                                   focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.r),
+                                    borderRadius: BorderRadius.circular(layout.cornerRadius),
                                     borderSide: BorderSide(color: colorPrimary),
                                   ),
                                   contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12.w,
-                                    vertical: 12.h,
+                                    horizontal: layout.padding,
+                                    vertical: layout.spacing,
                                   ),
                                   prefixIcon: IconButton(
                                     onPressed: () {
@@ -296,16 +302,15 @@ class _HomeScreenState extends State<HomeScreen>
                                     icon: const Icon(Icons.tag_faces_outlined),
                                     padding: EdgeInsets.zero,
                                     constraints: const BoxConstraints(),
-                                    splashRadius: 24,
+                                    splashRadius: layout.iconSize*1.2,
                                   ),
                                   suffixIcon: Container(
                                     constraints: BoxConstraints(
                                       maxWidth:
-                                          MediaQuery.of(context).size.width *
-                                              0.280,
+                                          layout.suffixIconMaxWidth
                                     ),
                                     padding:
-                                        EdgeInsets.only(left: 8.w, right: 8.w),
+                                        EdgeInsets.only(left: layout.spacing, right: layout.spacing),
                                     child: Consumer<FontProvider>(
                                       builder: (context, fontProvider, _) {
                                         return DropdownButtonHideUnderline(
@@ -314,16 +319,16 @@ class _HomeScreenState extends State<HomeScreen>
                                             icon: const SizedBox.shrink(),
                                             iconEnabledColor: mdGrey400,
                                             dropdownColor: Colors.white,
-                                            itemHeight: 48,
+                                            itemHeight: layout.itemHeight,
                                             isExpanded: true,
                                             style: TextStyle(
                                               color: mdGrey400,
-                                              fontSize: 12.sp,
+                                              fontSize: 12 * layout.fontScale,
                                             ),
                                             hint: Text(
                                               'Font',
                                               style: TextStyle(
-                                                fontSize: 12.sp,
+                                                fontSize: 12*layout.fontScale,
                                                 color: mdGrey400,
                                               ),
                                               overflow: TextOverflow.ellipsis,
@@ -376,8 +381,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                   child: Container(
                                                     padding:
                                                         EdgeInsets.symmetric(
-                                                            horizontal: 16.w,
-                                                            vertical: 8.h),
+                                                            horizontal: layout.padding,
+                                                            vertical: layout.spacing),
                                                     decoration: BoxDecoration(
                                                       color: fontProvider
                                                                   .selectedFont ==
@@ -385,8 +390,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                           ? dividerColor
                                                           : Colors.transparent,
                                                       borderRadius:
-                                                          BorderRadius.circular(
-                                                              4),
+                                                          BorderRadius.circular(layout.cornerRadius / 2),
                                                     ),
                                                     child: Text(
                                                       font,
@@ -421,8 +425,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                     opt ?? 'Default';
                                                 return Container(
                                                   padding: EdgeInsets.only(
-                                                    left: 4.w,
-                                                    right: 4.w,
+                                                    left: layout.padding,
+                                                    right: layout.padding,
                                                   ),
                                                   child: Row(
                                                     mainAxisSize:
@@ -433,17 +437,17 @@ class _HomeScreenState extends State<HomeScreen>
                                                           label,
                                                           style: TextStyle(
                                                             color: mdGrey400,
-                                                            fontSize: 12.sp,
+                                                            fontSize: 12*layout.fontScale,
                                                           ),
                                                           overflow: TextOverflow
                                                               .ellipsis,
                                                           maxLines: 1,
                                                         ),
                                                       ),
-                                                      SizedBox(width: 2.w),
+                                                      SizedBox(width: layout.spacing * 0.25),
                                                       Icon(
                                                         Icons.arrow_drop_down,
-                                                        size: 18,
+                                                        size: layout.iconSize,
                                                         color: mdGrey400,
                                                       ),
                                                     ],
@@ -462,10 +466,10 @@ class _HomeScreenState extends State<HomeScreen>
                                               );
                                             },
                                             borderRadius:
-                                                BorderRadius.circular(8.r),
+                                                BorderRadius.circular(layout.cornerRadius),
                                             elevation: 2,
                                             isDense: true,
-                                            menuMaxHeight: 300.h,
+                                            menuMaxHeight: layout.dropdownMaxHeightFactor,
                                           ),
                                         );
                                       },
@@ -481,21 +485,21 @@ class _HomeScreenState extends State<HomeScreen>
                             child: Visibility(
                               visible: isPrefixIconClicked,
                               child: Container(
-                                height: isPrefixIconClicked ? 170.h : 0,
+                                height: isPrefixIconClicked ? layout.spacing * 20 : 0,
                                 decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.r),
+                                  borderRadius: BorderRadius.circular(layout.cornerRadius),
                                   color: Colors.grey[200],
                                 ),
                                 margin: EdgeInsets.symmetric(
-                                    horizontal: 15.w, vertical: 8.h),
+                                    horizontal: layout.padding, vertical: layout.spacing),
                                 padding: EdgeInsets.symmetric(
-                                    vertical: 10.h, horizontal: 10.w),
+                                    vertical: layout.spacing, horizontal: layout.padding),
                                 child: Scrollbar(
                                   controller: _vectorScrollController,
                                   thumbVisibility: true,
                                   trackVisibility: true,
                                   thickness: 4.0,
-                                  radius: const Radius.circular(10),
+                                  radius: Radius.circular(layout.cornerRadius),
                                   child: VectorGridView(
                                       controller: _vectorScrollController),
                                 ),
@@ -503,17 +507,17 @@ class _HomeScreenState extends State<HomeScreen>
                             ),
                           ),
                           Padding(
-                            padding: EdgeInsets.only(top: 8.h),
+                            padding: EdgeInsets.only(top: layout.spacing),
                             child: TabBar(
                               isScrollable: false,
                               indicatorSize: TabBarIndicatorSize.tab,
                               labelStyle: TextStyle(
-                                fontSize: 14.sp,
+                                fontSize: 14*layout.fontScale,
                                 fontWeight: FontWeight.w600,
                                 letterSpacing: 0.3,
                               ),
                               unselectedLabelStyle: TextStyle(
-                                fontSize: 14.sp,
+                                fontSize: 14*layout.fontScale,
                                 fontWeight: FontWeight.w500,
                               ),
                               labelColor: Colors.black,
@@ -528,7 +532,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     : null,
                               ),
                               labelPadding:
-                                  EdgeInsets.symmetric(horizontal: 4.w),
+                                  EdgeInsets.symmetric(horizontal: layout.padding),
                               tabs: [
                                 Tab(
                                   key: const ValueKey('tab_speed'),
@@ -556,12 +560,12 @@ class _HomeScreenState extends State<HomeScreen>
 
                               return ConstrainedBox(
                                 constraints: BoxConstraints(
-                                  minHeight: 220.h,
+                                  minHeight: layout.minTabSectionHeight,
                                   maxHeight: availableHeight,
                                 ),
                                 child: Padding(
                                   padding: EdgeInsets.symmetric(
-                                      horizontal: 8.w, vertical: 12.h),
+                                      horizontal: layout.spacing, vertical: layout.padding),
                                   child: TabBarView(
                                     physics:
                                         const NeverScrollableScrollPhysics(),
@@ -589,7 +593,7 @@ class _HomeScreenState extends State<HomeScreen>
                       ),
                     ),
                     Padding(
-                      padding: EdgeInsets.all(16.w),
+                      padding: EdgeInsets.all(layout.padding),
                       child: Align(
                         alignment: Alignment.bottomCenter,
                         child: Consumer<AnimationBadgeProvider>(
@@ -662,20 +666,20 @@ class _HomeScreenState extends State<HomeScreen>
                                       }
                                     },
                                     child: Container(
-                                      height: 32.h,
+                                      height: layout.spacing * 4,
                                       alignment: Alignment.center,
                                       padding: EdgeInsets.symmetric(
-                                          horizontal: 16.w, vertical: 8.h),
+                                          horizontal: layout.padding, vertical: layout.spacing),
                                       decoration: BoxDecoration(
                                         borderRadius:
-                                            BorderRadius.circular(8.r),
+                                            BorderRadius.circular(layout.cornerRadius),
                                         color: mdGrey400,
                                       ),
-                                      child: Text(l10n.saveButton),
+                                      child: Text(l10n.saveButton,style: TextStyle(fontSize: 16 * layout.fontScale,),),
                                     ),
                                   ),
                                 ),
-                                SizedBox(width: 24.w),
+                                SizedBox(width: layout.spacing*2),
                               ],
                               Expanded(
                                 child: GestureDetector(
@@ -695,15 +699,15 @@ class _HomeScreenState extends State<HomeScreen>
                                     );
                                   },
                                   child: Container(
-                                    height: 32.h,
+                                    height: layout.spacing * 4,
                                     alignment: Alignment.center,
                                     padding: EdgeInsets.symmetric(
-                                        horizontal: 16.w, vertical: 8.h),
+                                        horizontal: layout.padding, vertical: layout.spacing),
                                     decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(8.r),
+                                      borderRadius: BorderRadius.circular(layout.cornerRadius),
                                       color: mdGrey400,
                                     ),
-                                    child: Text(l10n.transferButton),
+                                    child: Text(l10n.transferButton,style: TextStyle(fontSize: 16 * layout.fontScale,),),
                                   ),
                                 ),
                               ),
@@ -725,6 +729,17 @@ class _HomeScreenState extends State<HomeScreen>
   void handleTextChange() {
     final currentText = inlineimagecontroller.text;
     final selection = inlineimagecontroller.selection;
+    final anim = context.read<AnimationBadgeProvider>();
+    final settings = context.read<AppSettingsProvider>();
+
+    if (settings.enableStreams) {
+    anim.startStreaming(
+          badgeData: badgeData,
+          inlineImageProvider: inlineImageProvider,
+          speedDialProvider: speedDialProvider,
+          context: context,
+        );
+      }
 
     // Always reset to text animation if a special animation is selected and user types
     if (animationProvider.isSpecialAnimationSelected() &&

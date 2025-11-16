@@ -1,5 +1,6 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
+import 'package:badgemagic/utils/custom_transfers/layout_config.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/main.dart';
+import 'package:badgemagic/providers/app_settings_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -48,6 +50,8 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<AppSettingsProvider>(context);
+    final layout = useLayoutConfig(context);
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return Consumer<BadgeScanProvider>(
       builder: (context, provider, child) {
@@ -70,13 +74,13 @@ class SettingsScreenState extends State<SettingsScreen> {
           index: 4,
           title: l10n.settings,
           body: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: EdgeInsets.all(layout.padding),
             child: ListView(
               children: [
                 Text(l10n.language,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
+                    style: TextStyle(
+                        fontSize: 16 * layout.fontScale, fontWeight: FontWeight.bold)),
+                SizedBox(height: layout.spacing),
                 DropdownButtonFormField<String>(
                   initialValue: Localizations.localeOf(context).languageCode,
                   items: [
@@ -105,34 +109,96 @@ class SettingsScreenState extends State<SettingsScreen> {
                           .saveLocale(newLocale);
                     }
                   },
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        EdgeInsets.symmetric(horizontal: layout.padding, vertical: layout.spacing),
                   ),
                 ),
-                const SizedBox(height: 24),
+                SizedBox(height: layout.spacing *2),
+                Text("Screens", style: TextStyle(fontSize: 16*layout.fontScale, fontWeight: FontWeight.bold)),
+
+                SwitchListTile(
+                  title: const Text("Support multiple screen sizes"),
+                  value: settings.enableScreens,
+                  onChanged: settings.toggleScreens,
+                ),
+
+                if (settings.enableScreens)
+                  DropdownButtonFormField<ScreenSize>(
+                    initialValue: settings.selectedSize,
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: "Select Screen Size",
+                    ),
+                    items: ScreenSize.values
+                        .map(
+                          (e) => DropdownMenuItem(
+                            value: e,
+                            child: Text(e.name),
+                          ),
+                        )
+                        .toList(),
+                    onChanged: (value) {
+                      if (value != null) settings.setSize(value);
+                    },
+                  ),
+                SizedBox(height: layout.spacing *2),
+                Text("Streams", style: TextStyle(fontSize: 16*layout.fontScale, fontWeight: FontWeight.bold)),
+
+                SwitchListTile(
+                  title: const Text("Enable stream feature"),
+                  subtitle:
+                      const Text("Requires newer FOSSASIA firmware"),
+                  value: settings.enableStreams,
+                  onChanged: settings.toggleStreams,
+                ),
+
+                if (settings.enableStreams)
+                  Text(
+                    "Your firmware is outdated. Stream features may not work.",
+                    style: TextStyle(
+                      color: Colors.red,
+                    ),
+                  ),
+                SizedBox(height: layout.spacing *2),
                 Text(l10n.badgeScanMode,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 8),
-                RadioListTile<BadgeScanMode>(
-                  title: Text(l10n.connectToAnyBadge),
-                  value: BadgeScanMode.any,
-                  groupValue: _scanMode,
-                  onChanged: (value) => setState(() => _scanMode = value!),
+                    style: TextStyle(
+                        fontSize: 16*layout.fontScale, fontWeight: FontWeight.bold)),
+                SizedBox(height: layout.spacing),
+                RadioGroup<BadgeScanMode>(
+                groupValue: _scanMode,
+                onChanged: (value) {
+                  setState(() => _scanMode = value!);
+                },
+                child: Column(
+                  children: [
+                    RadioListTile<BadgeScanMode>(
+                      title: Text(l10n.connectToAnyBadge),
+                      value: BadgeScanMode.any,
+                    ),
+                  ],
                 ),
-                RadioListTile<BadgeScanMode>(
-                  title: Text(l10n.connectToBadgesWithNames),
-                  value: BadgeScanMode.specific,
-                  groupValue: _scanMode,
-                  onChanged: (value) => setState(() => _scanMode = value!),
+              ),
+                RadioGroup<BadgeScanMode>(
+                groupValue: _scanMode,
+                onChanged: (value) {
+                  setState(() => _scanMode = value!);
+                },
+                child: Column(
+                  children: [
+                    RadioListTile<BadgeScanMode>(
+                      title: Text(l10n.connectToAnyBadge),
+                      value: BadgeScanMode.any,
+                    ),
+                  ],
                 ),
+              ),
                 if (_scanMode == BadgeScanMode.specific) ...[
                   // Selection controls row
                   if (_controllers.isNotEmpty)
                     Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 8.0),
+                      padding: EdgeInsets.symmetric(vertical: layout.padding),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -163,7 +229,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                       .toList();
                                 });
                               },
-                              icon: const Icon(Icons.delete, size: 18),
+                              icon: Icon(Icons.delete, size: layout.iconSize),
                               label: Text(
                                   'Remove (${provider.selectedIndices.length})'),
                               style: ElevatedButton.styleFrom(
@@ -181,7 +247,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     final isSelected = provider.isSelected(index);
 
                     return Container(
-                      margin: const EdgeInsets.symmetric(vertical: 4),
+                      margin: EdgeInsets.symmetric(vertical: layout.padding),
                       decoration: BoxDecoration(
                         border: Border.all(
                           color:
@@ -203,14 +269,14 @@ class SettingsScreenState extends State<SettingsScreen> {
                           ),
                           Expanded(
                             child: Padding(
-                              padding: const EdgeInsets.only(right: 12),
+                              padding: EdgeInsets.only(right: layout.padding),
                               child: TextField(
                                 controller: controller,
                                 decoration: InputDecoration(
                                   hintText: l10n.badgeNameHint,
                                   border: InputBorder.none,
                                   contentPadding:
-                                      EdgeInsets.symmetric(vertical: 12),
+                                      EdgeInsets.symmetric(vertical: layout.padding),
                                 ),
                                 onChanged: (value) {
                                   // Update the provider when text changes
@@ -233,7 +299,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     label: Text(l10n.addMore),
                   ),
                 ],
-                const SizedBox(height: 24),
+                SizedBox(height: layout.spacing *2),
                 Center(
                   child: GestureDetector(
                     onTap: () {
@@ -246,16 +312,17 @@ class SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 10),
+                      padding: EdgeInsets.symmetric(
+                          horizontal: layout.padding, vertical: layout.spacing),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(4),
                         color: mdGrey400,
                       ),
                       child: Text(
                         l10n.saveSettings,
-                        style: const TextStyle(
+                        style: TextStyle(
                           color: Colors.black,
+                          fontSize: 14 * layout.fontScale,
                         ),
                       ),
                     ),

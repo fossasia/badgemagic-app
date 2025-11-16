@@ -3,6 +3,8 @@ import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:badgemagic/ble/badge_transport.dart';
+import 'package:badgemagic/ble/mock_badge_transport.dart';
 
 final GetIt getIt = GetIt.instance;
 
@@ -11,4 +13,5 @@ void setupLocator() {
   getIt.registerLazySingleton<FontProvider>(() => FontProvider());
   getIt.registerLazySingleton<BadgeScanProvider>(() => BadgeScanProvider());
   getIt.registerLazySingleton<LocalizationService>(() => LocalizationService());
+  getIt.registerLazySingleton<BadgeTransport>(() => MockBadgeTransport(),);
 }

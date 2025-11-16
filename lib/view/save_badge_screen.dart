@@ -7,6 +7,7 @@ import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_animation/ani_animation.dart';
 import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/providers/app_settings_provider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
@@ -18,10 +19,11 @@ import 'package:badgemagic/view/widgets/saved_badge_listview.dart';
 import 'package:badgemagic/virtualbadge/view/animated_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
+// import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
+import 'package:badgemagic/utils/custom_transfers/layout_config.dart';
 
 class SaveBadgeScreen extends StatefulWidget {
   const SaveBadgeScreen({super.key});
@@ -59,7 +61,9 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<AppSettingsProvider>(context);
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    final layout = useLayoutConfig(context);
     BadgeMessageProvider badgeMessageProvider = BadgeMessageProvider();
     return MultiProvider(
       providers: [
@@ -148,27 +152,25 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(left: 50.0.w),
+                      padding: EdgeInsets.only(left: layout.padding * 3),
                       child: SvgPicture.asset(
                         'assets/icons/empty_badge.svg',
-                        height: 200.h,
+                        height: layout.imageHeight,
                       ),
                     ),
-                    SizedBox(
-                      height: 20.h,
-                    ),
+                    SizedBox(height: layout.spacing * 2),
                     Text(
                       'No saved badges !',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 20.sp,
+                        fontSize: 20*layout.fontScale,
                       ),
                     ),
                     Text(
                       'Looks like there are no saved badges yet.',
                       style: TextStyle(
                         color: Colors.black,
-                        fontSize: 14.sp,
+                        fontSize: 14*layout.fontScale,
                       ),
                     ),
                   ],
@@ -203,15 +205,15 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                   Consumer<BadgeSlotProvider>(
                     builder: (context, selectionProvider, _) {
                       return Positioned(
-                        bottom: 10.h,
+                        bottom: layout.spacing,
                         child: AnimatedOpacity(
                           duration: const Duration(milliseconds: 200),
                           opacity: selectionProvider.selectedBadges.isNotEmpty
                               ? 1.0
                               : 0.0,
                           child: Container(
-                            width: 300.w,
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            width: layout.maxContentWidth,
+                            padding: EdgeInsets.symmetric(horizontal: layout.padding),
                             child: TextButton(
                               onPressed: selectionProvider
                                       .selectedBadges.isNotEmpty
@@ -264,21 +266,22 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                           null,
                                           data.toJson(),
                                           true,
+                                          settings.enableStreams,
                                           context);
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: colorPrimary,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.r),
+                                  borderRadius: BorderRadius.circular(layout.cornerRadius / 2),
                                 ),
-                                padding: EdgeInsets.symmetric(vertical: 12.h),
+                                padding: EdgeInsets.symmetric(vertical: layout.padding),
                               ),
                               child: Text(
                                 l10n.transferButton,
-                                style: const TextStyle(
+                                style: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 16.0,
+                                  fontSize: 16*layout.fontScale,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),

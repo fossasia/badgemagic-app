@@ -1,6 +1,7 @@
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:badgemagic/utils/custom_transfers/layout_config.dart';
 
 class BadgeScanSettingsWidget extends StatefulWidget {
   final Function(BadgeScanMode mode, List<String> names)? onSave;
@@ -51,6 +52,7 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
 
   @override
   Widget build(BuildContext context) {
+    final layout = useLayoutConfig(context);
     return Consumer<BadgeScanProvider>(
       builder: (context, provider, child) {
         if (!provider.isLoaded) {
@@ -68,10 +70,10 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
 
         return Scaffold(
           appBar: AppBar(
-            title: const Text('Badge Scan Settings'),
+            title: Text('Badge Scan Settings',style: TextStyle(fontSize: 18 * layout.fontScale),),
             actions: [
               IconButton(
-                icon: const Icon(Icons.save),
+                icon: Icon(Icons.save, size: layout.iconSize * 1.2),
                 onPressed: _onSave,
               ),
             ],
@@ -79,13 +81,13 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
           body: Column(
             children: [
               RadioListTile<BadgeScanMode>(
-                title: const Text('Connect to any badge'),
+                title: Text('Connect to any badge',style: TextStyle(fontSize: 14 * layout.fontScale),),
                 value: BadgeScanMode.any,
                 groupValue: _mode,
                 onChanged: (val) => setState(() => _mode = val!),
               ),
               RadioListTile<BadgeScanMode>(
-                title: const Text('Connect to badges with the following names'),
+                title: Text('Connect to badges with the following names',style: TextStyle(fontSize: 14 * layout.fontScale),),
                 value: BadgeScanMode.specific,
                 groupValue: _mode,
                 onChanged: (val) => setState(() => _mode = val!),
@@ -94,8 +96,8 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                 // Selection controls
                 if (_controllers.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16.0, vertical: 8.0),
+                    padding: EdgeInsets.symmetric(
+                        horizontal: layout.padding,vertical: layout.spacing,),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -103,11 +105,11 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                           children: [
                             TextButton(
                               onPressed: () => provider.selectAll(),
-                              child: const Text('Select All'),
+                              child: Text('Select All',style: TextStyle(fontSize: 12 * layout.fontScale,),),
                             ),
                             TextButton(
                               onPressed: () => provider.clearSelection(),
-                              child: const Text('Clear'),
+                              child: Text('Clear',style: TextStyle(fontSize: 12 * layout.fontScale,),),
                             ),
                           ],
                         ),
@@ -131,7 +133,7 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                             },
                             icon: const Icon(Icons.delete, size: 18),
                             label: Text(
-                                'Remove (${provider.selectedIndices.length})'),
+                                'Remove (${provider.selectedIndices.length})',style: TextStyle(fontSize: 12 * layout.fontScale),),
                             style: ElevatedButton.styleFrom(
                               backgroundColor: Colors.red,
                               foregroundColor: Colors.white,
@@ -148,8 +150,8 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                       final isSelected = provider.isSelected(index);
 
                       return Container(
-                        margin: const EdgeInsets.symmetric(
-                            horizontal: 12.0, vertical: 4.0),
+                        margin: EdgeInsets.symmetric(
+                            horizontal: layout.padding, vertical: layout.spacing / 2,),
                         decoration: BoxDecoration(
                           border: Border.all(
                             color:
@@ -171,14 +173,16 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                             ),
                             Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.only(right: 12.0),
+                                padding: EdgeInsets.only(right: layout.padding),
                                 child: TextField(
                                   controller: _controllers[index],
-                                  decoration: const InputDecoration(
+                                  style: TextStyle(fontSize: 14 * layout.fontScale,),
+                                  decoration: InputDecoration(
                                     labelText: 'Badge Name',
+                                    labelStyle: TextStyle(fontSize: 12 * layout.fontScale,),
                                     border: InputBorder.none,
                                     contentPadding:
-                                        EdgeInsets.symmetric(vertical: 12),
+                                        EdgeInsets.symmetric(vertical: layout.spacing),
                                   ),
                                   onChanged: (value) {
                                     // Update the provider when text changes
@@ -195,10 +199,10 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                 ),
                 // Add more button
                 Padding(
-                  padding: const EdgeInsets.all(12.0),
+                  padding: EdgeInsets.all(layout.padding),
                   child: ElevatedButton.icon(
                     onPressed: _addBadgeName,
-                    icon: const Icon(Icons.add),
+                    icon: Icon(Icons.add,size: layout.iconSize,),
                     label: const Text("Add more"),
                   ),
                 ),

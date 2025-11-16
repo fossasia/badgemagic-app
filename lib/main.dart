@@ -1,3 +1,4 @@
+import 'package:badgemagic/providers/app_settings_provider.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/getitlocator.dart';
@@ -49,6 +50,9 @@ Future<void> main() async {
       ChangeNotifierProvider<BadgeScanProvider>(
         create: (_) => getIt<BadgeScanProvider>(),
       ),
+      ChangeNotifierProvider<AppSettingsProvider>(
+        create: (_) => AppSettingsProvider(),
+      ),
     ],
     child: const MyApp(),
   ));
@@ -65,6 +69,8 @@ class MyApp extends StatelessWidget {
     return ScreenUtilInit(
       designSize: const Size(360, 690),
       builder: (context, child) {
+        return Consumer<AppSettingsProvider>(
+        builder: (context, settings, child) {
         return ValueListenableBuilder<Locale?>(
           valueListenable: appLocale,
           builder: (context, locale, _) {
@@ -114,5 +120,6 @@ class MyApp extends StatelessWidget {
         );
       },
     );
-  }
+  });
+}
 }

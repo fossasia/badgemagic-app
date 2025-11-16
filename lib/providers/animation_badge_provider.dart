@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/providers/app_settings_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -33,6 +35,7 @@ import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart'; // new import of EqualizerAnimation
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
+import 'package:provider/provider.dart';
 
 Map<int, BadgeAnimation?> animationMap = {
   0: LeftAnimation(),
@@ -71,6 +74,10 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int _animationIndex = 0;
   int _animationSpeed = aniSpeedStrategy(0);
   Timer? _timer;
+
+  Timer? _streamTimer;
+  bool _isStreaming = false;
+  bool get isStreaming => _isStreaming;
 
   //List that contains the state of each cell of the badge for home view
   List<List<bool>> _paintGrid =
@@ -176,6 +183,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
   void stopAllAnimations() {
     // Stop any ongoing timer and reset the animation index
     stopAnimation();
+    stopStreaming();  
     _currentAnimation = LeftAnimation();
     // Reset the grids to all false values
     _paintGrid = List.generate(11, (i) => List.generate(44, (j) => false));
@@ -262,6 +270,54 @@ class AnimationBadgeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void startStreaming({
+    required BadgeMessageProvider badgeData,
+    required InlineImageProvider inlineImageProvider,
+    required SpeedDialProvider speedDialProvider,
+    required BuildContext context,
+  }) {
+    if (_isStreaming) return; 
+    _isStreaming = true;
+
+    _streamTimer =
+        Timer.periodic(const Duration(milliseconds: 300), (Timer t) async {
+      final text = inlineImageProvider.getController().text;
+
+      // If the message is empty, don't spam the badge
+      if (text.trim().isEmpty) return;
+
+      final flash = isEffectActive(effectMap[1]);
+      final marquee = isEffectActive(effectMap[2]);
+      final invert = isEffectActive(effectMap[0]);
+
+      try {
+        await handleAnimationTransfer(
+          badgeData: badgeData,
+          inlineImageProvider: inlineImageProvider,
+          speedDialProvider: speedDialProvider,
+          flash: flash,
+          marquee: marquee,
+          invert: invert,
+          context: context,
+          isStreaming: true, 
+        );
+      } catch (e) {
+        logger.e("Streaming transfer failed: $e");
+        stopStreaming();
+      }
+    });
+
+    notifyListeners();
+  }
+
+  void stopStreaming() {
+    if (!_isStreaming) return;
+    _streamTimer?.cancel();
+    _streamTimer = null;
+    _isStreaming = false;
+    notifyListeners();
+  }
+
   /// Handles animation transfer selection logic for the current animation index.
   Future<void> handleAnimationTransfer({
     required BadgeMessageProvider badgeData,
@@ -271,9 +327,14 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required bool marquee,
     required bool invert,
     required BuildContext context,
+    bool isStreaming = false,
   }) async {
     final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();
+    final settings = Provider.of<AppSettingsProvider>(context,listen: false);
+    if(!isStreaming){
+      ToastUtils().showToast("Transferred");
+    }
     if (aniIndex == 9) {
       // Pacman
       await transferPacmanAnimation(badgeData, selectedSpeed);
@@ -314,6 +375,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         modeValueMap[aniIndex],
         null,
         false,
+        settings.enableStreams,
         context,
       );
     }

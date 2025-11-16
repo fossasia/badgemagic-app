@@ -5,6 +5,7 @@ import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
+import 'package:badgemagic/providers/app_settings_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
@@ -38,6 +39,7 @@ class SaveBadgeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     BadgeMessageProvider badge = BadgeMessageProvider();
+    final settings = Provider.of<AppSettingsProvider>(context);
     return Container(
       width: 370.w,
       padding: EdgeInsets.all(6.dg),
@@ -129,7 +131,7 @@ class SaveBadgeCard extends StatelessWidget {
                         //We can Acrtually call a method to generate the data just by transffering the JSON data
                         //so we would not necessarily need the Providers.
                         badge.checkAndTransfer(null, null, null, null, null,
-                            null, badgeData.value, true, context);
+                            null, badgeData.value, true, settings.enableStreams,context);
                       },
                     ),
                     IconButton(

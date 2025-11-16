@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
@@ -9,7 +11,9 @@ import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'package:badgemagic/ble/badge_transport.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
+import 'package:badgemagic/providers/getitlocator.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';
@@ -120,8 +124,21 @@ class BadgeMessageProvider {
       Mode? mode,
       Map<String, dynamic>? jsonData,
       bool isSavedBadge,
+      bool isStreaming,
       BuildContext context,
       {TextStyle? textStyle}) async {
+        if (isStreaming) {
+          final transport = getIt<BadgeTransport>();
+          final hex = await Converters().messageTohex(text!, isInverted!);
+          final bytes = Uint8List.fromList(
+              hex
+                  .expand<int>((h) => hexStringToByteArray(h))
+                  .toList(),
+            );
+          await transport.send(bytes);
+          return;
+        }
+
     if (await FlutterBluePlus.isSupported == false) {
       final l10n = GetIt.instance.get<LocalizationService>().l10n;
       ToastUtils().showErrorToast(l10n.error);
