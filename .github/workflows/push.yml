@@ -19,7 +19,7 @@ jobs:
       VERSION_NAME: ${{ steps.flutter-version.outputs.VERSION_NAME }}
       VERSION_CODE: ${{ steps.flutter-version.outputs.VERSION_CODE }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Common Workflow
         uses: ./.github/actions/common
@@ -71,7 +71,7 @@ jobs:
     needs: common
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Prepare Build Keys
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -163,7 +163,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Prepare Build Keys
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -207,7 +207,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Run Release Drafter
         id: run-release-drafter
@@ -228,7 +228,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Android Screenshot Workflow
         uses: ./.github/actions/screenshot-android
@@ -246,7 +246,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: iPhone Screenshot Workflow
         uses: ./.github/actions/screenshot-iphone
@@ -263,7 +263,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: iPad Screenshot Workflow
         uses: ./.github/actions/screenshot-ipad
@@ -275,7 +275,7 @@ jobs:
     needs: common
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Debian Workflow
         uses: ./.github/actions/debian
@@ -311,7 +311,7 @@ jobs:
     needs: common
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: macOS Workflow
         uses: ./.github/actions/macos
@@ -351,7 +351,7 @@ jobs:
     needs: common
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
       - name: Windows Workflow
         uses: ./.github/actions/windows
