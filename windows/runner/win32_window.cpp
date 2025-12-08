@@ -1,5 +1,6 @@
 #include "win32_window.h"
 
+#include <cassert>
 #include <dwmapi.h>
 #include <flutter_windows.h>
 
@@ -51,27 +52,6 @@ void EnableFullDpiSupportIfAvailable(HWND hwnd) {
     enable_non_client_dpi_scaling(hwnd);
   }
   FreeLibrary(user32_module);
-}
-
-// Checks if the current Windows version supports dark mode
-bool IsDarkModeSupported() {
-  // DWMWA_USE_IMMERSIVE_DARK_MODE requires Windows 10 Build 17763 (version 1809) or higher
-  OSVERSIONINFOEXW osvi = {};
-  DWORDLONG const dwlConditionMask = VerSetConditionMask(
-      VerSetConditionMask(
-          VerSetConditionMask(
-              0, VER_MAJORVERSION, VER_GREATER_EQUAL),
-          VER_MINORVERSION, VER_GREATER_EQUAL),
-      VER_BUILDNUMBER, VER_GREATER_EQUAL);
-  
-  osvi.dwOSVersionInfoSize = sizeof(osvi);
-  osvi.dwMajorVersion = 10;
-  osvi.dwMinorVersion = 0;
-  osvi.dwBuildNumber = 17763;  // Windows 10 version 1809
-  
-  return VerifyVersionInfoW(&osvi, 
-                           VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER,
-                           dwlConditionMask) != FALSE;
 }
 
 }  // namespace
@@ -155,9 +135,9 @@ bool Win32Window::Create(const std::wstring& title,
   UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
   double scale_factor = dpi / 96.0;
 
-  // Create window with pointer to this instance
+  // Create window WITHOUT WS_VISIBLE flag - visibility controlled by Show()
   HWND window = CreateWindow(
-      window_class, title.c_str(), WS_OVERLAPPEDWINDOW | WS_VISIBLE,
+      window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
       Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
       Scale(size.width, scale_factor), Scale(size.height, scale_factor),
       nullptr, nullptr, GetModuleHandle(nullptr), this);
@@ -169,9 +149,8 @@ bool Win32Window::Create(const std::wstring& title,
   // Set window_handle_ immediately after CreateWindow returns
   window_handle_ = window;
 
-  // Show the window immediately
-  ShowWindow(window, SW_SHOWNORMAL);
-  UpdateWindow(window);
+  // Do NOT call ShowWindow here - let the caller control visibility via Show()
+  // Do NOT call UpdateWindow here - window is not visible yet
 
   UpdateTheme(window);
 
@@ -179,6 +158,9 @@ bool Win32Window::Create(const std::wstring& title,
 }
 
 bool Win32Window::Show() {
+  // Show requires a valid window handle
+  assert(window_handle_ && "Show() called before window was created");
+  
   if (!window_handle_) {
     return false;
   }
@@ -274,6 +256,9 @@ Win32Window* Win32Window::GetThisFromHandle(HWND const window) noexcept {
 }
 
 void Win32Window::SetChildContent(HWND content) {
+  // SetChildContent requires a valid window handle
+  assert(window_handle_ && "SetChildContent() called before window was created");
+  
   if (!window_handle_) {
     return;
   }
@@ -289,12 +274,16 @@ void Win32Window::SetChildContent(HWND content) {
 }
 
 RECT Win32Window::GetClientArea() {
-  RECT frame;
+  // GetClientArea assumes that window_handle_ has been created and is valid.
+  // A null window_handle_ indicates a usage error at the call site.
+  RECT frame{0, 0, 0, 0};
+
+  assert(window_handle_ && "GetClientArea called with null window_handle_");
+
   if (window_handle_) {
     GetClientRect(window_handle_, &frame);
-  } else {
-    frame = {0, 0, 0, 0};
   }
+
   return frame;
 }
 
@@ -320,11 +309,6 @@ void Win32Window::UpdateTheme(HWND const window) {
     return;
   }
   
-  // Check if dark mode is supported on this Windows version
-  if (!IsDarkModeSupported()) {
-    return;
-  }
-  
   DWORD light_mode;
   DWORD light_mode_size = sizeof(light_mode);
   LSTATUS result = RegGetValue(HKEY_CURRENT_USER, kGetPreferredBrightnessRegKey,
@@ -334,8 +318,11 @@ void Win32Window::UpdateTheme(HWND const window) {
 
   if (result == ERROR_SUCCESS) {
     BOOL enable_dark_mode = light_mode == 0;
-    // This API is only available on Windows 10 Build 17763+
-    DwmSetWindowAttribute(window, DWMWA_USE_IMMERSIVE_DARK_MODE,
-                          &enable_dark_mode, sizeof(enable_dark_mode));
+    // Try to set dark mode attribute - will fail silently on unsupported Windows versions
+    HRESULT hr = DwmSetWindowAttribute(window, DWMWA_USE_IMMERSIVE_DARK_MODE,
+                                      &enable_dark_mode, sizeof(enable_dark_mode));
+    // hr will be E_INVALIDARG (0x80070057) on Windows versions < 10.0.17763
+    // We ignore the error as dark mode is not supported on older versions
+    (void)hr; // Suppress unused variable warning
   }
 }
