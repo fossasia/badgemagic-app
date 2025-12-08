@@ -53,6 +53,27 @@ void EnableFullDpiSupportIfAvailable(HWND hwnd) {
   FreeLibrary(user32_module);
 }
 
+// Checks if the current Windows version supports dark mode
+bool IsDarkModeSupported() {
+  // DWMWA_USE_IMMERSIVE_DARK_MODE requires Windows 10 Build 17763 (version 1809) or higher
+  OSVERSIONINFOEXW osvi = {};
+  DWORDLONG const dwlConditionMask = VerSetConditionMask(
+      VerSetConditionMask(
+          VerSetConditionMask(
+              0, VER_MAJORVERSION, VER_GREATER_EQUAL),
+          VER_MINORVERSION, VER_GREATER_EQUAL),
+      VER_BUILDNUMBER, VER_GREATER_EQUAL);
+  
+  osvi.dwOSVersionInfoSize = sizeof(osvi);
+  osvi.dwMajorVersion = 10;
+  osvi.dwMinorVersion = 0;
+  osvi.dwBuildNumber = 17763;  // Windows 10 version 1809
+  
+  return VerifyVersionInfoW(&osvi, 
+                           VER_MAJORVERSION | VER_MINORVERSION | VER_BUILDNUMBER,
+                           dwlConditionMask) != FALSE;
+}
+
 }  // namespace
 
 // Manages the Win32Window's window class registration.
@@ -134,8 +155,9 @@ bool Win32Window::Create(const std::wstring& title,
   UINT dpi = FlutterDesktopGetDpiForMonitor(monitor);
   double scale_factor = dpi / 96.0;
 
+  // Create window with pointer to this instance
   HWND window = CreateWindow(
-      window_class, title.c_str(), WS_OVERLAPPEDWINDOW,
+      window_class, title.c_str(), WS_OVERLAPPEDWINDOW | WS_VISIBLE,
       Scale(origin.x, scale_factor), Scale(origin.y, scale_factor),
       Scale(size.width, scale_factor), Scale(size.height, scale_factor),
       nullptr, nullptr, GetModuleHandle(nullptr), this);
@@ -144,12 +166,22 @@ bool Win32Window::Create(const std::wstring& title,
     return false;
   }
 
+  // Set window_handle_ immediately after CreateWindow returns
+  window_handle_ = window;
+
+  // Show the window immediately
+  ShowWindow(window, SW_SHOWNORMAL);
+  UpdateWindow(window);
+
   UpdateTheme(window);
 
   return OnCreate();
 }
 
 bool Win32Window::Show() {
+  if (!window_handle_) {
+    return false;
+  }
   return ShowWindow(window_handle_, SW_SHOWNORMAL);
 }
 
@@ -164,8 +196,11 @@ LRESULT CALLBACK Win32Window::WndProc(HWND const window,
                      reinterpret_cast<LONG_PTR>(window_struct->lpCreateParams));
 
     auto that = static_cast<Win32Window*>(window_struct->lpCreateParams);
+    // Ensure window_handle_ is set (it should already be set in Create())
+    if (!that->window_handle_) {
+      that->window_handle_ = window;
+    }
     EnableFullDpiSupportIfAvailable(window);
-    that->window_handle_ = window;
   } else if (Win32Window* that = GetThisFromHandle(window)) {
     return that->MessageHandler(window, message, wparam, lparam);
   }
@@ -239,6 +274,10 @@ Win32Window* Win32Window::GetThisFromHandle(HWND const window) noexcept {
 }
 
 void Win32Window::SetChildContent(HWND content) {
+  if (!window_handle_) {
+    return;
+  }
+  
   child_content_ = content;
   SetParent(content, window_handle_);
   RECT frame = GetClientArea();
@@ -251,7 +290,11 @@ void Win32Window::SetChildContent(HWND content) {
 
 RECT Win32Window::GetClientArea() {
   RECT frame;
-  GetClientRect(window_handle_, &frame);
+  if (window_handle_) {
+    GetClientRect(window_handle_, &frame);
+  } else {
+    frame = {0, 0, 0, 0};
+  }
   return frame;
 }
 
@@ -273,6 +316,15 @@ void Win32Window::OnDestroy() {
 }
 
 void Win32Window::UpdateTheme(HWND const window) {
+  if (!window) {
+    return;
+  }
+  
+  // Check if dark mode is supported on this Windows version
+  if (!IsDarkModeSupported()) {
+    return;
+  }
+  
   DWORD light_mode;
   DWORD light_mode_size = sizeof(light_mode);
   LSTATUS result = RegGetValue(HKEY_CURRENT_USER, kGetPreferredBrightnessRegKey,
@@ -282,6 +334,7 @@ void Win32Window::UpdateTheme(HWND const window) {
 
   if (result == ERROR_SUCCESS) {
     BOOL enable_dark_mode = light_mode == 0;
+    // This API is only available on Windows 10 Build 17763+
     DwmSetWindowAttribute(window, DWMWA_USE_IMMERSIVE_DARK_MODE,
                           &enable_dark_mode, sizeof(enable_dark_mode));
   }
