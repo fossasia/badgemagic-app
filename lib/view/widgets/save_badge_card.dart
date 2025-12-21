@@ -18,7 +18,7 @@ class SaveBadgeCard extends StatelessWidget {
   final MapEntry<String, Map<String, dynamic>> badgeData;
 
   final Future<void> Function(MapEntry<String, Map<String, dynamic>>)
-  refreshBadgesCallback;
+      refreshBadgesCallback;
   final FileHelper file = FileHelper();
   final Converters converters = Converters();
   final ToastUtils toastUtils = ToastUtils();
@@ -104,8 +104,8 @@ class SaveBadgeCard extends StatelessWidget {
                       icon: const Icon(Icons.edit, color: Colors.black),
                       onPressed: () async {
                         // Show confirmation dialog before editing
-                        final confirmed = await provider
-                            .showEditBadgeConfirmation(context);
+                        final confirmed =
+                            await provider.showEditBadgeConfirmation(context);
                         if (confirmed) {
                           // Navigate to HomeScreen for editing the badge
                           Navigator.of(context).push(
@@ -165,155 +165,152 @@ class SaveBadgeCard extends StatelessWidget {
             ],
           ),
           SizedBox(height: 8.h),
-          Row(
-            children: [
-              Row(
+          Builder(
+            builder: (context) {
+              final badgeConfig = file.jsonToData(badgeData.value);
+              final message = badgeConfig.messages.first;
+
+              return Row(
                 children: [
-                  Visibility(
-                    visible: file.jsonToData(badgeData.value).messages[0].flash,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 10.w,
-                        vertical: 4.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorPrimary,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/icons/flash.png",
-                            color: Colors.white,
-                            height: 14.h,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Visibility(
-                    visible: file
-                        .jsonToData(badgeData.value)
-                        .messages[0]
-                        .marquee,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 4.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorPrimary,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/icons/square.png",
-                            color: Colors.white,
-                            height: 14.h,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(width: 8.w),
-                  Visibility(
-                    visible: badgeData.value['messages'][0]['invert'] ?? false,
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 12.w,
-                        vertical: 4.h,
-                      ),
-                      decoration: BoxDecoration(
-                        color: colorPrimary,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/icons/t_invert.png",
-                            color: Colors.white,
-                            height: 14.h,
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 4.h,
-                  ),
-                  decoration: BoxDecoration(
-                    color: colorPrimary,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Row(
+                  Row(
                     children: [
-                      Image.asset(
-                        "assets/icons/t_double.png",
-                        color: Colors.white,
-                        height: 14.h,
+                      Visibility(
+                        visible: message.flash,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 10.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorPrimary,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                "assets/icons/flash.png",
+                                color: Colors.white,
+                                height: 14.h,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        Speed.getIntValue(
-                          file.jsonToData(badgeData.value).messages[0].speed,
-                        ).toString(),
-                        style: const TextStyle(color: Colors.white),
+                      SizedBox(width: 8.w),
+                      Visibility(
+                        visible: message.marquee,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorPrimary,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                "assets/icons/square.png",
+                                color: Colors.white,
+                                height: 14.h,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      SizedBox(width: 8.w),
+                      Visibility(
+                        visible:
+                            badgeData.value['messages'][0]['invert'] ?? false,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 4.h,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorPrimary,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                          child: Row(
+                            children: [
+                              Image.asset(
+                                "assets/icons/t_invert.png",
+                                color: Colors.white,
+                                height: 14.h,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 12.w,
-                    vertical: 4.h,
+                  SizedBox(width: 8.w),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorPrimary,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Row(
+                        children: [
+                          Image.asset(
+                            "assets/icons/t_double.png",
+                            color: Colors.white,
+                            height: 14.h,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            Speed.getIntValue(message.speed).toString(),
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                  decoration: BoxDecoration(
-                    color: colorPrimary,
-                    borderRadius: BorderRadius.circular(100),
+                  SizedBox(width: 8.w),
+                  GestureDetector(
+                    onTap: () {},
+                    child: Container(
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12.w,
+                        vertical: 4.h,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colorPrimary,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                      child: Text(
+                        message.mode.toString().split('.').last.toUpperCase(),
+                        style: const TextStyle(color: Colors.white),
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    file
-                        .jsonToData(badgeData.value)
-                        .messages[0]
-                        .mode
-                        .toString()
-                        .split('.')
-                        .last
-                        .toUpperCase(),
-                    style: const TextStyle(color: Colors.white),
+                  const Spacer(),
+                  Consumer<BadgeSlotProvider>(
+                    builder: (context, selectionProvider, _) {
+                      final isSelected = selectionProvider.isSelected(
+                        badgeData.key,
+                      );
+                      return Switch(
+                        value: isSelected,
+                        onChanged: (selectionProvider.canSelectMore ||
+                                isSelected)
+                            ? (value) =>
+                                selectionProvider.toggleSelection(badgeData.key)
+                            : null,
+                        activeThumbColor: colorPrimary,
+                      );
+                    },
                   ),
-                ),
-              ),
-              const Spacer(),
-              Consumer<BadgeSlotProvider>(
-                builder: (context, selectionProvider, _) {
-                  final isSelected = selectionProvider.isSelected(
-                    badgeData.key,
-                  );
-                  return Switch(
-                    value: isSelected,
-                    onChanged: (selectionProvider.canSelectMore || isSelected)
-                        ? (value) =>
-                              selectionProvider.toggleSelection(badgeData.key)
-                        : null,
-                    activeThumbColor: colorPrimary,
-                  );
-                },
-              ),
-            ],
+                ],
+              );
+            },
           ),
         ],
       ),
