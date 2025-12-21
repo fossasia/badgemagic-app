@@ -10,7 +10,7 @@ import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/badge_slot_provider..dart';
+import 'package:badgemagic/providers/badge_slot_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -122,14 +122,17 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                     ),
                   );
                   if (confirm == true) {
-                    final provider = Provider.of<InlineImageProvider>(context,
-                        listen: false);
-                    final selectedBadges =
-                        selectionProvider.selectedBadges.toList();
+                    final provider = Provider.of<InlineImageProvider>(
+                      context,
+                      listen: false,
+                    );
+                    final selectedBadges = selectionProvider.selectedBadges
+                        .toList();
                     for (final badgeKey in selectedBadges) {
                       await FileHelper().deleteFile(badgeKey);
-                      provider.savedBadgeCache
-                          .removeWhere((entry) => entry.key == badgeKey);
+                      provider.savedBadgeCache.removeWhere(
+                        (entry) => entry.key == badgeKey,
+                      );
                     }
                     selectionProvider.clearSelections();
                     setState(() {});
@@ -154,22 +157,14 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                         height: 200.h,
                       ),
                     ),
-                    SizedBox(
-                      height: 20.h,
-                    ),
+                    SizedBox(height: 20.h),
                     Text(
                       'No saved badges !',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20.sp,
-                      ),
+                      style: TextStyle(color: Colors.black, fontSize: 20.sp),
                     ),
                     Text(
                       'Looks like there are no saved badges yet.',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14.sp,
-                      ),
+                      style: TextStyle(color: Colors.black, fontSize: 14.sp),
                     ),
                   ],
                 ),
@@ -183,20 +178,22 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                       AnimationBadge(),
                       Expanded(
                         child: Selector<BadgeSlotProvider, bool>(
-                            selector: (context, selectionProvider) =>
-                                selectionProvider.selectedBadges.isNotEmpty,
-                            builder: (context, isTransferEnabled, _) {
-                              return BadgeListView(
-                                isTransferEnabled: isTransferEnabled,
-                                futureBadges:
-                                    Future.value(provider.savedBadgeCache),
-                                refreshBadgesCallback: (value) {
-                                  provider.savedBadgeCache.remove(value);
-                                  setState(() {});
-                                  return Future.value();
-                                },
-                              );
-                            }),
+                          selector: (context, selectionProvider) =>
+                              selectionProvider.selectedBadges.isNotEmpty,
+                          builder: (context, isTransferEnabled, _) {
+                            return BadgeListView(
+                              isTransferEnabled: isTransferEnabled,
+                              futureBadges: Future.value(
+                                provider.savedBadgeCache,
+                              ),
+                              refreshBadgesCallback: (value) {
+                                provider.savedBadgeCache.remove(value);
+                                setState(() {});
+                                return Future.value();
+                              },
+                            );
+                          },
+                        ),
                       ),
                     ],
                   ),
@@ -213,8 +210,8 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                             width: 300.w,
                             padding: EdgeInsets.symmetric(horizontal: 16.w),
                             child: TextButton(
-                              onPressed: selectionProvider
-                                      .selectedBadges.isNotEmpty
+                              onPressed:
+                                  selectionProvider.selectedBadges.isNotEmpty
                                   ? () async {
                                       final selectedBadges =
                                           selectionProvider.selectedBadges;
@@ -223,48 +220,79 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                       for (var badgeKey in selectedBadges) {
                                         Map<String, dynamic> badgeData =
                                             provider.savedBadgeCache
-                                                .firstWhere((element) =>
-                                                    element.key == badgeKey)
+                                                .firstWhere(
+                                                  (element) =>
+                                                      element.key == badgeKey,
+                                                )
                                                 .value;
 
                                         final message = Message.fromJson(
-                                            badgeData['messages'][0]);
+                                          badgeData['messages'][0],
+                                        );
                                         badgeDataList.add(message);
                                       }
+
+                                      // Fill remaining slots with empty messages only if needed
                                       while (badgeDataList.length < 8) {
                                         badgeDataList.add(Message(text: []));
                                       }
+
+                                      // Set animation mode based on number of non-empty badges
                                       if (badgeDataList
                                               .where(
-                                                  (msg) => msg.text.isNotEmpty)
+                                                (msg) => msg.text.isNotEmpty,
+                                              )
                                               .length >
                                           1) {
-                                        animationBadgeProvider
-                                            .setAnimationMode(AniAnimation());
+                                        animationBadgeProvider.setAnimationMode(
+                                          AniAnimation(),
+                                        );
                                       } else {
-                                        animationBadgeProvider
-                                            .setAnimationMode(FixedAnimation());
+                                        animationBadgeProvider.setAnimationMode(
+                                          FixedAnimation(),
+                                        );
                                       }
-                                      final fullText = badgeDataList
-                                          .map((m) => m.text.join())
-                                          .join(" ");
+
+                                      // Create preview text from only non-empty badges
+                                      final nonEmptyMessages = badgeDataList
+                                          .where((msg) => msg.text.isNotEmpty)
+                                          .toList();
+
+                                      String previewText;
+                                      if (nonEmptyMessages.isNotEmpty) {
+                                        // For preview, show the first badge's content or a summary
+                                        previewText = nonEmptyMessages
+                                            .first
+                                            .text
+                                            .join();
+                                        if (nonEmptyMessages.length > 1) {
+                                          previewText +=
+                                              " +${nonEmptyMessages.length - 1} more";
+                                        }
+                                      } else {
+                                        previewText = "";
+                                      }
+
                                       animationBadgeProvider.badgeAnimation(
-                                        fullText,
+                                        previewText,
                                         Converters(),
                                         false,
                                       );
-                                      final data =
-                                          Data(messages: badgeDataList);
+
+                                      final data = Data(
+                                        messages: badgeDataList,
+                                      );
                                       badgeMessageProvider.checkAndTransfer(
-                                          null,
-                                          null,
-                                          null,
-                                          null,
-                                          null,
-                                          null,
-                                          data.toJson(),
-                                          true,
-                                          context);
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        null,
+                                        data.toJson(),
+                                        true,
+                                        context,
+                                      );
                                     }
                                   : null,
                               style: ElevatedButton.styleFrom(
