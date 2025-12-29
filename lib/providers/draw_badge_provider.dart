@@ -146,6 +146,19 @@ class DrawBadgeProvider extends ChangeNotifier {
   notifyListeners();
 }
 
+  void moveRight() {
+  _pushToUndoStack();
+
+  for (int i = 0; i < rows; i++) {
+    for (int j = cols - 1; j > 0; j--) {
+      _drawViewGrid[i][j] = _drawViewGrid[i][j - 1];
+    }
+    _drawViewGrid[i][0] = false;
+  }
+
+  notifyListeners();
+}
+
 }
 
 class GridPosition {
