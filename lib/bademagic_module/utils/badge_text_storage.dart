@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 /// A utility class to store and retrieve the original text of badges
 class BadgeTextStorage {
-  static const String TEXT_STORAGE_FILENAME = 'badge_original_texts.json';
+  static const String textStorageFilename = 'badge_original_texts.json';
 
   /// Save the original text for a badge
   static Future<void> saveOriginalText(
@@ -79,7 +79,7 @@ class BadgeTextStorage {
   static Future<Map<String, String>> _getTextStorage() async {
     try {
       final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/$TEXT_STORAGE_FILENAME');
+      final file = File('${directory.path}/$textStorageFilename');
 
       // Create the file if it doesn't exist
       if (!await file.exists()) {
@@ -113,7 +113,7 @@ class BadgeTextStorage {
   static Future<void> _saveTextStorage(Map<String, String> textStorage) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
-      final file = File('${directory.path}/$TEXT_STORAGE_FILENAME');
+      final file = File('${directory.path}/$textStorageFilename');
 
       // Convert the map to JSON and save it
       final jsonString = jsonEncode(textStorage);

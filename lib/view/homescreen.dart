@@ -53,6 +53,9 @@ class _HomeScreenState extends State<HomeScreen>
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
         WidgetsBindingObserver {
+  static final RegExp _emojiBlockRegex = RegExp(
+      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|\ud83e[\udc00-\udfff]|[\uFE00-\uFE0F])');
+
   late final TabController _tabController;
   final AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
   late SpeedDialProvider speedDialProvider;
@@ -263,7 +266,22 @@ class _HomeScreenState extends State<HomeScreen>
                               borderRadius: BorderRadius.circular(10.r),
                               elevation: 4,
                               child: ExtendedTextField(
-                                onChanged: (value) {},
+                                inputFormatters: [
+                                  TextInputFormatter.withFunction(
+                                    (oldValue, newValue) {
+                                      if (_emojiBlockRegex
+                                          .hasMatch(newValue.text)) {
+                                        if (!_emojiBlockRegex
+                                            .hasMatch(oldValue.text)) {
+                                          ToastUtils().showToast(
+                                              "System emojis are not supported");
+                                        }
+                                        return oldValue;
+                                      }
+                                      return newValue;
+                                    },
+                                  ),
+                                ],
                                 controller: inlineimagecontroller,
                                 specialTextSpanBuilder: ImageBuilder(),
                                 style: Provider.of<FontProvider>(context)
@@ -638,6 +656,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                                         ToastUtils().showToast(
                                             "Badge Updated Successfully");
+                                        if (!context.mounted) return;
                                         Navigator.pushNamedAndRemoveUntil(
                                           context,
                                           '/savedBadge',
