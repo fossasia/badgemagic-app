@@ -132,6 +132,20 @@ class DrawBadgeProvider extends ChangeNotifier {
   List<List<bool>> _copyGrid(List<List<bool>> grid) {
     return grid.map((row) => List<bool>.from(row)).toList();
   }
+
+  void moveLeft() {
+  _pushToUndoStack();
+
+  for (int i = 0; i < rows; i++) {
+    for (int j = 0; j < cols - 1; j++) {
+      _drawViewGrid[i][j] = _drawViewGrid[i][j + 1];
+    }
+    _drawViewGrid[i][cols - 1] = false;
+  }
+
+  notifyListeners();
+}
+
 }
 
 class GridPosition {
