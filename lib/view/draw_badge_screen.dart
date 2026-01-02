@@ -40,7 +40,6 @@ class _DrawBadgeState extends State<DrawBadge> {
 
   @override
   void dispose() {
-    _resetPortraitOrientation();
     super.dispose();
   }
 
