@@ -128,6 +128,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                 // Shape options - only show when toggled, fixed height
                 if (_showShapeOptions)
                   Container(
+                    height: 60,
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
