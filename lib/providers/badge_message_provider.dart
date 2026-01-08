@@ -5,6 +5,7 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
+import 'package:badgemagic/bademagic_module/models/brightness.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
@@ -56,17 +57,20 @@ class BadgeMessageProvider {
   Converters converters = Converters();
 
   Future<Data> getBadgeData(String text, bool flash, bool marq, Speed speed,
-      Mode mode, bool isInverted) async {
+      Mode mode, bool isInverted, {Brightness brightness = Brightness.hundred}) async {
     List<String> message = await converters.messageTohex(text, isInverted);
-    Data data = Data(messages: [
-      Message(
-        text: message,
-        flash: flash,
-        marquee: marq,
-        speed: speed,
-        mode: mode,
-      )
-    ]);
+    Data data = Data(
+      brightness: brightness,
+      messages: [
+        Message(
+          text: message,
+          flash: flash,
+          marquee: marq,
+          speed: speed,
+          mode: mode,
+        )
+      ],
+    );
     return data;
   }
 
@@ -77,12 +81,14 @@ class BadgeMessageProvider {
       bool? inverted,
       Speed? speed,
       Mode? mode,
-      Map<String, dynamic>? jsonData) async {
+      Map<String, dynamic>? jsonData,
+      {Brightness brightness = Brightness.hundred}) async {
     if (jsonData != null) {
       return fileHelper.jsonToData(jsonData);
     } else {
       return getBadgeData(text ?? '', flash ?? false, marq ?? false,
-          speed ?? Speed.one, mode ?? Mode.left, inverted ?? false);
+          speed ?? Speed.one, mode ?? Mode.left, inverted ?? false,
+          brightness: brightness);
     }
   }
 
@@ -121,7 +127,8 @@ class BadgeMessageProvider {
       Map<String, dynamic>? jsonData,
       bool isSavedBadge,
       BuildContext context,
-      {TextStyle? textStyle}) async {
+      {TextStyle? textStyle,
+      Brightness brightness = Brightness.hundred}) async {
     if (await FlutterBluePlus.isSupported == false) {
       final l10n = GetIt.instance.get<LocalizationService>().l10n;
       ToastUtils().showErrorToast(l10n.error);
@@ -219,11 +226,15 @@ class BadgeMessageProvider {
           speed: old.speed,
           mode: Mode.animation, // Force seamless marquee
         );
-        data = Data(messages: [newMessage, ...data.messages.skip(1)]);
+        data = Data(
+          brightness: data.brightness,
+          messages: [newMessage, ...data.messages.skip(1)],
+        );
       }
     } else {
       data = await generateData(
-          text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
+          text, flash, marq, isInverted, speedMap[speed], mode, jsonData,
+          brightness: brightness);
     }
 
     DataTransferManager manager = DataTransferManager(data);

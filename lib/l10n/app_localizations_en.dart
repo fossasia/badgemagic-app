@@ -552,4 +552,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get badgeScanMode => 'Badge Scan Mode';
+
+  @override
+  String get brightness => 'Brightness';
+
+  @override
+  String get brightnessNotAvailableForAnimations =>
+      'Brightness control is not available for special animations';
 }

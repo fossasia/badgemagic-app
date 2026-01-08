@@ -211,5 +211,7 @@
   "badgeNameHint": "Nome badge",
   "triangle": "Triangolo",
   "clipartSavedSuccessfully": "Clipart salvato con successo",
-  "badgeScanMode": "Modalità Scansione Badge"
+  "badgeScanMode": "Modalità Scansione Badge",
+  "brightness": "Luminosità",
+  "brightnessNotAvailableForAnimations": "Il controllo della luminosità non è disponibile per le animazioni speciali"
 }

@@ -1,5 +1,6 @@
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/bademagic_module/models/brightness.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
@@ -72,7 +73,7 @@ Future<void> customTransferChevronAnimation(
       marquee: false,
     ));
   }
-  Data data = Data(messages: chevronFrames);
+  Data data = Data(brightness: Brightness.hundred, messages: chevronFrames);
   logger.i('💡 Data object created. Starting transfer...');
   try {
     await transferData(DataTransferManager(data));

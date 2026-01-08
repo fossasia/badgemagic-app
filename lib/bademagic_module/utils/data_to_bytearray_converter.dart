@@ -6,7 +6,7 @@ class DataToByteArrayConverter {
   final Logger logger = Logger();
 
   var maxMessages = 8;
-  var packetStart = "77616E670000";
+  var packetStart = "77616E67";
   var packetByteSize = 16;
 
   final Map<String, String> charCodes = {
@@ -189,7 +189,7 @@ class DataToByteArrayConverter {
     assert(data.messages.length <= maxMessages, "Max messages=$maxMessages");
 
     String message =
-        ("$packetStart${getFlash(data)}${getMarquee(data)}${getOptions(data)}${getSizes(data)}000000000000${getTime(DateTime.now())}0000000000000000000000000000000000000000${getMessage(data)}");
+        ("$packetStart${getBrightness(data)}${getFlash(data)}${getMarquee(data)}${getOptions(data)}${getSizes(data)}000000000000${getTime(DateTime.now())}0000000000000000000000000000000000000000${getMessage(data)}");
     int length = message.length;
     message += fillZeros(length);
     logger.d("Final Message is = $message");
@@ -205,6 +205,19 @@ class DataToByteArrayConverter {
       ans.add(hexStringToByteArray(chunks[x]));
     }
     return ans;
+  }
+
+//Function to get brightness bytes (bytes 4-5)
+  String getBrightness(Data data) {
+    // Byte 4: Reserved (0x00)
+    // Byte 5: Brightness value
+    String byte4 = "00";
+    // Parse hex string like "0x40" correctly by removing "0x" prefix
+    String hexValue = data.brightness.hexValue.substring(2); // Remove "0x" prefix
+    String byte5 = hexValue.padLeft(2, '0');
+    String result = byte4 + byte5;
+    logger.d("Get brightness = $result");
+    return result;
   }
 
 //Function to get flash bytes of the message

@@ -1,3 +1,4 @@
+import 'package:badgemagic/bademagic_module/models/brightness.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
@@ -254,7 +255,10 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                         false,
                                       );
                                       final data =
-                                          Data(messages: badgeDataList);
+                                          Data(
+                                            brightness: Brightness.hundred,
+                                            messages: badgeDataList,
+                                          );
                                       badgeMessageProvider.checkAndTransfer(
                                           null,
                                           null,

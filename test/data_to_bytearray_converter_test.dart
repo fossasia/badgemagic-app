@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:badgemagic/bademagic_module/models/brightness.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
@@ -10,7 +11,7 @@ import 'package:badgemagic/providers/getitlocator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('result should start with 77616E670000', () {
+  test('result should start with wang header (77616E67) and brightness bytes', () {
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     var data = Data(messages: [
       Message(text: ['A'])
@@ -18,7 +19,46 @@ void main() {
 
     List<List<int>> result = converter.convert(data);
 
-    expect(result[0].sublist(0, 6), [0x77, 0x61, 0x6E, 0x67, 0x00, 0x00]);
+    // Check header: wang (0x77, 0x61, 0x6E, 0x67)
+    expect(result[0].sublist(0, 4), [0x77, 0x61, 0x6E, 0x67]);
+    // Check brightness bytes: 0x00 (reserved), 0x00 (100% brightness)
+    expect(result[0].sublist(4, 6), [0x00, 0x00]);
+  });
+
+  test('brightness byte should reflect the brightness setting', () {
+    DataToByteArrayConverter converter = DataToByteArrayConverter();
+    
+    // Test 100% brightness (0x00)
+    var data100 = Data(
+      brightness: Brightness.hundred,
+      messages: [Message(text: ['A'])],
+    );
+    var result100 = converter.convert(data100);
+    expect(result100[0][5], 0x00);
+
+    // Test 75% brightness (0x10)
+    var data75 = Data(
+      brightness: Brightness.seventyFive,
+      messages: [Message(text: ['A'])],
+    );
+    var result75 = converter.convert(data75);
+    expect(result75[0][5], 0x10);
+
+    // Test 50% brightness (0x20)
+    var data50 = Data(
+      brightness: Brightness.fifty,
+      messages: [Message(text: ['A'])],
+    );
+    var result50 = converter.convert(data50);
+    expect(result50[0][5], 0x20);
+
+    // Test 25% brightness (0x30) - adjusted from Python's 0x40 due to hardware behavior
+    var data25 = Data(
+      brightness: Brightness.twentyFive,
+      messages: [Message(text: ['A'])],
+    );
+    var result25 = converter.convert(data25);
+    expect(result25[0][5], 0x30);
   });
 
   test('flash should be 0x00 when no messages have flash option enabled', () {

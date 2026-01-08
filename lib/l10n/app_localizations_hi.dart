@@ -549,4 +549,11 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get badgeScanMode => 'बैज स्कैन मोड';
+
+  @override
+  String get brightness => 'चमक';
+
+  @override
+  String get brightnessNotAvailableForAnimations =>
+      'स्पेशल एनिमेशन के लिए चमक कंट्रोल उपलब्ध नहीं है';
 }

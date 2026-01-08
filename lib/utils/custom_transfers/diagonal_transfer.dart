@@ -1,5 +1,6 @@
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/bademagic_module/models/brightness.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
@@ -57,7 +58,7 @@ Future<void> customTransferDiagonalAnimation(
     ));
   }
 
-  Data data = Data(messages: diagonalFrames);
+  Data data = Data(brightness: Brightness.hundred, messages: diagonalFrames);
   logger.i('V Diagonal Data object created. Starting transfer...');
 
   try {

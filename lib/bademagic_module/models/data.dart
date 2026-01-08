@@ -1,12 +1,19 @@
+import 'brightness.dart';
 import 'messages.dart';
 
 class Data {
   final List<Message> messages;
-  Data({required this.messages});
+  final Brightness brightness;
+  
+  Data({
+    required this.messages,
+    this.brightness = Brightness.hundred,
+  });
 
   // Convert Data object to JSON
   Map<String, dynamic> toJson() => {
         'messages': messages.map((message) => message.toJson()).toList(),
+        'brightness': brightness.hexValue,
       };
 
   // Convert JSON to Data object
@@ -32,6 +39,11 @@ class Data {
     List<Message> messageList =
         messagesFromJson.map((message) => Message.fromJson(message)).toList();
 
-    return Data(messages: messageList);
+    return Data(
+      messages: messageList,
+      brightness: json.containsKey('brightness')
+          ? Brightness.fromHex(json['brightness'] as String)
+          : Brightness.hundred,
+    );
   }
 }

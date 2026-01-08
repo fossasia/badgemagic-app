@@ -1,5 +1,6 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/view/widgets/brightness_control.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/view/widgets/animation_container.dart';
 import 'package:badgemagic/view/widgets/effects_container.dart';
@@ -24,30 +25,36 @@ class _EffectsTabState extends State<EffectTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
-    return Row(
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Expanded(
-          child: EffectContainer(
-            effect: effInvert,
-            effectName: l10n.invertEffect,
-            index: 0,
-          ),
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Expanded(
+              child: EffectContainer(
+                effect: effInvert,
+                effectName: l10n.invertEffect,
+                index: 0,
+              ),
+            ),
+            Expanded(
+              child: EffectContainer(
+                effect: effFlash,
+                effectName: l10n.flashEffect,
+                index: 1,
+              ),
+            ),
+            Expanded(
+              child: EffectContainer(
+                effect: effMarque,
+                effectName: l10n.marqueeEffect,
+                index: 2,
+              ),
+            ),
+          ],
         ),
-        Expanded(
-          child: EffectContainer(
-            effect: effFlash,
-            effectName: l10n.flashEffect,
-            index: 1,
-          ),
-        ),
-        Expanded(
-          child: EffectContainer(
-            effect: effMarque,
-            effectName: l10n.marqueeEffect,
-            index: 2,
-          ),
-        ),
+        const BrightnessControl(),
       ],
     );
   }

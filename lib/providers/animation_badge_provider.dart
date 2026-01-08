@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:badgemagic/bademagic_module/models/brightness.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -271,6 +272,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required bool marquee,
     required bool invert,
     required BuildContext context,
+    Brightness brightness = Brightness.hundred,
   }) async {
     final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();
@@ -315,6 +317,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         null,
         false,
         context,
+        brightness: brightness,
       );
     }
   }

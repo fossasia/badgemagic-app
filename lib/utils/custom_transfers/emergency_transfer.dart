@@ -1,5 +1,6 @@
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/bademagic_module/models/brightness.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
@@ -64,7 +65,7 @@ Future<void> customTransferEmergencyAnimation(
     emergencyFrames[5],
   ];
 
-  Data data = Data(messages: rotatedFrames);
+  Data data = Data(brightness: Brightness.hundred, messages: rotatedFrames);
   DataTransferManager manager = DataTransferManager(data);
   await transferData(manager);
   logger.i('💡 Emergency animation transfer completed successfully!');

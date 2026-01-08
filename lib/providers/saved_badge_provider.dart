@@ -1,3 +1,4 @@
+import 'package:badgemagic/bademagic_module/models/brightness.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'dart:convert';
 import 'dart:io';
@@ -276,15 +277,18 @@ class SavedBadgeProvider extends ChangeNotifier {
   Future<Data> getBadgeData(String text, bool flash, bool marq, bool isInverted,
       Speed speed, Mode mode) async {
     List<String> message = await converters.messageTohex(text, isInverted);
-    Data data = Data(messages: [
-      Message(
-        text: message,
-        flash: flash,
-        marquee: marq,
-        speed: speed,
-        mode: mode,
-      )
-    ]);
+    Data data = Data(
+      brightness: Brightness.hundred,
+      messages: [
+        Message(
+          text: message,
+          flash: flash,
+          marquee: marq,
+          speed: speed,
+          mode: mode,
+        )
+      ],
+    );
     return data;
   }
 

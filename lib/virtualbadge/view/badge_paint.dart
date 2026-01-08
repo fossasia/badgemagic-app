@@ -6,8 +6,9 @@ import 'package:flutter/material.dart';
 class BadgePaint extends CustomPainter {
   BadgeUtils badgeUtils = BadgeUtils();
   final List<List<bool>> grid;
+  final double brightness;
 
-  BadgePaint({required this.grid});
+  BadgePaint({required this.grid, this.brightness = 1.0});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -53,7 +54,9 @@ class BadgePaint extends CustomPainter {
         var cellStartCol = cellStartX + col * (cellSize * 0.93);
 
         final Paint paint = Paint()
-          ..color = grid[row][col] ? Colors.red : Colors.grey.shade900
+          ..color = grid[row][col] 
+              ? Colors.red.withOpacity(brightness) 
+              : Colors.grey.shade900
           ..style = PaintingStyle.fill;
 
         final Rect cellRect = Rect.fromLTWH(

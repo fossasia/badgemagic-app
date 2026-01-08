@@ -21,6 +21,7 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 ### 🎭 **Animation & Effects**
 - **22 Animation Types**: Left, Right, Up, Down, Fixed, Snowflake, Picture, Laser, Pacman, Chevron, Diamond, Broken Hearts, Cupid, Feet, Fish, Diagonal, Emergency, Beating Hearts, Fireworks, Digital Rain (Equalizer), and Cycle
 - **3 Visual Effects**: Flash, Invert, and Marquee
+- **4 Brightness Levels**: Control LED brightness at 25%, 50%, 75%, or 100% intensity (disabled for special animations)
 - **Speed Control**: 8-speed radial dial for precise animation timing
 - **Transition Tab**: Quick access to basic animations
 
@@ -38,7 +39,8 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 
 ### 📱 **User Interface**
 - **4 Main Tabs**: Speed, Transition, Effects, and Animation
-- **Multi-language Support**: English and Hindi
+- **Multi-language Support**: English, Hindi, and Italian
+- **Brightness Control**: Adjustable LED brightness with real-time preview
 - **Settings Screen**: Bluetooth device management and scan preferences
 - **Navigation Drawer**: Easy access to all features
 
@@ -134,7 +136,7 @@ The app features a modern, tabbed interface with four main sections:
 
 1. **Speed Tab**: Radial dial for controlling animation speed (8 levels)
 2. **Transition Tab**: Quick access to basic text animations (Left, Right, Up, Down, Fixed)
-3. **Effects Tab**: Visual effects (Flash, Invert, Marquee)
+3. **Effects Tab**: Visual effects (Flash, Invert, Marquee) and brightness control (25%, 50%, 75%, 100%)
 4. **Animation Tab**: Advanced animations including Pacman, Hearts, Fireworks, and more
 
 ### Key Screens

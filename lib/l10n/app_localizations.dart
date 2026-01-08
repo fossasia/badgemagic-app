@@ -1155,6 +1155,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Badge Scan Mode'**
   String get badgeScanMode;
+
+  /// No description provided for @brightness.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness'**
+  String get brightness;
+
+  /// No description provided for @brightnessNotAvailableForAnimations.
+  ///
+  /// In en, this message translates to:
+  /// **'Brightness control is not available for special animations'**
+  String get brightnessNotAvailableForAnimations;
 }
 
 class _AppLocalizationsDelegate

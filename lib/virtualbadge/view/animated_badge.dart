@@ -1,4 +1,5 @@
 import 'package:badgemagic/providers/animation_badge_provider.dart';
+import 'package:badgemagic/providers/brightness_provider.dart';
 import 'package:badgemagic/virtualbadge/view/badge_paint.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -21,11 +22,23 @@ class _AnimationBadgeState extends State<AnimationBadge> {
 
   @override
   Widget build(BuildContext context) {
-    final provider = context.watch<AnimationBadgeProvider>();
+    final animationProvider = context.watch<AnimationBadgeProvider>();
+    final brightnessProvider = context.watch<BrightnessProvider>();
+    
+    // Map brightness percentage to a UI-friendly opacity range
+    // Physical badge: 25%->0x30, 50%->0x20, 75%->0x10, 100%->0x00
+    // UI simulation: 25%->0.6, 50%->0.75, 75%->0.85, 100%->1.0
+    // This makes lower brightness levels more visible in the UI while still showing clear differences
+    final percentage = brightnessProvider.getBrightnessPercentage();
+    final brightnessOpacity = 0.5 + (percentage / 100.0 * 0.5); // Maps 25%->0.625, 100%->1.0
+    
     return AspectRatio(
       aspectRatio: 3.2,
       child: CustomPaint(
-        painter: BadgePaint(grid: provider.getPaintGrid()),
+        painter: BadgePaint(
+          grid: animationProvider.getPaintGrid(),
+          brightness: brightnessOpacity,
+        ),
       ),
     );
   }

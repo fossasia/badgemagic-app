@@ -13,6 +13,7 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
+import 'package:badgemagic/providers/brightness_provider.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
@@ -56,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen>
   late final TabController _tabController;
   final AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
   late SpeedDialProvider speedDialProvider;
+  final BrightnessProvider brightnessProvider = BrightnessProvider();
   final BadgeMessageProvider badgeData = BadgeMessageProvider();
   final ImageUtils imageUtils = ImageUtils();
   final InlineImageProvider inlineImageProvider =
@@ -236,6 +238,9 @@ class _HomeScreenState extends State<HomeScreen>
                     .addListener(_controllerListner);
                 return speedDialProvider;
               },
+            ),
+            ChangeNotifierProvider<BrightnessProvider>(
+              create: (context) => brightnessProvider,
             ),
           ],
           child: DefaultTabController(
@@ -692,6 +697,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       invert: animationProvider
                                           .isEffectActive(InvertLEDEffect()),
                                       context: context,
+                                      brightness: brightnessProvider.getBrightness(),
                                     );
                                   },
                                   child: Container(
