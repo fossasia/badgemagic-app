@@ -27,10 +27,10 @@ class _AnimationBadgeState extends State<AnimationBadge> {
     
     // Map brightness percentage to a UI-friendly opacity range
     // Physical badge: 25%->0x30, 50%->0x20, 75%->0x10, 100%->0x00
-    // UI simulation: 25%->0.6, 50%->0.75, 75%->0.85, 100%->1.0
+    // UI simulation (clamped 0–100%): 0%->0.5, 25%->0.6, 50%->0.75, 75%->0.85, 100%->1.0
     // This makes lower brightness levels more visible in the UI while still showing clear differences
     final percentage = brightnessProvider.getBrightnessPercentage();
-    final brightnessOpacity = 0.5 + (percentage / 100.0 * 0.5); // Maps 25%->0.625, 100%->1.0
+    final brightnessOpacity = _mapBrightnessToOpacity(percentage.toDouble());
     
     return AspectRatio(
       aspectRatio: 3.2,
@@ -41,6 +41,25 @@ class _AnimationBadgeState extends State<AnimationBadge> {
         ),
       ),
     );
+  }
+
+  double _mapBrightnessToOpacity(double percentage) {
+    // Clamp to [0, 100] to avoid weird values from the provider
+    final clamped = percentage.clamp(0.0, 100.0);
+
+    if (clamped <= 25.0) {
+      // 0% -> 0.5, 25% -> 0.6
+      return 0.5 + (clamped / 25.0) * (0.6 - 0.5);
+    } else if (clamped <= 50.0) {
+      // 25% -> 0.6, 50% -> 0.75
+      return 0.6 + ((clamped - 25.0) / 25.0) * (0.75 - 0.6);
+    } else if (clamped <= 75.0) {
+      // 50% -> 0.75, 75% -> 0.85
+      return 0.75 + ((clamped - 50.0) / 25.0) * (0.85 - 0.75);
+    } else {
+      // 75% -> 0.85, 100% -> 1.0
+      return 0.85 + ((clamped - 75.0) / 25.0) * (1.0 - 0.85);
+    }
   }
 }
 

@@ -75,11 +75,9 @@ class _BrightnessControlState extends State<BrightnessControl> {
                   inactiveColor: backCircleColor,
                   label: '${brightnessProvider.getBrightnessPercentage()}%',
                   onChanged: isAnimationActive ? null : (value) {
-                    setState(() {
-                      brightnessProvider.setBrightness(
-                        Brightness.fromPercentage(value.toInt()),
-                      );
-                    });
+                    brightnessProvider.setBrightness(
+                      Brightness.fromPercentage(value.toInt()),
+                    );
                   },
                 ),
               ),

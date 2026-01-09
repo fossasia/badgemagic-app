@@ -39,11 +39,14 @@ class Data {
     List<Message> messageList =
         messagesFromJson.map((message) => Message.fromJson(message)).toList();
 
+    final raw = json['brightness'];
+    final brightness = raw is String && raw.isNotEmpty
+        ? Brightness.fromHex(raw)
+        : Brightness.hundred;
+
     return Data(
       messages: messageList,
-      brightness: json.containsKey('brightness')
-          ? Brightness.fromHex(json['brightness'] as String)
-          : Brightness.hundred,
+      brightness: brightness,
     );
   }
 }
