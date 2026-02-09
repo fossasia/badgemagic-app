@@ -1,14 +1,13 @@
 import 'dart:async';
 
+import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
+import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-
-import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -22,9 +21,9 @@ import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/special_text_field.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
-import 'package:badgemagic/view/widgets/transitiontab.dart';
 import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
 import 'package:badgemagic/view/widgets/speedial.dart';
+import 'package:badgemagic/view/widgets/transitiontab.dart';
 import 'package:badgemagic/view/widgets/vectorview.dart';
 import 'package:badgemagic/virtualbadge/view/animated_badge.dart';
 import 'package:extended_text_field/extended_text_field.dart';
@@ -32,8 +31,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
-import 'package:provider/provider.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
@@ -552,9 +551,8 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           LayoutBuilder(
                             builder: (context, constraints) {
-                              final screenHeight =
-                                  MediaQuery.of(context).size.height;
-                              final availableHeight = screenHeight * 0.45;
+                              final availableHeight =
+                                  0.5 * ScreenUtil().screenHeight;
 
                               return ConstrainedBox(
                                 constraints: BoxConstraints(
@@ -569,16 +567,14 @@ class _HomeScreenState extends State<HomeScreen>
                                         const NeverScrollableScrollPhysics(),
                                     controller: _tabController,
                                     children: [
-                                      Center(
-                                        child: GestureDetector(
-                                          onPanDown: (_) => setState(
-                                              () => isDialInteracting = true),
-                                          onPanCancel: () => setState(
-                                              () => isDialInteracting = false),
-                                          onPanEnd: (_) => setState(
-                                              () => isDialInteracting = false),
-                                          child: RadialDial(),
-                                        ),
+                                      GestureDetector(
+                                        onPanDown: (_) => setState(
+                                            () => isDialInteracting = true),
+                                        onPanCancel: () => setState(
+                                            () => isDialInteracting = false),
+                                        onPanEnd: (_) => setState(
+                                            () => isDialInteracting = false),
+                                        child: RadialDial(),
                                       ),
                                       const TransitionTab(),
                                       const EffectTab(),
@@ -589,53 +585,20 @@ class _HomeScreenState extends State<HomeScreen>
                               );
                             },
                           ),
-                          SizedBox(height: 100.h),
                         ],
                       ),
                     ),
-                    Positioned(
-                      left: 16.w,
-                      right: 16.w,
-                      bottom: 16.h,
-                      child: Consumer<AnimationBadgeProvider>(
-                        builder: (context, animationProvider, _) {
+                    Padding(
+                      padding: EdgeInsets.all(16.w),
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Consumer<AnimationBadgeProvider>(
+                            builder: (context, animationProvider, _) {
                           final isSpecial =
                               animationProvider.isSpecialAnimationSelected();
-
-                          if (isSpecial) {
-                            return SizedBox(
-                              height: 32.h,
-                              child: GestureDetector(
-                                onTap: () async {
-                                  await animationProvider
-                                      .handleAnimationTransfer(
-                                    badgeData: badgeData,
-                                    inlineImageProvider: inlineImageProvider,
-                                    speedDialProvider: speedDialProvider,
-                                    flash: animationProvider
-                                        .isEffectActive(FlashEffect()),
-                                    marquee: animationProvider
-                                        .isEffectActive(MarqueeEffect()),
-                                    invert: animationProvider
-                                        .isEffectActive(InvertLEDEffect()),
-                                    context: context,
-                                  );
-                                },
-                                child: Container(
-                                  alignment: Alignment.center,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16.w, vertical: 8.h),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    color: mdGrey400,
-                                  ),
-                                  child: Text(l10n.transferButton),
-                                ),
-                              ),
-                            );
-                          } else {
-                            return Row(
-                              children: [
+                          return Row(
+                            children: [
+                              if (!isSpecial) ...[
                                 Expanded(
                                   child: GestureDetector(
                                     onTap: () async {
@@ -713,42 +676,40 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                 ),
                                 SizedBox(width: 24.w),
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () async {
-                                      await animationProvider
-                                          .handleAnimationTransfer(
-                                        badgeData: badgeData,
-                                        inlineImageProvider:
-                                            inlineImageProvider,
-                                        speedDialProvider: speedDialProvider,
-                                        flash: animationProvider
-                                            .isEffectActive(FlashEffect()),
-                                        marquee: animationProvider
-                                            .isEffectActive(MarqueeEffect()),
-                                        invert: animationProvider
-                                            .isEffectActive(InvertLEDEffect()),
-                                        context: context,
-                                      );
-                                    },
-                                    child: Container(
-                                      height: 32.h,
-                                      alignment: Alignment.center,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 16.w, vertical: 8.h),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(8.r),
-                                        color: mdGrey400,
-                                      ),
-                                      child: Text(l10n.transferButton),
+                              ],
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () async {
+                                    await animationProvider
+                                        .handleAnimationTransfer(
+                                      badgeData: badgeData,
+                                      inlineImageProvider: inlineImageProvider,
+                                      speedDialProvider: speedDialProvider,
+                                      flash: animationProvider
+                                          .isEffectActive(FlashEffect()),
+                                      marquee: animationProvider
+                                          .isEffectActive(MarqueeEffect()),
+                                      invert: animationProvider
+                                          .isEffectActive(InvertLEDEffect()),
+                                      context: context,
+                                    );
+                                  },
+                                  child: Container(
+                                    height: 32.h,
+                                    alignment: Alignment.center,
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 16.w, vertical: 8.h),
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      color: mdGrey400,
                                     ),
+                                    child: Text(l10n.transferButton),
                                   ),
                                 ),
-                              ],
-                            );
-                          }
-                        },
+                              ),
+                            ],
+                          );
+                        }),
                       ),
                     ),
                   ],
