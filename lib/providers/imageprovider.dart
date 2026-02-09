@@ -68,13 +68,13 @@ class InlineImageProvider extends ChangeNotifier {
   Future<void> initVectors() async {
     vectors.clear();
     try {
-      final manifestContent = await rootBundle.loadString('AssetManifest.json');
-      final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-
-      final imageAssetsList = manifestMap.keys
-          .where((String key) => key.startsWith('assets/vectors/'))
+      final manifestContent =
+          await AssetManifest.loadFromAssetBundle(rootBundle);
+      final vectorAssets = manifestContent
+          .listAssets()
+          .where((key) => key.startsWith('assets/vectors/'))
           .toList();
-      vectors.addAll(imageAssetsList);
+      vectors.addAll(vectorAssets);
       notifyListeners();
     } catch (e) {
       logger.e('Error loading asset manifest: $e');

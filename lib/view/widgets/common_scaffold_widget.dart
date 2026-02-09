@@ -25,7 +25,7 @@ class CommonScaffold extends StatelessWidget {
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: Colors.white,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: Builder(builder: (context) {
           return IconButton(
