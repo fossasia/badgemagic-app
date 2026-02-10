@@ -8,6 +8,7 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_en.dart';
 import 'app_localizations_hi.dart';
 import 'app_localizations_it.dart';
+import 'app_localizations_mr.dart';
 
 // ignore_for_file: type=lint
 
@@ -97,7 +98,8 @@ abstract class AppLocalizations {
   static const List<Locale> supportedLocales = <Locale>[
     Locale('en'),
     Locale('hi'),
-    Locale('it')
+    Locale('it'),
+    Locale('mr')
   ];
 
   /// No description provided for @appTitle.
@@ -1155,6 +1157,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Badge Scan Mode'**
   String get badgeScanMode;
+
+  /// No description provided for @noSavedBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved badges!'**
+  String get noSavedBadges;
+
+  /// No description provided for @noSavedBadgesMessage.
+  ///
+  /// In en, this message translates to:
+  /// **'Looks like there are no saved badges yet.'**
+  String get noSavedBadgesMessage;
+
+  /// No description provided for @undo.
+  ///
+  /// In en, this message translates to:
+  /// **'Undo'**
+  String get undo;
+
+  /// No description provided for @redo.
+  ///
+  /// In en, this message translates to:
+  /// **'Redo'**
+  String get redo;
+
+  /// No description provided for @marathi.
+  ///
+  /// In en, this message translates to:
+  /// **'Marathi'**
+  String get marathi;
 }
 
 class _AppLocalizationsDelegate
@@ -1168,7 +1200,7 @@ class _AppLocalizationsDelegate
 
   @override
   bool isSupported(Locale locale) =>
-      <String>['en', 'hi', 'it'].contains(locale.languageCode);
+      <String>['en', 'hi', 'it', 'mr'].contains(locale.languageCode);
 
   @override
   bool shouldReload(_AppLocalizationsDelegate old) => false;
@@ -1183,6 +1215,8 @@ AppLocalizations lookupAppLocalizations(Locale locale) {
       return AppLocalizationsHi();
     case 'it':
       return AppLocalizationsIt();
+    case 'mr':
+      return AppLocalizationsMr();
   }
 
   throw FlutterError(

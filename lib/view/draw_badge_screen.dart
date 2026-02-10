@@ -301,7 +301,7 @@ class _DrawBadgeState extends State<DrawBadge> {
           Icon(Icons.category,
               color: _showShapeOptions ? colorPrimary : Colors.black, size: 20),
           const SizedBox(height: 2),
-          Text('Shapes', // Using hardcoded string for semantic label
+          Text(GetIt.instance.get<LocalizationService>().l10n.shapes,
               style: TextStyle(
                   color: _showShapeOptions ? colorPrimary : Colors.black,
                   fontSize: 10)),
@@ -332,7 +332,8 @@ class _DrawBadgeState extends State<DrawBadge> {
             children: [
               Icon(Icons.undo, color: buttonColor, size: 20),
               const SizedBox(height: 2),
-              Text('Undo', style: TextStyle(color: buttonColor, fontSize: 10)),
+              Text(GetIt.instance.get<LocalizationService>().l10n.undo,
+                  style: TextStyle(color: buttonColor, fontSize: 10)),
             ],
           ),
         );
@@ -358,7 +359,8 @@ class _DrawBadgeState extends State<DrawBadge> {
             children: [
               Icon(Icons.redo, color: buttonColor, size: 20),
               const SizedBox(height: 2),
-              Text('Redo', style: TextStyle(color: buttonColor, fontSize: 10)),
+              Text(GetIt.instance.get<LocalizationService>().l10n.redo,
+                  style: TextStyle(color: buttonColor, fontSize: 10)),
             ],
           ),
         );

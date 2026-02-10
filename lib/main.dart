@@ -90,6 +90,7 @@ class MyApp extends StatelessWidget {
                 Locale('en'),
                 Locale('hi'),
                 Locale('it'),
+                Locale('mr'),
               ],
               localeResolutionCallback: (locale, supportedLocales) {
                 if (locale == null) return supportedLocales.first;

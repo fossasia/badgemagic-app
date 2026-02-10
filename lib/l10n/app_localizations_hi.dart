@@ -549,4 +549,20 @@ class AppLocalizationsHi extends AppLocalizations {
 
   @override
   String get badgeScanMode => 'बैज स्कैन मोड';
+
+  @override
+  String get noSavedBadges => 'कोई सहेजे गए बैज नहीं!';
+
+  @override
+  String get noSavedBadgesMessage =>
+      'ऐसा लगता है कि अभी तक कोई सहेजे गए बैज नहीं हैं।';
+
+  @override
+  String get undo => 'पूर्ववत करें';
+
+  @override
+  String get redo => 'पुनः करें';
+
+  @override
+  String get marathi => 'मराठी';
 }

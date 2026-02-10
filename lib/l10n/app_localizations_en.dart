@@ -552,4 +552,20 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get badgeScanMode => 'Badge Scan Mode';
+
+  @override
+  String get noSavedBadges => 'No saved badges!';
+
+  @override
+  String get noSavedBadgesMessage =>
+      'Looks like there are no saved badges yet.';
+
+  @override
+  String get undo => 'Undo';
+
+  @override
+  String get redo => 'Redo';
+
+  @override
+  String get marathi => 'Marathi';
 }

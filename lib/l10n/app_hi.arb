@@ -200,5 +200,10 @@
   "scanSettingsSaved": "स्कैन सेटिंग्स सेव हो गईं",
   "saveSettings": "सेटिंग्स सेव करें",
   "connectToAnyBadge": "किसी भी बैज से कनेक्ट करें",
-  "badgeNameHint": "बैज का नाम"
-}
+  "badgeNameHint": "बैज का नाम",
+  "undo": "पूर्ववत करें",
+  "redo": "पुनः करें",
+  "noSavedBadges": "कोई सहेजे गए बैज नहीं!",
+  "noSavedBadgesMessage": "ऐसा लगता है कि अभी तक कोई सहेजे गए बैज नहीं हैं।",
+  "marathi": "मराठी"
+  }

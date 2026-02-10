@@ -211,5 +211,10 @@
   "badgeNameHint": "Nome badge",
   "triangle": "Triangolo",
   "clipartSavedSuccessfully": "Clipart salvato con successo",
-  "badgeScanMode": "Modalità Scansione Badge"
-}
+  "badgeScanMode": "Modalità Scansione Badge",
+  "undo": "Annulla",
+  "redo": "Rifai",
+  "noSavedBadges": "Nessun badge salvato!",
+  "noSavedBadgesMessage": "Sembra che non ci siano ancora badge salvati.",
+  "marathi": "मराठी"
+  }
