@@ -124,12 +124,14 @@ class SaveBadgeCard extends StatelessWidget {
                         height: 24.h,
                         color: Colors.black,
                       ),
+                      tooltip: 'Sort badges',
                       onPressed: () {
-                        logger.d("BadgeData: ${badgeData.value}");
-                        //We can Acrtually call a method to generate the data just by transffering the JSON data
-                        //so we would not necessarily need the Providers.
-                        badge.checkAndTransfer(null, null, null, null, null,
-                            null, badgeData.value, true, context);
+                        // Sort the saved badges by name
+                        final imageProvider = Provider.of<InlineImageProvider>(
+                            context,
+                            listen: false);
+                        final sortOrder = imageProvider.sortBadgesByName();
+                        ToastUtils().showToast('Badges sorted in $sortOrder order');
                       },
                     ),
                     IconButton(
