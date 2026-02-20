@@ -244,6 +244,22 @@ class AnimationBadgeProvider extends ChangeNotifier {
     setNewGrid(binaryArray);
   }
 
+  void badgeAnimationFromHex(List<String> hexList) {
+    bool isSpecial = isSpecialAnimationSelected();
+    if (hexList.isEmpty && !isSpecial) {
+      stopAllAnimations();
+      _newGrid = List.generate(11, (i) => List.generate(44, (j) => false));
+      _paintGrid = List.generate(11, (i) => List.generate(44, (j) => false));
+      notifyListeners();
+      return;
+    }
+    if (_timer == null || !_timer!.isActive) {
+      startTimer();
+    }
+    List<List<bool>> binaryArray = hexStringToBool(hexList.join());
+    setNewGrid(binaryArray);
+  }
+
   void renderGrid(List<List<bool>> newGrid) {
     int badgeWidth = _paintGrid[0].length;
     int badgeHeight = _paintGrid.length;

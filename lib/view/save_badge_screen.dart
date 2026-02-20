@@ -1,7 +1,6 @@
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_animation/ani_animation.dart';
@@ -245,14 +244,9 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                         animationBadgeProvider
                                             .setAnimationMode(FixedAnimation());
                                       }
-                                      final fullText = badgeDataList
-                                          .map((m) => m.text.join())
-                                          .join(" ");
-                                      animationBadgeProvider.badgeAnimation(
-                                        fullText,
-                                        Converters(),
-                                        false,
-                                      );
+                                      final hexList = badgeDataList.where(
+                                        (msg) => msg.text.isNotEmpty).expand((m) => m.text).toList();
+                                      animationBadgeProvider.badgeAnimationFromHex(hexList);
                                       final data =
                                           Data(messages: badgeDataList);
                                       badgeMessageProvider.checkAndTransfer(
