@@ -23,17 +23,13 @@ Future<void> main() async {
 
   // Initialize global localization service for usage outside of widgets
   final localizationService = getIt<LocalizationService>();
-  // Keep initial UI in English for integration tests that tap by English text
-  // Apply saved locale on the next frame so visible strings change after first paint
-  final saved = await localizationService.loadSavedLocale();
-  appLocale.value = const Locale('en');
-  await localizationService.init(appLocale.value ?? const Locale('en'));
-  if (saved != null && saved.languageCode != 'en') {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-      appLocale.value = saved;
-      await localizationService.updateLocale(saved);
-    });
-  }
+
+  // Load saved locale before running the app to ensure immediate correct UI
+  final savedLocale = await localizationService.loadSavedLocale();
+  final initialLocale = savedLocale ?? const Locale('en');
+
+  appLocale.value = initialLocale;
+  await localizationService.init(initialLocale);
 
   SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
