@@ -108,7 +108,7 @@ Please talk to us on the badge-magic [Gitter channel here](https://gitter.im/fos
 ## Available Devices
 
 There are a number of devices with Bluetooth on the market. As far as we can tell they are mostly from the same manufacturer. When you get a device ensure it comes with Bluetooth. There are devices that don't support Bluetooth. These are not supported in the app currently.
-* Get one from the [FOSSASIA Shop here](https://fossasia.com/product/led-badge/)
+* Get one from the * Get one from the [FOSSASIA website](https://fossasia.org)
 
 ## Screenshots
 
