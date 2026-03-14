@@ -364,7 +364,11 @@ class FileHelper {
       File file = File(filePath);
       if (await file.exists()) {
         // Use share_plus to share the file
-        final result = await Share.shareXFiles([XFile(filePath)]);
+        final result = await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(filePath)],
+          ),
+        );
         if (result.status == ShareResultStatus.success) {
           logger.i('File shared successfully');
         } else {
@@ -394,7 +398,92 @@ class FileHelper {
     }
   }
 
-  Future<bool> importBadgeData(context) async {
+  /// Shares a clipart file (JSON) via the platform share sheet.
+  Future<void> shareClipartData(String filename) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/$filename';
+
+      File file = File(filePath);
+      if (await file.exists()) {
+        final result = await SharePlus.instance.share(
+          ShareParams(
+            files: [XFile(filePath)],
+          ),
+        );
+        if (result.status == ShareResultStatus.success) {
+          logger.i('Clipart shared successfully');
+        } else {
+          logger.i('Error sharing clipart');
+        }
+      } else {
+        logger.i('Clipart file not found: $filePath');
+      }
+    } catch (e) {
+      logger.i('Error sharing clipart: $e');
+    }
+  }
+
+  /// Imports one or more clipart JSON files and adds them to Saved Cliparts.
+  /// Returns true if at least one file was imported.
+  Future<bool> importClipartData(BuildContext context) async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+        allowMultiple: true,
+      );
+
+      if (result == null || result.files.isEmpty) {
+        ToastUtils().showToast('No file selected');
+        return false;
+      }
+
+      int imported = 0;
+      for (final platformFile in result.files) {
+        final path = platformFile.path;
+        if (path == null) continue;
+
+        File file = File(path);
+        if (!await file.exists()) continue;
+
+        final content = await file.readAsString();
+        final decoded = jsonDecode(content);
+
+        // Clipart format: JSON array of arrays of int (List<List<int>>)
+        if (decoded is! List) continue;
+        try {
+          final list = decoded.map((row) {
+            if (row is List) {
+              return row.map<int>((e) => (e is int) ? e : 0).toList();
+            }
+            return <int>[];
+          }).toList();
+          if (list.isEmpty) continue;
+        } catch (_) {
+          continue;
+        }
+
+        final filename = _generateUniqueFilename();
+        await _writeToFile(filename, content);
+        imported++;
+      }
+
+      if (imported > 0) {
+        await generateClipartCache();
+      }
+      return imported > 0;
+    } catch (e) {
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error importing clipart: $e')),
+        );
+      }
+      return false;
+    }
+  }
+
+  Future<bool> importBadgeData(BuildContext context) async {
     try {
       // Open file picker to select a JSON file
       FilePickerResult? result = await FilePicker.platform.pickFiles(

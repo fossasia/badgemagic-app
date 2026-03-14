@@ -126,14 +126,31 @@ class AnimationBadgeProvider extends ChangeNotifier {
   List<List<bool>> _newGrid =
       List.generate(11, (i) => List.generate(44, (j) => false));
 
+  /// When set, transfer uses this hex instead of text (for saved clipart overwrite).
+  List<String>? _clipartHex;
+
   //getter for newGrid
   List<List<bool>> getNewGrid() => _newGrid;
+
+  /// Returns stored clipart hex for transfer when in Picture mode; null otherwise.
+  List<String>? getClipartHex() => _clipartHex;
 
   //setter for newGrid
   void setNewGrid(List<List<bool>> grid) {
     _newGrid = grid;
     _animationIndex = 0;
     notifyListeners();
+  }
+
+  /// Applies a saved clipart to the badge (complete overwrite, like animations).
+  void setClipartAsBadge(List<List<int>> grid) {
+    final boolGrid =
+        grid.map((row) => row.map((e) => e == 1).toList()).toList();
+    _clipartHex = Converters.convertBitmapToLEDHex(grid, false);
+    setNewGrid(boolGrid);
+    setAnimationMode(FixedAnimation());
+    // Render immediately so _paintGrid is updated for display (first tap fix)
+    renderGrid(boolGrid);
   }
 
   Set<BadgeEffect?> get getCurrentEffect => _currentEffect;
@@ -198,12 +215,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   void setAnimationMode(BadgeAnimation? animation) {
-    // Always reset the animation index and set the new animation
     _animationIndex = 0;
     _currentAnimation = animation ?? LeftAnimation();
-    // Stop the timer if running
+    if (_currentAnimation is! PictureAnimation) {
+      _clipartHex = null;
+    }
     _timer?.cancel();
-    // Start the timer for the new animation
     startTimer();
     notifyListeners();
     logger.i("Animation Mode set to: $_currentAnimation and timer restarted");
@@ -227,14 +244,24 @@ class AnimationBadgeProvider extends ChangeNotifier {
   void badgeAnimation(
       String message, Converters converters, bool isInverted) async {
     bool isSpecial = isSpecialAnimationSelected();
-    if (message.isEmpty && !isSpecial) {
+    // If message is empty and no clipart is active, clear everything
+    if (message.isEmpty && !isSpecial && _clipartHex == null) {
       stopAllAnimations();
       List<List<bool>> emptyGrid =
           List.generate(11, (i) => List.generate(44, (j) => false));
       _newGrid = emptyGrid;
       _paintGrid = emptyGrid;
+      _clipartHex = null;
       notifyListeners();
       return;
+    }
+    // If clipart is active, don't overwrite it with empty message
+    if (_clipartHex != null) {
+      return;
+    }
+    // Only clear clipart if typing new text (non-empty message)
+    if (message.isNotEmpty) {
+      _clipartHex = null;
     }
     if (_timer == null || !_timer!.isActive) {
       startTimer();

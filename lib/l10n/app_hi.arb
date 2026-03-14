@@ -192,6 +192,8 @@
   "circle": "गोला",
   "triangle": "तिकोना",
   "clipartSavedSuccessfully": "तस्वीर सेव हो गई",
+  "clipartImportedSuccessfully": "तस्वीर अपलोड हो गई",
+  "switchedOrientationForDraw": "ड्रॉ करने में आसानी के लिए ओरिएंटेशन बदला गया",
   "badgeScanMode": "बैज स्कैन मोड",
   "connectToBadgesWithNames": "निम्नलिखित नामों वाले बैज से कनेक्ट करें",
   "selectAll": "सभी चुनें",

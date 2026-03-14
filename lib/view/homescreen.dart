@@ -22,6 +22,7 @@ import 'package:badgemagic/view/special_text_field.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
 import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
+import 'package:badgemagic/view/widgets/saved_cliparts_tab.dart';
 import 'package:badgemagic/view/widgets/speedial.dart';
 import 'package:badgemagic/view/widgets/transitiontab.dart';
 import 'package:badgemagic/view/widgets/vectorview.dart';
@@ -91,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen>
       }
     });
     _startImageCaching();
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 5, vsync: this);
   }
 
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
@@ -131,7 +132,6 @@ class _HomeScreenState extends State<HomeScreen>
       ToastUtils().showToast(
           "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
     } catch (e) {
-      print("Failed to load badge data: $e");
       ToastUtils().showToast("Failed to load badge data");
     }
   }
@@ -239,7 +239,7 @@ class _HomeScreenState extends State<HomeScreen>
             ),
           ],
           child: DefaultTabController(
-            length: 4,
+            length: 5,
             child: CommonScaffold(
               index: 0,
               title: l10n.appTitle,
@@ -546,6 +546,10 @@ class _HomeScreenState extends State<HomeScreen>
                                   key: const ValueKey('tab_animation'),
                                   text: l10n.animation,
                                 ),
+                                Tab(
+                                  key: const ValueKey('tab_saved_cliparts'),
+                                  text: l10n.savedCliparts,
+                                ),
                               ],
                             ),
                           ),
@@ -579,6 +583,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       const TransitionTab(),
                                       const EffectTab(),
                                       const AnimationTab(),
+                                      const SavedClipartsTab(),
                                     ],
                                   ),
                                 ),
@@ -602,11 +607,12 @@ class _HomeScreenState extends State<HomeScreen>
                                 Expanded(
                                   child: GestureDetector(
                                     onTap: () async {
-                                      if (inlineimagecontroller.text
-                                          .trim()
-                                          .isEmpty) {
+                                      bool hasText = inlineimagecontroller.text.trim().isNotEmpty;
+                                      bool hasClipart = animationProvider.getClipartHex()?.isNotEmpty ?? false;
+
+                                      if (!hasText && !hasClipart) {
                                         ToastUtils().showToast(
-                                            "Please enter a message");
+                                            "Please enter a message or add a clipart");
                                         return;
                                       }
 

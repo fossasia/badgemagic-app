@@ -1,18 +1,15 @@
-import 'dart:typed_data';
-
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
+import 'package:badgemagic/view/widgets/clipart_led_preview.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class SavedClipartListView extends StatelessWidget {
   final Map<String, List<List<int>>?> images;
   final FileHelper file = FileHelper();
-  final ImageUtils imageUtils = ImageUtils();
 
-  final void Function(String) refreshClipartCallback; // Pass the filename
+  final void Function(String) refreshClipartCallback;
 
   SavedClipartListView({
     super.key,
@@ -23,69 +20,72 @@ class SavedClipartListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: images.length, // Number of images
+      padding: EdgeInsets.only(bottom: 16.h),
+      itemCount: images.length,
       itemBuilder: (context, index) {
-        Future<Uint8List?> image = imageUtils.convert2DListToUint8List(
-            images.values.elementAt(index)!); // Get the image
-        String fileName = images.keys.elementAt(index); // Get the filename
+        final grid = images.values.elementAt(index)!;
+        final fileName = images.keys.elementAt(index);
         return Container(
-          margin: EdgeInsets.all(10.dg),
-          width: 100.w,
-          height: 100.h,
+          margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.r),
             color: Colors.white,
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.4),
+                blurRadius: 3,
+                offset: const Offset(0, 1),
+              ),
+            ],
           ),
-          child: Row(
+          child: Column(
             children: [
-              Padding(
-                padding: EdgeInsets.all(10.dg),
-                child: FutureBuilder<Uint8List?>(
-                  future: image,
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else {
-                      return Image.memory(
-                        snapshot.data!,
-                        scale: 0.5,
-                      );
-                    }
-                  },
+              SizedBox(
+                width: double.infinity,
+                height: 150.h,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(4.r),
+                  child: ClipartLedPreview(grid: grid),
                 ),
               ),
-              Container(
-                width: 1.w,
-                height: 80.h,
-                color: Colors.black,
-              ),
+              Container(height: 1, color: Colors.grey.shade300),
               SizedBox(
-                width: 130.w,
+                height: 50.h,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    IconButton(
+                      onPressed: () {
+                        Navigator.of(context).push(MaterialPageRoute(
+                            builder: (context) => DrawBadge(
+                                  filename: fileName,
+                                  isSavedClipart: true,
+                                  badgeGrid: grid,
+                                )));
+                      },
+                      icon: const Icon(Icons.edit),
+                      tooltip: 'Edit',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.share),
+                      onPressed: () => file.shareClipartData(fileName),
+                      tooltip: 'Share',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () {
+                        _showDeleteDialog(context).then((value) async {
+                          if (value) {
+                            await file.deleteFile(fileName);
+                            refreshClipartCallback(fileName);
+                          }
+                        });
+                      },
+                      tooltip: 'Delete',
+                    ),
+                  ],
+                ),
               ),
-              IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => DrawBadge(
-                              filename: fileName,
-                              isSavedClipart: true,
-                              badgeGrid: images.values.elementAt(index),
-                            )));
-                  },
-                  icon: const Icon(Icons.edit)),
-              IconButton(
-                icon: const Icon(Icons.cancel),
-                onPressed: () {
-                  _showDeleteDialog(context).then((value) async {
-                    if (value) {
-                      await file.deleteFile(fileName); // Pass the filename
-                      refreshClipartCallback(
-                          fileName); // Pass filename to callback
-                    }
-                  });
-                },
-              )
             ],
           ),
         );

@@ -31,11 +31,25 @@ class DrawBadge extends StatefulWidget {
 class _DrawBadgeState extends State<DrawBadge> {
   var drawToggle = DrawBadgeProvider();
   bool _showShapeOptions = false;
+  bool _orientationMessageShown = false;
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _setLandscapeOrientation();
+    if (!_orientationMessageShown) {
+      _orientationMessageShown = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ToastUtils().showToast(
+            GetIt.instance
+                .get<LocalizationService>()
+                .l10n
+                .switchedOrientationForDraw,
+          );
+        }
+      });
+    }
   }
 
   @override
@@ -253,14 +267,17 @@ class _DrawBadgeState extends State<DrawBadge> {
           await fileHelper.saveImage(drawToggle.getDrawViewGrid());
         }
 
-        fileHelper.generateClipartCache();
+        await fileHelper.generateClipartCache();
         ToastUtils().showToast(GetIt.instance
             .get<LocalizationService>()
             .l10n
             .clipartSavedSuccessfully);
 
         if (mounted) {
-          Navigator.of(context).popUntil((route) => route.isFirst);
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            '/savedClipart',
+            (route) => false,
+          );
         }
       },
       style: TextButton.styleFrom(

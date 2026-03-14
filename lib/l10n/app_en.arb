@@ -211,5 +211,7 @@
   "badgeNameHint": "Badge name",
   "triangle": "Triangle",
   "clipartSavedSuccessfully": "Clipart saved successfully",
+  "clipartImportedSuccessfully": "Clipart imported successfully",
+  "switchedOrientationForDraw": "Switched orientation for ease of draw",
   "badgeScanMode": "Badge Scan Mode"
 }

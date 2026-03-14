@@ -10,6 +10,7 @@ import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
+import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';
@@ -70,20 +71,25 @@ class BadgeMessageProvider {
     return data;
   }
 
-  Future<Data> generateData(
-      String? text,
-      bool? flash,
-      bool? marq,
-      bool? inverted,
-      Speed? speed,
-      Mode? mode,
-      Map<String, dynamic>? jsonData) async {
+  Future<Data> generateData(String? text, bool? flash, bool? marq,
+      bool? inverted, Speed? speed, Mode? mode, Map<String, dynamic>? jsonData,
+      {List<String>? clipartHex}) async {
     if (jsonData != null) {
       return fileHelper.jsonToData(jsonData);
-    } else {
-      return getBadgeData(text ?? '', flash ?? false, marq ?? false,
-          speed ?? Speed.one, mode ?? Mode.left, inverted ?? false);
     }
+    if (clipartHex != null && clipartHex.isNotEmpty) {
+      return Data(messages: [
+        Message(
+          text: clipartHex,
+          flash: flash ?? false,
+          marquee: marq ?? false,
+          speed: speed ?? Speed.one,
+          mode: mode ?? Mode.picture,
+        )
+      ]);
+    }
+    return getBadgeData(text ?? '', flash ?? false, marq ?? false,
+        speed ?? Speed.one, mode ?? Mode.left, inverted ?? false);
   }
 
   Future<void> transferData(
@@ -129,11 +135,9 @@ class BadgeMessageProvider {
     }
 
     if (controllerData.getController().text.isEmpty && isSavedBadge == false) {
-      // Allow empty text if Pacman or Fireworks mode is selected
-      // Fireworks: Mode.fixed and animation index 19
+      // Allow empty text if Pacman, Fireworks, or Picture mode with saved clipart
       bool isFireworks = false;
       try {
-        // Try to get animation index from modeValueMap
         int fireworksIndex = 19;
         int cycleIndex = 20;
         if (mode == Mode.fixed &&
@@ -145,7 +149,12 @@ class BadgeMessageProvider {
             modeValueMap.containsKey(cycleIndex) &&
             modeValueMap[cycleIndex] == Mode.cycle) {}
       } catch (_) {}
-      if (mode != Mode.pacman && !isFireworks) {
+      final hasClipart = (mode == Mode.picture || mode == Mode.fixed) &&
+          Provider.of<AnimationBadgeProvider>(context, listen: false)
+                  .getClipartHex()
+                  ?.isNotEmpty ==
+              true;
+      if (mode != Mode.pacman && !isFireworks && !hasClipart) {
         final l10n = GetIt.instance.get<LocalizationService>().l10n;
         ToastUtils().showErrorToast(l10n.pleaseEnterMessage);
         return;
@@ -222,8 +231,16 @@ class BadgeMessageProvider {
         data = Data(messages: [newMessage, ...data.messages.skip(1)]);
       }
     } else {
+      List<String>? clipartHex;
+      if (text?.isEmpty == true &&
+          (mode == Mode.picture || mode == Mode.fixed)) {
+        final aniProvider =
+            Provider.of<AnimationBadgeProvider>(context, listen: false);
+        clipartHex = aniProvider.getClipartHex();
+      }
       data = await generateData(
-          text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
+          text, flash, marq, isInverted, speedMap[speed], mode, jsonData,
+          clipartHex: clipartHex);
     }
 
     DataTransferManager manager = DataTransferManager(data);

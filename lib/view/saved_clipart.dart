@@ -1,5 +1,5 @@
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
@@ -20,7 +20,8 @@ class SavedClipart extends StatefulWidget {
 
 class _SavedClipartState extends State<SavedClipart> {
   InlineImageProvider imageprovider = GetIt.instance<InlineImageProvider>();
-  FileHelper file = FileHelper();
+  FileHelper fileHelper = FileHelper();
+  final ToastUtils _toastUtils = ToastUtils();
 
   @override
   void initState() {
@@ -42,6 +43,21 @@ class _SavedClipartState extends State<SavedClipart> {
       index: 3,
       key: const Key(savedClipartScreen),
       title: l10n.savedClipartTitle,
+      actions: [
+        TextButton(
+          onPressed: () async {
+            final value = await fileHelper.importClipartData(context);
+            if (value && mounted) {
+              _toastUtils.showToast(l10n.clipartImportedSuccessfully);
+              setState(() {});
+            }
+          },
+          child: Text(
+            l10n.import,
+            style: const TextStyle(color: drawerHeaderTitle),
+          ),
+        ),
+      ],
       body: imageprovider.clipartsCache.isEmpty
           ? Center(
               child: Column(
@@ -74,13 +90,11 @@ class _SavedClipartState extends State<SavedClipart> {
               images: imageprovider.clipartsCache,
               refreshClipartCallback: (String fileName) async {
                 imageprovider.clipartsCache.remove(fileName);
-                setState(() {
-                  logger.i('Clipart $fileName deleted');
-                });
+                setState(() {});
                 imageprovider.removeFromCache(fileName);
                 imageprovider.generateImageCache();
               },
-            ), // Use the separate ListView widget here
+            ),
     );
   }
 }
