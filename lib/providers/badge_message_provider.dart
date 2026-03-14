@@ -210,14 +210,14 @@ class BadgeMessageProvider {
     Data data;
     if (jsonData != null) {
       data = fileHelper.jsonToData(jsonData);
-      if (isSavedBadge && data.messages.isNotEmpty) {
+      if (isSavedBadge && data.messages.length > 1) {
         final old = data.messages[0];
         final newMessage = Message(
           text: old.text, // use the already-padded hex string
           flash: old.flash,
           marquee: old.marquee,
           speed: old.speed,
-          mode: Mode.animation, // Force seamless marquee
+          mode: Mode.animation, // Force seamless marquee for multi-slot badges
         );
         data = Data(messages: [newMessage, ...data.messages.skip(1)]);
       }
