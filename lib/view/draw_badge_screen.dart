@@ -177,6 +177,20 @@ class _DrawBadgeState extends State<DrawBadge> {
                   ),
 
                 const SizedBox(height: 8),
+                Container(
+  height: 60,
+  margin: const EdgeInsets.symmetric(horizontal: 8),
+  decoration: BoxDecoration(
+    border: Border.all(color: Colors.grey),
+    borderRadius: BorderRadius.circular(8),
+  ),
+  child: const Center(
+    child: Text(
+      " Preview ",
+      style: TextStyle(fontSize: 12),
+    ),
+  ),
+),
               ],
             );
           },
