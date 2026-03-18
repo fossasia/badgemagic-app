@@ -79,15 +79,18 @@ class _DrawBadgeState extends State<DrawBadge> {
                 const SizedBox(height: 8),
 
                 // Badge takes most of the available space
-                Expanded(
+                Flexible(
                   flex: 6,
                   child: Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: BMBadge(
-                      providerInit: (provider) => drawToggle = provider,
-                      badgeGrid: widget.badgeGrid
-                          ?.map((e) => e.map((e) => e == 1).toList())
-                          .toList(),
+                    child: SizedBox.expand(
+                      // This automatically fills all available space
+                      child: BMBadge(
+                        providerInit: (provider) => drawToggle = provider,
+                        badgeGrid: widget.badgeGrid
+                            ?.map((e) => e.map((e) => e == 1).toList())
+                            .toList(),
+                      ),
                     ),
                   ),
                 ),

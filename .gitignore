@@ -31,6 +31,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+# Flutter localization generated files
+lib/l10n/app_localizations*.dart
 
 # Symbolication related
 app.*.symbols

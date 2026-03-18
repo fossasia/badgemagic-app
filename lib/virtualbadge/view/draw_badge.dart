@@ -17,9 +17,13 @@ class BMBadge extends StatefulWidget {
 class _BMBadgeState extends State<BMBadge> {
   final drawProvider = DrawBadgeProvider();
   final badgeUtils = BadgeUtils();
+
+  final GlobalKey _gestureKey = GlobalKey(); // ✅ KEY FIX
+
   Offset? dragStart;
 
   // Badge dimensions
+  static const Size _badgeSize = Size(400, 100);
   static const int gridWidth = 44;
   static const int gridHeight = 11;
 
@@ -32,61 +36,68 @@ class _BMBadgeState extends State<BMBadge> {
     }
   }
 
-  // Get the actual rendering dimensions
-  Size _getBadgeRenderSize() {
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) return Size.zero;
-    return renderBox.size;
-  }
+RenderBox? get _renderBox =>
+      _gestureKey.currentContext?.findRenderObject() as RenderBox?;
 
-  Offset _getLocalPosition(Offset globalPosition) {
-    final renderBox = context.findRenderObject() as RenderBox?;
-    if (renderBox == null) return Offset.zero;
-    return renderBox.globalToLocal(globalPosition);
-  }
+Size _getBadgeRenderSize() {
+  return _renderBox?.size ?? Size.zero;
+}
 
+Offset _getLocalPosition(Offset globalPosition) {
+  return _renderBox?.globalToLocal(globalPosition) ?? Offset.zero;
+}
   // Convert local position to grid coordinates accounting for badge rendering
-  ({int x, int y}) _localToGrid(Offset localPosition) {
-    final size = _getBadgeRenderSize();
-    if (size == Size.zero) return (x: 0, y: 0);
+({int x, int y}) _localToGrid(Offset localPosition) {
+  final size = _getBadgeRenderSize();
+  if (size == Size.zero) return (x: -1, y: -1);
 
-    // Get badge offsets and dimensions (same as BadgePaint)
-    MapEntry<double, double> badgeOffsetBackground =
-        badgeUtils.getBadgeOffsetBackground(size);
-    double offsetHeightBadgeBackground = badgeOffsetBackground.key;
-    double offsetWidthBadgeBackground = badgeOffsetBackground.value;
+  // ===== SAME LOGIC AS PAINTER =====
+  final badgeOffsetBackground =
+      badgeUtils.getBadgeOffsetBackground(size);
 
-    MapEntry<double, double> badgeSize = badgeUtils.getBadgeSize(
-        offsetHeightBadgeBackground, offsetWidthBadgeBackground, size);
-    double badgeHeight = badgeSize.key;
-    double badgeWidth = badgeSize.value;
+  final offsetY = badgeOffsetBackground.key;
+  final offsetX = badgeOffsetBackground.value;
 
-    // Calculate cell size (matching BadgePaint)
-    var cellSize = badgeWidth / gridWidth;
+  final badgeSize =
+      badgeUtils.getBadgeSize(offsetY, offsetX, size);
 
-    // Get cell start coordinates (matching BadgePaint)
-    MapEntry<double, double> cellStartCoordinate =
-        badgeUtils.getCellStartCoordinate(offsetWidthBadgeBackground,
-            offsetHeightBadgeBackground, badgeWidth, badgeHeight);
-    double cellStartX = cellStartCoordinate.key;
-    double cellStartY = cellStartCoordinate.value;
+  final badgeHeight = badgeSize.key;
+  final badgeWidth = badgeSize.value;
 
-    // Convert touch position to grid coordinates
-    // Accounting for the 0.93 horizontal compression factor used in rendering
-    double relativeX = localPosition.dx - cellStartX;
-    double relativeY = localPosition.dy - cellStartY;
+  final cellStart = badgeUtils.getCellStartCoordinate(
+    offsetX,
+    offsetY,
+    badgeWidth,
+    badgeHeight,
+  );
 
-    int col = (relativeX / (cellSize * 0.93)).floor().clamp(0, gridWidth - 1);
-    int row = (relativeY / cellSize).floor().clamp(0, gridHeight - 1);
+  final cellStartX = cellStart.key;
+  final cellStartY = cellStart.value;
 
-    return (x: row, y: col);
-  }
+  final cellSize = badgeWidth / gridWidth;
 
+  // ===== REMOVE OFFSET =====
+  final dx = localPosition.dx - cellStartX;
+  final dy = localPosition.dy - cellStartY;
+
+  // ===== HANDLE OUTSIDE AREA =====
+  if (dx < 0 || dy < 0) return (x: -1, y: -1);
+
+  // ===== APPLY SAME SCALING AS PAINTER =====
+  final col = (dx / (cellSize * 0.93))
+      .floor()
+      .clamp(0, gridWidth - 1);
+
+  final row = (dy / cellSize)
+      .floor()
+      .clamp(0, gridHeight - 1);
+
+  return (x: row, y: col);
+}
   void _handlePanStart(DragStartDetails details) {
-    dragStart = _getLocalPosition(details.globalPosition);
-    drawProvider.pushToUndoStack(); // Save state for undo
+    dragStart =_getLocalPosition(details.globalPosition);
 
-    // Ensure the initial touch point is rendered immediately for freehand
+    drawProvider.pushToUndoStack();
     if (drawProvider.selectedShape == DrawShape.freehand && dragStart != null) {
       final gridPos = _localToGrid(dragStart!);
       drawProvider.setCell(gridPos.x, gridPos.y, drawProvider.getIsDrawing(),
@@ -95,9 +106,9 @@ class _BMBadgeState extends State<BMBadge> {
   }
 
   void _handlePanUpdate(DragUpdateDetails details) {
+    final localPosition = _getLocalPosition(details.globalPosition);
     if (dragStart == null) return;
 
-    final localPosition = _getLocalPosition(details.globalPosition);
     final shape = drawProvider.selectedShape;
 
     final start = _localToGrid(dragStart!);
@@ -195,28 +206,38 @@ class _BMBadgeState extends State<BMBadge> {
       }
     }
   }
-
   @override
-  Widget build(BuildContext context) {
-    final width = MediaQuery.of(context).size.width;
-
-    return ChangeNotifierProvider.value(
-      value: drawProvider,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onPanStart: _handlePanStart,
-        onPanUpdate: _handlePanUpdate,
-        onPanEnd: _handlePanEnd,
-        child: AspectRatio(
-          aspectRatio: 4.0,
-          child: Consumer<DrawBadgeProvider>(
-            builder: (_, value, __) => CustomPaint(
-              painter: BadgePaint(grid: value.getDrawViewGrid()),
-              size: Size(width, width / 4.0),
+  void dispose() {
+    // This is the "Safety Catch" that stops the memory leak
+    drawProvider.dispose(); 
+    super.dispose();
+  }
+@override
+Widget build(BuildContext context) {
+  return ChangeNotifierProvider.value(
+    value: drawProvider,
+    child: Center(
+      child: FittedBox(
+        fit: BoxFit.contain,
+        child: SizedBox(
+          width: _badgeSize.width,
+          height: _badgeSize.height,
+          child: GestureDetector(
+            key:_gestureKey, // Wrapped directly around the drawing area
+            behavior: HitTestBehavior.opaque,
+            onPanStart: _handlePanStart,
+            onPanUpdate: _handlePanUpdate,
+            onPanEnd: _handlePanEnd,
+            child: Consumer<DrawBadgeProvider>(
+              builder: (_, value, __) => CustomPaint(
+                painter: BadgePaint(grid: value.getDrawViewGrid()),
+                size: _badgeSize,
+              ),
             ),
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
