@@ -704,6 +704,46 @@ class _HomeScreenState extends State<HomeScreen>
                                       color: mdGrey400,
                                     ),
                                     child: Text(l10n.transferButton),
+                                      Widget buildFeatureCard({
+  required IconData icon,
+  required String title,
+  required VoidCallback onTap,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.2),
+            blurRadius: 6,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Icon(icon, size: 28, color: colorPrimary),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const Icon(Icons.arrow_forward_ios, size: 16),
+        ],
+      ),
+    ),
+  );
+}
                                   ),
                                 ),
                               ),
