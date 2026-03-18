@@ -34,6 +34,7 @@ class _TransitionTabState extends State<TransitionTab> {
                   animation: aniLeft,
                   animationName: l10n.animationLeft,
                   index: 0,
+                  requireTextForSelection: true,
                 ),
               ),
               Expanded(
@@ -41,6 +42,7 @@ class _TransitionTabState extends State<TransitionTab> {
                   animation: aniRight,
                   animationName: l10n.animationRight,
                   index: 1,
+                  requireTextForSelection: true,
                 ),
               ),
               Expanded(
@@ -48,6 +50,7 @@ class _TransitionTabState extends State<TransitionTab> {
                   animation: aniUp,
                   animationName: l10n.animationUp,
                   index: 2,
+                  requireTextForSelection: true,
                 ),
               ),
             ],
@@ -59,6 +62,7 @@ class _TransitionTabState extends State<TransitionTab> {
                   animation: aniDown,
                   animationName: l10n.animationDown,
                   index: 3,
+                  requireTextForSelection: true,
                 ),
               ),
               Expanded(
@@ -66,6 +70,7 @@ class _TransitionTabState extends State<TransitionTab> {
                   animation: aniFixed,
                   animationName: l10n.animationFixed,
                   index: 4,
+                  requireTextForSelection: true,
                 ),
               ),
               Expanded(
@@ -73,6 +78,7 @@ class _TransitionTabState extends State<TransitionTab> {
                   animation: animation,
                   animationName: l10n.animation,
                   index: 5,
+                  requireTextForSelection: true,
                 ),
               ),
             ],
@@ -84,6 +90,7 @@ class _TransitionTabState extends State<TransitionTab> {
                   animation: aniSnowflake,
                   animationName: l10n.animationSnowflake,
                   index: 6,
+                  requireTextForSelection: true,
                 ),
               ),
               Expanded(
@@ -91,6 +98,7 @@ class _TransitionTabState extends State<TransitionTab> {
                   animation: aniPicture,
                   animationName: l10n.animationPicture,
                   index: 7,
+                  requireTextForSelection: true,
                 ),
               ),
               Expanded(
@@ -98,6 +106,7 @@ class _TransitionTabState extends State<TransitionTab> {
                   animation: aniLaser,
                   animationName: l10n.animationLaser,
                   index: 8,
+                  requireTextForSelection: true,
                 ),
               ),
             ],

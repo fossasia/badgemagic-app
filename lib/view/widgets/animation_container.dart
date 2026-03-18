@@ -15,6 +15,7 @@ class AniContainer extends StatefulWidget {
   final String animationName;
   final int index;
   final IconData? icon;
+  final bool requireTextForSelection;
 
   const AniContainer({
     super.key,
@@ -22,6 +23,7 @@ class AniContainer extends StatefulWidget {
     required this.animationName,
     required this.index,
     this.icon,
+    this.requireTextForSelection = false,
   });
 
   @override
@@ -71,6 +73,18 @@ class _AniContainerState extends State<AniContainer> {
       height: 65.h,
       child: GestureDetector(
         onTap: () async {
+          if (widget.requireTextForSelection) {
+            final textController =
+                Provider.of<InlineImageProvider>(context, listen: false)
+                    .getController();
+            if (textController.text.trim().isEmpty) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Please enter badge text first')),
+              );
+              return;
+            }
+          }
+
           // Only show dialog for special animations (index >= 9)
           if (widget.index >= 9) {
             final textController =
