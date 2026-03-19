@@ -69,6 +69,33 @@ class _HomeScreenState extends State<HomeScreen>
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
+            Widget buildFeatureCard({
+  required IconData icon,
+  required String title,
+  required VoidCallback onTap,
+}) {
+  return GestureDetector(
+    onTap: onTap,
+    child: Container(
+      padding: const EdgeInsets.all(12), // 🔁 later replace with constants
+      decoration: BoxDecoration(
+        color: Colors.white, // 🔁 replace with AppColors if available
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, size: 28),
+          const SizedBox(height: 6),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 14),
+          ),
+        ],
+      ),
+    ),
+  );
+}
 
   @override
   void initState() {
