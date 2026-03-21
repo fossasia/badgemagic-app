@@ -18,9 +18,8 @@ import 'globals/globals.dart' as globals;
 import 'services/localization_service.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();  // always first
   setupLocator();
-  WidgetsFlutterBinding.ensureInitialized();
-
   // Initialize global localization service for usage outside of widgets
   final localizationService = getIt<LocalizationService>();
   // Keep initial UI in English for integration tests that tap by English text
