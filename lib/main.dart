@@ -18,16 +18,22 @@ import 'globals/globals.dart' as globals;
 import 'services/localization_service.dart';
 
 Future<void> main() async {
-  setupLocator();
-  WidgetsFlutterBinding.ensureInitialized();
+  // Must be called first — platform channels are required during
+  // service registration (e.g. path_provider, shared_preferences).
+  WidgetsFlutterBinding.ensureInitialized(); // ✅ BUG-01: moved before setupLocator()
 
-  // Initialize global localization service for usage outside of widgets
+  setupLocator();
+
+  // Initialize global localization service for usage outside of widgets.
+  // Ensure init() completes before runApp() so l10n is never null.
   final localizationService = getIt<LocalizationService>();
-  // Keep initial UI in English for integration tests that tap by English text
-  // Apply saved locale on the next frame so visible strings change after first paint
   final saved = await localizationService.loadSavedLocale();
+
+  // Keep initial UI in English for integration tests that tap by English text.
   appLocale.value = const Locale('en');
   await localizationService.init(appLocale.value ?? const Locale('en'));
+
+  // Apply saved locale on the next frame so visible strings change after first paint.
   if (saved != null && saved.languageCode != 'en') {
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       appLocale.value = saved;
@@ -40,21 +46,25 @@ Future<void> main() async {
     DeviceOrientation.portraitDown,
   ]);
 
-  runApp(MultiProvider(
-    providers: [
-      ChangeNotifierProvider<InlineImageProvider>(
-          create: (context) => getIt<InlineImageProvider>()),
-      ChangeNotifierProvider<FontProvider>(
-          create: (context) => getIt<FontProvider>()),
-      ChangeNotifierProvider<BadgeScanProvider>(
-        create: (_) => getIt<BadgeScanProvider>(),
-      ),
-    ],
-    child: const MyApp(),
-  ));
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<InlineImageProvider>(
+          create: (_) => getIt<InlineImageProvider>(),
+        ),
+        ChangeNotifierProvider<FontProvider>(
+          create: (_) => getIt<FontProvider>(),
+        ),
+        ChangeNotifierProvider<BadgeScanProvider>(
+          create: (_) => getIt<BadgeScanProvider>(),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
-// Locale notifier for dynamic switching
+/// Locale notifier for dynamic language switching without full app restart.
 final ValueNotifier<Locale?> appLocale = ValueNotifier<Locale?>(null);
 
 class MyApp extends StatelessWidget {
@@ -68,17 +78,22 @@ class MyApp extends StatelessWidget {
         return ValueListenableBuilder<Locale?>(
           valueListenable: appLocale,
           builder: (context, locale, _) {
-            // Keep LocalizationService in sync when locale changes
+            // Keep LocalizationService in sync whenever locale changes.
             if (locale != null) {
               getIt<LocalizationService>().updateLocale(locale);
             }
+
             return MaterialApp(
               scaffoldMessengerKey: globals.scaffoldMessengerKey,
               debugShowCheckedModeBanner: false,
+
+              // TODO(PROD): Replace with AppTheme.light / AppTheme.dark
+              // once dark mode support is added (see review FEAT-01).
               theme: ThemeData(
                 colorSchemeSeed: Colors.white,
                 useMaterial3: true,
               ),
+
               locale: locale ?? const Locale('en', 'US'),
               localizationsDelegates: const [
                 AppLocalizations.delegate,
@@ -93,13 +108,14 @@ class MyApp extends StatelessWidget {
               ],
               localeResolutionCallback: (locale, supportedLocales) {
                 if (locale == null) return supportedLocales.first;
-                for (var supportedLocale in supportedLocales) {
-                  if (supportedLocale.languageCode == locale.languageCode) {
-                    return supportedLocale;
+                for (final supported in supportedLocales) {
+                  if (supported.languageCode == locale.languageCode) {
+                    return supported;
                   }
                 }
                 return supportedLocales.first;
               },
+
               initialRoute: '/',
               routes: {
                 '/': (context) => const HomeScreen(),
