@@ -58,7 +58,7 @@ class ImageBuilder extends SpecialTextSpanBuilder {
     if (flag.contains(InlineImage.flag)) {
       return InlineImage(
         textStyle,
-       start: 9999999999,
+       start: 999999999
       );
     }
     return null;
