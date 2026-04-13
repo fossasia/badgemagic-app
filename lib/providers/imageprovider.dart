@@ -37,8 +37,25 @@ class InlineImageProvider extends ChangeNotifier {
 
   List<MapEntry<String, Map<String, dynamic>>> savedBadgeCache = [];
 
+  // Sorting state: true = ascending, false = descending
+  bool _sortAscending = true;
+  bool get sortAscending => _sortAscending;
+
   //set of available keys
   Set<int> availableKeys = {};
+
+  // Sort badges by name
+  String sortBadgesByName() {
+    savedBadgeCache.sort((a, b) {
+      final nameA = a.key.toLowerCase();
+      final nameB = b.key.toLowerCase();
+      return _sortAscending ? nameA.compareTo(nameB) : nameB.compareTo(nameA);
+    });
+    final currentOrder = _sortAscending ? 'ascending' : 'descending';
+    _sortAscending = !_sortAscending;
+    notifyListeners();
+    return currentOrder;
+  }
 
   bool isBackSpacePressed = false;
 
