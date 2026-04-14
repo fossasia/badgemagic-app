@@ -21,6 +21,9 @@ class Converters {
   DataToByteArrayConverter converter = DataToByteArrayConverter();
   ImageUtils imageUtils = ImageUtils();
   FileHelper fileHelper = FileHelper();
+  
+  //Approximate visual width (value 3 can be updated accordingly for more/less pixel gap)
+  static const int kBlankCharWidth = 3; 
 
   static final Map<String, List<List<bool>>> _characterCache = {};
 
@@ -134,7 +137,7 @@ class Converters {
     }
     final Uint8List data = byteData.buffer.asUint8List();
 
-    List<List<bool>> matrix =
+    List<List<bool>> rawMatrix =
         List.generate(rows, (_) => List.generate(cols, (_) => false));
     for (int row = 0; row < rows; row++) {
       for (int col = 0; col < cols; col++) {
@@ -146,8 +149,37 @@ class Converters {
           final int b = data[pixelIndex + 2];
           final int brightness = ((r + g + b) / 3).round();
 
-          matrix[row][col] = brightness < 128;
+          rawMatrix[row][col] = brightness < 128;
         }
+      }
+    }
+
+    int firstCol = cols;
+    int lastCol = -1;
+
+    // Scan for the first and last lit columns to trim empty space
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        if (rawMatrix[r][c]) {
+          if (c < firstCol) firstCol = c;
+          if (c > lastCol) lastCol = c;
+        }
+      }
+    }
+
+    List<List<bool>> matrix = List.generate(rows, (_) => []);
+
+    if (lastCol < firstCol) {
+      //Completely blank chars like spacebar
+      for (int r = 0; r < rows; r++) {
+        //kBlankCharWidth+1 pixels gap for blank chars
+        matrix[r].addAll(List.filled(kBlankCharWidth, false));
+      }
+    } else {
+      for (int r = 0; r < rows; r++) {
+        matrix[r].addAll(rawMatrix[r].sublist(firstCol, lastCol + 1));
+        //One pixel gap so that letters don't touch
+        matrix[r].add(false);
       }
     }
 
@@ -224,6 +256,9 @@ class Converters {
                 combinedMatrix[i].add(((value >> (7 - bit)) & 1) == 1);
               }
             }
+          }
+          for (int row = 0; row < 11; row++) {
+            combinedMatrix[row].add(false);
           }
         }
       }
@@ -303,31 +338,104 @@ class Converters {
       segments.add({'type': 'text', 'content': currentText});
     }
 
-    List<String> hexStrings = [];
+    List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
+
     for (var segment in segments) {
       if (segment['type'] == 'text') {
-        String text = segment['content'];
-        hexStrings.addAll(text
-            .split('')
-            .where((char) => converter.charCodes.containsKey(char))
-            .map((char) => converter.charCodes[char]!)
-            .toList());
+        String textSegment = segment['content']; 
+        for (var char in textSegment.split('')) {
+          if (converter.charCodes.containsKey(char)) {
+            String rawHex = converter.charCodes[char]!;
+            //Decode the hardcoded hex into an 11x8 2D grid of bools
+            List<List<bool>> charMatrix = List.generate(11, (_) => []);
+            for (int row = 0; row < 11; row++) {
+               String hexByte = rawHex.substring(row * 2, (row * 2) + 2);
+               int value = int.parse(hexByte, radix: 16);
+               for (int bit = 0; bit < 8; bit++) {
+                 charMatrix[row].add(((value >> (7 - bit)) & 1) == 1);
+               }
+            }
+            
+            //Find the left-most and right-most pixels
+            int numCols = 8;
+            int firstCol = numCols;
+            int lastCol = -1;
+            
+            for (int r = 0; r < 11; r++) {
+              for (int c = 0; c < numCols; c++) {
+                if (charMatrix[r][c]) { 
+                  if (c < firstCol) firstCol = c;
+                  if (c > lastCol) lastCol = c;
+                }
+              }
+            }
+            
+            //Handle completely blank characters (like spaces)
+            if (lastCol < firstCol) {
+              for (int r = 0; r < 11; r++) {
+                //kBlankCharWidth+1 pixels gap for blank chars
+                combinedMatrix[r].addAll(List.filled(kBlankCharWidth, false)); 
+              }
+            } else {
+              //Add only the trimmed columns to the master canvas
+              for (int r = 0; r < 11; r++) {
+                combinedMatrix[r].addAll(charMatrix[r].sublist(firstCol, lastCol + 1));
+                //One pixel gap so that letters don't touch
+                combinedMatrix[r].add(false); 
+              }
+            }
+          }
+        }
       } else if (segment['type'] == 'image') {
         int index = segment['index'];
         var key = controllerData.imageCache.keys.toList()[index];
+        List<String> imageHexStrings;      
         if (key is List) {
           String filename = key[0];
           List<dynamic>? decodedData = await fileHelper.readFromFile(filename);
           final List<List<dynamic>> image = decodedData!.cast<List<dynamic>>();
-          List<List<int>> imageData =
-              image.map((list) => list.cast<int>()).toList();
-          hexStrings.addAll(convertBitmapToLEDHex(imageData, true));
+          List<List<int>> imageData = image.map((list) => list.cast<int>()).toList();
+          imageHexStrings = convertBitmapToLEDHex(imageData, true);
         } else {
-          hexStrings.addAll(
-              await imageUtils.generateLedHex(controllerData.vectors[index]));
+          imageHexStrings = await imageUtils.generateLedHex(controllerData.vectors[index]);
+        }
+
+        for (var hex in imageHexStrings) {
+          for (int row = 0; row < 11; row++) {
+            String hexByte = hex.substring(row * 2, (row * 2) + 2);
+            int value = int.parse(hexByte, radix: 16);
+            for (int bit = 0; bit < 8; bit++) {
+              combinedMatrix[row].add(((value >> (7 - bit)) & 1) == 1);
+            }
+          }
+        }
+        for (int row = 0; row < 11; row++) {
+          combinedMatrix[row].add(false);
         }
       }
     }
+
+    int totalColumns = combinedMatrix.isNotEmpty ? combinedMatrix[0].length : 0;
+    if (totalColumns % 8 != 0) {
+      int paddingNeeded = 8 - (totalColumns % 8);
+      final padding = List.filled(paddingNeeded, false);
+      for (var row in combinedMatrix) {
+        row.addAll(padding);
+      }
+    }
+
+    List<String> hexStrings = [];
+    int segmentsCount = combinedMatrix.isNotEmpty ? combinedMatrix[0].length ~/ 8 : 0;
+
+    for (int seg = 0; seg < segmentsCount; seg++) {
+      final startCol = seg * 8;
+      final endCol = startCol + 8;
+      final segmentMatrix = List.generate(
+          11, (row) => combinedMatrix[row].sublist(startCol, endCol));
+
+      hexStrings.add(_matrixToHex(segmentMatrix).join());
+    }
+
     return hexStrings;
   }
 
