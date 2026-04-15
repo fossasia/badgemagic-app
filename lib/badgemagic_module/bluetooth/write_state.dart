@@ -1,7 +1,7 @@
 import 'dart:typed_data';
-import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:universal_ble/universal_ble.dart';
 import '../../globals/globals.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
 import 'base_ble_state.dart';
 import 'completed_state.dart';
 

@@ -1,5 +1,5 @@
-import 'package:badgemagic/bademagic_module/models/data.dart';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
+import 'package:badgemagic/badgemagic_module/models/data.dart';
+import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
 import 'package:logger/logger.dart';
 
 class DataToByteArrayConverter {

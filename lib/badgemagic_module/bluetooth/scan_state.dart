@@ -1,6 +1,6 @@
 import 'dart:async';
-import 'package:badgemagic/bademagic_module/bluetooth/connect_state.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/connect_state.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:universal_ble/universal_ble.dart';
 import '../../globals/globals.dart';

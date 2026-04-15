@@ -1,4 +1,4 @@
-import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/base_ble_state.dart';
 
 class CompletedState extends NormalBleState {
   final bool isSuccess;

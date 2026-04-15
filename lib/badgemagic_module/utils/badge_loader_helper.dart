@@ -1,8 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/badgemagic_module/utils/badge_text_storage.dart';
+import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
+import 'package:badgemagic/badgemagic_module/models/data.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Helper class for loading and parsing badge data and original text from disk.

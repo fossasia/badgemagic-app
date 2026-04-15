@@ -1,6 +1,6 @@
-import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/write_state.dart';
 import 'package:universal_ble/universal_ble.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/write_state.dart';
 import 'base_ble_state.dart';
 
 class ConnectState extends RetryBleState {

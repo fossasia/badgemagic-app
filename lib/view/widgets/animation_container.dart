@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/view/widgets/special_animation_dialog.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
 
 class AniContainer extends StatefulWidget {
   final String? animation;

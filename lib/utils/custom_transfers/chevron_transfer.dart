@@ -1,9 +1,10 @@
-import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
-import 'package:badgemagic/bademagic_module/models/data.dart';
-import 'package:badgemagic/bademagic_module/models/messages.dart';
-import 'package:badgemagic/bademagic_module/models/mode.dart';
-import 'package:badgemagic/bademagic_module/models/speed.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/badgemagic_module/models/data.dart';
+import 'package:badgemagic/badgemagic_module/models/messages.dart';
+import 'package:badgemagic/badgemagic_module/models/mode.dart';
+import 'package:badgemagic/badgemagic_module/models/speed.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/utils/custom_transfers/common.dart';
 import 'package:logger/logger.dart';
 
