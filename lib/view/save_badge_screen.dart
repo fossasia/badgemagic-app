@@ -98,7 +98,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                 return SizedBox.shrink();
               }
               return IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete, color: drawerHeaderTitle),
                 tooltip: l10n.deleteSelected,
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
