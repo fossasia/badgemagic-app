@@ -33,8 +33,9 @@ class SavedClipartListView extends StatelessWidget {
           width: 100.w,
           height: 100.h,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5.r),
+            borderRadius: BorderRadius.circular(15.r),
             color: Colors.white,
+            border: Border.all(color: Colors.black, width: 1.w),
           ),
           child: Row(
             children: [
@@ -56,16 +57,16 @@ class SavedClipartListView extends StatelessWidget {
                   },
                 ),
               ),
-              Container(
-                width: 1.w,
-                height: 80.h,
-                color: Colors.black,
-              ),
               SizedBox(
                 width: 130.w,
               ),
-              IconButton(
-                  onPressed: () {
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.grey.shade200,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  onPressed: () { 
                     Navigator.of(context).push(MaterialPageRoute(
                         builder: (context) => DrawBadge(
                               filename: fileName,
@@ -73,19 +74,28 @@ class SavedClipartListView extends StatelessWidget {
                               badgeGrid: images.values.elementAt(index),
                             )));
                   },
-                  icon: const Icon(Icons.edit)),
-              IconButton(
-                icon: const Icon(Icons.cancel),
-                onPressed: () {
-                  _showDeleteDialog(context).then((value) async {
+                  icon: const Icon(Icons.edit),
+                ),
+              ),
+              SizedBox(width: 8.w),
+              Container(
+                decoration: BoxDecoration(
+                  color: Colors.red.shade100,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  icon: const Icon(Icons.cancel),
+                  onPressed: () {
+                    _showDeleteDialog(context).then((value) async {
                     if (value) {
                       await file.deleteFile(fileName); // Pass the filename
                       refreshClipartCallback(
                           fileName); // Pass filename to callback
                     }
                   });
-                },
-              )
+                  },
+                ),
+              ),
             ],
           ),
         );
