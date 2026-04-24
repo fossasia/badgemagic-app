@@ -42,7 +42,7 @@ dependencies:
   cupertino_icons: ^1.0.6
   provider: ^6.1.5
   flutter_blue_plus: ^1.36.8
-  logger: ^2.6.2
+  logger: ^2.7.0
   flutter_svg: ^2.2.2
   get_it: ^9.0.5
   flutter_screenutil: ^5.9.3
