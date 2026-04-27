@@ -24,6 +24,20 @@ const Color mdGrey400 = Color(0xFFBDBDBD);
 const Color dividerColor = Color(0xFFE0E0E0);
 const Color drawerHeaderTitle = Color(0xFFFFFFFF);
 
+// General UI Colors
+const Color colorWhite = Color(0xFFFFFFFF);         // Colors.white
+const Color colorBlack = Color(0xFF000000);          // Colors.black
+const Color colorBlackSecondary = Color(0x8A000000); // Colors.black54
+const Color colorGrey = Color(0xFF9E9E9E);           // Colors.grey
+const Color colorGreyInactive = Color(0xFF757575);   // inactive icon/text
+const Color colorGreyDial = Color(0xFF717171);       // speed dial text
+const Color colorTransparent = Color(0x00000000);    // Colors.transparent
+
+// Action/State Colors
+const Color colorRed = Color(0xFFF44336);            // Colors.red - delete/error/danger
+const Color colorBlue = Color(0xFF2196F3);           // Colors.blue - selected/active state
+const Color colorBlueLight = Color(0xFFE3F2FD);      // Colors.blue.shade50 - selected item bg
+
 //path to all the animation assets used
 const String animation = 'assets/animations/ic_anim_animation.gif';
 const String aniLeft = 'assets/animations/ic_anim_left.gif';

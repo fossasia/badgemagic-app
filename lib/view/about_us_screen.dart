@@ -42,11 +42,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorWhite,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: const [
                     BoxShadow(
-                      color: Colors.grey,
+                      color: colorGrey,
                       offset: Offset(0, 1),
                       blurRadius: 2.0,
                     ),
@@ -73,7 +73,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           wordSpacing: 3,
                           fontWeight: FontWeight.w400,
-                          color: Colors.black,
+                          color: colorBlack,
                           fontSize: 12,
                         ),
                         softWrap: true,
@@ -87,7 +87,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                               l10n.developedBy,
                               style: GoogleFonts.sora(
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey,
+                                color: colorGrey,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -101,7 +101,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                                 l10n.fossasiaContributors,
                                 style: GoogleFonts.sora(
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.red,
+                                  color: colorRed,
                                   decoration: TextDecoration.underline,
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -117,11 +117,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorWhite,
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 1,
-                      color: Colors.grey,
+                      color: colorGrey,
                       offset: Offset(0, 1),
                     )
                   ],
@@ -137,7 +137,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: colorGrey,
                         ),
                       ),
                     ),
@@ -152,7 +152,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                          color: colorBlack,
                         ),
                       ),
                       subtitle: Text(
@@ -160,7 +160,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: colorGrey,
                         ),
                         softWrap: true,
                       ),
@@ -173,11 +173,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorWhite,
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 1,
-                      color: Colors.grey,
+                      color: colorGrey,
                       offset: Offset(0, 1),
                     )
                   ],
@@ -193,7 +193,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: colorGrey,
                         ),
                       ),
                     ),
@@ -208,7 +208,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                          color: colorBlack,
                         ),
                       ),
                       subtitle: Text(
@@ -216,7 +216,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: colorGrey,
                         ),
                         softWrap: true,
                       ),
@@ -230,14 +230,14 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                     //     style: GoogleFonts.sora(
                     //         fontSize: 16,
                     //         fontWeight: FontWeight.w500,
-                    //         color: Colors.black),
+                    //         color: colorBlack),
                     //   ),
                     //   subtitle: Text(
                     //     'Check third-party libs used on Badge Magic.',
                     //     style: GoogleFonts.sora(
                     //         fontSize: 12,
                     //         fontWeight: FontWeight.w500,
-                    //         color: Colors.grey),
+                    //         color: colorGrey),
                     //   ),
                     //   onTap: () => showLicenseDialog(context),
                     // ),

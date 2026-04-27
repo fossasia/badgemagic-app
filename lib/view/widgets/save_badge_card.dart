@@ -43,7 +43,7 @@ class SaveBadgeCard extends StatelessWidget {
       padding: EdgeInsets.all(6.dg),
       margin: EdgeInsets.all(10.dg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorWhite,
         borderRadius: BorderRadius.circular(6.dg),
         boxShadow: [
           BoxShadow(
@@ -88,7 +88,7 @@ class SaveBadgeCard extends StatelessWidget {
                       icon: Image.asset(
                         "assets/icons/t_play.png",
                         height: 20,
-                        color: Colors.black,
+                        color: colorBlack,
                       ),
                       onPressed: () {
                         provider.savedBadgeAnimation(
@@ -100,7 +100,7 @@ class SaveBadgeCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(
                         Icons.edit,
-                        color: Colors.black,
+                        color: colorBlack,
                       ),
                       onPressed: () async {
                         // Show confirmation dialog before editing
@@ -122,7 +122,7 @@ class SaveBadgeCard extends StatelessWidget {
                       icon: Image.asset(
                         "assets/icons/t_updown.png",
                         height: 24.h,
-                        color: Colors.black,
+                        color: colorBlack,
                       ),
                       onPressed: () {
                         logger.d("BadgeData: ${badgeData.value}");
@@ -135,7 +135,7 @@ class SaveBadgeCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(
                         Icons.share,
-                        color: Colors.black,
+                        color: colorBlack,
                       ),
                       onPressed: () {
                         file.shareBadgeData(badgeData.key);
@@ -144,7 +144,7 @@ class SaveBadgeCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(
                         Icons.delete,
-                        color: Colors.black,
+                        color: colorBlack,
                       ),
                       onPressed: () async {
                         //add a dialog for confirmation before deleting
@@ -180,7 +180,7 @@ class SaveBadgeCard extends StatelessWidget {
                         children: [
                           Image.asset(
                             "assets/icons/flash.png",
-                            color: Colors.white,
+                            color: colorWhite,
                             height: 14.h,
                           )
                         ],
@@ -204,7 +204,7 @@ class SaveBadgeCard extends StatelessWidget {
                         children: [
                           Image.asset(
                             "assets/icons/square.png",
-                            color: Colors.white,
+                            color: colorWhite,
                             height: 14.h,
                           )
                         ],
@@ -227,7 +227,7 @@ class SaveBadgeCard extends StatelessWidget {
                         children: [
                           Image.asset(
                             "assets/icons/t_invert.png",
-                            color: Colors.white,
+                            color: colorWhite,
                             height: 14.h,
                           )
                         ],
@@ -250,7 +250,7 @@ class SaveBadgeCard extends StatelessWidget {
                     children: [
                       Image.asset(
                         "assets/icons/t_double.png",
-                        color: Colors.white,
+                        color: colorWhite,
                         height: 14.h,
                       ),
                       const SizedBox(width: 4),
@@ -258,7 +258,7 @@ class SaveBadgeCard extends StatelessWidget {
                         Speed.getIntValue(
                           file.jsonToData(badgeData.value).messages[0].speed,
                         ).toString(),
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: colorWhite),
                       )
                     ],
                   ),
@@ -283,7 +283,7 @@ class SaveBadgeCard extends StatelessWidget {
                         .split('.')
                         .last
                         .toUpperCase(),
-                    style: const TextStyle(color: Colors.white),
+                    style: const TextStyle(color: colorWhite),
                   ),
                 ),
               ),

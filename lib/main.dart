@@ -1,3 +1,4 @@
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/getitlocator.dart';
@@ -76,7 +77,7 @@ class MyApp extends StatelessWidget {
               scaffoldMessengerKey: globals.scaffoldMessengerKey,
               debugShowCheckedModeBanner: false,
               theme: ThemeData(
-                colorSchemeSeed: Colors.white,
+                colorSchemeSeed: colorWhite,
                 useMaterial3: true,
               ),
               locale: locale ?? const Locale('en', 'US'),

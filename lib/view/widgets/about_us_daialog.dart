@@ -30,7 +30,7 @@ class LicenseDialogContainer extends StatelessWidget {
               style: GoogleFonts.sora(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.black,
+                color: colorBlack,
               ),
             ),
             // SizedBox(
@@ -48,7 +48,7 @@ class LicenseDialogContainer extends StatelessWidget {
                 decoration: TextDecoration.underline,
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
-                color: Colors.blue,
+                color: colorBlue,
               ),
             ),
           ),
@@ -57,7 +57,7 @@ class LicenseDialogContainer extends StatelessWidget {
         Container(
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(4),
-            color: Colors.grey[300],
+            color: dividerColor,
           ),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 10),
@@ -68,7 +68,7 @@ class LicenseDialogContainer extends StatelessWidget {
                 letterSpacing: 0.6,
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
-                color: Colors.black,
+                color: colorBlack,
               ),
             ),
           ),
@@ -84,7 +84,7 @@ void showLicenseDialog(BuildContext context) {
     builder: (BuildContext context) {
       return Dialog(
         insetPadding: EdgeInsets.all(8),
-        backgroundColor: Colors.white,
+        backgroundColor: colorWhite,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8.0),
         ),
@@ -95,7 +95,7 @@ void showLicenseDialog(BuildContext context) {
               Container(
                 padding: const EdgeInsets.only(left: 16.0, top: 16, bottom: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorWhite,
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(10.0),
                     topRight: Radius.circular(10.0),
@@ -108,7 +108,7 @@ void showLicenseDialog(BuildContext context) {
                     style: GoogleFonts.inter(
                       fontWeight: FontWeight.w400,
                       fontSize: 20,
-                      color: Colors.black,
+                      color: colorBlack,
                     ),
                   ),
                 ),
@@ -222,7 +222,7 @@ void showLicenseDialog(BuildContext context) {
                   onPressed: () => Navigator.of(context).pop(),
                   child: const Text(
                     'CLOSE',
-                    style: TextStyle(color: Colors.red),
+                    style: TextStyle(color: colorRed),
                   ),
                 ),
               ),

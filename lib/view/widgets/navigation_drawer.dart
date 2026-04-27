@@ -41,7 +41,7 @@ class _BMDrawerState extends State<BMDrawer> {
             aspectRatio: 16 / 9,
             child: DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: colorRed,
               ),
               child: Center(
                 child: Text(
@@ -102,7 +102,7 @@ class _BMDrawerState extends State<BMDrawer> {
             child: Text(
               l10n.other,
               style: const TextStyle(
-                color: Colors.black54,
+                color: colorBlackSecondary,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -164,18 +164,18 @@ class _BMDrawerState extends State<BMDrawer> {
       leading: icon != null
           ? Icon(
               icon,
-              color: currentIndex == index ? colorAccent : Colors.black,
+              color: currentIndex == index ? colorAccent : colorBlack,
             )
           : Image.asset(
               assetIcon!,
               height: 18,
-              color: currentIndex == index ? colorAccent : Colors.black,
+              color: currentIndex == index ? colorAccent : colorBlack,
             ),
       title: title is String
           ? Text(
               title,
               style: TextStyle(
-                color: currentIndex == index ? colorAccent : Colors.black,
+                color: currentIndex == index ? colorAccent : colorBlack,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),

@@ -98,7 +98,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                 return SizedBox.shrink();
               }
               return IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete, color: colorRed),
                 tooltip: l10n.deleteSelected,
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
@@ -115,7 +115,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                           onPressed: () => Navigator.pop(context, true),
                           child: Text(
                             l10n.delete,
-                            style: const TextStyle(color: Colors.red),
+                            style: const TextStyle(color: colorRed),
                           ),
                         ),
                       ],
@@ -160,14 +160,14 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                     Text(
                       'No saved badges !',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: colorBlack,
                         fontSize: 20.sp,
                       ),
                     ),
                     Text(
                       'Looks like there are no saved badges yet.',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: colorBlack,
                         fontSize: 14.sp,
                       ),
                     ),
@@ -277,7 +277,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                               child: Text(
                                 l10n.transferButton,
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: colorWhite,
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.w500,
                                 ),

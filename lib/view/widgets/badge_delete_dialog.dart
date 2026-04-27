@@ -1,3 +1,4 @@
+import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:badgemagic/services/localization_service.dart';
@@ -24,7 +25,7 @@ class DeleteBadgeDialog extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.delete, color: Colors.black),
+                  Icon(Icons.delete, color: colorBlack),
                   SizedBox(width: 10.w),
                   Text(l10n.delete,
                       style: TextStyle(
@@ -45,13 +46,13 @@ class DeleteBadgeDialog extends StatelessWidget {
                         Navigator.of(context).pop(false);
                       },
                       child: Text(l10n.cancel,
-                          style: const TextStyle(color: Colors.red))),
+                          style: const TextStyle(color: colorRed))),
                   TextButton(
                       onPressed: () {
                         Navigator.of(context).pop(true);
                       },
                       child: Text(l10n.ok,
-                          style: const TextStyle(color: Colors.red))),
+                          style: const TextStyle(color: colorRed))),
                 ],
               ),
             ],

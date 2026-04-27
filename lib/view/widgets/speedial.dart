@@ -215,7 +215,7 @@ class _RadialDialState extends State<RadialDial> {
         CustomPaint(
           painter: InnerDialPainter(),
           child: Container(
-            color: Colors.transparent,
+            color: colorTransparent,
             width: 180.w,
           ),
         ),
@@ -246,7 +246,7 @@ class _RadialDialState extends State<RadialDial> {
             style: TextStyle(
               fontSize: 50.sp,
               fontWeight: FontWeight.w600,
-              color: const Color.fromRGBO(113, 113, 113, 1),
+              color: colorGreyDial,
             ),
           ),
         ),

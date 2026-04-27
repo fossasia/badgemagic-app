@@ -201,11 +201,11 @@ class _DrawBadgeState extends State<DrawBadge> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: isSelected ? colorPrimary : Colors.black, size: 20),
+          Icon(icon, color: isSelected ? colorPrimary : colorBlack, size: 20),
           const SizedBox(height: 2),
           Text(label,
               style: TextStyle(
-                  color: isSelected ? colorPrimary : Colors.black,
+                  color: isSelected ? colorPrimary : colorBlack,
                   fontSize: 10)),
         ],
       ),
@@ -226,10 +226,10 @@ class _DrawBadgeState extends State<DrawBadge> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.refresh, color: Colors.black, size: 20),
+          const Icon(Icons.refresh, color: colorBlack, size: 20),
           const SizedBox(height: 2),
           Text(GetIt.instance.get<LocalizationService>().l10n.reset,
-              style: const TextStyle(color: Colors.black, fontSize: 10)),
+              style: const TextStyle(color: colorBlack, fontSize: 10)),
         ],
       ),
     );
@@ -270,10 +270,10 @@ class _DrawBadgeState extends State<DrawBadge> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const Icon(Icons.save, color: Colors.black, size: 20),
+          const Icon(Icons.save, color: colorBlack, size: 20),
           const SizedBox(height: 2),
           Text(GetIt.instance.get<LocalizationService>().l10n.save,
-              style: const TextStyle(color: Colors.black, fontSize: 10)),
+              style: const TextStyle(color: colorBlack, fontSize: 10)),
         ],
       ),
     );
@@ -299,11 +299,11 @@ class _DrawBadgeState extends State<DrawBadge> {
         mainAxisSize: MainAxisSize.min,
         children: [
           Icon(Icons.category,
-              color: _showShapeOptions ? colorPrimary : Colors.black, size: 20),
+              color: _showShapeOptions ? colorPrimary : colorBlack, size: 20),
           const SizedBox(height: 2),
           Text('Shapes', // Using hardcoded string for semantic label
               style: TextStyle(
-                  color: _showShapeOptions ? colorPrimary : Colors.black,
+                  color: _showShapeOptions ? colorPrimary : colorBlack,
                   fontSize: 10)),
         ],
       ),
@@ -315,7 +315,7 @@ class _DrawBadgeState extends State<DrawBadge> {
       animation: drawToggle,
       builder: (context, _) {
         final bool canUndo = drawToggle.canUndo;
-        final Color buttonColor = canUndo ? Colors.black : Colors.grey;
+        final Color buttonColor = canUndo ? colorBlack : colorGrey;
 
         return TextButton(
           onPressed: canUndo
@@ -345,7 +345,7 @@ class _DrawBadgeState extends State<DrawBadge> {
       animation: drawToggle,
       builder: (context, _) {
         final bool canRedo = drawToggle.canRedo;
-        final Color buttonColor = canRedo ? Colors.black : Colors.grey;
+        final Color buttonColor = canRedo ? colorBlack : colorGrey;
 
         return TextButton(
           onPressed: canRedo ? drawToggle.redo : null,
@@ -377,11 +377,11 @@ class _DrawBadgeState extends State<DrawBadge> {
         });
       },
       style: ElevatedButton.styleFrom(
-        foregroundColor: isSelected ? Colors.white : Colors.black,
-        backgroundColor: isSelected ? colorPrimary : Colors.white,
+        foregroundColor: isSelected ? colorWhite : colorBlack,
+        backgroundColor: isSelected ? colorPrimary : colorWhite,
         elevation: isSelected ? 2 : 1,
         side:
-            BorderSide(color: isSelected ? colorPrimary : Colors.grey.shade300),
+            BorderSide(color: isSelected ? colorPrimary : dividerColor),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         minimumSize: const Size(55, 40),

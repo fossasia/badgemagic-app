@@ -1,3 +1,4 @@
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +24,7 @@ Future<bool?> showSpecialAnimationDialog(
                   Expanded(
                     child: Text(
                       textToClear,
-                      style: const TextStyle(fontSize: 13, color: Colors.grey),
+                      style: const TextStyle(fontSize: 13, color: colorGrey),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),

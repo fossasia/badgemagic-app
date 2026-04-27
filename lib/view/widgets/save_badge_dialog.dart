@@ -1,4 +1,5 @@
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -65,7 +66,7 @@ class SaveBadgeDialog extends StatelessWidget {
               l10n.badgeName,
               style: const TextStyle(
                 fontWeight: FontWeight.w400,
-                color: Colors.red,
+                color: colorRed,
               ),
             ),
             const SizedBox(height: 10),
@@ -74,10 +75,10 @@ class SaveBadgeDialog extends StatelessWidget {
               autofocus: true,
               decoration: const InputDecoration(
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red),
+                  borderSide: BorderSide(color: colorRed),
                 ),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red, width: 2),
+                  borderSide: BorderSide(color: colorRed, width: 2),
                 ),
               ),
             ),
@@ -90,7 +91,7 @@ class SaveBadgeDialog extends StatelessWidget {
                     },
                     child: Text(
                       l10n.cancel,
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(color: colorRed),
                     )),
                 TextButton(
                   onPressed: () async {
@@ -233,7 +234,7 @@ class SaveBadgeDialog extends StatelessWidget {
                   },
                   child: Text(
                     'Save',
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: colorRed),
                   ),
                 ),
               ],

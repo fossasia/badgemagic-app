@@ -167,8 +167,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                               label: Text(
                                   'Remove (${provider.selectedIndices.length})'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
+                                backgroundColor: colorRed,
+                                foregroundColor: colorWhite,
                               ),
                             ),
                         ],
@@ -185,13 +185,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                       decoration: BoxDecoration(
                         border: Border.all(
                           color:
-                              isSelected ? Colors.blue : Colors.grey.shade300,
+                              isSelected ? colorBlue : dividerColor,
                           width: isSelected ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(8),
                         color: isSelected
-                            ? Colors.blue.shade50
-                            : Colors.transparent,
+                            ? colorBlueLight
+                            : colorTransparent,
                       ),
                       child: Row(
                         children: [
@@ -199,7 +199,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                             value: isSelected,
                             onChanged: (value) =>
                                 provider.toggleSelection(index),
-                            activeColor: Colors.blue,
+                            activeColor: colorBlue,
                           ),
                           Expanded(
                             child: Padding(
@@ -255,7 +255,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       child: Text(
                         l10n.saveSettings,
                         style: const TextStyle(
-                          color: Colors.black,
+                          color: colorBlack,
                         ),
                       ),
                     ),

@@ -70,7 +70,7 @@ class _EffectContainerState extends State<EffectContainer> {
           );
         },
         child: Card(
-          surfaceTintColor: Colors.white,
+          surfaceTintColor: colorWhite,
           color: effectCardState.isEffectActive(badgeEffect)
               ? colorAccent
               : drawerHeaderTitle,
@@ -83,7 +83,7 @@ class _EffectContainerState extends State<EffectContainer> {
                   widget.effect,
                   fit: BoxFit.contain,
                   color: effectCardState.isEffectActive(badgeEffect)
-                      ? Colors.white
+                      ? colorWhite
                       : null,
                   colorBlendMode: effectCardState.isEffectActive(badgeEffect)
                       ? BlendMode.srcIn
@@ -97,8 +97,8 @@ class _EffectContainerState extends State<EffectContainer> {
                   style: TextStyle(
                     fontSize: 10.sp,
                     color: effectCardState.isEffectActive(badgeEffect)
-                        ? Colors.white
-                        : Colors.black,
+                        ? colorWhite
+                        : colorBlack,
                   ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,

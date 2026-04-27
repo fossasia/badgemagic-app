@@ -313,7 +313,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             value: fontProvider.selectedFont,
                                             icon: const SizedBox.shrink(),
                                             iconEnabledColor: mdGrey400,
-                                            dropdownColor: Colors.white,
+                                            dropdownColor: colorWhite,
                                             itemHeight: 48,
                                             isExpanded: true,
                                             style: TextStyle(
@@ -343,7 +343,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                                 .selectedFont ==
                                                             null
                                                         ? dividerColor
-                                                        : Colors.transparent,
+                                                        : colorTransparent,
                                                     borderRadius:
                                                         BorderRadius.circular(
                                                             4),
@@ -356,7 +356,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                                   .selectedFont ==
                                                               null
                                                           ? colorAccent
-                                                          : Colors.black,
+                                                          : colorBlack,
                                                       fontWeight: fontProvider
                                                                   .selectedFont ==
                                                               null
@@ -383,7 +383,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                                   .selectedFont ==
                                                               font
                                                           ? dividerColor
-                                                          : Colors.transparent,
+                                                          : colorTransparent,
                                                       borderRadius:
                                                           BorderRadius.circular(
                                                               4),
@@ -396,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                                     .selectedFont ==
                                                                 font
                                                             ? colorAccent
-                                                            : Colors.black,
+                                                            : colorBlack,
                                                         fontWeight: fontProvider
                                                                     .selectedFont ==
                                                                 font
@@ -484,7 +484,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 height: isPrefixIconClicked ? 170.h : 0,
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(10.r),
-                                  color: Colors.grey[200],
+                                  color: progressSecondaryColor,
                                 ),
                                 margin: EdgeInsets.symmetric(
                                     horizontal: 15.w, vertical: 8.h),
@@ -516,7 +516,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 fontSize: 14.sp,
                                 fontWeight: FontWeight.w500,
                               ),
-                              labelColor: Colors.black,
+                              labelColor: colorBlack,
                               unselectedLabelColor: mdGrey400,
                               indicatorColor: colorPrimary,
                               controller: _tabController,

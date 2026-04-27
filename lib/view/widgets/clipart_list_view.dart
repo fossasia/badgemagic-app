@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
@@ -34,7 +35,7 @@ class SavedClipartListView extends StatelessWidget {
           height: 100.h,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(5.r),
-            color: Colors.white,
+            color: colorWhite,
           ),
           child: Row(
             children: [
@@ -59,7 +60,7 @@ class SavedClipartListView extends StatelessWidget {
               Container(
                 width: 1.w,
                 height: 80.h,
-                color: Colors.black,
+                color: colorBlack,
               ),
               SizedBox(
                 width: 130.w,
