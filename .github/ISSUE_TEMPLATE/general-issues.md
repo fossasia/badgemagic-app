@@ -1,6 +1,6 @@
 ---
 name: General Issues
-about: Issues related to docs, workflow, dependency and others
+about: Issues related to docs, workflow, dependencies and others
 title: ''
 labels: ''
 assignees: ''
