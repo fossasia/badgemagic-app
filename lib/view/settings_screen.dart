@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/main.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -48,7 +49,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<BadgeScanProvider>(
       builder: (context, provider, child) {
         if (!provider.isLoaded) {
@@ -91,6 +92,26 @@ class SettingsScreenState extends State<SettingsScreen> {
                     DropdownMenuItem(
                       value: 'it',
                       child: Text(l10n.italian),
+                    ),
+                    DropdownMenuItem(
+                      value: 'el',
+                      child: Text('greek'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'ml',
+                      child: Text('malayalam'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'ta',
+                      child: Text('tamil'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'te',
+                      child: Text('Telugu'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'my',
+                      child: Text('burmese'),
                     ),
                   ],
                   onChanged: (value) {

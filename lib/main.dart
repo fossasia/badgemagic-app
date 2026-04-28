@@ -90,6 +90,11 @@ class MyApp extends StatelessWidget {
                 Locale('en'),
                 Locale('hi'),
                 Locale('it'),
+                Locale('el'),//Greek
+                Locale('ml'),//Malayalam
+                Locale('ta'),//Tamil
+                Locale('te'),//Telugu
+                Locale('my'),//Burmese
               ],
               localeResolutionCallback: (locale, supportedLocales) {
                 if (locale == null) return supportedLocales.first;
