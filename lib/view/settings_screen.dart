@@ -95,23 +95,23 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                     DropdownMenuItem(
                       value: 'el',
-                      child: Text('greek'),
+                      child: Text(l10n.greek),
                     ),
                     DropdownMenuItem(
                       value: 'ml',
-                      child: Text('malayalam'),
+                      child: Text(l10n.malayalam),
                     ),
                     DropdownMenuItem(
                       value: 'ta',
-                      child: Text('tamil'),
+                      child: Text(l10n.tamil),
                     ),
                     DropdownMenuItem(
                       value: 'te',
-                      child: Text('Telugu'),
+                      child: Text(l10n.telugu),
                     ),
                     DropdownMenuItem(
                       value: 'my',
-                      child: Text('burmese'),
+                      child: Text(l10n.burmese),
                     ),
                   ],
                   onChanged: (value) {
