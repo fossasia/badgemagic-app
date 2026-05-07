@@ -258,8 +258,6 @@ class _DrawBadgeState extends State<DrawBadge> {
             .get<LocalizationService>()
             .l10n
             .clipartSavedSuccessfully);
-
-
       },
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
