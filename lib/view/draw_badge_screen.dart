@@ -259,9 +259,7 @@ class _DrawBadgeState extends State<DrawBadge> {
             .l10n
             .clipartSavedSuccessfully);
 
-        if (mounted) {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        }
+
       },
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
