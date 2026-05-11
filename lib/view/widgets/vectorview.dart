@@ -23,7 +23,6 @@ class _VectorGridViewState extends State<VectorGridView> {
 
   @override
   void dispose() {
-    // Only dispose if we created the controller
     if (widget.controller == null) {
       _scrollController.dispose();
     }
@@ -32,9 +31,26 @@ class _VectorGridViewState extends State<VectorGridView> {
 
   @override
   Widget build(BuildContext context) {
-    InlineImageProvider inlineImageProvider =
-        Provider.of<InlineImageProvider>(context);
-    List keys = inlineImageProvider.imageCache.keys.toList();
+    final inlineImageProvider = Provider.of<InlineImageProvider>(context);
+
+    final allKeys = inlineImageProvider.imageCache.keys.toList();
+
+    final savedKeys = allKeys.where((key) => key is List).toList()
+      ..sort((a, b) {
+        final aName = (a as List).first.toString();
+        final bName = (b as List).first.toString();
+        return bName.compareTo(aName);
+      });
+
+    final defaultKeys = allKeys
+        .where((key) => key is int && key < inlineImageProvider.vectors.length)
+        .toList();
+
+    final keys = [
+      ...savedKeys,
+      ...defaultKeys,
+    ];
+
     return GridView.builder(
       controller: _scrollController,
       shrinkWrap: true,
@@ -46,7 +62,7 @@ class _VectorGridViewState extends State<VectorGridView> {
         mainAxisSpacing: 4.0,
       ),
       itemBuilder: (context, index) {
-        if (index == keys.length) {
+        if (index == 0) {
           return GestureDetector(
             onTap: () {
               Navigator.pushNamed(context, '/drawBadge');
@@ -68,24 +84,28 @@ class _VectorGridViewState extends State<VectorGridView> {
           );
         }
 
+        final imageKey = keys[index - 1];
+
         return GestureDetector(
-            onTap: () {
-              inlineImageProvider.insertInlineImage(keys[index]);
-            },
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
+          onTap: () {
+            inlineImageProvider.insertInlineImage(imageKey);
+          },
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            surfaceTintColor: Colors.white,
+            color: Colors.white,
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: Image.memory(
+                inlineImageProvider.imageCache[imageKey]!,
+                scale: 0.1,
               ),
-              surfaceTintColor: Colors.white,
-              color: Colors.white,
-              elevation: 2,
-              child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Image.memory(
-                    inlineImageProvider.imageCache[keys[index]]!,
-                    scale: 0.1,
-                  )),
-            ));
+            ),
+          ),
+        );
       },
       itemCount: keys.length + 1,
     );

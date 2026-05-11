@@ -42,17 +42,17 @@ class FileHelper {
   void addToCache(Uint8List imageData, String filename) {
     int key;
     if (imageCacheProvider.availableKeys.isNotEmpty) {
-      // Reuse the lowest available key
       key = imageCacheProvider.availableKeys.first;
       imageCacheProvider.availableKeys.remove(key);
     } else {
-      // Assign a new key
       key = imageCacheProvider.imageCache.length;
       while (imageCacheProvider.imageCache.containsKey(key)) {
         key++;
       }
     }
+
     imageCacheProvider.imageCache[[filename, key]] = imageData;
+    imageCacheProvider.notifyListeners();
   }
 
   Future<void> generateClipartCache() async {
@@ -76,7 +76,7 @@ class FileHelper {
                 decodedData.cast<List<dynamic>>();
             List<List<int>> intImageData =
                 imageData.map((list) => list.cast<int>()).toList();
-            imageCacheProvider.clipartsCache[file.path.split('/').last] =
+            imageCacheProvider.clipartsCache[file.uri.pathSegments.last] =
                 intImageData;
           }
         } catch (e) {
@@ -152,7 +152,7 @@ class FileHelper {
           final List<dynamic> decodedData = jsonDecode(content);
           final List<List<dynamic>> imageData =
               decodedData.cast<List<dynamic>>();
-          await _addImageDataToCache(imageData, file.path.split('/').last);
+          await _addImageDataToCache(imageData, file.uri.pathSegments.last);
         }
       }
     }
@@ -308,7 +308,7 @@ class FileHelper {
           // Defensive: Only add if valid structure
           if (jsonData.containsKey('messages') &&
               jsonData['messages'] is List) {
-            badgeDataList.add(MapEntry(file.path.split('/').last, jsonData));
+            badgeDataList.add(MapEntry(file.uri.pathSegments.last, jsonData));
           } else {
             logger.i('Skipping invalid badge file: ${file.path}');
           }
