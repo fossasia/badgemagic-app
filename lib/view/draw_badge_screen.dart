@@ -9,7 +9,6 @@ import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/virtualbadge/view/draw_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class DrawBadge extends StatefulWidget {
   final String? filename;
@@ -110,8 +109,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                           const SizedBox(width: 2),
                           Flexible(
                               child: _buildCompactButton(
-                                  false, Icons.delete, l10n.erase,
-                                  iconAsset: 'assets/icons/eraser.svg')),
+                                  false, Icons.delete, l10n.erase)),
                           const SizedBox(width: 2),
                           Flexible(child: _buildResetButton()),
                           const SizedBox(width: 2),
@@ -187,10 +185,8 @@ class _DrawBadgeState extends State<DrawBadge> {
     );
   }
 
-  Widget _buildCompactButton(bool isDraw, IconData icon, String label,
-      {String? iconAsset}) {
+  Widget _buildCompactButton(bool isDraw, IconData icon, String label) {
     final isSelected = drawToggle.isDrawing == isDraw;
-    final tint = isSelected ? colorPrimary : Colors.black;
 
     return TextButton(
       onPressed: () {
@@ -205,16 +201,12 @@ class _DrawBadgeState extends State<DrawBadge> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          iconAsset != null
-              ? SvgPicture.asset(
-                  iconAsset,
-                  width: 20,
-                  height: 20,
-                  colorFilter: ColorFilter.mode(tint, BlendMode.srcIn),
-                )
-              : Icon(icon, color: tint, size: 20),
+          Icon(icon, color: isSelected ? colorPrimary : Colors.black, size: 20),
           const SizedBox(height: 2),
-          Text(label, style: TextStyle(color: tint, fontSize: 10)),
+          Text(label,
+              style: TextStyle(
+                  color: isSelected ? colorPrimary : Colors.black,
+                  fontSize: 10)),
         ],
       ),
     );
