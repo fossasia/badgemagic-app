@@ -137,10 +137,17 @@ class FileHelper {
 
   // Read all files, parse the 2D lists, and add to cache
   Future<void> loadImageCacheFromFiles() async {
-    generateClipartCache();
-    getBadgeDataFiles();
+    await generateClipartCache();
+    await getBadgeDataFiles();
     final directory = await getApplicationDocumentsDirectory();
     final List<FileSystemEntity> files = directory.listSync();
+
+    files.sort((a, b) {
+      if (a is File && b is File) {
+        return b.lastModifiedSync().compareTo(a.lastModifiedSync());
+      }
+      return 0;
+    });
 
     for (var file in files) {
       if (file is File &&

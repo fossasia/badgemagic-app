@@ -12,7 +12,7 @@ class SavedClipartListView extends StatelessWidget {
   final FileHelper file = FileHelper();
   final ImageUtils imageUtils = ImageUtils();
 
-  final void Function(String) refreshClipartCallback; // Pass the filename
+  final Future<void> Function(String) refreshClipartCallback;
 
   SavedClipartListView({
     super.key,
@@ -23,11 +23,18 @@ class SavedClipartListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: images.length, // Number of images
+      itemCount: images.length,
       itemBuilder: (context, index) {
-        Future<Uint8List?> image = imageUtils.convert2DListToUint8List(
-            images.values.elementAt(index)!); // Get the image
-        String fileName = images.keys.elementAt(index); // Get the filename
+        final imageData = images.values.elementAt(index);
+        final String fileName = images.keys.elementAt(index);
+
+        if (imageData == null) {
+          return const SizedBox.shrink();
+        }
+
+        final Future<Uint8List?> image =
+            imageUtils.convert2DListToUint8List(imageData);
+
         return Container(
           margin: EdgeInsets.all(10.dg),
           width: 100.w,
@@ -43,16 +50,16 @@ class SavedClipartListView extends StatelessWidget {
                 child: FutureBuilder<Uint8List?>(
                   future: image,
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Center(
-                        child: CircularProgressIndicator(),
-                      );
-                    } else {
-                      return Image.memory(
-                        snapshot.data!,
-                        scale: 0.5,
-                      );
+                    if (snapshot.connectionState == ConnectionState.waiting ||
+                        !snapshot.hasData ||
+                        snapshot.data == null) {
+                      return const SizedBox.shrink();
                     }
+
+                    return Image.memory(
+                      snapshot.data!,
+                      scale: 0.5,
+                    );
                   },
                 ),
               ),
@@ -61,31 +68,31 @@ class SavedClipartListView extends StatelessWidget {
                 height: 80.h,
                 color: Colors.black,
               ),
-              SizedBox(
-                width: 130.w,
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => DrawBadge(
+                        filename: fileName,
+                        isSavedClipart: true,
+                        badgeGrid: imageData,
+                      ),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.edit),
               ),
               IconButton(
-                  onPressed: () {
-                    Navigator.of(context).push(MaterialPageRoute(
-                        builder: (context) => DrawBadge(
-                              filename: fileName,
-                              isSavedClipart: true,
-                              badgeGrid: images.values.elementAt(index),
-                            )));
-                  },
-                  icon: const Icon(Icons.edit)),
-              IconButton(
                 icon: const Icon(Icons.cancel),
-                onPressed: () {
-                  _showDeleteDialog(context).then((value) async {
-                    if (value) {
-                      await file.deleteFile(fileName); // Pass the filename
-                      refreshClipartCallback(
-                          fileName); // Pass filename to callback
-                    }
-                  });
+                onPressed: () async {
+                  final value = await _showDeleteDialog(context);
+                  if (value) {
+                    await file.deleteFile(fileName);
+                    await refreshClipartCallback(fileName);
+                  }
                 },
-              )
+              ),
             ],
           ),
         );
@@ -94,11 +101,12 @@ class SavedClipartListView extends StatelessWidget {
   }
 
   Future<bool> _showDeleteDialog(BuildContext context) async {
-    return await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const DeleteBadgeDialog();
-      },
-    );
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return const DeleteBadgeDialog();
+          },
+        ) ??
+        false;
   }
 }
