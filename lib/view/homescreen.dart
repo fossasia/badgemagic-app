@@ -34,6 +34,8 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../bademagic_module/utils/byte_array_utils.dart';
+
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
   final int? initialSpeed;
@@ -131,7 +133,7 @@ class _HomeScreenState extends State<HomeScreen>
       ToastUtils().showToast(
           "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
     } catch (e) {
-      print("Failed to load badge data: $e");
+      logger.i("Failed to load badge data: $e");
       ToastUtils().showToast("Failed to load badge data");
     }
   }
@@ -186,7 +188,6 @@ class _HomeScreenState extends State<HomeScreen>
     _vectorScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
-    inlineimagecontroller.removeListener(_controllerListner);
     animationProvider.stopAnimation();
     _tabController.dispose();
     super.dispose();
@@ -231,9 +232,6 @@ class _HomeScreenState extends State<HomeScreen>
             ),
             ChangeNotifierProvider<SpeedDialProvider>(
               create: (context) {
-                inlineImageProvider
-                    .getController()
-                    .addListener(_controllerListner);
                 return speedDialProvider;
               },
             ),
@@ -263,7 +261,14 @@ class _HomeScreenState extends State<HomeScreen>
                               borderRadius: BorderRadius.circular(10.r),
                               elevation: 4,
                               child: ExtendedTextField(
-                                onChanged: (value) {},
+                                onChanged: (String newText) {
+                                  animationProvider.badgeAnimation(
+                                    newText,
+                                    Converters(),
+                                    animationProvider
+                                        .isEffectActive(InvertLEDEffect()),
+                                  );
+                                },
                                 controller: inlineimagecontroller,
                                 specialTextSpanBuilder: ImageBuilder(),
                                 style: Provider.of<FontProvider>(context)
@@ -638,6 +643,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                                         ToastUtils().showToast(
                                             "Badge Updated Successfully");
+                                        if (!context.mounted) return;
                                         Navigator.pushNamedAndRemoveUntil(
                                           context,
                                           '/savedBadge',
@@ -757,14 +763,6 @@ class _HomeScreenState extends State<HomeScreen>
     } else {
       previousText = currentText;
     }
-  }
-
-  void _controllerListner() {
-    animationProvider.badgeAnimation(
-      inlineImageProvider.getController().text,
-      Converters(),
-      animationProvider.isEffectActive(InvertLEDEffect()),
-    );
   }
 
   @override
