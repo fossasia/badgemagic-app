@@ -35,18 +35,28 @@ class _VectorGridViewState extends State<VectorGridView> {
 
     final allKeys = inlineImageProvider.imageCache.keys.toList();
 
-    final savedKeys = allKeys.where((key) => key is List).toList()
+    /// 🧠 BadgeMagic logic:
+    /// - List keys = saved user cliparts (priority + reverse chronological feel)
+    /// - int keys = default vector assets
+    final savedKeys = allKeys
+        .whereType<List>()
+        .toList()
       ..sort((a, b) {
-        final aName = (a as List).first.toString();
-        final bName = (b as List).first.toString();
-        return bName.compareTo(aName);
+        // newest first (based on first element string/id)
+        final aId = a.isNotEmpty ? a.first.toString() : '';
+        final bId = b.isNotEmpty ? b.first.toString() : '';
+        return bId.compareTo(aId);
       });
 
     final defaultKeys = allKeys
-        .where((key) => key is int && key < inlineImageProvider.vectors.length)
-        .toList();
+        .whereType<int>()
+        .where((key) => key < inlineImageProvider.vectors.length)
+        .toList()
+      ..sort();
 
-    final keys = [
+    /// Final merge order (BadgeMagic UX rule):
+    /// saved cliparts first → default vectors after
+    final keys = <dynamic>[
       ...savedKeys,
       ...defaultKeys,
     ];
@@ -61,7 +71,9 @@ class _VectorGridViewState extends State<VectorGridView> {
         crossAxisSpacing: 4.0,
         mainAxisSpacing: 4.0,
       ),
+      itemCount: keys.length + 1,
       itemBuilder: (context, index) {
+        /// ➕ Create new badge / clipart
         if (index == 0) {
           return GestureDetector(
             onTap: () {
@@ -86,6 +98,12 @@ class _VectorGridViewState extends State<VectorGridView> {
 
         final imageKey = keys[index - 1];
 
+        final imageBytes = inlineImageProvider.imageCache[imageKey];
+
+        if (imageBytes == null) {
+          return const SizedBox.shrink();
+        }
+
         return GestureDetector(
           onTap: () {
             inlineImageProvider.insertInlineImage(imageKey);
@@ -100,14 +118,14 @@ class _VectorGridViewState extends State<VectorGridView> {
             child: Padding(
               padding: const EdgeInsets.all(2.0),
               child: Image.memory(
-                inlineImageProvider.imageCache[imageKey]!,
+                imageBytes,
                 scale: 0.1,
+                fit: BoxFit.contain,
               ),
             ),
           ),
         );
       },
-      itemCount: keys.length + 1,
     );
   }
 }
