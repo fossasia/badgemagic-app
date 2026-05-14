@@ -48,6 +48,9 @@ class InlineImage extends SpecialText {
   }
 }
 
+const int kInlineImageDefaultStart =
+    2147483647; // JS-safe sentinel value for Flutter web
+
 class ImageBuilder extends SpecialTextSpanBuilder {
   @override
   SpecialText? createSpecialText(String flag,
@@ -58,7 +61,7 @@ class ImageBuilder extends SpecialTextSpanBuilder {
     if (flag.contains(InlineImage.flag)) {
       return InlineImage(
         textStyle,
-       start: 9999999999,
+        start: kInlineImageDefaultStart,
       );
     }
     return null;
