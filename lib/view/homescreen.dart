@@ -730,38 +730,44 @@ class _HomeScreenState extends State<HomeScreen>
 
   void handleTextChange() {
     final currentText = inlineimagecontroller.text;
-    final selection = inlineimagecontroller.selection;
 
-    // Always reset to text animation if a special animation is selected and user types
-    if (animationProvider.isSpecialAnimationSelected() &&
-        currentText.isNotEmpty) {
-      animationProvider.resetToTextAnimation();
-      animationProvider.badgeAnimation(currentText, Converters(),
-          animationProvider.isEffectActive(InvertLEDEffect()));
-      setState(() {}); // Ensure UI updates
-    }
+    if (currentText != previousText) {
+      animationProvider.badgeAnimation(
+        currentText,
+        Converters(),
+        animationProvider.isEffectActive(InvertLEDEffect()),
+      );
 
-    if (previousText.length > currentText.length) {
-      final deletionIndex = selection.baseOffset;
-      final regex = RegExp(r'<<\d+>>');
-      final matches = regex.allMatches(previousText);
+      if (animationProvider.isSpecialAnimationSelected() &&
+          currentText.isNotEmpty) {
+        animationProvider.resetToTextAnimation();
+      }
 
-      bool placeholderDeleted = false;
-      for (final match in matches) {
-        if (deletionIndex > match.start && deletionIndex < match.end) {
-          inlineimagecontroller.text =
-              previousText.replaceRange(match.start, match.end, '');
-          inlineimagecontroller.selection =
-              TextSelection.collapsed(offset: match.start);
-          placeholderDeleted = true;
-          break;
+      final selection = inlineimagecontroller.selection;
+      if (previousText.length > currentText.length) {
+        final deletionIndex = selection.baseOffset;
+        final regex = RegExp(r'<<\d+>>');
+        final matches = regex.allMatches(previousText);
+
+        bool placeholderDeleted = false;
+        for (final match in matches) {
+          if (deletionIndex > match.start && deletionIndex < match.end) {
+            inlineimagecontroller.text =
+                previousText.replaceRange(match.start, match.end, '');
+            inlineimagecontroller.selection =
+                TextSelection.collapsed(offset: match.start);
+            placeholderDeleted = true;
+            break;
+          }
         }
+        if (!placeholderDeleted) {
+          previousText = inlineimagecontroller.text;
+        }
+      } else {
+        previousText = currentText;
       }
-      if (!placeholderDeleted) {
-        previousText = inlineimagecontroller.text;
-      }
-    } else {
-      previousText = currentText;
+
+      setState(() {});
     }
   }
 
