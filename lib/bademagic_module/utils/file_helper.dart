@@ -397,7 +397,7 @@ class FileHelper {
   Future<bool> importBadgeData(context) async {
     try {
       // Open file picker to select a JSON file
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json', 'gif'],
       );

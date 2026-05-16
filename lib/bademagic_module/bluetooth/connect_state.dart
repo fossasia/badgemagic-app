@@ -20,7 +20,8 @@ class ConnectState extends RetryBleState {
         logger.d("No existing connection to disconnect");
       }
 
-      await scanResult.device.connect(autoConnect: false);
+      await scanResult.device
+          .connect(autoConnect: false, license: License.free);
       BluetoothConnectionState connectionState =
           await scanResult.device.connectionState.first;
 
