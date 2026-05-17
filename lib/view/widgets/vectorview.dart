@@ -35,12 +35,7 @@ class _VectorGridViewState extends State<VectorGridView> {
 
     final allKeys = inlineImageProvider.imageCache.keys.toList();
 
-    /// 🧠 BadgeMagic logic:
-    /// - List keys = saved user cliparts (priority + reverse chronological feel)
-    /// - int keys = default vector assets
-    final savedKeys = allKeys
-        .whereType<List>()
-        .toList()
+    final savedKeys = allKeys.whereType<List>().toList()
       ..sort((a, b) {
         // newest first (based on first element string/id)
         final aId = a.isNotEmpty ? a.first.toString() : '';
@@ -54,8 +49,6 @@ class _VectorGridViewState extends State<VectorGridView> {
         .toList()
       ..sort();
 
-    /// Final merge order (BadgeMagic UX rule):
-    /// saved cliparts first → default vectors after
     final keys = <dynamic>[
       ...savedKeys,
       ...defaultKeys,
@@ -73,7 +66,6 @@ class _VectorGridViewState extends State<VectorGridView> {
       ),
       itemCount: keys.length + 1,
       itemBuilder: (context, index) {
-        /// ➕ Create new badge / clipart
         if (index == 0) {
           return GestureDetector(
             onTap: () {
