@@ -112,6 +112,10 @@ class InlineImageProvider extends ChangeNotifier {
   //The cache generation time acts as a delay in the splash screen
   Map<Object, Uint8List?> imageCache = {};
 
+  void notify() {
+    notifyListeners();
+  }
+
   void removeFromCache(String filename) {
     imageCache.removeWhere(
       (key, value) => key is List && key.isNotEmpty && key[0] == filename,

@@ -52,7 +52,7 @@ class FileHelper {
     }
 
     imageCacheProvider.imageCache[[filename, key]] = imageData;
-    imageCacheProvider.notifyListeners();
+    imageCacheProvider.notify();
   }
 
   Future<void> generateClipartCache() async {
@@ -371,7 +371,8 @@ class FileHelper {
       File file = File(filePath);
       if (await file.exists()) {
         // Use share_plus to share the file
-        final result = await Share.shareXFiles([XFile(filePath)]);
+        final result = await SharePlus.instance
+            .share(ShareParams(files: [XFile(filePath)]));
         if (result.status == ShareResultStatus.success) {
           logger.i('File shared successfully');
         } else {
