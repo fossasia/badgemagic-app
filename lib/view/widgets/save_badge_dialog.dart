@@ -123,6 +123,7 @@ class SaveBadgeDialog extends StatelessWidget {
                     bool caseSensitiveExists = await file.exists();
 
                     if (caseSensitiveExists) {
+                      if (!context.mounted) return;
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -155,15 +156,18 @@ class SaveBadgeDialog extends StatelessWidget {
                         );
                         ToastUtils().showToast(l10n.badgeUpdatedSuccessfully);
                         Future.delayed(const Duration(milliseconds: 100), () {
-                          Navigator.of(context, rootNavigator: true)
-                              .pushNamedAndRemoveUntil(
-                                  '/savedBadge', (route) => false);
+                          if (context.mounted) {
+                            Navigator.of(context, rootNavigator: true)
+                                .pushNamedAndRemoveUntil(
+                                    '/savedBadge', (route) => false);
+                          }
                         });
                         return;
                       } else {
                         return;
                       }
                     } else if (caseInsensitiveMatch != null) {
+                      if (!context.mounted) return;
                       final result = await showDialog<String>(
                         context: context,
                         builder: (context) => AlertDialog(
@@ -209,9 +213,11 @@ class SaveBadgeDialog extends StatelessWidget {
                         );
                         ToastUtils().showToast(l10n.badgeUpdatedSuccessfully);
                         Future.delayed(const Duration(milliseconds: 100), () {
-                          Navigator.of(context, rootNavigator: true)
-                              .pushNamedAndRemoveUntil(
-                                  '/savedBadge', (route) => false);
+                          if (context.mounted) {
+                            Navigator.of(context, rootNavigator: true)
+                                .pushNamedAndRemoveUntil(
+                                    '/savedBadge', (route) => false);
+                          }
                         });
                         return;
                       } else {
@@ -228,7 +234,9 @@ class SaveBadgeDialog extends StatelessWidget {
                         animationProvider.getAnimationIndex() ?? 1,
                       );
                       ToastUtils().showToast(l10n.badgeSavedSuccessfully);
-                      Navigator.of(context).pop();
+                      if (context.mounted) {
+                        Navigator.of(context).pop();
+                      }
                     }
                   },
                   child: Text(
