@@ -52,11 +52,9 @@ badgemagic-app/
 
 ## Commit Style
 
-- Adhere to the commit style described in the file `commitStyle.md` in
-  the `docs` folder of this project.
+- Adhere to the commit style described in the file `commitStyle.md` in the `docs` folder of this project.
 
 ## UI guidelines
 
 - The UI of the app must be consistent
-    - The UI of the app should adhere to the best practices for adaptive design described
-      in <https://docs.flutter.dev/ui/adaptive-responsive/best-practices>.
+- The UI of the app should adhere to the best practices for adaptive design described in <https://docs.flutter.dev/ui/adaptive-responsive/best-practices>.
