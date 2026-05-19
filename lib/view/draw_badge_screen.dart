@@ -242,6 +242,17 @@ class _DrawBadgeState extends State<DrawBadge> {
             .getDrawViewGrid()
             .map((e) => e.map((e) => e ? 1 : 0).toList())
             .toList();
+
+        final bool isEmpty =
+            badgeGrid.every((row) => row.every((cell) => cell == 0));
+        if (isEmpty) {
+          ToastUtils().showToast(GetIt.instance
+              .get<LocalizationService>()
+              .l10n
+              .pleaseSelectClipart);
+          return;
+        }
+
         List<String> hexString =
             Converters.convertBitmapToLEDHex(badgeGrid, false);
 

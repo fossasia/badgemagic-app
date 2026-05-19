@@ -9,7 +9,7 @@ class ToastUtils {
       SnackBar(
         margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10),
         elevation: 10,
-        duration: const Duration(seconds: 1),
+        duration: const Duration(seconds: 3),
         content: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
