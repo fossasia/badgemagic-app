@@ -46,9 +46,9 @@ badgemagic-app/
 ## Coding Standards
 
 - Adhere to the coding style described in <https://dart.dev/effective-dart/style>.
-    - Adhere to the SOLID design principles described in <https://simple.wikipedia.org/wiki/SOLID_(object-oriented_design)>.
-    - Adhere to Object-Oriented Design best practices described in <http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod>.
-    - Keep in mind the architecture recommendations described in <https://docs.flutter.dev/app-architecture/guide>.
+- Adhere to the SOLID design principles described in <https://simple.wikipedia.org/wiki/SOLID_(object-oriented_design)>.
+- Adhere to Object-Oriented Design best practices described in <http://butunclebob.com/ArticleS.UncleBob.PrinciplesOfOod>.
+- Keep in mind the architecture recommendations described in <https://docs.flutter.dev/app-architecture/guide>.
 
 ## Commit Style
 
