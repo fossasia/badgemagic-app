@@ -17,18 +17,24 @@ and other elements, then transfer them to compatible LED badge devices.
 ```text
 badgemagic-app/
 ├── android/          # Android-specific platform code
-├── ios/              # iOS-specific platform code
+├── iOS/              # iOS-specific platform code
 ├── linux/            # Linux-specific platform code
 ├── macos/            # macOS-specific platform code
 ├── windows/          # Windows-specific platform code
 ├── web/              # Web-specific platform code
 ├── lib/              # Code shared by all platforms
-│   ├── model/        # Data models and business logic
-│   ├── provider/     # State management using Provider
-│   ├── view/         # UI screens and widgets
-│   ├── utils/        # Helper functions and utilities
-│   ├── l10n/         # Localization (i18n) files
-│   └── main.dart     # App entry point
+│   ├── bademagic_module/  # Core badge logic, BLE transfer, data generators
+│   ├── badge_animation/   # Badge animation definitions
+│   ├── badge_effect/      # Badge effect definitions
+│   ├── globals/           # Global state and singletons
+│   ├── providers/         # State management using Provider
+│   ├── services/          # App-level services
+│   ├── utils/             # Helper functions and utilities
+│   ├── view/              # UI screens and widgets
+│   ├── virtualbadge/      # Virtual badge preview
+│   ├── l10n/              # Localization (i18n) files
+│   ├── constants.dart     # Shared constants
+│   └── main.dart          # App entry point
 ├── test/             # Unit and widget tests
 ├── assets/           # Images, clipart, icons, and fonts
 ├── .github/
@@ -46,7 +52,7 @@ badgemagic-app/
 
 ## Commit Style
 
-- Adhere to the commit style described in the file `commitstyle.md` in
+- Adhere to the commit style described in the file `commitStyle.md` in
   the `docs` folder of this project.
 
 ## UI guidelines
