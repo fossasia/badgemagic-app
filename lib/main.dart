@@ -55,8 +55,7 @@ Future<void> main() async {
         create: (_) => AnimationBadgeProvider(),
       ),
       ChangeNotifierProvider<SpeedDialProvider>(
-        create: (ctx) =>
-            SpeedDialProvider(ctx.read<AnimationBadgeProvider>()),
+        create: (ctx) => SpeedDialProvider(ctx.read<AnimationBadgeProvider>()),
       ),
     ],
     child: const MyApp(),
