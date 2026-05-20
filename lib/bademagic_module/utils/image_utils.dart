@@ -211,11 +211,7 @@ class ImageUtils {
     return Converters.convertBitmapToLEDHex(matrix, true);
   }
 
-  // Decode an SVG asset to its raw 11-row 1/0 bitmap, stopping before LED-hex
-  // conversion. Exposed so the badge text pipeline can apply consistent
-  // trimming and gutter logic to built-in vectors and user-saved cliparts
-  // alike — otherwise wide shapes (arrows, chevrons) that fill their bounding
-  // box render flush against their neighbours.
+  // Raw 11-row bitmap for an SVG asset, before LED-hex encoding.
   Future<List<List<int>>> generateLedHexMatrix(String asset) async {
     await _loadSVG(asset);
     ui.Image image =

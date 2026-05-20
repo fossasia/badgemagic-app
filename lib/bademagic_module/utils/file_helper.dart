@@ -106,20 +106,8 @@ class FileHelper {
     addToCache(imageBytes, filename);
   }
 
-  // Crop fully-empty columns from the left and right of the pixel matrix so
-  // saved cliparts are tightly bounded to their visible content horizontally.
-  // Blank columns surrounding the drawn shape are what cause uneven spacing
-  // when multiple saved cliparts are placed side-by-side in the preview bar.
-  //
-  // Row count is intentionally preserved: the LED-hex rendering pipeline
-  // (Converters.convertBitmapToLEDHex and the matching 11-row substring loop
-  // in _processCustomFontMessage / _processDefaultFont) hard-codes the badge
-  // height to 11 rows. Trimming rows here would desynchronise that pipeline
-  // and crash the preview when a user-saved clipart is inserted into the
-  // text. Vertical placement inside the row range is preserved as-drawn.
-  //
-  // Returns an empty list if the matrix has no set pixels at all — callers
-  // treat that as "nothing to save".
+  // Trim empty left/right columns only. Row count is preserved because the
+  // LED-hex pipeline assumes exactly 11 rows.
   static List<List<int>> trimEmptyPadding(List<List<int>> image) {
     if (image.isEmpty || image[0].isEmpty) return const [];
 
@@ -136,7 +124,6 @@ class FileHelper {
       }
     }
 
-    // No non-empty pixels found.
     if (right < 0) return const [];
 
     return List.generate(
@@ -145,14 +132,7 @@ class FileHelper {
     );
   }
 
-  // The badge rendering pipeline (Converters.convertBitmapToLEDHex plus the
-  // 11-iteration substring loop downstream) assumes every clipart is exactly
-  // 11 rows tall. Older clipart files on disk may have fewer rows (a previous
-  // version of trimEmptyPadding cropped rows too), and any other malformed
-  // input would otherwise crash the preview the moment it is referenced from
-  // the text. This pads short matrices with zero-rows split between top and
-  // bottom, and crops over-tall ones, so render-time consumers can always
-  // assume an 11-row matrix.
+  // Pad/crop to 11 rows so legacy short-matrix files don't crash the renderer.
   static const int _badgeRows = 11;
   static List<List<int>> normalizeClipartHeight(List<List<int>> image) {
     if (image.isEmpty) return image;
@@ -170,17 +150,11 @@ class FileHelper {
       ];
     }
 
-    // Too tall: keep the top 11 rows (rare; defensive).
     return image.sublist(0, _badgeRows);
   }
 
-  // Wrap an already-trimmed clipart matrix with a one-column transparent
-  // gutter on each side. Without this, tightly-cropped user cliparts render
-  // flush against their neighbours in the preview bar because the LED-hex
-  // converter would otherwise re-strip any empty edge column. The matching
-  // call-site uses `convertBitmapToLEDHex(..., false)` so this gutter is
-  // preserved verbatim. The 1-column margin matches the visual spacing the
-  // built-in vector cliparts produce after anti-aliased rasterisation.
+  // 1-col gutter so two consecutive cliparts never touch. Caller must use
+  // convertBitmapToLEDHex(..., trim: false) or the gutter gets stripped.
   static List<List<int>> addClipartSideMargins(List<List<int>> image) {
     if (image.isEmpty) return image;
     return [
@@ -188,8 +162,6 @@ class FileHelper {
     ];
   }
 
-  // Function to update the content of a file
-// Function to update the content of a file with a 2D list of bools
   Future<bool> updateClipart(String filename, List<List<int>> image) async {
     final List<List<int>> trimmed = trimEmptyPadding(image);
     if (trimmed.isEmpty) {
@@ -247,44 +219,35 @@ class FileHelper {
     }
   }
 
-  // Save a 2D list to a file with a unique name. Returns true if the clipart
-  // was persisted, false if it was rejected as empty.
+  // Returns true if the clipart was persisted, false if rejected as empty.
   Future<bool> saveImage(List<List<bool>> imageData) async {
     List<List<int>> image = List.generate(
         imageData.length, (i) => List<int>.filled(imageData[i].length, 0));
 
-    //convert the 2D list of bool into 2D list of int
     for (int i = 0; i < imageData.length; i++) {
       for (int j = 0; j < imageData[i].length; j++) {
         image[i][j] = imageData[i][j] ? 1 : 0;
       }
     }
 
-    // Crop blank rows/columns around the shape so the saved bitmap reflects
-    // the clipart's true dimensions. This is what keeps spacing consistent
-    // when the user drops multiple saved cliparts into the preview bar.
     final List<List<int>> trimmed = trimEmptyPadding(image);
     if (trimmed.isEmpty) {
       logger.i('Skipping save: clipart is empty');
       return false;
     }
 
-    // Generate a unique filename
     String filename = _generateUniqueFilename();
 
     logger.d('Saving image to file: $filename');
 
-    // Convert the trimmed 2D list to JSON string
     String jsonData = jsonEncode(trimmed);
 
     logger.d('JSON data: $jsonData');
 
-    // Write the JSON string to a file
     await _writeToFile(filename, jsonData);
 
     logger.d('Image saved to file: $filename');
 
-    //Add the image to the image cache after saving it to a file
     await _addImageDataToCache(trimmed, filename);
     return true;
   }

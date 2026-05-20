@@ -256,10 +256,8 @@ class _DrawBadgeState extends State<DrawBadge> {
         }
 
         if (!saved) {
-          ToastUtils().showToast(GetIt.instance
-              .get<LocalizationService>()
-              .l10n
-              .noClipartFound);
+          ToastUtils().showToast(
+              GetIt.instance.get<LocalizationService>().l10n.noClipartFound);
           return;
         }
 
