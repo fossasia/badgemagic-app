@@ -54,8 +54,8 @@ class _HomeScreenState extends State<HomeScreen>
         AutomaticKeepAliveClientMixin,
         WidgetsBindingObserver {
   late final TabController _tabController;
-  final AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
-  late SpeedDialProvider speedDialProvider;
+  late final AnimationBadgeProvider animationProvider;
+  late final SpeedDialProvider speedDialProvider;
   final BadgeMessageProvider badgeData = BadgeMessageProvider();
   final ImageUtils imageUtils = ImageUtils();
   final InlineImageProvider inlineImageProvider =
@@ -77,7 +77,9 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.addObserver(this);
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
-    speedDialProvider = SpeedDialProvider(animationProvider);
+    animationProvider = context.read<AnimationBadgeProvider>();
+    speedDialProvider = context.read<SpeedDialProvider>();
+    inlineimagecontroller.addListener(_controllerListner);
 
     if (widget.initialSpeed != null) {
       speedDialProvider.setDialValue(widget.initialSpeed!);
@@ -187,7 +189,6 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
     inlineimagecontroller.removeListener(_controllerListner);
-    animationProvider.stopAnimation();
     _tabController.dispose();
     super.dispose();
   }
@@ -224,21 +225,7 @@ class _HomeScreenState extends State<HomeScreen>
       valueListenable: appLocale,
       builder: (context, _, __) {
         final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        return MultiProvider(
-          providers: [
-            ChangeNotifierProvider<AnimationBadgeProvider>(
-              create: (context) => animationProvider,
-            ),
-            ChangeNotifierProvider<SpeedDialProvider>(
-              create: (context) {
-                inlineImageProvider
-                    .getController()
-                    .addListener(_controllerListner);
-                return speedDialProvider;
-              },
-            ),
-          ],
-          child: DefaultTabController(
+        return DefaultTabController(
             length: 4,
             child: CommonScaffold(
               index: 0,
@@ -716,8 +703,7 @@ class _HomeScreenState extends State<HomeScreen>
                 ),
               ),
             ),
-          ),
-        );
+          );
       },
     );
   }
