@@ -106,12 +106,100 @@ class FileHelper {
     addToCache(imageBytes, filename);
   }
 
+  // Crop fully-empty columns from the left and right of the pixel matrix so
+  // saved cliparts are tightly bounded to their visible content horizontally.
+  // Blank columns surrounding the drawn shape are what cause uneven spacing
+  // when multiple saved cliparts are placed side-by-side in the preview bar.
+  //
+  // Row count is intentionally preserved: the LED-hex rendering pipeline
+  // (Converters.convertBitmapToLEDHex and the matching 11-row substring loop
+  // in _processCustomFontMessage / _processDefaultFont) hard-codes the badge
+  // height to 11 rows. Trimming rows here would desynchronise that pipeline
+  // and crash the preview when a user-saved clipart is inserted into the
+  // text. Vertical placement inside the row range is preserved as-drawn.
+  //
+  // Returns an empty list if the matrix has no set pixels at all — callers
+  // treat that as "nothing to save".
+  static List<List<int>> trimEmptyPadding(List<List<int>> image) {
+    if (image.isEmpty || image[0].isEmpty) return const [];
+
+    final int rows = image.length;
+    final int cols = image[0].length;
+    int left = cols, right = -1;
+
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        if (image[r][c] != 0) {
+          if (c < left) left = c;
+          if (c > right) right = c;
+        }
+      }
+    }
+
+    // No non-empty pixels found.
+    if (right < 0) return const [];
+
+    return List.generate(
+      rows,
+      (i) => image[i].sublist(left, right + 1),
+    );
+  }
+
+  // The badge rendering pipeline (Converters.convertBitmapToLEDHex plus the
+  // 11-iteration substring loop downstream) assumes every clipart is exactly
+  // 11 rows tall. Older clipart files on disk may have fewer rows (a previous
+  // version of trimEmptyPadding cropped rows too), and any other malformed
+  // input would otherwise crash the preview the moment it is referenced from
+  // the text. This pads short matrices with zero-rows split between top and
+  // bottom, and crops over-tall ones, so render-time consumers can always
+  // assume an 11-row matrix.
+  static const int _badgeRows = 11;
+  static List<List<int>> normalizeClipartHeight(List<List<int>> image) {
+    if (image.isEmpty) return image;
+    final int cols = image[0].length;
+    if (image.length == _badgeRows) return image;
+
+    if (image.length < _badgeRows) {
+      final int missing = _badgeRows - image.length;
+      final int top = missing ~/ 2;
+      final int bottom = missing - top;
+      return [
+        for (int i = 0; i < top; i++) List<int>.filled(cols, 0),
+        ...image,
+        for (int i = 0; i < bottom; i++) List<int>.filled(cols, 0),
+      ];
+    }
+
+    // Too tall: keep the top 11 rows (rare; defensive).
+    return image.sublist(0, _badgeRows);
+  }
+
+  // Wrap an already-trimmed clipart matrix with a one-column transparent
+  // gutter on each side. Without this, tightly-cropped user cliparts render
+  // flush against their neighbours in the preview bar because the LED-hex
+  // converter would otherwise re-strip any empty edge column. The matching
+  // call-site uses `convertBitmapToLEDHex(..., false)` so this gutter is
+  // preserved verbatim. The 1-column margin matches the visual spacing the
+  // built-in vector cliparts produce after anti-aliased rasterisation.
+  static List<List<int>> addClipartSideMargins(List<List<int>> image) {
+    if (image.isEmpty) return image;
+    return [
+      for (final row in image) <int>[0, ...row, 0],
+    ];
+  }
+
   // Function to update the content of a file
 // Function to update the content of a file with a 2D list of bools
-  Future<void> updateClipart(String filename, List<List<int>> image) async {
+  Future<bool> updateClipart(String filename, List<List<int>> image) async {
+    final List<List<int>> trimmed = trimEmptyPadding(image);
+    if (trimmed.isEmpty) {
+      logger.i('Skipping save: clipart is empty after trimming');
+      return false;
+    }
+
     logger.d('Updating clipart: $filename');
     // Convert the 2D list of int to a JSON string
-    String jsonData = jsonEncode(image);
+    String jsonData = jsonEncode(trimmed);
 
     // Get the application's document directory
     final directory = await getApplicationDocumentsDirectory();
@@ -133,6 +221,7 @@ class FileHelper {
       await file.writeAsString(jsonData);
       logger.d('New file created and content written: $filename');
     }
+    return true;
   }
 
   // Read all files, parse the 2D lists, and add to cache
@@ -158,8 +247,9 @@ class FileHelper {
     }
   }
 
-  // Save a 2D list to a file with a unique name
-  Future<void> saveImage(List<List<bool>> imageData) async {
+  // Save a 2D list to a file with a unique name. Returns true if the clipart
+  // was persisted, false if it was rejected as empty.
+  Future<bool> saveImage(List<List<bool>> imageData) async {
     List<List<int>> image = List.generate(
         imageData.length, (i) => List<int>.filled(imageData[i].length, 0));
 
@@ -170,13 +260,22 @@ class FileHelper {
       }
     }
 
+    // Crop blank rows/columns around the shape so the saved bitmap reflects
+    // the clipart's true dimensions. This is what keeps spacing consistent
+    // when the user drops multiple saved cliparts into the preview bar.
+    final List<List<int>> trimmed = trimEmptyPadding(image);
+    if (trimmed.isEmpty) {
+      logger.i('Skipping save: clipart is empty');
+      return false;
+    }
+
     // Generate a unique filename
     String filename = _generateUniqueFilename();
 
     logger.d('Saving image to file: $filename');
 
-    // Convert the 2D list to JSON string
-    String jsonData = jsonEncode(image);
+    // Convert the trimmed 2D list to JSON string
+    String jsonData = jsonEncode(trimmed);
 
     logger.d('JSON data: $jsonData');
 
@@ -186,7 +285,8 @@ class FileHelper {
     logger.d('Image saved to file: $filename');
 
     //Add the image to the image cache after saving it to a file
-    await _addImageDataToCache(image, filename);
+    await _addImageDataToCache(trimmed, filename);
+    return true;
   }
 
   Future<dynamic> readFromFile(String filename) async {

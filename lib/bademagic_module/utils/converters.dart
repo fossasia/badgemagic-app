@@ -24,6 +24,25 @@ class Converters {
 
   static final Map<String, List<List<bool>>> _characterCache = {};
 
+  // Shared rendering pipeline for any clipart (built-in vector or user-saved):
+  // 1) Pad/crop to the badge's 11 rows so the downstream substring loop and
+  //    LED-protocol byte layout always see a consistent height.
+  // 2) Re-trim columns to a tight bounding box so spacing is no longer at
+  //    the mercy of how the source bitmap happened to be cropped.
+  // 3) Wrap the bounded shape with a 1-column transparent gutter on each
+  //    side so two consecutive cliparts never render flush — this is what
+  //    fixes wide shapes like arrows and chevrons whose pixels reach the
+  //    bitmap edge.
+  // 4) Pass `trim: false` to convertBitmapToLEDHex so the gutter survives;
+  //    the converter still pads the total width to a multiple of 8.
+  List<String> _renderClipartMatrix(List<List<int>> imageData) {
+    imageData = FileHelper.normalizeClipartHeight(imageData);
+    imageData = FileHelper.trimEmptyPadding(imageData);
+    if (imageData.isEmpty) return const [];
+    imageData = FileHelper.addClipartSideMargins(imageData);
+    return convertBitmapToLEDHex(imageData, false);
+  }
+
   List<String> _matrixToHex(List<List<bool>> matrix) {
     return List.generate(matrix.length, (i) {
       final binary = matrix[i].map((b) => b ? '1' : '0').join();
@@ -202,19 +221,25 @@ class Converters {
           int index = segment['index'];
           var key = controllerData.imageCache.keys.toList()[index];
           List<String> hexStrings;
+          // For both user-saved cliparts and built-in vectors, run the bitmap
+          // through the same normalize → tight column-trim → 1-col side
+          // gutter → trim:false hex-encode pipeline. This guarantees a
+          // consistent visible gap between any two consecutive cliparts
+          // (including arrows/chevrons that fill their bounding box), and
+          // it also self-heals legacy row-trimmed user clipart files.
+          List<List<int>> imageData;
           if (key is List) {
             String filename = key[0];
             List<dynamic>? decodedData =
                 await fileHelper.readFromFile(filename);
             final List<List<dynamic>> image =
                 decodedData!.cast<List<dynamic>>();
-            List<List<int>> imageData =
-                image.map((list) => list.cast<int>()).toList();
-            hexStrings = convertBitmapToLEDHex(imageData, true);
+            imageData = image.map((list) => list.cast<int>()).toList();
           } else {
-            hexStrings =
-                await imageUtils.generateLedHex(controllerData.vectors[index]);
+            imageData = await imageUtils
+                .generateLedHexMatrix(controllerData.vectors[index]);
           }
+          hexStrings = _renderClipartMatrix(imageData);
 
           for (var hex in hexStrings) {
             for (int i = 0; i < 11; i++) {
@@ -315,17 +340,22 @@ class Converters {
       } else if (segment['type'] == 'image') {
         int index = segment['index'];
         var key = controllerData.imageCache.keys.toList()[index];
+        // Both user-saved cliparts and built-in vectors go through the same
+        // normalize → trim → 1-col gutter pipeline (see
+        // _renderClipartMatrix). This is what gives every clipart a
+        // consistent inter-element gap, including arrows/chevrons that
+        // would otherwise touch their neighbours.
+        List<List<int>> imageData;
         if (key is List) {
           String filename = key[0];
           List<dynamic>? decodedData = await fileHelper.readFromFile(filename);
           final List<List<dynamic>> image = decodedData!.cast<List<dynamic>>();
-          List<List<int>> imageData =
-              image.map((list) => list.cast<int>()).toList();
-          hexStrings.addAll(convertBitmapToLEDHex(imageData, true));
+          imageData = image.map((list) => list.cast<int>()).toList();
         } else {
-          hexStrings.addAll(
-              await imageUtils.generateLedHex(controllerData.vectors[index]));
+          imageData = await imageUtils
+              .generateLedHexMatrix(controllerData.vectors[index]);
         }
+        hexStrings.addAll(_renderClipartMatrix(imageData));
       }
     }
     return hexStrings;

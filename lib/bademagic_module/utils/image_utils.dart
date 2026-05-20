@@ -207,6 +207,16 @@ class ImageUtils {
 
   //function to generate the LED hex from the given asset
   Future<List<String>> generateLedHex(String asset) async {
+    final List<List<int>> matrix = await generateLedHexMatrix(asset);
+    return Converters.convertBitmapToLEDHex(matrix, true);
+  }
+
+  // Decode an SVG asset to its raw 11-row 1/0 bitmap, stopping before LED-hex
+  // conversion. Exposed so the badge text pipeline can apply consistent
+  // trimming and gutter logic to built-in vectors and user-saved cliparts
+  // alike — otherwise wide shapes (arrows, chevrons) that fill their bounding
+  // box render flush against their neighbours.
+  Future<List<List<int>>> generateLedHexMatrix(String asset) async {
     await _loadSVG(asset);
     ui.Image image =
         await picture.toImage(originalWidth.toInt(), originalHeight.toInt());
@@ -223,7 +233,7 @@ class ImageUtils {
         }
       }
     }
-    return Converters.convertBitmapToLEDHex(pixelArray, true);
+    return pixelArray;
   }
 
   List<String> convertGifFramesToLEDHex(Uint8List gifBytes) {
