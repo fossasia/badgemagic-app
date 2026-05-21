@@ -44,3 +44,6 @@ app.*.map.json
 /android/app/release
 
 screenshots/
+
+#App localizations files
+/lib/l10n/app_localizations*
