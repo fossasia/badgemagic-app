@@ -17,7 +17,7 @@ jobs:
         run: echo "REPO_OWNER_LOWER=${GITHUB_REPOSITORY,,}" >> ${GITHUB_ENV}
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ghcr.io
           username: ${{ env.REPO_OWNER_LOWER }}
