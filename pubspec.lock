@@ -299,10 +299,10 @@ packages:
     dependency: "direct main"
     description:
       name: get_it
-      sha256: "1d648d2dd2047d7f7450d5727ca24ee435f240385753d90b49650e3cdff32e56"
+      sha256: "568d62f0e68666fb5d95519743b3c24a34c7f19d834b0658c46e26d778461f66"
       url: "https://pub.dev"
     source: hosted
-    version: "9.2.0"
+    version: "9.2.1"
   glob:
     dependency: transitive
     description:
