@@ -3,13 +3,13 @@ import 'package:badgemagic/bademagic_module/utils/data_to_bytearray_converter.da
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 
 class DataTransferManager {
   final Data data;
 
-  BluetoothDevice? connectedDevice;
+  BleDevice? connectedDevice;
 
   final BadgeMessageProvider badgeData = BadgeMessageProvider();
   final DataToByteArrayConverter converter = DataToByteArrayConverter();

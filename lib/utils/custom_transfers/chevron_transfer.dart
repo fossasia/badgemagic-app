@@ -6,14 +6,14 @@ import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/utils/custom_transfers/common.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:universal_ble/universal_ble.dart';
 import 'package:logger/logger.dart';
 
 Future<void> customTransferChevronAnimation(
     Future<void> Function(DataTransferManager) transferData,
     int speedLevel) async {
-  final adapterState = await FlutterBluePlus.adapterState.first;
-  if (adapterState != BluetoothAdapterState.on) {
+  final adapterState = await UniversalBle.getBluetoothAvailabilityState();
+  if (adapterState != AvailabilityState.poweredOn) {
     ToastUtils().showErrorToast('Please turn on Bluetooth');
     return;
   }
