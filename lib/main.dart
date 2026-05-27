@@ -75,8 +75,10 @@ class MyApp extends StatelessWidget {
             return MaterialApp(
               scaffoldMessengerKey: globals.scaffoldMessengerKey,
               debugShowCheckedModeBanner: false,
-              theme:
-                  ThemeData(colorSchemeSeed: Colors.white, useMaterial3: true),
+              theme: ThemeData(
+                colorSchemeSeed: Colors.white,
+                useMaterial3: true,
+              ),
               locale: locale ?? const Locale('en', 'US'),
               localizationsDelegates: const [
                 AppLocalizations.delegate,
