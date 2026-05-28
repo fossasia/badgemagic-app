@@ -194,7 +194,7 @@ class _BMDrawerState extends State<BMDrawer> {
           SharePlus.instance.share(ShareParams(text: shareText));
         } else {
           if (ModalRoute.of(context)?.settings.name == routeName) {
-            Navigator.pushReplacementNamed(context, routeName);
+            return;
           } else {
             Navigator.pushNamedAndRemoveUntil(
               context,

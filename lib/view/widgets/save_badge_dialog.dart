@@ -42,7 +42,7 @@ class SaveBadgeDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(5.r),
       ),
       child: Container(
-        height: 150.h, // Increase height for TextField space
+        height: 180.h, // Increase height for TextField + counter space
         width: 300.w, // Increased width
         padding: EdgeInsets.symmetric(
             horizontal: 20.w,
@@ -72,6 +72,7 @@ class SaveBadgeDialog extends StatelessWidget {
             TextField(
               controller: badgeNameController,
               autofocus: true,
+              maxLength: 200,
               decoration: const InputDecoration(
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(color: Colors.red),
@@ -80,6 +81,19 @@ class SaveBadgeDialog extends StatelessWidget {
                   borderSide: BorderSide(color: Colors.red, width: 2),
                 ),
               ),
+              buildCounter: (context,
+                  {required currentLength, required isFocused, maxLength}) {
+                return Align(
+                  alignment: Alignment.centerRight,
+                  child: Text(
+                    '$currentLength/${maxLength ?? 0}',
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.grey,
+                    ),
+                  ),
+                );
+              },
             ),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
@@ -154,7 +168,10 @@ class SaveBadgeDialog extends StatelessWidget {
                           speed.getOuterValue(),
                           animationProvider.getAnimationIndex() ?? 1,
                         );
-                        ToastUtils().showToast(l10n.badgeUpdatedSuccessfully);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(l10n.badgeUpdatedSuccessfully)),
+                        );
                         Future.delayed(const Duration(milliseconds: 100), () {
                           if (context.mounted) {
                             Navigator.of(context, rootNavigator: true)
@@ -211,7 +228,10 @@ class SaveBadgeDialog extends StatelessWidget {
                           speed.getOuterValue(),
                           animationProvider.getAnimationIndex() ?? 1,
                         );
-                        ToastUtils().showToast(l10n.badgeUpdatedSuccessfully);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                              content: Text(l10n.badgeUpdatedSuccessfully)),
+                        );
                         Future.delayed(const Duration(milliseconds: 100), () {
                           if (context.mounted) {
                             Navigator.of(context, rootNavigator: true)
@@ -233,7 +253,9 @@ class SaveBadgeDialog extends StatelessWidget {
                         speed.getOuterValue(),
                         animationProvider.getAnimationIndex() ?? 1,
                       );
-                      ToastUtils().showToast(l10n.badgeSavedSuccessfully);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(l10n.badgeSavedSuccessfully)),
+                      );
                       if (context.mounted) {
                         Navigator.of(context).pop();
                       }
