@@ -153,12 +153,13 @@ class FileHelper {
     return image.sublist(0, _badgeRows);
   }
 
-  // 1-col gutter so two consecutive cliparts never touch. Caller must use
-  // convertBitmapToLEDHex(..., trim: false) or the gutter gets stripped.
+  // 2-col gutter so two consecutive cliparts have comfortable, uniform spacing
+  // regardless of glyph shape. Caller must use convertBitmapToLEDHex(..., trim:
+  // false) or the gutter gets stripped.
   static List<List<int>> addClipartSideMargins(List<List<int>> image) {
     if (image.isEmpty) return image;
     return [
-      for (final row in image) <int>[0, ...row, 0],
+      for (final row in image) <int>[0, 0, ...row, 0, 0],
     ];
   }
 

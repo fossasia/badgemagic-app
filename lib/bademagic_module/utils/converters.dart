@@ -34,6 +34,44 @@ class Converters {
     return convertBitmapToLEDHex(imageData, false);
   }
 
+  // Tight-trim empty left/right cols of a rendered glyph and append exactly
+  // one empty col so concatenated chars always have a 1-px gap. Whitespace
+  // glyphs (no ink) keep a fixed 3-col width to preserve word spacing.
+  List<List<bool>> _trimAndPadCharMatrix(List<List<bool>> matrix) {
+    if (matrix.isEmpty || matrix[0].isEmpty) return matrix;
+    final int height = matrix.length;
+    final int width = matrix[0].length;
+    int left = 0;
+    while (left < width) {
+      bool inked = false;
+      for (int r = 0; r < height; r++) {
+        if (matrix[r][left]) {
+          inked = true;
+          break;
+        }
+      }
+      if (inked) break;
+      left++;
+    }
+    if (left == width) {
+      return List.generate(height, (_) => List.filled(3, false));
+    }
+    int right = width - 1;
+    while (right > left) {
+      bool inked = false;
+      for (int r = 0; r < height; r++) {
+        if (matrix[r][right]) {
+          inked = true;
+          break;
+        }
+      }
+      if (inked) break;
+      right--;
+    }
+    return List.generate(
+        height, (r) => [...matrix[r].sublist(left, right + 1), false]);
+  }
+
   List<String> _matrixToHex(List<List<bool>> matrix) {
     return List.generate(matrix.length, (i) {
       final binary = matrix[i].map((b) => b ? '1' : '0').join();
@@ -203,6 +241,7 @@ class Converters {
             final matrixData = await renderTextToMatrix(char, style,
                 rows: 11, hasDescender: hasDescender);
             List<List<bool>> charMatrix = matrixData['matrix'];
+            charMatrix = _trimAndPadCharMatrix(charMatrix);
             for (int row = 0; row < 11; row++) {
               combinedMatrix[row].addAll(charMatrix[row]);
             }
@@ -290,6 +329,18 @@ class Converters {
     return hexStrings;
   }
 
+  // Decode an 11-byte (22-hex-char) charCode into an 11x8 bitmap.
+  List<List<int>> _charCodeToMatrix(String hex) {
+    final matrix = List.generate(11, (_) => List<int>.filled(8, 0));
+    for (int r = 0; r < 11; r++) {
+      final byte = int.parse(hex.substring(r * 2, r * 2 + 2), radix: 16);
+      for (int c = 0; c < 8; c++) {
+        matrix[r][c] = (byte >> (7 - c)) & 1;
+      }
+    }
+    return matrix;
+  }
+
   Future<List<String>> _processDefaultFont(String text) async {
     List<Map<String, dynamic>> segments = [];
     String currentText = '';
@@ -313,15 +364,29 @@ class Converters {
       segments.add({'type': 'text', 'content': currentText});
     }
 
-    List<String> hexStrings = [];
+    // Build one combined bitmap so spacing is consistent across char and
+    // clipart boundaries. Each char is tight-trimmed + 1-col gap; cliparts go
+    // through the shared normalise/trim/margin pipeline.
+    List<List<int>> combined = List.generate(11, (_) => <int>[]);
     for (var segment in segments) {
       if (segment['type'] == 'text') {
-        String text = segment['content'];
-        hexStrings.addAll(text
-            .split('')
-            .where((char) => converter.charCodes.containsKey(char))
-            .map((char) => converter.charCodes[char]!)
-            .toList());
+        String segText = segment['content'];
+        for (int c = 0; c < segText.length; c++) {
+          final char = segText[c];
+          if (!converter.charCodes.containsKey(char)) continue;
+          final charMatrix = _charCodeToMatrix(converter.charCodes[char]!);
+          final trimmed = FileHelper.trimEmptyPadding(charMatrix);
+          if (trimmed.isEmpty) {
+            for (int r = 0; r < 11; r++) {
+              combined[r].addAll(const [0, 0, 0]);
+            }
+          } else {
+            for (int r = 0; r < 11; r++) {
+              combined[r].addAll(trimmed[r]);
+              combined[r].add(0);
+            }
+          }
+        }
       } else if (segment['type'] == 'image') {
         int index = segment['index'];
         var key = controllerData.imageCache.keys.toList()[index];
@@ -335,10 +400,18 @@ class Converters {
           imageData = await imageUtils
               .generateLedHexMatrix(controllerData.vectors[index]);
         }
-        hexStrings.addAll(_renderClipartMatrix(imageData));
+        imageData = FileHelper.normalizeClipartHeight(imageData);
+        imageData = FileHelper.trimEmptyPadding(imageData);
+        if (imageData.isEmpty) continue;
+        imageData = FileHelper.addClipartSideMargins(imageData);
+        for (int r = 0; r < 11; r++) {
+          combined[r].addAll(imageData[r]);
+        }
       }
     }
-    return hexStrings;
+
+    if (combined[0].isEmpty) return [];
+    return convertBitmapToLEDHex(combined, false);
   }
 
   List<String> _processInversion(List<String> hexStrings) {
