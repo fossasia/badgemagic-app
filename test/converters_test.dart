@@ -11,10 +11,10 @@ void main() {
     const String message = "Hii!";
     List<String> result = await converters.messageTohex(message, false);
     List<String> expected = [
-      "00C6C6C6C6FEC6C6C6C600",
-      "0018180038181818183C00",
-      "0018180038181818183C00",
-      "00183C3C3C181800181800"
+      "00c6c6c6c6fec6c6c6c600",
+      "0018180038181818183c00",
+      "0018180038181818183c00",
+      "00183c3c3c181800181800"
     ];
     expect(result, expected);
   });
