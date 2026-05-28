@@ -10,8 +10,8 @@ class DrawBadgeProvider extends ChangeNotifier {
 
   List<List<bool>> _drawViewGrid =
       List.generate(11, (_) => List.generate(44, (_) => false));
-  final List<List<bool>> _previewGrid =
-      List.generate(11, (_) => List.generate(44, (_) => false));
+  final List<List<bool?>> _previewGrid =
+      List.generate(11, (_) => List.generate(44, (_) => null));
   final List<List<List<bool>>> _undoStack = [];
   final List<List<List<bool>>> _redoStack = [];
 
@@ -21,12 +21,14 @@ class DrawBadgeProvider extends ChangeNotifier {
 
   // ========== GETTERS ==========
   List<List<bool>> getDrawViewGrid() {
-    // Merge preview + permanent grid
     return List.generate(
       rows,
       (i) => List.generate(
         cols,
-        (j) => _drawViewGrid[i][j] || _previewGrid[i][j],
+        (j) {
+          final preview = _previewGrid[i][j];
+          return preview ?? _drawViewGrid[i][j];
+        },
       ),
     );
   }
@@ -61,20 +63,22 @@ class DrawBadgeProvider extends ChangeNotifier {
   void clearPreviewGrid() {
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        _previewGrid[i][j] = false;
+        _previewGrid[i][j] = null;
       }
     }
   }
 
   void commitGridUpdate() {
     _pushToUndoStack();
+
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        if (_previewGrid[i][j]) {
-          _drawViewGrid[i][j] = _previewGrid[i][j];
+        if (_previewGrid[i][j] != null) {
+          _drawViewGrid[i][j] = _previewGrid[i][j]!;
         }
       }
     }
+
     clearPreviewGrid();
     notifyListeners();
   }
