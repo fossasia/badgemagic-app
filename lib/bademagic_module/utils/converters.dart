@@ -280,7 +280,6 @@ class Converters {
     return hexStrings;
   }
 
-  // Decode an 11-byte (22-hex-char) charCode into an 11x8 bitmap.
   List<List<int>> _charCodeToMatrix(String hex) {
     final matrix = List.generate(11, (_) => List<int>.filled(8, 0));
     for (int r = 0; r < 11; r++) {
@@ -292,7 +291,6 @@ class Converters {
     return matrix;
   }
 
-  // Tight-trim empty left/right columns of a glyph bitmap.
   List<List<int>> _trimGlyphCols(List<List<int>> matrix) {
     if (matrix.isEmpty || matrix[0].isEmpty) return matrix;
     final int height = matrix.length;
@@ -325,9 +323,6 @@ class Converters {
     return List.generate(height, (r) => matrix[r].sublist(left, right + 1));
   }
 
-  // Renders a default-font text segment as a tight-trimmed bitmap with exactly
-  // 1 empty column between glyphs, then encodes it. Whitespace keeps a fixed
-  // 3-col width so word spacing is preserved.
   List<String> _renderDefaultFontText(String text) {
     final combined = List.generate(11, (_) => <int>[]);
     for (int c = 0; c < text.length; c++) {
