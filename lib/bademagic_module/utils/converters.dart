@@ -314,7 +314,14 @@ class Converters {
             .toList());
       } else if (segment['type'] == 'image') {
         int index = segment['index'];
-        var key = controllerData.imageCache.keys.toList()[index];
+
+        final key = controllerData.imageCache.keys.firstWhere(
+          (cacheKey) =>
+              cacheKey == index ||
+              (cacheKey is List && cacheKey.length > 1 && cacheKey[1] == index),
+          orElse: () => index,
+        );
+
         if (key is List) {
           String filename = key[0];
           List<dynamic>? decodedData = await fileHelper.readFromFile(filename);
