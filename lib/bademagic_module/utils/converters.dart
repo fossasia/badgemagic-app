@@ -329,18 +329,6 @@ class Converters {
     return hexStrings;
   }
 
-  // Decode an 11-byte (22-hex-char) charCode into an 11x8 bitmap.
-  List<List<int>> _charCodeToMatrix(String hex) {
-    final matrix = List.generate(11, (_) => List<int>.filled(8, 0));
-    for (int r = 0; r < 11; r++) {
-      final byte = int.parse(hex.substring(r * 2, r * 2 + 2), radix: 16);
-      for (int c = 0; c < 8; c++) {
-        matrix[r][c] = (byte >> (7 - c)) & 1;
-      }
-    }
-    return matrix;
-  }
-
   Future<List<String>> _processDefaultFont(String text) async {
     List<Map<String, dynamic>> segments = [];
     String currentText = '';
@@ -364,29 +352,15 @@ class Converters {
       segments.add({'type': 'text', 'content': currentText});
     }
 
-    // Build one combined bitmap so spacing is consistent across char and
-    // clipart boundaries. Each char is tight-trimmed + 1-col gap; cliparts go
-    // through the shared normalise/trim/margin pipeline.
-    List<List<int>> combined = List.generate(11, (_) => <int>[]);
+    List<String> hexStrings = [];
     for (var segment in segments) {
       if (segment['type'] == 'text') {
-        String segText = segment['content'];
-        for (int c = 0; c < segText.length; c++) {
-          final char = segText[c];
-          if (!converter.charCodes.containsKey(char)) continue;
-          final charMatrix = _charCodeToMatrix(converter.charCodes[char]!);
-          final trimmed = FileHelper.trimEmptyPadding(charMatrix);
-          if (trimmed.isEmpty) {
-            for (int r = 0; r < 11; r++) {
-              combined[r].addAll(const [0, 0, 0]);
-            }
-          } else {
-            for (int r = 0; r < 11; r++) {
-              combined[r].addAll(trimmed[r]);
-              combined[r].add(0);
-            }
-          }
-        }
+        String text = segment['content'];
+        hexStrings.addAll(text
+            .split('')
+            .where((char) => converter.charCodes.containsKey(char))
+            .map((char) => converter.charCodes[char]!)
+            .toList());
       } else if (segment['type'] == 'image') {
         int index = segment['index'];
         var key = controllerData.imageCache.keys.toList()[index];
@@ -400,18 +374,10 @@ class Converters {
           imageData = await imageUtils
               .generateLedHexMatrix(controllerData.vectors[index]);
         }
-        imageData = FileHelper.normalizeClipartHeight(imageData);
-        imageData = FileHelper.trimEmptyPadding(imageData);
-        if (imageData.isEmpty) continue;
-        imageData = FileHelper.addClipartSideMargins(imageData);
-        for (int r = 0; r < 11; r++) {
-          combined[r].addAll(imageData[r]);
-        }
+        hexStrings.addAll(_renderClipartMatrix(imageData));
       }
     }
-
-    if (combined[0].isEmpty) return [];
-    return convertBitmapToLEDHex(combined, false);
+    return hexStrings;
   }
 
   List<String> _processInversion(List<String> hexStrings) {
