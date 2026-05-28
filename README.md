@@ -96,6 +96,9 @@ The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and ha
 * **Storage**: For saving and loading badge designs and clipart
 * **Location** (Android 11 and below): Required by Android for Bluetooth Low Energy device discovery. For more information, see the [Android documentation](https://source.android.com/devices/bluetooth/ble)
 
+## Privacy
+* See our [Privacy Policy](https://badgemagic.fossasia.org/privacy/) for details on data handling.
+
 ## Supported Platforms
 * **Android**: Full feature support with native Bluetooth integration
 * **iOS**: Complete functionality with TestFlight beta testing
