@@ -23,6 +23,7 @@ class SavedClipartListView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
+      padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
       itemCount: images.length,
       itemBuilder: (context, index) {
         final imageData = images.values.elementAt(index);
@@ -36,40 +37,57 @@ class SavedClipartListView extends StatelessWidget {
             imageUtils.convert2DListToUint8List(imageData);
 
         return Container(
-          margin: EdgeInsets.all(10.dg),
-          width: 100.w,
-          height: 100.h,
+          margin: EdgeInsets.only(bottom: 12.h),
+          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
+          height: 90.h,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5.r),
             color: Colors.white,
+            borderRadius: BorderRadius.circular(15.dg),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withOpacity(0.5),
+                spreadRadius: 2,
+                blurRadius: 5,
+                offset: const Offset(0, 3),
+              ),
+            ],
           ),
           child: Row(
             children: [
-              Padding(
-                padding: EdgeInsets.all(10.dg),
+              Expanded(
+                flex: 3,
                 child: FutureBuilder<Uint8List?>(
                   future: image,
                   builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting ||
-                        !snapshot.hasData ||
-                        snapshot.data == null) {
-                      return const SizedBox.shrink();
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Align(
+                        alignment: Alignment.centerLeft,
+                        child: SizedBox(
+                          width: 48,
+                          height: 48,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      );
+                    } else if (snapshot.hasData && snapshot.data != null) {
+                      return Align(
+                        alignment: Alignment.centerLeft,
+                        child: Image.memory(
+                          snapshot.data!,
+                          scale: 0.5,
+                        ),
+                      );
                     }
-
-                    return Image.memory(
-                      snapshot.data!,
-                      scale: 0.5,
-                    );
+                    return const SizedBox.shrink();
                   },
                 ),
               ),
-              Container(
-                width: 1.w,
-                height: 80.h,
-                color: Colors.black,
-              ),
               const Spacer(),
               IconButton(
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.grey.shade100,
+                  foregroundColor: Colors.grey.shade700,
+                  padding: EdgeInsets.all(8.dg),
+                ),
                 onPressed: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -81,10 +99,16 @@ class SavedClipartListView extends StatelessWidget {
                     ),
                   );
                 },
-                icon: const Icon(Icons.edit),
+                icon: const Icon(Icons.edit_outlined),
               ),
+              SizedBox(width: 10.w),
               IconButton(
-                icon: const Icon(Icons.cancel),
+                style: IconButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.all(8.dg),
+                ),
+                icon: const Icon(Icons.delete_outline_rounded),
                 onPressed: () async {
                   final value = await _showDeleteDialog(context);
                   if (value) {
