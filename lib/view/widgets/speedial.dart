@@ -8,6 +8,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
 class InnerDialPainter extends CustomPainter {
+  final double scale;
+  InnerDialPainter({required this.scale});
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
@@ -16,14 +19,14 @@ class InnerDialPainter extends CustomPainter {
     final paint = Paint()
       ..color = backCircleColor
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 10.w;
+      ..strokeWidth = 10.w * scale;
 
     canvas.drawCircle(center, radius, paint);
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return false;
+  bool shouldRepaint(covariant InnerDialPainter oldDelegate) {
+    return oldDelegate.scale != scale;
   }
 }
 
@@ -31,11 +34,13 @@ class RadialDialPainter extends CustomPainter {
   final double value;
   final double max;
   final Color color;
+  final double scale;
 
   RadialDialPainter({
     required this.value,
     required this.max,
     required this.color,
+    required this.scale,
   });
 
   @override
@@ -47,7 +52,7 @@ class RadialDialPainter extends CustomPainter {
       ..color = backCircleColor
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.square
-      ..strokeWidth = 4.w;
+      ..strokeWidth = 4.w * scale;
 
     const startAngle = 3 * pi / 4;
 
@@ -63,7 +68,7 @@ class RadialDialPainter extends CustomPainter {
       ..color = colorPrimaryDark
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.square
-      ..strokeWidth = 9.w;
+      ..strokeWidth = 9.w * scale;
 
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
@@ -75,8 +80,8 @@ class RadialDialPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(covariant RadialDialPainter oldDelegate) {
+    return oldDelegate.value != value || oldDelegate.scale != scale;
   }
 }
 
@@ -84,11 +89,13 @@ class InnerPointerPainter extends CustomPainter {
   final double value;
   final double max;
   final Color color;
+  final double scale;
 
   InnerPointerPainter({
     required this.value,
     required this.max,
     required this.color,
+    required this.scale,
   });
 
   @override
@@ -97,12 +104,12 @@ class InnerPointerPainter extends CustomPainter {
     final radius = min(size.width / 2, size.height / 2) * 0.5;
 
     final pointerAngle = 3 * pi / 4 + 6 * pi / 4 * (value / max);
-    final pointerLength = radius + 15.w;
+    final pointerLength = radius + (15.w * scale);
 
     final pointerPaint = Paint()
       ..color = color
       ..strokeCap = StrokeCap.square
-      ..strokeWidth = 4.w;
+      ..strokeWidth = 4.w * scale;
 
     final pointerStart = Offset(
       center.dx + radius * cos(pointerAngle),
@@ -117,13 +124,14 @@ class InnerPointerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) {
-    return true;
+  bool shouldRepaint(covariant InnerPointerPainter oldDelegate) {
+    return oldDelegate.value != value || oldDelegate.scale != scale;
   }
 }
 
 class RadialDial extends StatefulWidget {
-  const RadialDial({super.key});
+  final bool isSmall;
+  const RadialDial({super.key, this.isSmall = false});
 
   @override
   State<RadialDial> createState() => _RadialDialState();
@@ -138,14 +146,17 @@ class _RadialDialState extends State<RadialDial> {
     SpeedDialProvider outerValueProvider =
         Provider.of<SpeedDialProvider>(context);
 
+    final double scale = widget.isSmall ? 0.75 : 1.2;
+    const duration = Duration(milliseconds: 300);
+
     bool isTouchOnActiveArea(PointerDownEvent event) {
       final RenderBox box = context.findRenderObject() as RenderBox;
       final localPosition = box.globalToLocal(event.position);
       final center = Offset(box.size.width / 2, box.size.height / 2);
       final distance = (localPosition - center).distance;
 
-      final double minActiveRadius = 30.w;
-      final double maxActiveRadius = 120.w;
+      final double minActiveRadius = 30.w * scale;
+      final double maxActiveRadius = 120.w * scale;
 
       return distance >= minActiveRadius && distance <= maxActiveRadius;
     }
@@ -198,79 +209,102 @@ class _RadialDialState extends State<RadialDial> {
       updateOuterValue(angle);
     }
 
-    return RawGestureDetector(
-      behavior: HitTestBehavior.opaque,
-      gestures: {
-        _SelectivePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-            _SelectivePanGestureRecognizer>(
-          () => _SelectivePanGestureRecognizer(
-            debugOwner: this,
-            shouldClaimGesture: isTouchOnActiveArea,
-          ),
-          (_SelectivePanGestureRecognizer instance) {
-            instance.onStart = (details) {
-              FocusScope.of(context).unfocus();
-              isDragging = true;
-              RenderBox renderBox = context.findRenderObject() as RenderBox;
-              updateAngle(renderBox.globalToLocal(details.globalPosition),
-                  renderBox.size);
-            };
-            instance.onUpdate = (details) {
-              if (isDragging) {
-                RenderBox renderBox = context.findRenderObject() as RenderBox;
-                updateAngle(renderBox.globalToLocal(details.globalPosition),
-                    renderBox.size);
-              }
-            };
-            instance.onEnd = (details) {
-              isDragging = false;
-            };
-          },
-        ),
-      },
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CustomPaint(
-            painter: RadialDialPainter(
-              value: outerValueProvider.getOuterValue().toDouble(),
-              max: maxValue,
-              color: colorPrimaryDark,
-            ),
-            child: SizedBox(
-              width: 200.w,
-              height: 210.h,
-            ),
-          ),
-          CustomPaint(
-            painter: InnerDialPainter(),
-            child: SizedBox(
-              width: 180.w,
-              height: 180.h,
-            ),
-          ),
-          CustomPaint(
-            painter: InnerPointerPainter(
-              value: outerValueProvider.getOuterValue().toDouble(),
-              max: maxValue,
-              color: colorPrimaryDark,
-            ),
-            child: SizedBox(
-              width: 140.w,
-              height: 140.h,
-            ),
-          ),
-          Positioned(
-            child: Text(
-              (outerValueProvider.getOuterValue()).toString(),
-              style: TextStyle(
-                fontSize: 50.sp,
-                fontWeight: FontWeight.w600,
-                color: const Color.fromRGBO(113, 113, 113, 1),
+    return AnimatedContainer(
+      duration: duration,
+      curve: Curves.easeInOut,
+      alignment: const Alignment(0.0, 0.15),
+      child: SizedBox(
+        width: 240.w * scale,
+        height: 240.h * scale,
+        child: RawGestureDetector(
+          behavior: HitTestBehavior.opaque,
+          gestures: {
+            _SelectivePanGestureRecognizer:
+                GestureRecognizerFactoryWithHandlers<
+                    _SelectivePanGestureRecognizer>(
+              () => _SelectivePanGestureRecognizer(
+                debugOwner: this,
+                shouldClaimGesture: isTouchOnActiveArea,
               ),
+              (_SelectivePanGestureRecognizer instance) {
+                instance.onStart = (details) {
+                  FocusScope.of(context).unfocus();
+                  isDragging = true;
+                  RenderBox renderBox = context.findRenderObject() as RenderBox;
+                  updateAngle(renderBox.globalToLocal(details.globalPosition),
+                      renderBox.size);
+                };
+                instance.onUpdate = (details) {
+                  if (isDragging) {
+                    RenderBox renderBox =
+                        context.findRenderObject() as RenderBox;
+                    updateAngle(renderBox.globalToLocal(details.globalPosition),
+                        renderBox.size);
+                  }
+                };
+                instance.onEnd = (details) {
+                  isDragging = false;
+                };
+              },
             ),
+          },
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeInOut,
+                width: 200.w * scale,
+                height: 210.h * scale,
+                child: CustomPaint(
+                  painter: RadialDialPainter(
+                    value: outerValueProvider.getOuterValue().toDouble(),
+                    max: maxValue,
+                    color: colorPrimaryDark,
+                    scale: scale,
+                  ),
+                ),
+              ),
+              AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeInOut,
+                width: 180.w * scale,
+                height: 180.h * scale,
+                child: CustomPaint(
+                  painter: InnerDialPainter(scale: scale),
+                ),
+              ),
+              AnimatedContainer(
+                duration: duration,
+                curve: Curves.easeInOut,
+                width: 140.w * scale,
+                height: 140.h * scale,
+                child: CustomPaint(
+                  painter: InnerPointerPainter(
+                    value: outerValueProvider.getOuterValue().toDouble(),
+                    max: maxValue,
+                    color: colorPrimaryDark,
+                    scale: scale,
+                  ),
+                ),
+              ),
+              Positioned(
+                child: AnimatedDefaultTextStyle(
+                  duration: duration,
+                  curve: Curves.easeInOut,
+                  style: TextStyle(
+                    fontSize: 50.sp * scale,
+                    fontWeight: FontWeight.w600,
+                    color: const Color.fromRGBO(113, 113, 113, 1),
+                  ),
+                  child: Text(
+                    (outerValueProvider.getOuterValue()).toString(),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
