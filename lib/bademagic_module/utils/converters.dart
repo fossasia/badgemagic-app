@@ -280,6 +280,76 @@ class Converters {
     return hexStrings;
   }
 
+  // Decode an 11-byte (22-hex-char) charCode into an 11x8 bitmap.
+  List<List<int>> _charCodeToMatrix(String hex) {
+    final matrix = List.generate(11, (_) => List<int>.filled(8, 0));
+    for (int r = 0; r < 11; r++) {
+      final byte = int.parse(hex.substring(r * 2, r * 2 + 2), radix: 16);
+      for (int c = 0; c < 8; c++) {
+        matrix[r][c] = (byte >> (7 - c)) & 1;
+      }
+    }
+    return matrix;
+  }
+
+  // Tight-trim empty left/right columns of a glyph bitmap.
+  List<List<int>> _trimGlyphCols(List<List<int>> matrix) {
+    if (matrix.isEmpty || matrix[0].isEmpty) return matrix;
+    final int height = matrix.length;
+    final int width = matrix[0].length;
+    int left = 0;
+    while (left < width) {
+      bool inked = false;
+      for (int r = 0; r < height; r++) {
+        if (matrix[r][left] == 1) {
+          inked = true;
+          break;
+        }
+      }
+      if (inked) break;
+      left++;
+    }
+    if (left == width) return const [];
+    int right = width - 1;
+    while (right > left) {
+      bool inked = false;
+      for (int r = 0; r < height; r++) {
+        if (matrix[r][right] == 1) {
+          inked = true;
+          break;
+        }
+      }
+      if (inked) break;
+      right--;
+    }
+    return List.generate(height, (r) => matrix[r].sublist(left, right + 1));
+  }
+
+  // Renders a default-font text segment as a tight-trimmed bitmap with exactly
+  // 1 empty column between glyphs, then encodes it. Whitespace keeps a fixed
+  // 3-col width so word spacing is preserved.
+  List<String> _renderDefaultFontText(String text) {
+    final combined = List.generate(11, (_) => <int>[]);
+    for (int c = 0; c < text.length; c++) {
+      final char = text[c];
+      if (!converter.charCodes.containsKey(char)) continue;
+      final mat = _charCodeToMatrix(converter.charCodes[char]!);
+      final trimmed = _trimGlyphCols(mat);
+      if (trimmed.isEmpty) {
+        for (int r = 0; r < 11; r++) {
+          combined[r].addAll(const [0, 0, 0]);
+        }
+      } else {
+        for (int r = 0; r < 11; r++) {
+          combined[r].addAll(trimmed[r]);
+          combined[r].add(0);
+        }
+      }
+    }
+    if (combined[0].isEmpty) return const [];
+    return convertBitmapToLEDHex(combined, false);
+  }
+
   Future<List<String>> _processDefaultFont(String text) async {
     List<Map<String, dynamic>> segments = [];
     String currentText = '';
@@ -306,12 +376,7 @@ class Converters {
     List<String> hexStrings = [];
     for (var segment in segments) {
       if (segment['type'] == 'text') {
-        String text = segment['content'];
-        hexStrings.addAll(text
-            .split('')
-            .where((char) => converter.charCodes.containsKey(char))
-            .map((char) => converter.charCodes[char]!)
-            .toList());
+        hexStrings.addAll(_renderDefaultFontText(segment['content']));
       } else if (segment['type'] == 'image') {
         int index = segment['index'];
         var key = controllerData.imageCache.keys.toList()[index];
