@@ -4,12 +4,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ToastUtils {
   // Create a toast message
-  void showToast(String message) {
+  void showToast(
+    String message, {
+    Duration duration = const Duration(seconds: 3),
+  }) {
     globals.scaffoldMessengerKey.currentState!.showSnackBar(
       SnackBar(
         margin: EdgeInsets.symmetric(horizontal: 12.w, vertical: 10),
         elevation: 10,
-        duration: const Duration(seconds: 1),
+        duration: duration,
         content: Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
