@@ -20,7 +20,7 @@ version: 1.0.0+1
 
 environment:
   sdk: '>=3.3.4 <4.0.0'
-  flutter: '3.38.9'
+  flutter: '3.41.9'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -31,7 +31,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  shared_preferences: 2.5.3
+  shared_preferences: 2.5.5
   flutter_localizations:
     sdk: flutter
   intl: 0.20.2
@@ -39,22 +39,22 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.6
+  cupertino_icons: ^1.0.9
   provider: ^6.1.5
   flutter_blue_plus: ^1.36.8
-  logger: ^2.6.2
-  flutter_svg: ^2.2.2
-  get_it: ^9.0.5
+  logger: ^2.7.0
+  flutter_svg: ^2.3.0
+  get_it: ^9.2.1
   flutter_screenutil: ^5.9.3
   extended_text_field: ^16.0.2
   path_provider: ^2.1.5
-  uuid: ^4.5.2
-  go_router: ^17.0.0
-  share_plus: ^12.0.1
+  uuid: ^4.5.3
+  go_router: ^17.2.3
+  share_plus: ^12.0.2
   file_picker: ^10.3.3
-  google_fonts: ^6.3.2
+  google_fonts: ^8.0.2
   url_launcher: ^6.3.2
-  image: ^4.5.4
+  image: ^4.8.0
 
 dev_dependencies:
   flutter_test:
@@ -68,7 +68,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
-  dart_style: ^3.1.1
+  dart_style: ^3.1.7
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
