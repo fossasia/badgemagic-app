@@ -86,6 +86,28 @@ class MyApp extends StatelessWidget {
               theme: ThemeData(
                 colorSchemeSeed: Colors.white,
                 useMaterial3: true,
+                dialogTheme: DialogThemeData(
+                  backgroundColor: Colors.white,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28.0),
+                  ),
+                  actionsPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  titleTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
+                ),
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    padding: const EdgeInsets.all(15),
+                  ),
+                ),
               ),
               locale: locale ?? const Locale('en', 'US'),
               localizationsDelegates: const [

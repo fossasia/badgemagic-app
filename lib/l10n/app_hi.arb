@@ -200,5 +200,6 @@
   "scanSettingsSaved": "स्कैन सेटिंग्स सेव हो गईं",
   "saveSettings": "सेटिंग्स सेव करें",
   "connectToAnyBadge": "किसी भी बैज से कनेक्ट करें",
-  "badgeNameHint": "बैज का नाम"
+  "badgeNameHint": "बैज का नाम",
+  "pleaseSelectClipart": "सेव करने से पहले कृपया तस्वीर बनाएं या चुनें"
 }
