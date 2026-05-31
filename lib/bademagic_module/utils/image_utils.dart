@@ -26,12 +26,12 @@ class ImageUtils {
 
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        int value = twoDList[y][x] == 1 ? 0 : 255;
+        bool isOn = twoDList[y][x] == 1;
         int offset = (y * width + x) * 4;
-        pixels[offset] = value; // Red
-        pixels[offset + 1] = value; // Green
-        pixels[offset + 2] = value; // Blue
-        pixels[offset + 3] = 255; // Alpha
+        pixels[offset] = 0; // Red
+        pixels[offset + 1] = 0; // Green
+        pixels[offset + 2] = 0; // Blue
+        pixels[offset + 3] = isOn ? 255 : 0; // Alpha — off pixels transparent
       }
     }
 
