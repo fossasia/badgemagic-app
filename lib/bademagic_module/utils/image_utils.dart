@@ -196,13 +196,77 @@ class ImageUtils {
     return trimmedImage;
   }
 
+  // Trims an image to the tight bounding box of its non-transparent content on
+  // all four sides. Used (display only) to strip each SVG's inconsistent
+  // viewBox padding so the icon itself drives its rendered size.
+  Future<ui.Image> _trimToContent(ui.Image inputImage) async {
+    final ByteData? byteData =
+        await inputImage.toByteData(format: ui.ImageByteFormat.rawRgba);
+    if (byteData == null) return inputImage;
+
+    final int width = inputImage.width;
+    final int height = inputImage.height;
+    final Uint8List pixels = byteData.buffer.asUint8List();
+
+    int top = height, bottom = -1, left = width, right = -1;
+    for (int y = 0; y < height; y++) {
+      for (int x = 0; x < width; x++) {
+        if (pixels[(y * width + x) * 4 + 3] > 0) {
+          if (x < left) left = x;
+          if (x > right) right = x;
+          if (y < top) top = y;
+          if (y > bottom) bottom = y;
+        }
+      }
+    }
+    if (right < left || bottom < top) return inputImage; // fully transparent
+
+    final int newWidth = right - left + 1;
+    final int newHeight = bottom - top + 1;
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final ui.Canvas canvas = Canvas(recorder,
+        Rect.fromLTWH(0, 0, newWidth.toDouble(), newHeight.toDouble()));
+    canvas.drawImageRect(
+        inputImage,
+        Rect.fromLTWH(left.toDouble(), top.toDouble(), newWidth.toDouble(),
+            newHeight.toDouble()),
+        Rect.fromLTWH(0, 0, newWidth.toDouble(), newHeight.toDouble()),
+        Paint());
+    return recorder.endRecording().toImage(newWidth, newHeight);
+  }
+
+  // Scales an image so its longest side fits `target`, then centers it inside a
+  // `target` x `target` square. Display only: gives every clipart a uniform
+  // square footprint while preserving aspect ratio (no stretch, no crop).
+  Future<ui.Image> _fitInSquare(ui.Image inputImage, int target) async {
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final ui.Canvas canvas = Canvas(
+        recorder, Rect.fromLTWH(0, 0, target.toDouble(), target.toDouble()));
+    final int longest = inputImage.width > inputImage.height
+        ? inputImage.width
+        : inputImage.height;
+    final double scale = target / longest;
+    final double dx = (target - inputImage.width * scale) / 2;
+    final double dy = (target - inputImage.height * scale) / 2;
+    canvas.translate(dx, dy);
+    canvas.scale(scale, scale);
+    canvas.drawImage(inputImage, Offset.zero, Paint());
+    return recorder.endRecording().toImage(target, target);
+  }
+
   //function to generate the view for the Dialog from the given asset
+  //
+  // DISPLAY ONLY (clipart picker + inline text-field previews) — produces a
+  // uniform square so all cliparts render at a consistent size in the grid.
+  // The badge / preview-bar encoding is generateLedHex (separate function).
+  // We trim each SVG's padding and normalize into a uniform square so all
+  // cliparts render at a consistent size in the grid.
   Future<ui.Image> generateImageView(String asset) async {
     await _loadSVG(asset);
     ui.Image image =
         await picture.toImage(originalWidth.toInt(), originalHeight.toInt());
-    final ui.Image scaledImage = await _scaleSVG(image, 30, 120);
-    return _trimSVG(scaledImage);
+    final ui.Image content = await _trimToContent(image);
+    return _fitInSquare(content, 30);
   }
 
   //function to generate the LED hex from the given asset
@@ -211,7 +275,15 @@ class ImageUtils {
     ui.Image image =
         await picture.toImage(originalWidth.toInt(), originalHeight.toInt());
 
-    final ui.Image scaledImage = await _scaleSVG(image, 11, 44);
+    // Trim each SVG's inconsistent viewBox padding (all four sides) BEFORE
+    // scaling, so the artwork itself — not the padding — drives how tall the
+    // clipart renders on the badge. _scaleSVG still fits it into 11x44 with
+    // aspect-preserving min-scale, so shapes are never stretched or cropped:
+    // square/tall icons fill the full height, while genuinely wide-thin shapes
+    // stay proportionally thin. This makes the height ratio consistent across
+    // all cliparts in the preview bar / real badge.
+    final ui.Image content = await _trimToContent(image);
+    final ui.Image scaledImage = await _scaleSVG(content, 11, 44);
     final ui.Image trimmedImage = await _trimSVG(scaledImage);
     final Uint8List? byteArray = await _convertImageToByteArray(trimmedImage);
     final List<List<int>> pixelArray = _convertUint8ListTo2DList(
