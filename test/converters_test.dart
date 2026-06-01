@@ -12,9 +12,8 @@ void main() {
     List<String> result = await converters.messageTohex(message, false);
     List<String> expected = [
       "00c6c6c6c6fec6c6c6c600",
-      "0018180038181818183c00",
-      "0018180038181818183c00",
-      "00183c3c3c181800181800"
+      "00636300e763636363f700",
+      "00183c3c3c181800189800"
     ];
     expect(result, expected);
   });

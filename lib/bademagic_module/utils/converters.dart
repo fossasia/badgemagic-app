@@ -355,7 +355,11 @@ class Converters {
         String segmentText = segment['content'];
         for (final char in segmentText.split('')) {
           if (!converter.charCodes.containsKey(char)) continue;
-          final charMatrix = _charCodeToBoolMatrix(converter.charCodes[char]!);
+          // Trim narrow glyphs (e.g. i, l) and add a 1-col gutter so the
+          // default font matches the custom-font spacing (#1722), feeding the
+          // single combined matrix used for consistent clipart spacing (#1711).
+          final charMatrix = _trimAndPadCharMatrix(
+              _charCodeToBoolMatrix(converter.charCodes[char]!));
           for (int row = 0; row < 11; row++) {
             combinedMatrix[row].addAll(charMatrix[row]);
           }
