@@ -21,6 +21,7 @@ class WriteState extends NormalBleState {
     final deviceId = device.deviceId;
 
     try {
+      await Future.delayed(const Duration(milliseconds: 300));
       await UniversalBle.discoverServices(deviceId);
 
       for (List<int> chunk in dataChunks) {
@@ -28,13 +29,9 @@ class WriteState extends NormalBleState {
 
         for (int attempt = 1; attempt <= 3; attempt++) {
           try {
-            await UniversalBle.writeValue(
-              deviceId,
-              serviceUuid,
-              characteristicUuid,
-              Uint8List.fromList(chunk),
-              BleOutputProperty.withResponse,
-            );
+            await UniversalBle.write(deviceId, serviceUuid, characteristicUuid,
+                Uint8List.fromList(chunk),
+                withoutResponse: false);
 
             logger.d("Chunk written successfully: $chunk");
             success = true;
@@ -48,7 +45,7 @@ class WriteState extends NormalBleState {
           throw Exception("Failed to transfer data. Please try again.");
         }
 
-        await Future.delayed(const Duration(milliseconds: 50));
+        await Future.delayed(const Duration(milliseconds: 120));
       }
 
       logger.d("Characteristic written successfully");
