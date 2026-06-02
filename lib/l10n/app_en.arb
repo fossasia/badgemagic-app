@@ -191,7 +191,7 @@
   "flashEffect": "Flash",
   "marqueeEffect": "Marquee",
   "invertColors": "Invert Colors",
-  "save": "SAVE",
+  "save": "Save",
   "badge": "Badge",
   "draw": "Draw",
   "erase": "Erase",
@@ -214,4 +214,6 @@
   "clipartImportedSuccessfully": "Clipart imported successfully",
   "switchedOrientationForDraw": "Switched orientation for ease of draw",
   "badgeScanMode": "Badge Scan Mode"
+  "badgeScanMode": "Badge Scan Mode",
+  "pleaseSelectClipart": "Please draw or select a clipart before saving"
 }

@@ -28,7 +28,6 @@ class SavedClipartListView extends StatelessWidget {
         return Container(
           margin: EdgeInsets.symmetric(horizontal: 10.w, vertical: 6.h),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5.r),
             color: Colors.white,
             boxShadow: [
               BoxShadow(
@@ -94,11 +93,12 @@ class SavedClipartListView extends StatelessWidget {
   }
 
   Future<bool> _showDeleteDialog(BuildContext context) async {
-    return await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const DeleteBadgeDialog();
-      },
-    );
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return const DeleteBadgeDialog();
+          },
+        ) ??
+        false;
   }
 }

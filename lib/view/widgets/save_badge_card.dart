@@ -103,12 +103,13 @@ class SaveBadgeCard extends StatelessWidget {
                         color: Colors.black,
                       ),
                       onPressed: () async {
+                        final navigator = Navigator.of(context);
                         // Show confirmation dialog before editing
                         final confirmed =
                             await provider.showEditBadgeConfirmation(context);
                         if (confirmed) {
                           // Navigate to HomeScreen for editing the badge
-                          Navigator.of(context).push(
+                          navigator.push(
                             MaterialPageRoute(
                               builder: (context) => HomeScreen(
                                 savedBadgeFilename: badgeData.key,

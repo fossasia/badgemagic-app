@@ -23,7 +23,6 @@ class _VectorGridViewState extends State<VectorGridView> {
 
   @override
   void dispose() {
-    // Only dispose if we created the controller
     if (widget.controller == null) {
       _scrollController.dispose();
     }
@@ -32,9 +31,29 @@ class _VectorGridViewState extends State<VectorGridView> {
 
   @override
   Widget build(BuildContext context) {
-    InlineImageProvider inlineImageProvider =
-        Provider.of<InlineImageProvider>(context);
-    List keys = inlineImageProvider.imageCache.keys.toList();
+    final inlineImageProvider = Provider.of<InlineImageProvider>(context);
+
+    final allKeys = inlineImageProvider.imageCache.keys.toList();
+
+    final savedKeys = allKeys.whereType<List>().toList()
+      ..sort((a, b) {
+        // newest first (based on first element string/id)
+        final aId = a.isNotEmpty ? a.first.toString() : '';
+        final bId = b.isNotEmpty ? b.first.toString() : '';
+        return bId.compareTo(aId);
+      });
+
+    final defaultKeys = allKeys
+        .whereType<int>()
+        .where((key) => key < inlineImageProvider.vectors.length)
+        .toList()
+      ..sort();
+
+    final keys = <dynamic>[
+      ...savedKeys,
+      ...defaultKeys,
+    ];
+
     return GridView.builder(
       controller: _scrollController,
       shrinkWrap: true,
@@ -45,8 +64,9 @@ class _VectorGridViewState extends State<VectorGridView> {
         crossAxisSpacing: 4.0,
         mainAxisSpacing: 4.0,
       ),
+      itemCount: keys.length + 1,
       itemBuilder: (context, index) {
-        if (index == keys.length) {
+        if (index == 0) {
           return GestureDetector(
             onTap: () {
               Navigator.pushNamed(context, '/drawBadge');
@@ -68,26 +88,36 @@ class _VectorGridViewState extends State<VectorGridView> {
           );
         }
 
+        final imageKey = keys[index - 1];
+
+        final imageBytes = inlineImageProvider.imageCache[imageKey];
+
+        if (imageBytes == null) {
+          return const SizedBox.shrink();
+        }
+
         return GestureDetector(
-            onTap: () {
-              inlineImageProvider.insertInlineImage(keys[index]);
-            },
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
+          onTap: () {
+            inlineImageProvider.insertInlineImage(imageKey);
+          },
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            surfaceTintColor: Colors.white,
+            color: Colors.white,
+            elevation: 2,
+            child: Padding(
+              padding: const EdgeInsets.all(2.0),
+              child: Image.memory(
+                imageBytes,
+                scale: 0.1,
+                fit: BoxFit.contain,
               ),
-              surfaceTintColor: Colors.white,
-              color: Colors.white,
-              elevation: 2,
-              child: Padding(
-                  padding: const EdgeInsets.all(2.0),
-                  child: Image.memory(
-                    inlineImageProvider.imageCache[keys[index]]!,
-                    scale: 0.1,
-                  )),
-            ));
+            ),
+          ),
+        );
       },
-      itemCount: keys.length + 1,
     );
   }
 }
