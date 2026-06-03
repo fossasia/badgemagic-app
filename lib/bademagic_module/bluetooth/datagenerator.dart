@@ -6,6 +6,8 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 
+import '../utils/toast_utils.dart';
+
 class DataTransferManager {
   final Data data;
 
@@ -18,6 +20,14 @@ class DataTransferManager {
       GetIt.instance<InlineImageProvider>();
 
   DataTransferManager(this.data);
+
+  Future<void> checkAdapterState() async {
+    final adapterState = await UniversalBle.getBluetoothAvailabilityState();
+    if (adapterState != AvailabilityState.poweredOn) {
+      ToastUtils().showErrorToast('Please turn on Bluetooth');
+      return;
+    }
+  }
 
   Future<List<List<int>>> generateDataChunk() async {
     return converter.convert(data);

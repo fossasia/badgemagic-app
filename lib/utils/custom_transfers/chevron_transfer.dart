@@ -12,11 +12,7 @@ import 'package:logger/logger.dart';
 Future<void> customTransferChevronAnimation(
     Future<void> Function(DataTransferManager) transferData,
     int speedLevel) async {
-  final adapterState = await UniversalBle.getBluetoothAvailabilityState();
-  if (adapterState != AvailabilityState.poweredOn) {
-    ToastUtils().showErrorToast('Please turn on Bluetooth');
-    return;
-  }
+  checkAdapterState();
   const int frameCount = 8;
   const int badgeHeight = 11;
   const int badgeWidth = 44;

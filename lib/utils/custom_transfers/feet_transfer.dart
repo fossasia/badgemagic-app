@@ -13,11 +13,8 @@ import 'package:logger/logger.dart';
 Future<void> customTransferFeetAnimation(
     Future<void> Function(DataTransferManager) transferData,
     int speedLevel) async {
-  final adapterState = await UniversalBle.getBluetoothAvailabilityState();
-  if (adapterState != AvailabilityState.poweredOn) {
-    ToastUtils().showErrorToast('Please turn on Bluetooth');
-    return;
-  }
+  checkAdapterState();
+
   const int badgeHeight = FeetAnimation.badgeHeight;
   const int badgeWidth = FeetAnimation.badgeWidth;
   const int badgeMaxFrames = 8;
