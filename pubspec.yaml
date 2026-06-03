@@ -69,6 +69,7 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
   dart_style: ^3.1.7
+  flutter_launcher_icons: ^0.13.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -117,3 +118,34 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  remove_alpha_ios: true
+
+  image_path: "assets/icons/icon.png"
+
+  adaptive_icon_background: "#FFFFFF"
+  adaptive_icon_foreground: "assets/icons/icon.png"
+  adaptive_icon_monochrome: "assets/icons/icon.png"
+  adaptive_icon_foreground_inset: 22
+
+  web:
+    generate: true
+    image_path: "assets/icons/icon.png"
+    background_color: "#FFFFFF"
+    theme_color: "#0175C2"
+
+  windows:
+    generate: true
+    image_path: "assets/icons/icon.png"
+    icon_size: 48
+
+  macos:
+    generate: true
+    image_path: "assets/icons/icon.png"
+
+  linux:
+    generate: true
+    image_path: "assets/icons/icon.png"
