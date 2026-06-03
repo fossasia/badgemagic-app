@@ -4,10 +4,8 @@ import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
 import 'package:badgemagic/utils/custom_transfers/common.dart';
-import 'package:universal_ble/universal_ble.dart';
 import 'package:logger/logger.dart';
 
 Future<void> customTransferCycleAnimation(

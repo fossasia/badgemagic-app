@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
