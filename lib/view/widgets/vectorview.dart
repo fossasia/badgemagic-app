@@ -111,50 +111,50 @@ class _VectorGridViewState extends State<VectorGridView> {
 
   @override
   void dispose() {
-    // Only dispose if we created the controller
     if (widget.controller == null) {
       _scrollController.dispose();
     }
     super.dispose();
   }
 
-  // Reorders the imageCache keys so similar built-in cliparts sit together,
-  // WITHOUT changing the keys themselves. The key is the placeholder index a
-  // saved badge references (`<<NN>>`), so it must be preserved; only the
-  // display order changes. User-added cliparts use non-int (List) keys and are
-  // appended after the built-ins.
-  List<Object> _groupedKeys(InlineImageProvider provider) {
-    final vectors = provider.vectors;
-
-    String pathFor(Object key) =>
-        (key is int && key < vectors.length) ? vectors[key] : '';
-
-    // Hide visual-duplicate built-ins from the grid (keys are preserved, only
-    // the display is filtered, so selection/placeholders are unaffected).
-    final keys = provider.imageCache.keys.where((key) {
-      return !_hiddenDuplicateAssets.contains(pathFor(key));
-    }).toList();
-
-    keys.sort((a, b) {
-      final aIsInt = a is int;
-      final bIsInt = b is int;
-      if (aIsInt != bIsInt) return aIsInt ? -1 : 1; // built-ins first
-      if (!aIsInt) return 0; // keep custom cliparts in insertion order
-
-      final ra = _groupRank(pathFor(a));
-      final rb = _groupRank(pathFor(b));
-      if (ra[0] != rb[0]) return ra[0].compareTo(rb[0]);
-      if (ra[1] != rb[1]) return ra[1].compareTo(rb[1]);
-      return pathFor(a).compareTo(pathFor(b));
-    });
-    return keys;
-  }
-
   @override
   Widget build(BuildContext context) {
-    InlineImageProvider inlineImageProvider =
-        Provider.of<InlineImageProvider>(context);
-    final List<Object> keys = _groupedKeys(inlineImageProvider);
+    final inlineImageProvider = Provider.of<InlineImageProvider>(context);
+    final vectors = inlineImageProvider.vectors;
+    String pathFor(int key) => key < vectors.length ? vectors[key] : '';
+
+    final allKeys = inlineImageProvider.imageCache.keys.toList();
+
+    final savedKeys = allKeys.whereType<List>().toList()
+      ..sort((a, b) {
+        // newest first (based on first element string/id)
+        final aId = a.isNotEmpty ? a.first.toString() : '';
+        final bId = b.isNotEmpty ? b.first.toString() : '';
+        return bId.compareTo(aId);
+      });
+
+    // Built-in cliparts: hide visual duplicates, then group similar icons
+    // together. Sorting only changes display order; the imageCache key (the
+    // `<<NN>>` placeholder index) is preserved, so selection/saved badges are
+    // unaffected.
+    final defaultKeys = allKeys
+        .whereType<int>()
+        .where((key) => key < vectors.length)
+        .where((key) => !_hiddenDuplicateAssets.contains(pathFor(key)))
+        .toList()
+      ..sort((a, b) {
+        final ra = _groupRank(pathFor(a));
+        final rb = _groupRank(pathFor(b));
+        if (ra[0] != rb[0]) return ra[0].compareTo(rb[0]);
+        if (ra[1] != rb[1]) return ra[1].compareTo(rb[1]);
+        return pathFor(a).compareTo(pathFor(b));
+      });
+
+    final keys = <dynamic>[
+      ...savedKeys,
+      ...defaultKeys,
+    ];
+
     return GridView.builder(
       controller: _scrollController,
       shrinkWrap: true,
@@ -165,8 +165,9 @@ class _VectorGridViewState extends State<VectorGridView> {
         crossAxisSpacing: 4.0,
         mainAxisSpacing: 4.0,
       ),
+      itemCount: keys.length + 1,
       itemBuilder: (context, index) {
-        if (index == keys.length) {
+        if (index == 0) {
           return GestureDetector(
             onTap: () {
               Navigator.pushNamed(context, '/drawBadge');
@@ -188,33 +189,41 @@ class _VectorGridViewState extends State<VectorGridView> {
           );
         }
 
+        final imageKey = keys[index - 1];
+
+        final imageBytes = inlineImageProvider.imageCache[imageKey];
+
+        if (imageBytes == null) {
+          return const SizedBox.shrink();
+        }
+
         return GestureDetector(
-            onTap: () {
-              inlineImageProvider.insertInlineImage(keys[index]);
-            },
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
+          onTap: () {
+            inlineImageProvider.insertInlineImage(imageKey);
+          },
+          child: Card(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(5),
+            ),
+            surfaceTintColor: Colors.white,
+            color: Colors.white,
+            elevation: 2,
+            // Fit each clipart to its cell. The previous `scale: 0.1` sized
+            // each image by its raw pixel count, so cliparts looked wildly
+            // uneven. BoxFit.contain scales every (normalized, square) bitmap
+            // to fill its cell uniformly, preserving aspect ratio with no
+            // stretching or cropping and balanced padding.
+            child: Padding(
+              padding: const EdgeInsets.all(6.0),
+              child: Image.memory(
+                imageBytes,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.none,
               ),
-              surfaceTintColor: Colors.white,
-              color: Colors.white,
-              elevation: 2,
-              // Fit each clipart to its cell. The previous `scale: 0.1` sized
-              // each image by its raw pixel count, so cliparts looked wildly
-              // uneven. BoxFit.contain scales every (normalized, square) bitmap
-              // to fill its cell uniformly, preserving aspect ratio with no
-              // stretching or cropping and balanced padding.
-              child: Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: Image.memory(
-                  inlineImageProvider.imageCache[keys[index]]!,
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.none,
-                ),
-              ),
-            ));
+            ),
+          ),
+        );
       },
-      itemCount: keys.length + 1,
     );
   }
 }
