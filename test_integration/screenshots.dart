@@ -140,19 +140,12 @@ void main() async {
       await tester.pumpAndSettle();
       await binding.takeScreenshot('5_saved_badges');
 
-      final playButton = find
-          .byWidgetPredicate(
-            (widget) =>
-                widget is IconButton &&
-                widget.icon is Image &&
-                (widget.icon as Image).image is AssetImage &&
-                ((widget.icon as Image).image as AssetImage).assetName ==
-                    "assets/icons/t_play.png",
-          )
-          .at(1);
+      final playButton = find.byIcon(Icons.visibility).at(1);
+
       await tester.tap(playButton);
       await tester.pumpAndSettle();
       final badgeSwitch = find.byType(Switch).at(1);
+
       await tester.tap(badgeSwitch);
       await tester.pump(const Duration(seconds: 5));
       await tester.pumpAndSettle();
