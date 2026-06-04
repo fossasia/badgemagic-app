@@ -10,7 +10,7 @@ import 'package:logger/logger.dart';
 Future<void> customTransferChevronAnimation(
     Future<void> Function(DataTransferManager) transferData,
     int speedLevel) async {
-  checkAdapterState();
+  if (!await checkAdapterState()) return;
   const int frameCount = 8;
   const int badgeHeight = 11;
   const int badgeWidth = 44;

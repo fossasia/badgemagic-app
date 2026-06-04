@@ -3,6 +3,7 @@ import 'package:badgemagic/bademagic_module/bluetooth/connect_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:universal_ble/universal_ble.dart';
+import '../../globals/globals.dart';
 import 'base_ble_state.dart';
 
 class ScanState extends NormalBleState {
@@ -10,7 +11,7 @@ class ScanState extends NormalBleState {
   final BadgeScanMode mode;
   final List<String> allowedNames;
 
-  final String targetServiceUuid = "0000fee0-0000-1000-8000-00805f9b34fb";
+  final String targetServiceUuid = serviceUuid;
 
   ScanState({
     required this.manager,

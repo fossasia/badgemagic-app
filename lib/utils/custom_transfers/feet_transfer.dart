@@ -11,7 +11,7 @@ import 'package:logger/logger.dart';
 Future<void> customTransferFeetAnimation(
     Future<void> Function(DataTransferManager) transferData,
     int speedLevel) async {
-  checkAdapterState();
+  if (!await checkAdapterState()) return;
 
   const int badgeHeight = FeetAnimation.badgeHeight;
   const int badgeWidth = FeetAnimation.badgeWidth;
