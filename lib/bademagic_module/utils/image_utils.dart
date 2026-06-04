@@ -1,5 +1,4 @@
 import 'dart:ui' as ui;
-import 'dart:ui';
 
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:flutter/material.dart';
@@ -76,32 +75,6 @@ class ImageUtils {
     originalWidth = pictureInfo.size.width;
   }
 
-  //function to load and scale the svg according to the badge size
-  Future<ui.Image> _scaleSVG(
-      ui.Image inputImage, double targetHeight, double targetWidth) async {
-    final ui.PictureRecorder recorder = ui.PictureRecorder();
-    final ui.Canvas canvas = Canvas(recorder,
-        Rect.fromPoints(Offset.zero, Offset(targetWidth, targetHeight)));
-
-    double scaleX = targetWidth / inputImage.width;
-    double scaleY = targetHeight / inputImage.height;
-
-    double scale = scaleX < scaleY ? scaleX : scaleY;
-
-    double dx = (targetWidth - (inputImage.width * scale)) / 2;
-    double dy = (targetHeight - (inputImage.height * scale)) / 2;
-    canvas.translate(dx, dy);
-    canvas.scale(scale, scale);
-
-    canvas.drawImage(inputImage, Offset.zero, Paint());
-
-    final ui.Image imgByteData = await recorder
-        .endRecording()
-        .toImage(targetWidth.ceil(), targetHeight.ceil());
-
-    return imgByteData;
-  }
-
   //function to convert the ui.Image to byte array
   Future<Uint8List?> _convertImageToByteArray(ui.Image image) async {
     final ByteData? byteData =
@@ -132,73 +105,6 @@ class ImageUtils {
     return pixelArray;
   }
 
-  //function to trim the svg
-  Future<ui.Image> _trimSVG(ui.Image inputImage) async {
-    final ByteData? byteData =
-        await inputImage.toByteData(format: ui.ImageByteFormat.rawRgba);
-    if (byteData == null) {
-      throw Exception('Failed to get byte data from image');
-    }
-
-    final int width = inputImage.width;
-    final int height = inputImage.height;
-    final Uint8List pixels = byteData.buffer.asUint8List();
-
-    int top = 0, bottom = height - 1, left = 0, right = width - 1;
-    bool found = false;
-
-    found = false;
-    // Find the left boundary
-    for (int x = 0; x < width && !found; x++) {
-      for (int y = 0; y < height; y++) {
-        final int offset = (y * width + x) * 4;
-        if (pixels[offset + 3] > 0) {
-          left = x;
-          found = true;
-          break;
-        }
-      }
-    }
-
-    found = false;
-    // Find the right boundary
-    for (int x = width - 1; x >= 0 && !found; x--) {
-      for (int y = 0; y < height; y++) {
-        final int offset = (y * width + x) * 4;
-        if (pixels[offset + 3] > 0) {
-          right = x;
-          found = true;
-          break;
-        }
-      }
-    }
-
-    final int newWidth = right - left + 1;
-    final int newHeight = bottom - top + 1;
-
-    final PictureRecorder trimRecorder = ui.PictureRecorder();
-    final Canvas trimCanvas = Canvas(
-        trimRecorder,
-        Rect.fromPoints(
-            Offset.zero, Offset(newWidth.toDouble(), newHeight.toDouble())));
-
-    final Paint paint = ui.Paint();
-    trimCanvas.drawImageRect(
-        inputImage,
-        Rect.fromLTWH(left.toDouble(), top.toDouble(), newWidth.toDouble(),
-            newHeight.toDouble()),
-        Rect.fromLTWH(0, 0, newWidth.toDouble(), newHeight.toDouble()),
-        paint);
-
-    final trimmedImage =
-        await trimRecorder.endRecording().toImage(newWidth, newHeight);
-
-    return trimmedImage;
-  }
-
-  // Trims an image to the tight bounding box of its non-transparent content on
-  // all four sides. Used (display only) to strip each SVG's inconsistent
-  // viewBox padding so the icon itself drives its rendered size.
   Future<ui.Image> _trimToContent(ui.Image inputImage) async {
     final ByteData? byteData =
         await inputImage.toByteData(format: ui.ImageByteFormat.rawRgba);
@@ -219,7 +125,7 @@ class ImageUtils {
         }
       }
     }
-    if (right < left || bottom < top) return inputImage; // fully transparent
+    if (right < left || bottom < top) return inputImage;
 
     final int newWidth = right - left + 1;
     final int newHeight = bottom - top + 1;
@@ -235,9 +141,6 @@ class ImageUtils {
     return recorder.endRecording().toImage(newWidth, newHeight);
   }
 
-  // Scales an image so its longest side fits `target`, then centers it inside a
-  // `target` x `target` square. Display only: gives every clipart a uniform
-  // square footprint while preserving aspect ratio (no stretch, no crop).
   Future<ui.Image> _fitInSquare(ui.Image inputImage, int target) async {
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final ui.Canvas canvas = Canvas(
@@ -254,13 +157,6 @@ class ImageUtils {
     return recorder.endRecording().toImage(target, target);
   }
 
-  //function to generate the view for the Dialog from the given asset
-  //
-  // DISPLAY ONLY (clipart picker + inline text-field previews) — produces a
-  // uniform square so all cliparts render at a consistent size in the grid.
-  // The badge / preview-bar encoding is generateLedHex (separate function).
-  // We trim each SVG's padding and normalize into a uniform square so all
-  // cliparts render at a consistent size in the grid.
   Future<ui.Image> generateImageView(String asset) async {
     await _loadSVG(asset);
     ui.Image image =
@@ -269,25 +165,65 @@ class ImageUtils {
     return _fitInSquare(content, 30);
   }
 
+  Future<ui.Image> _normalizeForBadge(ui.Image inputImage, int rows,
+      {required bool fillHeight, int? maxWidth}) async {
+    final ui.Image content = await _trimToContent(inputImage);
+    final int longest =
+        content.width > content.height ? content.width : content.height;
+    final double basis =
+        fillHeight ? content.height.toDouble() : longest.toDouble();
+    double scale = rows / basis;
+    if (maxWidth != null && content.width * scale > maxWidth) {
+      scale = maxWidth / content.width;
+    }
+    final int w = (content.width * scale).round() < 1
+        ? 1
+        : (content.width * scale).round();
+    final int h = (content.height * scale).round() < 1
+        ? 1
+        : (content.height * scale).round();
+    final double dy = (rows - h) / 2;
+
+    final ui.PictureRecorder recorder = ui.PictureRecorder();
+    final ui.Canvas canvas =
+        Canvas(recorder, Rect.fromLTWH(0, 0, w.toDouble(), rows.toDouble()));
+    canvas.drawImageRect(
+        content,
+        Rect.fromLTWH(
+            0, 0, content.width.toDouble(), content.height.toDouble()),
+        Rect.fromLTWH(0, dy, w.toDouble(), h.toDouble()),
+        Paint());
+    return recorder.endRecording().toImage(w, rows);
+  }
+
   //function to generate the LED hex from the given asset
   Future<List<String>> generateLedHex(String asset) async {
     await _loadSVG(asset);
     ui.Image image =
         await picture.toImage(originalWidth.toInt(), originalHeight.toInt());
 
-    // Trim each SVG's inconsistent viewBox padding (all four sides) BEFORE
-    // scaling, so the artwork itself — not the padding — drives how tall the
-    // clipart renders on the badge. _scaleSVG still fits it into 11x44 with
-    // aspect-preserving min-scale, so shapes are never stretched or cropped:
-    // square/tall icons fill the full height, while genuinely wide-thin shapes
-    // stay proportionally thin. This makes the height ratio consistent across
-    // all cliparts in the preview bar / real badge.
-    final ui.Image content = await _trimToContent(image);
-    final ui.Image scaledImage = await _scaleSVG(content, 11, 44);
-    final ui.Image trimmedImage = await _trimSVG(scaledImage);
-    final Uint8List? byteArray = await _convertImageToByteArray(trimmedImage);
+    final String name = asset.toLowerCase();
+    final bool isArrow = name.contains('arrow');
+    final bool isBar = name.contains('clip_bar');
+
+    ui.Image normalized;
+    bool trimColumns;
+    if (isArrow) {
+      final ui.Image content = await _trimToContent(image);
+      normalized = await _fitInSquare(content, 11);
+      trimColumns = false;
+    } else if (isBar) {
+      normalized = await _normalizeForBadge(image, 11, fillHeight: false);
+      trimColumns = true;
+    } else {
+      normalized =
+          await _normalizeForBadge(image, 11, fillHeight: true, maxWidth: 16);
+      trimColumns = true;
+    }
+
+    final Uint8List? byteArray = await _convertImageToByteArray(normalized);
     final List<List<int>> pixelArray = _convertUint8ListTo2DList(
-        byteArray!, trimmedImage.width, trimmedImage.height);
+        byteArray!, normalized.width, normalized.height);
     for (int x = 0; x < pixelArray.length; x++) {
       for (int y = 0; y < pixelArray[x].length; y++) {
         if (pixelArray[x][y] != 0) {
@@ -295,7 +231,7 @@ class ImageUtils {
         }
       }
     }
-    return Converters.convertBitmapToLEDHex(pixelArray, true);
+    return Converters.convertBitmapToLEDHex(pixelArray, trimColumns);
   }
 
   List<String> convertGifFramesToLEDHex(Uint8List gifBytes) {
