@@ -207,6 +207,12 @@ class ImageUtils {
 
   //function to generate the LED hex from the given asset
   Future<List<String>> generateLedHex(String asset) async {
+    final List<List<int>> matrix = await generateLedHexMatrix(asset);
+    return Converters.convertBitmapToLEDHex(matrix, true);
+  }
+
+  // Raw 11-row bitmap for an SVG asset, before LED-hex encoding.
+  Future<List<List<int>>> generateLedHexMatrix(String asset) async {
     await _loadSVG(asset);
     ui.Image image =
         await picture.toImage(originalWidth.toInt(), originalHeight.toInt());
@@ -223,7 +229,7 @@ class ImageUtils {
         }
       }
     }
-    return Converters.convertBitmapToLEDHex(pixelArray, true);
+    return pixelArray;
   }
 
   List<String> convertGifFramesToLEDHex(Uint8List gifBytes) {
