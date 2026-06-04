@@ -1,9 +1,9 @@
 {
-    "name": "badgemagic",
-    "short_name": "badgemagic",
+    "name": "Badge Magic",
+    "short_name": "Badge Magic",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
+    "background_color": "#FFFFFF",
     "theme_color": "#0175C2",
     "description": "A new Flutter project.",
     "orientation": "portrait-primary",
