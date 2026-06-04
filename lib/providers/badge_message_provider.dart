@@ -17,7 +17,7 @@ import 'package:badgemagic/utils/custom_transfers/transfers.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart'; // Import the new EqualizerAnimation
+import 'package:provider/provider.dart';
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -29,12 +29,12 @@ Map<int, Mode> modeValueMap = {
   6: Mode.snowflake,
   7: Mode.picture,
   8: Mode.laser,
-  9: Mode.pacman, // Add this line for Pacman
-  10: Mode.chevronleft, // Chevron left mode (now defined in mode.dart)
-  11: Mode.diamond, // Diamond animation mode
-  12: Mode.brokenhearts, // Broken Hearts mode (use fixed or define if needed)
-  13: Mode.cupid, // Cupid mode (use fixed or define if needed)
-  14: Mode.feet, // Feet animation mode
+  9: Mode.pacman,
+  10: Mode.chevronleft,
+  11: Mode.diamond,
+  12: Mode.brokenhearts,
+  13: Mode.cupid,
+  14: Mode.feet,
 };
 
 Map<int, Speed> speedMap = {
@@ -45,19 +45,22 @@ Map<int, Speed> speedMap = {
   5: Speed.five,
   6: Speed.six,
   7: Speed.seven,
-  8: Speed.eight, // Add superfast for the highest speed
+  8: Speed.eight,
 };
 
 class BadgeMessageProvider {
   static final Logger logger = Logger();
+
   InlineImageProvider controllerData =
       GetIt.instance.get<InlineImageProvider>();
+
   FileHelper fileHelper = FileHelper();
   Converters converters = Converters();
 
   Future<Data> getBadgeData(String text, bool flash, bool marq, Speed speed,
       Mode mode, bool isInverted) async {
     List<String> message = await converters.messageTohex(text, isInverted);
+
     Data data = Data(messages: [
       Message(
         text: message,
@@ -101,12 +104,12 @@ class BadgeMessageProvider {
     );
 
     BleState? state = initialState;
+
     DateTime now = DateTime.now();
 
     while (state != null) {
       state = await state.process();
     }
-
     logger.d("Time to transfer data: ${DateTime.now().difference(now)}");
     logger.d(".......Data transfer completed.......");
   }
@@ -129,11 +132,8 @@ class BadgeMessageProvider {
     }
 
     if (controllerData.getController().text.isEmpty && isSavedBadge == false) {
-      // Allow empty text if Pacman or Fireworks mode is selected
-      // Fireworks: Mode.fixed and animation index 19
       bool isFireworks = false;
       try {
-        // Try to get animation index from modeValueMap
         int fireworksIndex = 19;
         int cycleIndex = 20;
         if (mode == Mode.fixed &&
@@ -154,6 +154,7 @@ class BadgeMessageProvider {
 
     BluetoothAdapterState adapterState =
         await FlutterBluePlus.adapterState.first;
+
     if (adapterState != BluetoothAdapterState.on) {
       if (Platform.isAndroid) {
         final l10n = GetIt.instance.get<LocalizationService>().l10n;
@@ -184,7 +185,6 @@ class BadgeMessageProvider {
       } else if (Platform.isIOS) {
         final l10n = GetIt.instance.get<LocalizationService>().l10n;
         ToastUtils().showErrorToast(l10n.error);
-
         try {
           adapterState = await FlutterBluePlus.adapterState
               .where((state) => state == BluetoothAdapterState.on)
@@ -210,17 +210,6 @@ class BadgeMessageProvider {
     Data data;
     if (jsonData != null) {
       data = fileHelper.jsonToData(jsonData);
-      if (isSavedBadge && data.messages.isNotEmpty) {
-        final old = data.messages[0];
-        final newMessage = Message(
-          text: old.text, // use the already-padded hex string
-          flash: old.flash,
-          marquee: old.marquee,
-          speed: old.speed,
-          mode: Mode.animation, // Force seamless marquee
-        );
-        data = Data(messages: [newMessage, ...data.messages.skip(1)]);
-      }
     } else {
       data = await generateData(
           text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
@@ -249,14 +238,12 @@ Future<void> transferEmergencyAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
 
-/// Transfers the continuous diagonal V animation to the badge hardware.
 Future<void> transferDiagonalAnimation(
     BadgeMessageProvider badgeDataProvider, int speedLevel) async {
   return customTransferDiagonalAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
 
-/// Transfers the Fish Kiss animation to the badge, even if the homescreen text box is empty.
 Future<void> transferFishAnimation(
     BadgeMessageProvider badgeDataProvider, int speedLevel) async {
   return customTransferFishAnimation(
@@ -310,5 +297,3 @@ Future<void> transferCycleAnimation(
   return customTransferCycleAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
-
-// helper moved to utils/custom_transfers/common.dart

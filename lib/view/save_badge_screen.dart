@@ -1,6 +1,3 @@
-import 'package:badgemagic/bademagic_module/models/data.dart';
-import 'package:badgemagic/bademagic_module/models/messages.dart';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
@@ -10,7 +7,7 @@ import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/badge_slot_provider..dart';
+
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -23,6 +20,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/badge_slot_provider..dart';
+
 class SaveBadgeScreen extends StatefulWidget {
   const SaveBadgeScreen({super.key});
 
@@ -31,8 +30,6 @@ class SaveBadgeScreen extends StatefulWidget {
 }
 
 class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
-  List<MapEntry<String, Map<String, dynamic>>> badgeData = [];
-  InlineImageProvider imageProvider = GetIt.instance<InlineImageProvider>();
   ToastUtils toastUtils = ToastUtils();
   FileHelper fileHelper = FileHelper();
   SavedBadgeProvider savedBadgeProvider = SavedBadgeProvider();
@@ -61,6 +58,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
   Widget build(BuildContext context) {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
     BadgeMessageProvider badgeMessageProvider = BadgeMessageProvider();
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider<SavedBadgeProvider>.value(
@@ -77,34 +75,82 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         title: l10n.savedBadges,
         index: 2,
         actions: [
-          TextButton(
-            onPressed: () async {
-              final value = await fileHelper.importBadgeData(context);
-              if (value) {
-                logger.d('value: $value');
-                toastUtils.showToast(l10n.badgeImportedSuccessfully);
-                await fileHelper.getBadgeDataFiles();
-                setState(() {});
-              }
-            },
-            child: Text(
-              l10n.import,
-              style: const TextStyle(color: drawerHeaderTitle),
-            ),
-          ),
-          Consumer<BadgeSlotProvider>(
-            builder: (context, selectionProvider, _) {
-              if (selectionProvider.selectedBadges.isEmpty) {
-                return SizedBox.shrink();
-              }
-              return IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
-                tooltip: l10n.deleteSelected,
-                onPressed: () async {
+          Consumer<BadgeSlotProvider>(builder: (context, slots, _) {
+            final hasItems = slots.orderedBadges.isNotEmpty;
+            return TextButton(
+              onPressed: hasItems
+                  ? () {
+                      final badgesToTransfer =
+                          slots.orderedBadges.take(8).toList();
+
+                      List<Map<String, dynamic>> messagesList = [];
+                      List<String> combinedHexText = [];
+
+                      for (var entry in badgesToTransfer) {
+                        final rawMessage = Map<String, dynamic>.from(
+                            entry.value['messages'][0]);
+                        messagesList.add(rawMessage);
+                        if (rawMessage['text'] != null) {
+                          combinedHexText
+                              .add((rawMessage['text'] as List).join());
+                        }
+                      }
+
+                      if (messagesList.isNotEmpty) {
+                        Map<String, dynamic> blankTemplate =
+                            Map.from(messagesList.last);
+                        blankTemplate['text'] = <String>[];
+                        while (messagesList.length < 8) {
+                          messagesList.add(Map.from(blankTemplate));
+                        }
+                      }
+
+                      if (combinedHexText.length > 1) {
+                        animationBadgeProvider.setAnimationMode(AniAnimation());
+                      } else {
+                        animationBadgeProvider
+                            .setAnimationMode(FixedAnimation());
+                      }
+
+                      final fullText = combinedHexText.join(" ");
+                      animationBadgeProvider.badgeAnimation(
+                        fullText,
+                        Converters(),
+                        false,
+                      );
+
+                      final transferData = {'messages': messagesList};
+
+                      badgeMessageProvider.checkAndTransfer(null, null, null,
+                          null, null, null, transferData, true, context);
+                    }
+                  : null,
+              child: Text(
+                'Transfer All',
+                style: TextStyle(
+                  color: hasItems ? drawerHeaderTitle : Colors.grey,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 14.sp,
+                ),
+              ),
+            );
+          }),
+          Builder(builder: (innerContext) {
+            return PopupMenuButton<String>(
+              icon: const Icon(Icons.more_vert, color: drawerHeaderTitle),
+              onSelected: (String result) async {
+                if (result == 'import') {
+                  final value = await fileHelper.importBadgeData(context);
+                  if (value) {
+                    toastUtils.showToast(l10n.badgeImportedSuccessfully);
+                    await fileHelper.getBadgeDataFiles();
+                    setState(() {});
+                  }
+                } else if (result == 'delete_all') {
                   final confirm = await showDialog<bool>(
                     context: context,
                     builder: (context) => AlertDialog(
-                      title: Text(l10n.deleteSelectedBadges),
+                      title: const Text("Delete All Badges"),
                       content: Text(l10n.deleteBadgesConfirmation),
                       actions: [
                         TextButton(
@@ -121,24 +167,56 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                       ],
                     ),
                   );
+
                   if (confirm == true) {
-                    final provider = Provider.of<InlineImageProvider>(context,
+                    if (!context.mounted) return;
+                    final imageProvider = Provider.of<InlineImageProvider>(
+                        innerContext,
                         listen: false);
-                    final selectedBadges =
-                        selectionProvider.selectedBadges.toList();
-                    for (final badgeKey in selectedBadges) {
-                      await FileHelper().deleteFile(badgeKey);
-                      provider.savedBadgeCache
-                          .removeWhere((entry) => entry.key == badgeKey);
+                    final slotProvider = Provider.of<BadgeSlotProvider>(
+                        innerContext,
+                        listen: false);
+
+                    final badgesToDelete = List.from(imageProvider
+                        .savedBadgeCache
+                        .where(
+                            (entry) => entry.key != 'badge_original_texts.json')
+                        .toList());
+
+                    for (var entry in badgesToDelete) {
+                      try {
+                        FileHelper().deleteFile(entry.key);
+                        await Future.delayed(const Duration(milliseconds: 50));
+                      } catch (e) {
+                        debugPrint("Failed to delete ${entry.key}: $e");
+                      }
                     }
-                    selectionProvider.clearSelections();
-                    setState(() {});
-                    ToastUtils().showToast(l10n.badgesDeletedSuccessfully);
+
+                    slotProvider.clearAll();
+                    imageProvider.savedBadgeCache.clear();
+                    await fileHelper.getBadgeDataFiles();
+
+                    toastUtils.showToast("All badges deleted successfully");
+
+                    if (mounted) {
+                      setState(() {});
+                    }
                   }
-                },
-              );
-            },
-          ),
+                }
+              },
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+                PopupMenuItem<String>(
+                  value: 'import',
+                  child: Text(l10n.import),
+                ),
+                const PopupMenuItem<String>(
+                  value: 'delete_all',
+                  child:
+                      Text('Delete All', style: TextStyle(color: Colors.red)),
+                ),
+              ],
+            );
+          }),
         ],
         body: Consumer<InlineImageProvider>(
           builder: (context, provider, child) {
@@ -154,9 +232,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                         height: 200.h,
                       ),
                     ),
-                    SizedBox(
-                      height: 20.h,
-                    ),
+                    SizedBox(height: 20.h),
                     Text(
                       'No saved badges !',
                       style: TextStyle(
@@ -164,129 +240,26 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                         fontSize: 20.sp,
                       ),
                     ),
-                    Text(
-                      'Looks like there are no saved badges yet.',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14.sp,
-                      ),
-                    ),
                   ],
                 ),
               );
             } else {
-              return Stack(
-                alignment: Alignment.center,
+              final slotProvider =
+                  Provider.of<BadgeSlotProvider>(context, listen: false);
+              slotProvider.initialize(provider.savedBadgeCache);
+
+              return Column(
                 children: [
-                  Column(
-                    children: [
-                      AnimationBadge(),
-                      Expanded(
-                        child: Selector<BadgeSlotProvider, bool>(
-                            selector: (context, selectionProvider) =>
-                                selectionProvider.selectedBadges.isNotEmpty,
-                            builder: (context, isTransferEnabled, _) {
-                              return BadgeListView(
-                                isTransferEnabled: isTransferEnabled,
-                                futureBadges:
-                                    Future.value(provider.savedBadgeCache),
-                                refreshBadgesCallback: (value) {
-                                  provider.savedBadgeCache.remove(value);
-                                  setState(() {});
-                                  return Future.value();
-                                },
-                              );
-                            }),
-                      ),
-                    ],
-                  ),
-                  Consumer<BadgeSlotProvider>(
-                    builder: (context, selectionProvider, _) {
-                      return Positioned(
-                        bottom: 10.h,
-                        child: AnimatedOpacity(
-                          duration: const Duration(milliseconds: 200),
-                          opacity: selectionProvider.selectedBadges.isNotEmpty
-                              ? 1.0
-                              : 0.0,
-                          child: Container(
-                            width: 300.w,
-                            padding: EdgeInsets.symmetric(horizontal: 16.w),
-                            child: TextButton(
-                              onPressed: selectionProvider
-                                      .selectedBadges.isNotEmpty
-                                  ? () async {
-                                      final selectedBadges =
-                                          selectionProvider.selectedBadges;
-                                      List<Message> badgeDataList = [];
-
-                                      for (var badgeKey in selectedBadges) {
-                                        Map<String, dynamic> badgeData =
-                                            provider.savedBadgeCache
-                                                .firstWhere((element) =>
-                                                    element.key == badgeKey)
-                                                .value;
-
-                                        final message = Message.fromJson(
-                                            badgeData['messages'][0]);
-                                        badgeDataList.add(message);
-                                      }
-                                      while (badgeDataList.length < 8) {
-                                        badgeDataList.add(Message(text: []));
-                                      }
-                                      if (badgeDataList
-                                              .where(
-                                                  (msg) => msg.text.isNotEmpty)
-                                              .length >
-                                          1) {
-                                        animationBadgeProvider
-                                            .setAnimationMode(AniAnimation());
-                                      } else {
-                                        animationBadgeProvider
-                                            .setAnimationMode(FixedAnimation());
-                                      }
-                                      final fullText = badgeDataList
-                                          .map((m) => m.text.join())
-                                          .join(" ");
-                                      animationBadgeProvider.badgeAnimation(
-                                        fullText,
-                                        Converters(),
-                                        false,
-                                      );
-                                      final data =
-                                          Data(messages: badgeDataList);
-                                      badgeMessageProvider.checkAndTransfer(
-                                          null,
-                                          null,
-                                          null,
-                                          null,
-                                          null,
-                                          null,
-                                          data.toJson(),
-                                          true,
-                                          context);
-                                    }
-                                  : null,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: colorPrimary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.r),
-                                ),
-                                padding: EdgeInsets.symmetric(vertical: 12.h),
-                              ),
-                              child: Text(
-                                l10n.transferButton,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.0,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      );
-                    },
+                  AnimationBadge(),
+                  Expanded(
+                    child: BadgeListView(
+                      refreshBadgesCallback: (value) {
+                        provider.savedBadgeCache
+                            .removeWhere((entry) => entry.key == value.key);
+                        setState(() {});
+                        return Future.value();
+                      },
+                    ),
                   ),
                 ],
               );

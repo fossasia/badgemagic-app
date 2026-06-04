@@ -41,7 +41,7 @@ class CommonScaffold extends StatelessWidget {
         backgroundColor: colorPrimary,
         title: Text(
           title,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: Colors.white, fontSize: 18),
         ),
         actions: [
           if (actions != null) ...actions!,

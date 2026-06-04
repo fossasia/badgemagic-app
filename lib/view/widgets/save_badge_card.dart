@@ -1,321 +1,231 @@
+import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/providers/animation_badge_provider.dart';
-import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/badge_slot_provider..dart';
-import 'package:badgemagic/providers/saved_badge_provider.dart';
-import 'package:badgemagic/view/homescreen.dart';
-import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:provider/provider.dart';
 
 class SaveBadgeCard extends StatelessWidget {
   final MapEntry<String, Map<String, dynamic>> badgeData;
-
-  final Future<void> Function(MapEntry<String, Map<String, dynamic>>)
-      refreshBadgesCallback;
-  final FileHelper file = FileHelper();
-  final Converters converters = Converters();
-  final ToastUtils toastUtils = ToastUtils();
-  final bool isSelected;
-  final VoidCallback? onLongPress;
-  final VoidCallback? onTap;
+  final int index;
+  final Function(String) onDelete;
+  final Function(String) onShare;
+  final Function(String) onEdit;
+  final Function(Map<String, dynamic>) onPlay;
+  final Function(Map<String, dynamic>) onQuickTransfer;
 
   SaveBadgeCard({
     super.key,
     required this.badgeData,
-    required this.refreshBadgesCallback,
-    this.isSelected = false,
-    this.onLongPress,
-    this.onTap,
+    required this.index,
+    required this.onDelete,
+    required this.onShare,
+    required this.onEdit,
+    required this.onPlay,
+    required this.onQuickTransfer,
   });
+
+  final FileHelper file = FileHelper();
 
   @override
   Widget build(BuildContext context) {
-    BadgeMessageProvider badge = BadgeMessageProvider();
-    return Container(
-      width: 370.w,
-      padding: EdgeInsets.all(6.dg),
-      margin: EdgeInsets.all(10.dg),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(6.dg),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Wrapping the text with Flexible to ensure it doesn't overflow.
-              Flexible(
-                child: Padding(
-                  padding: EdgeInsets.only(
-                      right: 8
-                          .w), // Adding some padding to separate text and buttons.
-                  child: Text(
-                    badgeData.key.substring(0, badgeData.key.length - 5),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                    softWrap: true,
-                    overflow: TextOverflow
-                        .ellipsis, // Use ellipsis to indicate overflowed text
-                    maxLines: 1, // Limit to 1 line for a cleaner look
-                  ),
-                ),
-              ),
-              Consumer<SavedBadgeProvider>(
-                builder: (context, provider, widget) => Row(
-                  mainAxisSize: MainAxisSize.min, // Keep the row compact
-                  children: [
-                    IconButton(
-                      icon: Image.asset(
-                        "assets/icons/t_play.png",
-                        height: 20,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {
-                        provider.savedBadgeAnimation(
-                            badgeData.value,
-                            Provider.of<AnimationBadgeProvider>(context,
-                                listen: false));
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.edit,
-                        color: Colors.black,
-                      ),
-                      onPressed: () async {
-                        final navigator = Navigator.of(context);
-                        // Show confirmation dialog before editing
-                        final confirmed =
-                            await provider.showEditBadgeConfirmation(context);
-                        if (confirmed) {
-                          // Navigate to HomeScreen for editing the badge
-                          navigator.push(
-                            MaterialPageRoute(
-                              builder: (context) => HomeScreen(
-                                savedBadgeFilename: badgeData.key,
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                    ),
-                    IconButton(
-                      icon: Image.asset(
-                        "assets/icons/t_updown.png",
-                        height: 24.h,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {
-                        logger.d("BadgeData: ${badgeData.value}");
-                        //We can Acrtually call a method to generate the data just by transffering the JSON data
-                        //so we would not necessarily need the Providers.
-                        badge.checkAndTransfer(null, null, null, null, null,
-                            null, badgeData.value, true, context);
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.share,
-                        color: Colors.black,
-                      ),
-                      onPressed: () {
-                        file.shareBadgeData(badgeData.key);
-                      },
-                    ),
-                    IconButton(
-                      icon: const Icon(
-                        Icons.delete,
-                        color: Colors.black,
-                      ),
-                      onPressed: () async {
-                        //add a dialog for confirmation before deleting
-                        await _showDeleteDialog(context).then((value) async {
-                          if (value == true) {
-                            file.deleteFile(badgeData.key);
-                            toastUtils.showToast("Badge Deleted Successfully");
-                            await refreshBadgesCallback(badgeData);
-                          }
-                        });
-                      },
-                    ),
-                  ],
-                ),
+    final parsedData = file.jsonToData(badgeData.value);
+    final Message messageData = parsedData.messages[0];
+
+    final String rawName = badgeData.key.substring(0, badgeData.key.length - 5);
+    final String badgeName =
+        rawName.length > 12 ? '${rawName.substring(0, 15)}...' : rawName;
+
+    final bool isTransferred = index < 8;
+
+    return Stack(
+      children: [
+        Container(
+          width: double.infinity,
+          margin:
+              EdgeInsets.only(top: 14.h, bottom: 8.h, left: 10.w, right: 10.w),
+          padding:
+              EdgeInsets.only(top: 18.h, bottom: 12.h, left: 12.w, right: 12.w),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            border: Border.all(
+              width: 1.5,
+              color: isTransferred ? colorPrimary : Colors.grey.shade400,
+            ),
+            borderRadius: BorderRadius.circular(8.r),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.grey.withValues(alpha: 0.2),
+                spreadRadius: 1,
+                blurRadius: 4,
+                offset: const Offset(0, 2),
               ),
             ],
           ),
-          SizedBox(height: 8.h),
-          Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Visibility(
-                    visible: file.jsonToData(badgeData.value).messages[0].flash,
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: colorPrimary,
-                        borderRadius: BorderRadius.circular(100),
+                  Flexible(
+                    child: Text(
+                      badgeName,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp,
+                        color:
+                            isTransferred ? Colors.black : Colors.grey.shade700,
                       ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/icons/flash.png",
-                            color: Colors.white,
-                            height: 14.h,
-                          )
-                        ],
-                      ),
+                      maxLines: 1,
                     ),
                   ),
-                  SizedBox(
-                    width: 8.w,
-                  ),
-                  Visibility(
-                    visible:
-                        file.jsonToData(badgeData.value).messages[0].marquee,
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: colorPrimary,
-                        borderRadius: BorderRadius.circular(100),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      IconButton(
+                        icon: Icon(Icons.visibility,
+                            color: colorPrimary, size: 24.sp),
+                        constraints: const BoxConstraints(),
+                        padding: EdgeInsets.zero,
+                        tooltip: 'Preview',
+                        onPressed: () => onPlay(badgeData.value),
                       ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/icons/square.png",
-                            color: Colors.white,
-                            height: 14.h,
-                          )
-                        ],
+                      SizedBox(width: 2.w),
+                      _buildPopupMenu(),
+                      SizedBox(width: 2.w),
+                      ReorderableDragStartListener(
+                        index: index,
+                        child: Container(
+                          color: Colors.transparent,
+                          padding: EdgeInsets.only(
+                              left: 6.w, right: 4.w, top: 4.h, bottom: 4.h),
+                          child: Icon(Icons.drag_indicator,
+                              color: Colors.grey.shade400, size: 28.sp),
+                        ),
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 8.w,
-                  ),
-                  Visibility(
-                    visible: badgeData.value['messages'][0]['invert'] ?? false,
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: colorPrimary,
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/icons/t_invert.png",
-                            color: Colors.white,
-                            height: 14.h,
-                          )
-                        ],
-                      ),
-                    ),
+                    ],
                   )
                 ],
               ),
-              SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: colorPrimary,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        "assets/icons/t_double.png",
-                        color: Colors.white,
-                        height: 14.h,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        Speed.getIntValue(
-                          file.jsonToData(badgeData.value).messages[0].speed,
-                        ).toString(),
-                        style: const TextStyle(color: Colors.white),
-                      )
-                    ],
-                  ),
-                ),
-              ),
-              SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: colorPrimary,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Text(
-                    file
-                        .jsonToData(badgeData.value)
-                        .messages[0]
-                        .mode
-                        .toString()
-                        .split('.')
-                        .last
-                        .toUpperCase(),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              const Spacer(),
-              Consumer<BadgeSlotProvider>(
-                builder: (context, selectionProvider, _) {
-                  final isSelected =
-                      selectionProvider.isSelected(badgeData.key);
-                  return Switch(
-                    value: isSelected,
-                    onChanged: (selectionProvider.canSelectMore || isSelected)
-                        ? (value) =>
-                            selectionProvider.toggleSelection(badgeData.key)
-                        : null,
-                    activeThumbColor: colorPrimary,
-                  );
-                },
+              SizedBox(height: 12.h),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _buildSpeedAndMode(messageData, isTransferred),
+                  _buildStatusChips(messageData, isTransferred),
+                ],
               ),
             ],
           ),
-        ],
-      ),
+        ),
+        Positioned(
+          left: 0,
+          right: 0,
+          top: 4.h,
+          child: Align(
+            alignment: Alignment.center,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 2.h),
+              decoration: BoxDecoration(
+                color: isTransferred ? colorPrimary : Colors.grey.shade400,
+                borderRadius: BorderRadius.circular(12.r),
+              ),
+              child: Text(
+                isTransferred ? 'Slot ${index + 1}' : 'Unassigned',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 11.sp,
+                ),
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
-  Future<bool> _showDeleteDialog(BuildContext context) async {
-    return await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return DeleteBadgeDialog();
+  Widget _buildPopupMenu() {
+    return PopupMenuButton<String>(
+      icon: const Icon(Icons.more_vert, color: Colors.black87),
+      padding: EdgeInsets.zero,
+      constraints: const BoxConstraints(),
+      onSelected: (String result) {
+        switch (result) {
+          case 'transfer':
+            onQuickTransfer(badgeData.value);
+            break;
+          case 'edit':
+            onEdit(badgeData.key);
+            break;
+          case 'share':
+            onShare(badgeData.key);
+            break;
+          case 'delete':
+            onDelete(badgeData.key);
+            break;
+        }
       },
+      itemBuilder: (BuildContext context) => <PopupMenuEntry<String>>[
+        const PopupMenuItem<String>(value: 'transfer', child: Text('Transfer')),
+        const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
+        const PopupMenuItem<String>(value: 'share', child: Text('Share')),
+        const PopupMenuItem<String>(
+          value: 'delete',
+          child: Text('Delete', style: TextStyle(color: Colors.red)),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatusChips(Message msg, bool active) {
+    Color iconColor = active ? colorPrimary : Colors.grey.shade500;
+    return Row(
+      children: [
+        if (msg.flash) _miniIcon("assets/icons/flash.png", iconColor),
+        if (msg.marquee) _miniIcon("assets/icons/square.png", iconColor),
+        if (badgeData.value['messages'][0]['invert'] ?? false)
+          _miniIcon("assets/icons/t_invert.png", iconColor),
+      ],
+    );
+  }
+
+  Widget _miniIcon(String asset, Color color) {
+    return Padding(
+      padding: EdgeInsets.only(left: 6.w),
+      child: Image.asset(asset, color: color, height: 16.h),
+    );
+  }
+
+  Widget _buildSpeedAndMode(Message msg, bool active) {
+    Color bgColor = active ? colorPrimary : Colors.grey.shade400;
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(100.r),
+          ),
+          child: Text(
+            'Speed: ${Speed.getIntValue(msg.speed)}',
+            style: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ),
+        SizedBox(width: 6.w),
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(100.r),
+          ),
+          child: Text(
+            msg.mode.toString().split('.').last.toUpperCase(),
+            style: const TextStyle(color: Colors.white, fontSize: 12),
+          ),
+        ),
+      ],
     );
   }
 }
