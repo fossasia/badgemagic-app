@@ -35,6 +35,9 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
   SavedBadgeProvider savedBadgeProvider = SavedBadgeProvider();
   AnimationBadgeProvider animationBadgeProvider = AnimationBadgeProvider();
 
+  Set<String> selectedBadgeKeys = {};
+  bool _isInitialized = false;
+
   @override
   void initState() {
     _setOrientation();
@@ -76,13 +79,15 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         index: 2,
         actions: [
           Consumer<BadgeSlotProvider>(builder: (context, slots, _) {
-            final hasItems = slots.orderedBadges.isNotEmpty;
-            return TextButton(
-              onPressed: hasItems
-                  ? () {
-                      final badgesToTransfer =
-                          slots.orderedBadges.take(8).toList();
+            final badgesToTransfer = slots.orderedBadges
+                .where((b) => selectedBadgeKeys.contains(b.key))
+                .toList();
 
+            final hasSelectedItems = badgesToTransfer.isNotEmpty;
+
+            return TextButton(
+              onPressed: hasSelectedItems
+                  ? () {
                       List<Map<String, dynamic>> messagesList = [];
                       List<String> combinedHexText = [];
 
@@ -114,11 +119,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
 
                       final fullText = combinedHexText.join(" ");
                       animationBadgeProvider.badgeAnimation(
-                        fullText,
-                        Converters(),
-                        false,
-                      );
-
+                          fullText, Converters(), false);
                       final transferData = {'messages': messagesList};
 
                       badgeMessageProvider.checkAndTransfer(null, null, null,
@@ -126,9 +127,9 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                     }
                   : null,
               child: Text(
-                'Transfer All',
+                'Transfer (${badgesToTransfer.length})',
                 style: TextStyle(
-                  color: hasItems ? drawerHeaderTitle : Colors.grey,
+                  color: hasSelectedItems ? drawerHeaderTitle : Colors.grey,
                   fontWeight: FontWeight.bold,
                   fontSize: 14.sp,
                 ),
@@ -194,6 +195,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
 
                     slotProvider.clearAll();
                     imageProvider.savedBadgeCache.clear();
+                    selectedBadgeKeys.clear();
                     await fileHelper.getBadgeDataFiles();
 
                     toastUtils.showToast("All badges deleted successfully");
@@ -227,35 +229,52 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                   children: [
                     Padding(
                       padding: EdgeInsets.only(left: 50.0.w),
-                      child: SvgPicture.asset(
-                        'assets/icons/empty_badge.svg',
-                        height: 200.h,
-                      ),
+                      child: SvgPicture.asset('assets/icons/empty_badge.svg',
+                          height: 200.h),
                     ),
                     SizedBox(height: 20.h),
-                    Text(
-                      'No saved badges !',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20.sp,
-                      ),
-                    ),
+                    Text('No saved badges !',
+                        style: TextStyle(color: Colors.black, fontSize: 20.sp)),
                   ],
                 ),
               );
             } else {
               final slotProvider =
                   Provider.of<BadgeSlotProvider>(context, listen: false);
-              slotProvider.initialize(provider.savedBadgeCache);
+
+              // Initializes the first 8 switches as ON by default
+              if (!_isInitialized) {
+                slotProvider.initialize(provider.savedBadgeCache);
+                selectedBadgeKeys = slotProvider.orderedBadges
+                    .take(8)
+                    .map((e) => e.key)
+                    .toSet();
+                _isInitialized = true;
+              }
 
               return Column(
                 children: [
                   AnimationBadge(),
                   Expanded(
                     child: BadgeListView(
+                      selectedBadgeKeys: selectedBadgeKeys,
+                      onToggleSelection: (key, isSelected) {
+                        setState(() {
+                          if (isSelected) {
+                            if (selectedBadgeKeys.length >= 8) {
+                              toastUtils.showToast("Maximum 8 slots allowed!");
+                              return;
+                            }
+                            selectedBadgeKeys.add(key);
+                          } else {
+                            selectedBadgeKeys.remove(key);
+                          }
+                        });
+                      },
                       refreshBadgesCallback: (value) {
                         provider.savedBadgeCache
                             .removeWhere((entry) => entry.key == value.key);
+                        selectedBadgeKeys.remove(value.key);
                         setState(() {});
                         return Future.value();
                       },

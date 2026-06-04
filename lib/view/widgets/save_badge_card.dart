@@ -8,6 +8,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class SaveBadgeCard extends StatelessWidget {
   final MapEntry<String, Map<String, dynamic>> badgeData;
   final int index;
+  final bool isSelected;
+  final int? slotNumber;
+  final Function(bool) onToggleSelect;
   final Function(String) onDelete;
   final Function(String) onShare;
   final Function(String) onEdit;
@@ -18,6 +21,9 @@ class SaveBadgeCard extends StatelessWidget {
     super.key,
     required this.badgeData,
     required this.index,
+    required this.isSelected,
+    required this.slotNumber,
+    required this.onToggleSelect,
     required this.onDelete,
     required this.onShare,
     required this.onEdit,
@@ -36,113 +42,139 @@ class SaveBadgeCard extends StatelessWidget {
     final String badgeName =
         rawName.length > 12 ? '${rawName.substring(0, 15)}...' : rawName;
 
-    final bool isTransferred = index < 8;
-
-    return Stack(
-      children: [
-        Container(
-          width: double.infinity,
-          margin:
-              EdgeInsets.only(top: 14.h, bottom: 8.h, left: 10.w, right: 10.w),
-          padding:
-              EdgeInsets.only(top: 18.h, bottom: 12.h, left: 12.w, right: 12.w),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(
-              width: 1.5,
-              color: isTransferred ? colorPrimary : Colors.grey.shade400,
-            ),
-            borderRadius: BorderRadius.circular(8.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey.withValues(alpha: 0.2),
-                spreadRadius: 1,
-                blurRadius: 4,
-                offset: const Offset(0, 2),
+    return Material(
+      type: MaterialType.transparency,
+      child: Stack(
+        children: [
+          Container(
+            width: double.infinity,
+            margin: EdgeInsets.only(
+                top: isSelected ? 14.h : 8.h,
+                bottom: 8.h,
+                left: 10.w,
+                right: 10.w),
+            padding: EdgeInsets.only(
+                top: isSelected ? 16.h : 12.h,
+                bottom: 8.h,
+                left: 12.w,
+                right: 8.w),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              border: Border.all(
+                width: 1.5,
+                color: colorPrimary,
               ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Flexible(
-                    child: Text(
-                      badgeName,
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16.sp,
-                        color:
-                            isTransferred ? Colors.black : Colors.grey.shade700,
+              borderRadius: BorderRadius.circular(8.r),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.grey.withValues(alpha: 0.2),
+                  spreadRadius: 1,
+                  blurRadius: 4,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Text(
+                        badgeName,
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.sp,
+                          color: Colors.black,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 1,
                     ),
-                  ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: Icon(Icons.visibility,
-                            color: colorPrimary, size: 24.sp),
-                        constraints: const BoxConstraints(),
-                        padding: EdgeInsets.zero,
-                        tooltip: 'Preview',
-                        onPressed: () => onPlay(badgeData.value),
-                      ),
-                      SizedBox(width: 2.w),
-                      _buildPopupMenu(),
-                      SizedBox(width: 2.w),
-                      ReorderableDragStartListener(
-                        index: index,
-                        child: Container(
-                          color: Colors.transparent,
-                          padding: EdgeInsets.only(
-                              left: 6.w, right: 4.w, top: 4.h, bottom: 4.h),
-                          child: Icon(Icons.drag_indicator,
-                              color: Colors.grey.shade400, size: 28.sp),
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.visibility,
+                              color: colorPrimary, size: 24.sp),
+                          constraints: const BoxConstraints(),
+                          padding: EdgeInsets.zero,
+                          onPressed: () => onPlay(badgeData.value),
+                        ),
+                        SizedBox(width: 2.w),
+                        _buildPopupMenu(),
+                        SizedBox(width: 2.w),
+                        ReorderableDragStartListener(
+                          index: index,
+                          child: Container(
+                            color: Colors.transparent,
+                            padding: EdgeInsets.only(
+                                left: 6.w, right: 4.w, top: 4.h, bottom: 4.h),
+                            child: Icon(Icons.drag_indicator,
+                                color: Colors.grey.shade400, size: 28.sp),
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
+                ),
+                SizedBox(height: 8.h),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildSpeedAndMode(messageData),
+                            _buildStatusChips(messageData),
+                          ],
                         ),
                       ),
-                    ],
-                  )
-                ],
-              ),
-              SizedBox(height: 12.h),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  _buildSpeedAndMode(messageData, isTransferred),
-                  _buildStatusChips(messageData, isTransferred),
-                ],
-              ),
-            ],
+                    ),
+                    Transform.scale(
+                      scale: 0.8,
+                      child: Switch(
+                        value: isSelected,
+                        onChanged: onToggleSelect,
+                        activeThumbColor: colorPrimary,
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
           ),
-        ),
-        Positioned(
-          left: 0,
-          right: 0,
-          top: 4.h,
-          child: Align(
-            alignment: Alignment.center,
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 2.h),
-              decoration: BoxDecoration(
-                color: isTransferred ? colorPrimary : Colors.grey.shade400,
-                borderRadius: BorderRadius.circular(12.r),
-              ),
-              child: Text(
-                isTransferred ? 'Slot ${index + 1}' : 'Unassigned',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 11.sp,
+          if (isSelected && slotNumber != null)
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 4.h,
+              child: Align(
+                alignment: Alignment.center,
+                child: Container(
+                  padding:
+                      EdgeInsets.symmetric(horizontal: 14.w, vertical: 2.h),
+                  decoration: BoxDecoration(
+                    color: colorPrimary,
+                    borderRadius: BorderRadius.circular(12.r),
+                  ),
+                  child: Text(
+                    'Slot $slotNumber',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 11.sp),
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -172,58 +204,48 @@ class SaveBadgeCard extends StatelessWidget {
         const PopupMenuItem<String>(value: 'edit', child: Text('Edit')),
         const PopupMenuItem<String>(value: 'share', child: Text('Share')),
         const PopupMenuItem<String>(
-          value: 'delete',
-          child: Text('Delete', style: TextStyle(color: Colors.red)),
-        ),
+            value: 'delete',
+            child: Text('Delete', style: TextStyle(color: Colors.red))),
       ],
     );
   }
 
-  Widget _buildStatusChips(Message msg, bool active) {
-    Color iconColor = active ? colorPrimary : Colors.grey.shade500;
+  Widget _buildStatusChips(Message msg) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
-        if (msg.flash) _miniIcon("assets/icons/flash.png", iconColor),
-        if (msg.marquee) _miniIcon("assets/icons/square.png", iconColor),
+        if (msg.flash) _miniIcon("assets/icons/flash.png"),
+        if (msg.marquee) _miniIcon("assets/icons/square.png"),
         if (badgeData.value['messages'][0]['invert'] ?? false)
-          _miniIcon("assets/icons/t_invert.png", iconColor),
+          _miniIcon("assets/icons/t_invert.png"),
       ],
     );
   }
 
-  Widget _miniIcon(String asset, Color color) {
+  Widget _miniIcon(String asset) {
     return Padding(
-      padding: EdgeInsets.only(left: 6.w),
-      child: Image.asset(asset, color: color, height: 16.h),
-    );
+        padding: EdgeInsets.only(left: 6.w),
+        child: Image.asset(asset, color: colorPrimary, height: 16.h));
   }
 
-  Widget _buildSpeedAndMode(Message msg, bool active) {
-    Color bgColor = active ? colorPrimary : Colors.grey.shade400;
+  Widget _buildSpeedAndMode(Message msg) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
         Container(
           padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
           decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(100.r),
-          ),
-          child: Text(
-            'Speed: ${Speed.getIntValue(msg.speed)}',
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
+              color: colorPrimary, borderRadius: BorderRadius.circular(100.r)),
+          child: Text('Speed: ${Speed.getIntValue(msg.speed)}',
+              style: const TextStyle(color: Colors.white, fontSize: 12)),
         ),
         SizedBox(width: 6.w),
         Container(
           padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 4.h),
           decoration: BoxDecoration(
-            color: bgColor,
-            borderRadius: BorderRadius.circular(100.r),
-          ),
-          child: Text(
-            msg.mode.toString().split('.').last.toUpperCase(),
-            style: const TextStyle(color: Colors.white, fontSize: 12),
-          ),
+              color: colorPrimary, borderRadius: BorderRadius.circular(100.r)),
+          child: Text(msg.mode.toString().split('.').last.toUpperCase(),
+              style: const TextStyle(color: Colors.white, fontSize: 12)),
         ),
       ],
     );
