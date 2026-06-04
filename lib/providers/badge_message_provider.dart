@@ -146,7 +146,6 @@ class BadgeMessageProvider {
         await UniversalBle.getBluetoothAvailabilityState();
 
     if (adapterState != AvailabilityState.poweredOn) {
-
       ToastUtils().showErrorToast('Please turn on Bluetooth in your settings');
       logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
       return;
