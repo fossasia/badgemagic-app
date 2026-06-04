@@ -191,7 +191,7 @@
   "flashEffect": "Flash",
   "marqueeEffect": "Marquee",
   "invertColors": "Inverti Colori",
-  "save": "SALVA",
+  "save": "Salva",
   "badge": "Badge",
   "draw": "Disegna",
   "erase": "Cancella",
@@ -211,5 +211,6 @@
   "badgeNameHint": "Nome badge",
   "triangle": "Triangolo",
   "clipartSavedSuccessfully": "Clipart salvato con successo",
-  "badgeScanMode": "Modalità Scansione Badge"
+  "badgeScanMode": "Modalità Scansione Badge",
+  "pleaseSelectClipart": "Si prega di disegnare o selezionare un clipart prima di salvare"
 }
