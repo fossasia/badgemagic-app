@@ -1,11 +1,8 @@
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:badgemagic/badge_animation/ani_animation.dart';
-import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
