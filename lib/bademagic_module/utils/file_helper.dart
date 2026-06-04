@@ -106,12 +106,70 @@ class FileHelper {
     addToCache(imageBytes, filename);
   }
 
-  // Function to update the content of a file
-// Function to update the content of a file with a 2D list of bools
-  Future<void> updateClipart(String filename, List<List<int>> image) async {
+  // Trim empty left/right columns only. Row count is preserved because the
+  // LED-hex pipeline assumes exactly 11 rows.
+  static List<List<int>> trimEmptyPadding(List<List<int>> image) {
+    if (image.isEmpty || image[0].isEmpty) return const [];
+
+    final int rows = image.length;
+    final int cols = image[0].length;
+    int left = cols, right = -1;
+
+    for (int r = 0; r < rows; r++) {
+      for (int c = 0; c < cols; c++) {
+        if (image[r][c] != 0) {
+          if (c < left) left = c;
+          if (c > right) right = c;
+        }
+      }
+    }
+
+    if (right < 0) return const [];
+
+    return List.generate(
+      rows,
+      (i) => image[i].sublist(left, right + 1),
+    );
+  }
+
+  // Pad/crop to 11 rows so legacy short-matrix files don't crash the renderer.
+  static const int _badgeRows = 11;
+  static List<List<int>> normalizeClipartHeight(List<List<int>> image) {
+    if (image.isEmpty) return image;
+    final int cols = image[0].length;
+    if (image.length == _badgeRows) return image;
+
+    if (image.length < _badgeRows) {
+      final int missing = _badgeRows - image.length;
+      final int top = missing ~/ 2;
+      final int bottom = missing - top;
+      return [
+        for (int i = 0; i < top; i++) List<int>.filled(cols, 0),
+        ...image,
+        for (int i = 0; i < bottom; i++) List<int>.filled(cols, 0),
+      ];
+    }
+
+    return image.sublist(0, _badgeRows);
+  }
+
+  static List<List<int>> addClipartSideMargins(List<List<int>> image) {
+    if (image.isEmpty) return image;
+    return [
+      for (final row in image) <int>[0, ...row, 0],
+    ];
+  }
+
+  Future<bool> updateClipart(String filename, List<List<int>> image) async {
+    final List<List<int>> trimmed = trimEmptyPadding(image);
+    if (trimmed.isEmpty) {
+      logger.i('Skipping save: clipart is empty after trimming');
+      return false;
+    }
+
     logger.d('Updating clipart: $filename');
     // Convert the 2D list of int to a JSON string
-    String jsonData = jsonEncode(image);
+    String jsonData = jsonEncode(trimmed);
 
     // Get the application's document directory
     final directory = await getApplicationDocumentsDirectory();
@@ -133,6 +191,7 @@ class FileHelper {
       await file.writeAsString(jsonData);
       logger.d('New file created and content written: $filename');
     }
+    return true;
   }
 
   // Read all files, parse the 2D lists, and add to cache
@@ -165,35 +224,37 @@ class FileHelper {
     }
   }
 
-  // Save a 2D list to a file with a unique name
-  Future<void> saveImage(List<List<bool>> imageData) async {
+  // Returns true if the clipart was persisted, false if rejected as empty.
+  Future<bool> saveImage(List<List<bool>> imageData) async {
     List<List<int>> image = List.generate(
         imageData.length, (i) => List<int>.filled(imageData[i].length, 0));
 
-    //convert the 2D list of bool into 2D list of int
     for (int i = 0; i < imageData.length; i++) {
       for (int j = 0; j < imageData[i].length; j++) {
         image[i][j] = imageData[i][j] ? 1 : 0;
       }
     }
 
-    // Generate a unique filename
+    final List<List<int>> trimmed = trimEmptyPadding(image);
+    if (trimmed.isEmpty) {
+      logger.i('Skipping save: clipart is empty');
+      return false;
+    }
+
     String filename = _generateUniqueFilename();
 
     logger.d('Saving image to file: $filename');
 
-    // Convert the 2D list to JSON string
-    String jsonData = jsonEncode(image);
+    String jsonData = jsonEncode(trimmed);
 
     logger.d('JSON data: $jsonData');
 
-    // Write the JSON string to a file
     await _writeToFile(filename, jsonData);
 
     logger.d('Image saved to file: $filename');
 
-    //Add the image to the image cache after saving it to a file
-    await _addImageDataToCache(image, filename);
+    await _addImageDataToCache(trimmed, filename);
+    return true;
   }
 
   Future<dynamic> readFromFile(String filename) async {

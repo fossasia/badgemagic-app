@@ -198,6 +198,13 @@ class ImageUtils {
 
   //function to generate the LED hex from the given asset
   Future<List<String>> generateLedHex(String asset) async {
+    final List<List<int>> matrix = await generateLedHexMatrix(asset);
+    final bool trimColumns = !asset.toLowerCase().contains('arrow');
+    return Converters.convertBitmapToLEDHex(matrix, trimColumns);
+  }
+
+  // Raw 11-row bitmap for an SVG asset, before LED-hex encoding.
+  Future<List<List<int>>> generateLedHexMatrix(String asset) async {
     await _loadSVG(asset);
     ui.Image image =
         await picture.toImage(originalWidth.toInt(), originalHeight.toInt());
@@ -207,18 +214,14 @@ class ImageUtils {
     final bool isBar = name.contains('clip_bar');
 
     ui.Image normalized;
-    bool trimColumns;
     if (isArrow) {
       final ui.Image content = await _trimToContent(image);
       normalized = await _fitInSquare(content, 11);
-      trimColumns = false;
     } else if (isBar) {
       normalized = await _normalizeForBadge(image, 11, fillHeight: false);
-      trimColumns = true;
     } else {
       normalized =
           await _normalizeForBadge(image, 11, fillHeight: true, maxWidth: 16);
-      trimColumns = true;
     }
 
     final Uint8List? byteArray = await _convertImageToByteArray(normalized);
@@ -231,7 +234,7 @@ class ImageUtils {
         }
       }
     }
-    return Converters.convertBitmapToLEDHex(pixelArray, trimColumns);
+    return pixelArray;
   }
 
   List<String> convertGifFramesToLEDHex(Uint8List gifBytes) {
