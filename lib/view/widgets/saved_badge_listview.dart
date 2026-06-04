@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -16,10 +15,14 @@ import '../../providers/badge_slot_provider..dart';
 class BadgeListView extends StatelessWidget {
   final Future<void> Function(MapEntry<String, Map<String, dynamic>>)
       refreshBadgesCallback;
+  final Set<String> selectedBadgeKeys;
+  final Function(String, bool) onToggleSelection;
 
   const BadgeListView({
     super.key,
     required this.refreshBadgesCallback,
+    required this.selectedBadgeKeys,
+    required this.onToggleSelection,
   });
 
   @override
@@ -27,6 +30,10 @@ class BadgeListView extends StatelessWidget {
     return Consumer<BadgeSlotProvider>(
       builder: (context, slotProvider, _) {
         final savedBadges = slotProvider.orderedBadges;
+
+        final selectedOrderedList = savedBadges
+            .where((b) => selectedBadgeKeys.contains(b.key))
+            .toList();
 
         return ReorderableListView.builder(
           buildDefaultDragHandles: false,
@@ -38,9 +45,7 @@ class BadgeListView extends StatelessWidget {
               animation: animation,
               builder: (BuildContext context, Widget? child) {
                 return Transform.scale(
-                  scale: 1.0 + (0.03 * animation.value),
-                  child: child,
-                );
+                    scale: 1.0 + (0.03 * animation.value), child: child);
               },
               child: child,
             );
@@ -50,30 +55,30 @@ class BadgeListView extends StatelessWidget {
           },
           itemBuilder: (context, index) {
             final badge = savedBadges[index];
+            final isSelected = selectedBadgeKeys.contains(badge.key);
+            final slotIndex =
+                selectedOrderedList.indexWhere((b) => b.key == badge.key);
+            final slotNumber = slotIndex != -1 ? slotIndex + 1 : null;
 
             return Container(
               key: ValueKey(badge.key),
               child: SaveBadgeCard(
                 badgeData: badge,
                 index: index,
+                isSelected: isSelected,
+                slotNumber: slotNumber,
+                onToggleSelect: (val) => onToggleSelection(badge.key, val),
                 onQuickTransfer: (data) {
                   List<Map<String, dynamic>> messagesList = [];
                   final rawMessage =
                       Map<String, dynamic>.from(data['messages'][0]);
                   messagesList.add(rawMessage);
-
                   Map<String, dynamic> blankTemplate = Map.from(rawMessage);
                   blankTemplate['text'] = <String>[];
-
                   while (messagesList.length < 8) {
                     messagesList.add(Map.from(blankTemplate));
                   }
-
                   final safeTransferData = {'messages': messagesList};
-
-                  debugPrint("====== ⚡ QUICK TRANSFER ⚡ ======");
-                  debugPrint(jsonEncode(safeTransferData));
-
                   BadgeMessageProvider().checkAndTransfer(null, null, null,
                       null, null, null, safeTransferData, true, context);
                 },
@@ -82,7 +87,6 @@ class BadgeListView extends StatelessWidget {
                     context: context,
                     builder: (context) => DeleteBadgeDialog(),
                   );
-                  if (!context.mounted) return;
                   if (confirm == true) {
                     FileHelper().deleteFile(key);
                     slotProvider.removeBadge(key);
@@ -90,9 +94,7 @@ class BadgeListView extends StatelessWidget {
                     refreshBadgesCallback(badge);
                   }
                 },
-                onShare: (key) {
-                  FileHelper().shareBadgeData(key);
-                },
+                onShare: (key) => FileHelper().shareBadgeData(key),
                 onEdit: (key) async {
                   final provider =
                       Provider.of<SavedBadgeProvider>(context, listen: false);
@@ -102,18 +104,17 @@ class BadgeListView extends StatelessWidget {
                   if (confirmed) {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) =>
-                            HomeScreen(savedBadgeFilename: key),
-                      ),
+                          builder: (context) =>
+                              HomeScreen(savedBadgeFilename: key)),
                     );
                   }
                 },
                 onPlay: (data) {
                   Provider.of<SavedBadgeProvider>(context, listen: false)
                       .savedBadgeAnimation(
-                    data,
-                    Provider.of<AnimationBadgeProvider>(context, listen: false),
-                  );
+                          data,
+                          Provider.of<AnimationBadgeProvider>(context,
+                              listen: false));
                 },
               ),
             );
