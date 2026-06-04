@@ -219,6 +219,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                       final selectedBadges =
                                           selectionProvider.selectedBadges;
                                       List<Message> badgeDataList = [];
+                                      Map<String, dynamic> firstBadgeData = {};
 
                                       for (var badgeKey in selectedBadges) {
                                         Map<String, dynamic> badgeData =
@@ -227,6 +228,10 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                                     element.key == badgeKey)
                                                 .value;
 
+                                        if (firstBadgeData.isEmpty) {
+                                          firstBadgeData = badgeData;
+                                        }
+
                                         final message = Message.fromJson(
                                             badgeData['messages'][0]);
                                         badgeDataList.add(message);
@@ -234,25 +239,9 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                       while (badgeDataList.length < 8) {
                                         badgeDataList.add(Message(text: []));
                                       }
-                                      if (badgeDataList
-                                              .where(
-                                                  (msg) => msg.text.isNotEmpty)
-                                              .length >
-                                          1) {
-                                        animationBadgeProvider
-                                            .setAnimationMode(AniAnimation());
-                                      } else {
-                                        animationBadgeProvider
-                                            .setAnimationMode(FixedAnimation());
-                                      }
-                                      final fullText = badgeDataList
-                                          .map((m) => m.text.join())
-                                          .join(" ");
-                                      animationBadgeProvider.badgeAnimation(
-                                        fullText,
-                                        Converters(),
-                                        false,
-                                      );
+                                      savedBadgeProvider.savedBadgeAnimation(
+                                          firstBadgeData,
+                                          animationBadgeProvider);
                                       final data =
                                           Data(messages: badgeDataList);
                                       badgeMessageProvider.checkAndTransfer(
