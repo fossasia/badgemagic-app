@@ -18,7 +18,12 @@ class InlineImage extends SpecialText {
     if (key.length > 4 && key.startsWith('<<') && key.endsWith('>>')) {
       try {
         final int index = int.parse(key.substring(2, key.length - 2));
-        var vectorIndex = textData.imageCache.keys.toList()[index];
+        final vectorIndex = textData.imageCache.keys.firstWhere(
+          (cacheKey) =>
+              cacheKey == index ||
+              (cacheKey is List && cacheKey.length > 1 && cacheKey[1] == index),
+          orElse: () => index,
+        );
 
         final image = textData.imageCache[vectorIndex];
         if (image != null) {

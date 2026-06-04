@@ -26,12 +26,12 @@ class ImageUtils {
 
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {
-        int value = twoDList[y][x] == 1 ? 0 : 255;
+        bool isOn = twoDList[y][x] == 1;
         int offset = (y * width + x) * 4;
-        pixels[offset] = value; // Red
-        pixels[offset + 1] = value; // Green
-        pixels[offset + 2] = value; // Blue
-        pixels[offset + 3] = 255; // Alpha
+        pixels[offset] = 0; // Red
+        pixels[offset + 1] = 0; // Green
+        pixels[offset + 2] = 0; // Blue
+        pixels[offset + 3] = isOn ? 255 : 0; // Alpha — off pixels transparent
       }
     }
 
@@ -207,6 +207,12 @@ class ImageUtils {
 
   //function to generate the LED hex from the given asset
   Future<List<String>> generateLedHex(String asset) async {
+    final List<List<int>> matrix = await generateLedHexMatrix(asset);
+    return Converters.convertBitmapToLEDHex(matrix, true);
+  }
+
+  // Raw 11-row bitmap for an SVG asset, before LED-hex encoding.
+  Future<List<List<int>>> generateLedHexMatrix(String asset) async {
     await _loadSVG(asset);
     ui.Image image =
         await picture.toImage(originalWidth.toInt(), originalHeight.toInt());
@@ -223,7 +229,7 @@ class ImageUtils {
         }
       }
     }
-    return Converters.convertBitmapToLEDHex(pixelArray, true);
+    return pixelArray;
   }
 
   List<String> convertGifFramesToLEDHex(Uint8List gifBytes) {
