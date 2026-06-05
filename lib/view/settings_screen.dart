@@ -18,7 +18,6 @@ class SettingsScreen extends StatefulWidget {
 
 class SettingsScreenState extends State<SettingsScreen> {
   String selectedLanguage = 'en';
-  final List<String> languages = ['en', 'hi', 'it'];
 
   late BadgeScanMode _scanMode;
   late List<TextEditingController> _controllers;
