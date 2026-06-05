@@ -58,6 +58,7 @@ class _VectorGridViewState extends State<VectorGridView> {
       controller: _scrollController,
       shrinkWrap: true,
       physics: const AlwaysScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(right: 12.0),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 9,
         childAspectRatio: 1.0,

@@ -266,12 +266,20 @@ class _DrawBadgeState extends State<DrawBadge> {
         List<String> hexString =
             Converters.convertBitmapToLEDHex(badgeGrid, false);
 
+        bool saved;
         if (widget.isSavedCard!) {
           await fileHelper.updateBadgeText(widget.filename!, hexString);
+          saved = true;
         } else if (widget.isSavedClipart!) {
-          await fileHelper.updateClipart(widget.filename!, badgeGrid);
+          saved = await fileHelper.updateClipart(widget.filename!, badgeGrid);
         } else {
-          await fileHelper.saveImage(drawToggle.getDrawViewGrid());
+          saved = await fileHelper.saveImage(drawToggle.getDrawViewGrid());
+        }
+
+        if (!saved) {
+          ToastUtils().showToast(
+              GetIt.instance.get<LocalizationService>().l10n.noClipartFound);
+          return;
         }
 
         fileHelper.generateClipartCache();
