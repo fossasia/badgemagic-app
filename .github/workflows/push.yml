@@ -91,13 +91,13 @@ jobs:
           VERSION_CODE: ${{needs.common.outputs.VERSION_CODE}}
 
       - name: Upload APK
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: APK Generated
           path: build/app/outputs/flutter-apk
   
       - name: Upload AAB Release
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: AAB Generated
           path: build/app/outputs/bundle
@@ -159,7 +159,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1.6.0
+        uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
           xcode-version: latest-stable
 
@@ -211,7 +211,7 @@ jobs:
 
       - name: Run Release Drafter
         id: run-release-drafter
-        uses: release-drafter/release-drafter@v6
+        uses: release-drafter/release-drafter@v7
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -242,7 +242,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1.6.0
+        uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
           xcode-version: latest-stable
 
@@ -259,7 +259,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1.6.0
+        uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
           xcode-version: latest-stable
 
@@ -284,7 +284,7 @@ jobs:
           VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
 
       - name: Upload Debian Build
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Debian Build
           path: build/linux/x64/release/bundle/
@@ -320,7 +320,7 @@ jobs:
           VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
 
       - name: Upload macOS Build
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: macOS Build
           path: build/macos/Build/Products/Release/
@@ -360,7 +360,7 @@ jobs:
           VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
 
       - name: Upload Windows Build
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: Windows Build
           path: build/windows/x64/runner/Release/
