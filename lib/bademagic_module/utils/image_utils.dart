@@ -221,7 +221,7 @@ class ImageUtils {
       normalized = await _normalizeForBadge(image, 11, fillHeight: false);
     } else {
       normalized =
-          await _normalizeForBadge(image, 11, fillHeight: true, maxWidth: 16);
+          await _normalizeForBadge(image, 11, fillHeight: true, maxWidth: 44);
     }
 
     final Uint8List? byteArray = await _convertImageToByteArray(normalized);
