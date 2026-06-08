@@ -212,6 +212,7 @@ class ImageUtils {
     final String name = asset.toLowerCase();
     final bool isArrow = name.contains('arrow');
     final bool isBar = name.contains('clip_bar');
+    final bool isMustache = name.contains('mustache');
 
     ui.Image normalized;
     if (isArrow) {
@@ -219,6 +220,9 @@ class ImageUtils {
       normalized = await _fitInSquare(content, 11);
     } else if (isBar) {
       normalized = await _normalizeForBadge(image, 11, fillHeight: false);
+    } else if (isMustache) {
+      normalized =
+          await _normalizeForBadge(image, 11, fillHeight: true, maxWidth: 16);
     } else {
       normalized =
           await _normalizeForBadge(image, 11, fillHeight: true, maxWidth: 44);
