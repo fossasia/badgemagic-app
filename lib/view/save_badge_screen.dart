@@ -244,9 +244,12 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                         animationBadgeProvider
                                             .setAnimationMode(FixedAnimation());
                                       }
-                                      final hexList = badgeDataList.where(
-                                        (msg) => msg.text.isNotEmpty).expand((m) => m.text).toList();
-                                      animationBadgeProvider.badgeAnimationFromHex(hexList);
+                                      final hexList = badgeDataList
+                                          .where((msg) => msg.text.isNotEmpty)
+                                          .expand((m) => m.text)
+                                          .toList();
+                                      animationBadgeProvider
+                                          .badgeAnimationFromHex(hexList);
                                       final data =
                                           Data(messages: badgeDataList);
                                       badgeMessageProvider.checkAndTransfer(
