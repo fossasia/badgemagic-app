@@ -1,0 +1,12 @@
+[Desktop Entry]
+Version=1.0
+Name=Badge Magic
+GenericName=LED Badge Controller
+Comment=Control LED name badges via Bluetooth
+Exec=badgemagic
+Icon=badgemagic
+Terminal=false
+Type=Application
+Categories=Utility;HamRadio;
+Keywords=BLE;LED;Badge;Bluetooth;
+StartupNotify=true
