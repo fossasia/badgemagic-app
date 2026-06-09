@@ -183,6 +183,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
     logger.d("All animations stopped");
   }
 
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
   void startTimer() {
     _timer =
         Timer.periodic(Duration(microseconds: _animationSpeed), (Timer timer) {
