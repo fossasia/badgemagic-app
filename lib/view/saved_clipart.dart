@@ -44,15 +44,17 @@ class _SavedClipartState extends State<SavedClipart> {
       key: const Key(savedClipartScreen),
       title: l10n.savedClipartTitle,
       actions: [
-        IconButton(
-          icon: const Icon(Icons.file_download, color: Colors.white),
-          tooltip: 'Import Clipart',
+        TextButton(
           onPressed: () async {
             bool success = await file.importClipart(context);
             if (success) {
               setState(() {});
             }
           },
+          child: Text(
+            l10n.import,
+            style: const TextStyle(color: drawerHeaderTitle),
+          ),
         ),
       ],
       body: imageprovider.clipartsCache.isEmpty
