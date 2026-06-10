@@ -40,7 +40,7 @@ class SaveBadgeCard extends StatelessWidget {
 
     final String rawName = badgeData.key.substring(0, badgeData.key.length - 5);
     final String badgeName =
-        rawName.length > 12 ? '${rawName.substring(0, 15)}...' : rawName;
+        rawName.length > 15 ? '${rawName.substring(0, 15)}...' : rawName;
 
     return Material(
       type: MaterialType.transparency,
