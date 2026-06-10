@@ -56,8 +56,10 @@ class _HomeScreenState extends State<HomeScreen>
         AutomaticKeepAliveClientMixin,
         WidgetsBindingObserver {
   late final TabController _tabController;
+
   final AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
-  late SpeedDialProvider speedDialProvider;
+  late final SpeedDialProvider speedDialProvider;
+
   final BadgeMessageProvider badgeData = BadgeMessageProvider();
   final ImageUtils imageUtils = ImageUtils();
   final InlineImageProvider inlineImageProvider =
@@ -231,9 +233,7 @@ class _HomeScreenState extends State<HomeScreen>
               create: (context) => animationProvider,
             ),
             ChangeNotifierProvider<SpeedDialProvider>(
-              create: (context) {
-                return speedDialProvider;
-              },
+              create: (context) => speedDialProvider,
             ),
           ],
           child: DefaultTabController(
@@ -261,14 +261,6 @@ class _HomeScreenState extends State<HomeScreen>
                               borderRadius: BorderRadius.circular(10.r),
                               elevation: 4,
                               child: ExtendedTextField(
-                                onChanged: (String newText) {
-                                  animationProvider.badgeAnimation(
-                                    newText,
-                                    Converters(),
-                                    animationProvider
-                                        .isEffectActive(InvertLEDEffect()),
-                                  );
-                                },
                                 controller: inlineimagecontroller,
                                 specialTextSpanBuilder: ImageBuilder(),
                                 style: Provider.of<FontProvider>(context)
