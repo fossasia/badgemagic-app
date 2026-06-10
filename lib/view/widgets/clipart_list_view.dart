@@ -103,6 +103,13 @@ class SavedClipartListView extends StatelessWidget {
               ),
               SizedBox(width: 10.w),
               IconButton(
+                icon: const Icon(Icons.share, color: Colors.black),
+                onPressed: () async {
+                  await FileHelper().exportClipart(fileName);
+                },
+              ),
+              SizedBox(width: 10.w),
+              IconButton(
                 style: IconButton.styleFrom(
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
