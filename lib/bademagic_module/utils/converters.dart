@@ -24,6 +24,58 @@ class Converters {
 
   static final Map<String, List<List<bool>>> _characterCache = {};
 
+  List<List<int>> _buildClipartMatrix(List<List<int>> imageData) {
+    imageData = FileHelper.normalizeClipartHeight(imageData);
+    imageData = FileHelper.trimEmptyPadding(imageData);
+    if (imageData.isEmpty) return const [];
+    return FileHelper.addClipartSideMargins(imageData);
+  }
+
+  List<List<bool>> _charCodeToBoolMatrix(String hex) {
+    return List.generate(11, (r) {
+      final byte = int.parse(hex.substring(r * 2, r * 2 + 2), radix: 16);
+      return List.generate(8, (c) => ((byte >> (7 - c)) & 1) == 1);
+    });
+  }
+
+  // Tight-trim empty left/right cols of a rendered glyph and append exactly
+  // one empty col so concatenated chars always have a 1-px gap. Whitespace
+  // glyphs (no ink) keep a fixed 3-col width to preserve word spacing.
+  List<List<bool>> _trimAndPadCharMatrix(List<List<bool>> matrix) {
+    if (matrix.isEmpty || matrix[0].isEmpty) return matrix;
+    final int height = matrix.length;
+    final int width = matrix[0].length;
+    int left = 0;
+    while (left < width) {
+      bool inked = false;
+      for (int r = 0; r < height; r++) {
+        if (matrix[r][left]) {
+          inked = true;
+          break;
+        }
+      }
+      if (inked) break;
+      left++;
+    }
+    if (left == width) {
+      return List.generate(height, (_) => List.filled(3, false));
+    }
+    int right = width - 1;
+    while (right > left) {
+      bool inked = false;
+      for (int r = 0; r < height; r++) {
+        if (matrix[r][right]) {
+          inked = true;
+          break;
+        }
+      }
+      if (inked) break;
+      right--;
+    }
+    return List.generate(
+        height, (r) => [...matrix[r].sublist(left, right + 1), false]);
+  }
+
   List<String> _matrixToHex(List<List<bool>> matrix) {
     return List.generate(matrix.length, (i) {
       final binary = matrix[i].map((b) => b ? '1' : '0').join();
@@ -193,37 +245,30 @@ class Converters {
             final matrixData = await renderTextToMatrix(char, style,
                 rows: 11, hasDescender: hasDescender);
             List<List<bool>> charMatrix = matrixData['matrix'];
+            charMatrix = _trimAndPadCharMatrix(charMatrix);
             for (int row = 0; row < 11; row++) {
               combinedMatrix[row].addAll(charMatrix[row]);
             }
           }
         } else if (segment['type'] == 'image') {
-          // Process bitmap
           int index = segment['index'];
           var key = controllerData.imageCache.keys.toList()[index];
-          List<String> hexStrings;
+          List<List<int>> imageData;
           if (key is List) {
             String filename = key[0];
             List<dynamic>? decodedData =
                 await fileHelper.readFromFile(filename);
             final List<List<dynamic>> image =
                 decodedData!.cast<List<dynamic>>();
-            List<List<int>> imageData =
-                image.map((list) => list.cast<int>()).toList();
-            hexStrings = convertBitmapToLEDHex(imageData, true);
+            imageData = image.map((list) => list.cast<int>()).toList();
           } else {
-            hexStrings =
-                await imageUtils.generateLedHex(controllerData.vectors[index]);
+            imageData = await imageUtils
+                .generateLedHexMatrix(controllerData.vectors[index]);
           }
-
-          for (var hex in hexStrings) {
-            for (int i = 0; i < 11; i++) {
-              String hexByte = hex.substring(i * 2, (i * 2) + 2);
-              int value = int.parse(hexByte, radix: 16);
-              for (int bit = 0; bit < 8; bit++) {
-                combinedMatrix[i].add(((value >> (7 - bit)) & 1) == 1);
-              }
-            }
+          final clipartMatrix = _buildClipartMatrix(imageData);
+          if (clipartMatrix.isEmpty) continue;
+          for (int row = 0; row < 11; row++) {
+            combinedMatrix[row].addAll(clipartMatrix[row].map((v) => v == 1));
           }
         }
       }
@@ -280,71 +325,6 @@ class Converters {
     return hexStrings;
   }
 
-  List<List<int>> _charCodeToMatrix(String hex) {
-    final matrix = List.generate(11, (_) => List<int>.filled(8, 0));
-    for (int r = 0; r < 11; r++) {
-      final byte = int.parse(hex.substring(r * 2, r * 2 + 2), radix: 16);
-      for (int c = 0; c < 8; c++) {
-        matrix[r][c] = (byte >> (7 - c)) & 1;
-      }
-    }
-    return matrix;
-  }
-
-  List<List<int>> _trimGlyphCols(List<List<int>> matrix) {
-    if (matrix.isEmpty || matrix[0].isEmpty) return matrix;
-    final int height = matrix.length;
-    final int width = matrix[0].length;
-    int left = 0;
-    while (left < width) {
-      bool inked = false;
-      for (int r = 0; r < height; r++) {
-        if (matrix[r][left] == 1) {
-          inked = true;
-          break;
-        }
-      }
-      if (inked) break;
-      left++;
-    }
-    if (left == width) return const [];
-    int right = width - 1;
-    while (right > left) {
-      bool inked = false;
-      for (int r = 0; r < height; r++) {
-        if (matrix[r][right] == 1) {
-          inked = true;
-          break;
-        }
-      }
-      if (inked) break;
-      right--;
-    }
-    return List.generate(height, (r) => matrix[r].sublist(left, right + 1));
-  }
-
-  List<String> _renderDefaultFontText(String text) {
-    final combined = List.generate(11, (_) => <int>[]);
-    for (int c = 0; c < text.length; c++) {
-      final char = text[c];
-      if (!converter.charCodes.containsKey(char)) continue;
-      final mat = _charCodeToMatrix(converter.charCodes[char]!);
-      final trimmed = _trimGlyphCols(mat);
-      if (trimmed.isEmpty) {
-        for (int r = 0; r < 11; r++) {
-          combined[r].addAll(const [0, 0, 0]);
-        }
-      } else {
-        for (int r = 0; r < 11; r++) {
-          combined[r].addAll(trimmed[r]);
-          combined[r].add(0);
-        }
-      }
-    }
-    if (combined[0].isEmpty) return const [];
-    return convertBitmapToLEDHex(combined, false);
-  }
-
   Future<List<String>> _processDefaultFont(String text) async {
     List<Map<String, dynamic>> segments = [];
     String currentText = '';
@@ -368,34 +348,63 @@ class Converters {
       segments.add({'type': 'text', 'content': currentText});
     }
 
-    List<String> hexStrings = [];
+    List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
+
     for (var segment in segments) {
       if (segment['type'] == 'text') {
-        hexStrings.addAll(_renderDefaultFontText(segment['content']));
+        String segmentText = segment['content'];
+        for (final char in segmentText.split('')) {
+          if (!converter.charCodes.containsKey(char)) continue;
+          // Trim narrow glyphs (e.g. i, l) and add a 1-col gutter so the
+          // default font matches the custom-font spacing (#1722), feeding the
+          // single combined matrix used for consistent clipart spacing (#1711).
+          final charMatrix = _trimAndPadCharMatrix(
+              _charCodeToBoolMatrix(converter.charCodes[char]!));
+          for (int row = 0; row < 11; row++) {
+            combinedMatrix[row].addAll(charMatrix[row]);
+          }
+        }
       } else if (segment['type'] == 'image') {
         int index = segment['index'];
-
         final key = controllerData.imageCache.keys.firstWhere(
           (cacheKey) =>
               cacheKey == index ||
               (cacheKey is List && cacheKey.length > 1 && cacheKey[1] == index),
           orElse: () => index,
         );
-
+        List<List<int>> imageData;
         if (key is List) {
           String filename = key[0];
           List<dynamic>? decodedData = await fileHelper.readFromFile(filename);
           final List<List<dynamic>> image = decodedData!.cast<List<dynamic>>();
-          List<List<int>> imageData =
-              image.map((list) => list.cast<int>()).toList();
-          hexStrings.addAll(convertBitmapToLEDHex(imageData, true));
+          imageData = image.map((list) => list.cast<int>()).toList();
         } else {
-          hexStrings.addAll(
-              await imageUtils.generateLedHex(controllerData.vectors[index]));
+          imageData = await imageUtils
+              .generateLedHexMatrix(controllerData.vectors[index]);
+        }
+        final clipartMatrix = _buildClipartMatrix(imageData);
+        if (clipartMatrix.isEmpty) continue;
+        for (int row = 0; row < 11; row++) {
+          combinedMatrix[row].addAll(clipartMatrix[row].map((v) => v == 1));
         }
       }
     }
-    return hexStrings;
+
+    if (combinedMatrix[0].isEmpty) return const [];
+    final width = combinedMatrix[0].length;
+    if (width % 8 != 0) {
+      final pad = List<bool>.filled(8 - width % 8, false);
+      for (final row in combinedMatrix) {
+        row.addAll(pad);
+      }
+    }
+
+    final segmentsCount = combinedMatrix[0].length ~/ 8;
+    return List.generate(segmentsCount, (seg) {
+      final segmentMatrix = List.generate(
+          11, (row) => combinedMatrix[row].sublist(seg * 8, seg * 8 + 8));
+      return _matrixToHex(segmentMatrix).join();
+    });
   }
 
   List<String> _processInversion(List<String> hexStrings) {
