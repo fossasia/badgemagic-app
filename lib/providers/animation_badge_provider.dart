@@ -4,7 +4,7 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/badge_animation/ani_animation.dart';
+import 'package:badgemagic/badge_animation/ani_splitting.dart';
 import 'package:badgemagic/badge_animation/ani_down.dart';
 import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/badge_animation/ani_laser.dart';
@@ -40,7 +40,7 @@ Map<int, BadgeAnimation?> animationMap = {
   2: UpAnimation(),
   3: DownAnimation(),
   4: FixedAnimation(),
-  5: AniAnimation(),
+  5: SplittingAnimation(),
   6: SnowFlakeAnimation(),
   7: PictureAnimation(),
   8: LaserAnimation(),
