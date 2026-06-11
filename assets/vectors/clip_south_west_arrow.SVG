@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg xmlns="http://www.w3.org/2000/svg" xmlns:android="http://schemas.android.com/apk/res/android" height="20" width="80">
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:android="http://schemas.android.com/apk/res/android" viewBox="0 0 24 24">
     	
     <path d="M15,19v-2H8.41L20,5.41L18.59,4L7,15.59V9H5v10H15z" fill="#000000"/>
     

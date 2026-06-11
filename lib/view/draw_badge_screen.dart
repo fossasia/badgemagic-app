@@ -243,6 +243,10 @@ class _DrawBadgeState extends State<DrawBadge> {
     );
   }
 
+  bool _isBadgeGridEmpty(List<List<int>> grid) {
+    return grid.every((row) => row.every((cell) => cell == 0));
+  }
+
   Widget _buildSaveButton(FileHelper fileHelper) {
     return TextButton(
       onPressed: () async {
@@ -250,15 +254,32 @@ class _DrawBadgeState extends State<DrawBadge> {
             .getDrawViewGrid()
             .map((e) => e.map((e) => e ? 1 : 0).toList())
             .toList();
+
+        if (_isBadgeGridEmpty(badgeGrid)) {
+          ToastUtils().showToast(GetIt.instance
+              .get<LocalizationService>()
+              .l10n
+              .pleaseSelectClipart);
+          return;
+        }
+
         List<String> hexString =
             Converters.convertBitmapToLEDHex(badgeGrid, false);
 
+        bool saved;
         if (widget.isSavedCard!) {
           await fileHelper.updateBadgeText(widget.filename!, hexString);
+          saved = true;
         } else if (widget.isSavedClipart!) {
-          await fileHelper.updateClipart(widget.filename!, badgeGrid);
+          saved = await fileHelper.updateClipart(widget.filename!, badgeGrid);
         } else {
-          await fileHelper.saveImage(drawToggle.getDrawViewGrid());
+          saved = await fileHelper.saveImage(drawToggle.getDrawViewGrid());
+        }
+
+        if (!saved) {
+          ToastUtils().showToast(
+              GetIt.instance.get<LocalizationService>().l10n.noClipartFound);
+          return;
         }
 
         fileHelper.generateClipartCache();
