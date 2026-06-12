@@ -1,7 +1,6 @@
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_animation/ani_animation.dart';
@@ -245,14 +244,29 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                         animationBadgeProvider
                                             .setAnimationMode(FixedAnimation());
                                       }
-                                      final fullText = badgeDataList
-                                          .map((m) => m.text.join())
-                                          .join(" ");
-                                      animationBadgeProvider.badgeAnimation(
-                                        fullText,
-                                        Converters(),
-                                        false,
-                                      );
+                                      List<List<bool>> previewGrid =
+                                          List.generate(11, (_) => <bool>[]);
+                                      for (final msg in badgeDataList) {
+                                        if (msg.text.isEmpty) continue;
+                                        try {
+                                          final grid =
+                                              hexStringToBool(msg.text.join());
+                                          for (int r = 0;
+                                              r < 11 && r < grid.length;
+                                              r++) {
+                                            if (previewGrid[r].isNotEmpty) {
+                                              previewGrid[r]
+                                                  .addAll(List.filled(8, false));
+                                            }
+                                            previewGrid[r].addAll(grid[r]);
+                                          }
+                                        } catch (e) {
+                                          logger.e(
+                                              'Failed to decode saved badge for preview: $e');
+                                        }
+                                      }
+                                      animationBadgeProvider
+                                          .setNewGrid(previewGrid);
                                       final data =
                                           Data(messages: badgeDataList);
                                       badgeMessageProvider.checkAndTransfer(
