@@ -1,6 +1,6 @@
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 
-class AniAnimation extends BadgeAnimation {
+class SplittingAnimation extends BadgeAnimation {
   @override
   void processAnimation(int badgeHeight, int badgeWidth, int animationIndex,
       List<List<bool>> processGrid, List<List<bool>> canvas) {
