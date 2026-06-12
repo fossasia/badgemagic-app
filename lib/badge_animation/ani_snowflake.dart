@@ -32,11 +32,6 @@ class SnowFlakeAnimation extends BadgeAnimation {
     bool phase1 = localFrame < badgeHeight * 4;
     bool phase2 = localFrame >= badgeHeight * 4 && localFrame < badgeHeight * 8;
 
-    if (!isTextTooLong) {
-      phase1 = localFrame < badgeHeight * 4;
-      phase2 = localFrame >= badgeHeight * 4 && localFrame < badgeHeight * 8;
-    }
-
     if (phase1) {
       for (int row = badgeHeight - 1; row >= 0; row--) {
         int fallPosition = localFrame - (badgeHeight - 1 - row) * 2;
