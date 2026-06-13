@@ -4,7 +4,7 @@ import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:badgemagic/badge_animation/ani_animation.dart';
+import 'package:badgemagic/badge_animation/ani_splitting.dart';
 import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
@@ -239,8 +239,8 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                                   (msg) => msg.text.isNotEmpty)
                                               .length >
                                           1) {
-                                        animationBadgeProvider
-                                            .setAnimationMode(AniAnimation());
+                                        animationBadgeProvider.setAnimationMode(
+                                            SplittingAnimation());
                                       } else {
                                         animationBadgeProvider
                                             .setAnimationMode(FixedAnimation());

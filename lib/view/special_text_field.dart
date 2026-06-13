@@ -18,7 +18,12 @@ class InlineImage extends SpecialText {
     if (key.length > 4 && key.startsWith('<<') && key.endsWith('>>')) {
       try {
         final int index = int.parse(key.substring(2, key.length - 2));
-        var vectorIndex = textData.imageCache.keys.toList()[index];
+        final vectorIndex = textData.imageCache.keys.firstWhere(
+          (cacheKey) =>
+              cacheKey == index ||
+              (cacheKey is List && cacheKey.length > 1 && cacheKey[1] == index),
+          orElse: () => index,
+        );
 
         final image = textData.imageCache[vectorIndex];
         if (image != null) {
@@ -48,6 +53,10 @@ class InlineImage extends SpecialText {
   }
 }
 
+// Sentinel start index for InlineImage runs.
+// Must stay larger than normal text indexes for web compatibility.
+const int kInlineImageSentinelStart = 0x7fffffff;
+
 class ImageBuilder extends SpecialTextSpanBuilder {
   @override
   SpecialText? createSpecialText(String flag,
@@ -58,7 +67,7 @@ class ImageBuilder extends SpecialTextSpanBuilder {
     if (flag.contains(InlineImage.flag)) {
       return InlineImage(
         textStyle,
-        start: 999999999999999999,
+        start: kInlineImageSentinelStart,
       );
     }
     return null;
