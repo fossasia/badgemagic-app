@@ -59,9 +59,9 @@ class _HomeScreenState extends State<HomeScreen>
   final BadgeMessageProvider badgeData = BadgeMessageProvider();
   final ImageUtils imageUtils = ImageUtils();
   final InlineImageProvider inlineImageProvider =
-  GetIt.instance<InlineImageProvider>();
+      GetIt.instance<InlineImageProvider>();
   final TextEditingController inlineimagecontroller =
-  GetIt.instance.get<InlineImageProvider>().getController();
+      GetIt.instance.get<InlineImageProvider>().getController();
 
   final Converters _converters = Converters();
 
@@ -100,7 +100,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
     try {
       final (badgeText, badgeData, savedData) =
-      await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
+          await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
 
       inlineimagecontroller.text = badgeText;
 
@@ -245,7 +245,7 @@ class _HomeScreenState extends State<HomeScreen>
       Navigator.pushNamedAndRemoveUntil(
         context,
         '/savedBadge',
-            (route) => false,
+        (route) => false,
       );
     } else {
       showDialog(
@@ -365,12 +365,12 @@ class _HomeScreenState extends State<HomeScreen>
                             controller: inlineimagecontroller,
                             specialTextSpanBuilder: ImageBuilder(),
                             style: Provider.of<FontProvider>(context)
-                                .selectedFont !=
-                                null
+                                        .selectedFont !=
+                                    null
                                 ? _getFontStyle(
-                                Provider.of<FontProvider>(context)
-                                    .selectedFont!)
-                                .copyWith(fontSize: 14)
+                                        Provider.of<FontProvider>(context)
+                                            .selectedFont!)
+                                    .copyWith(fontSize: 14)
                                 : const TextStyle(fontSize: 14),
                             decoration: InputDecoration(
                               border: OutlineInputBorder(
@@ -398,7 +398,7 @@ class _HomeScreenState extends State<HomeScreen>
                               suffixIcon: Container(
                                 constraints: BoxConstraints(
                                   maxWidth:
-                                  MediaQuery.of(context).size.width * 0.280,
+                                      MediaQuery.of(context).size.width * 0.280,
                                 ),
                                 padding: EdgeInsets.only(left: 8.w, right: 8.w),
                                 child: Consumer<FontProvider>(
@@ -424,7 +424,7 @@ class _HomeScreenState extends State<HomeScreen>
                                           overflow: TextOverflow.ellipsis,
                                         ),
                                         alignment:
-                                        AlignmentDirectional.centerEnd,
+                                            AlignmentDirectional.centerEnd,
                                         padding: EdgeInsets.zero,
                                         items: [
                                           DropdownMenuItem(
@@ -435,25 +435,25 @@ class _HomeScreenState extends State<HomeScreen>
                                                   vertical: 8.h),
                                               decoration: BoxDecoration(
                                                 color:
-                                                fontProvider.selectedFont ==
-                                                    null
-                                                    ? dividerColor
-                                                    : Colors.transparent,
+                                                    fontProvider.selectedFont ==
+                                                            null
+                                                        ? dividerColor
+                                                        : Colors.transparent,
                                                 borderRadius:
-                                                BorderRadius.circular(4),
+                                                    BorderRadius.circular(4),
                                               ),
                                               child: Text(
                                                 'Default',
                                                 style: TextStyle(
                                                   fontSize: 12.sp,
                                                   color: fontProvider
-                                                      .selectedFont ==
-                                                      null
+                                                              .selectedFont ==
+                                                          null
                                                       ? colorAccent
                                                       : Colors.black,
                                                   fontWeight: fontProvider
-                                                      .selectedFont ==
-                                                      null
+                                                              .selectedFont ==
+                                                          null
                                                       ? FontWeight.bold
                                                       : FontWeight.normal,
                                                 ),
@@ -463,7 +463,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             ),
                                           ),
                                           ...fontProvider.availableFonts.map(
-                                                (font) => DropdownMenuItem(
+                                            (font) => DropdownMenuItem(
                                               value: font,
                                               child: Container(
                                                 padding: EdgeInsets.symmetric(
@@ -471,30 +471,30 @@ class _HomeScreenState extends State<HomeScreen>
                                                     vertical: 8.h),
                                                 decoration: BoxDecoration(
                                                   color: fontProvider
-                                                      .selectedFont ==
-                                                      font
+                                                              .selectedFont ==
+                                                          font
                                                       ? dividerColor
                                                       : Colors.transparent,
                                                   borderRadius:
-                                                  BorderRadius.circular(4),
+                                                      BorderRadius.circular(4),
                                                 ),
                                                 child: Text(
                                                   font,
                                                   style: _getFontStyle(font)
                                                       .copyWith(
                                                     color: fontProvider
-                                                        .selectedFont ==
-                                                        font
+                                                                .selectedFont ==
+                                                            font
                                                         ? colorAccent
                                                         : Colors.black,
                                                     fontWeight: fontProvider
-                                                        .selectedFont ==
-                                                        font
+                                                                .selectedFont ==
+                                                            font
                                                         ? FontWeight.bold
                                                         : FontWeight.normal,
                                                   ),
                                                   overflow:
-                                                  TextOverflow.ellipsis,
+                                                      TextOverflow.ellipsis,
                                                   maxLines: 1,
                                                 ),
                                               ),
@@ -525,7 +525,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                         fontSize: 12.sp,
                                                       ),
                                                       overflow:
-                                                      TextOverflow.ellipsis,
+                                                          TextOverflow.ellipsis,
                                                       maxLines: 1,
                                                     ),
                                                   ),
@@ -550,7 +550,7 @@ class _HomeScreenState extends State<HomeScreen>
                                           );
                                         },
                                         borderRadius:
-                                        BorderRadius.circular(8.r),
+                                            BorderRadius.circular(8.r),
                                         elevation: 2,
                                         isDense: true,
                                         menuMaxHeight: 300.h,
@@ -610,7 +610,7 @@ class _HomeScreenState extends State<HomeScreen>
                           controller: _tabController,
                           splashFactory: InkRipple.splashFactory,
                           overlayColor: WidgetStateProperty.resolveWith<Color?>(
-                                (states) => states.contains(WidgetState.pressed)
+                            (states) => states.contains(WidgetState.pressed)
                                 ? dividerColor
                                 : null,
                           ),
@@ -650,11 +650,11 @@ class _HomeScreenState extends State<HomeScreen>
                                 children: [
                                   GestureDetector(
                                     onPanDown: (_) => setState(
-                                            () => isDialInteracting = true),
+                                        () => isDialInteracting = true),
                                     onPanCancel: () => setState(
-                                            () => isDialInteracting = false),
+                                        () => isDialInteracting = false),
                                     onPanEnd: (_) => setState(
-                                            () => isDialInteracting = false),
+                                        () => isDialInteracting = false),
                                     child: RadialDial(
                                       isSmall: isPrefixIconClicked,
                                     ),
