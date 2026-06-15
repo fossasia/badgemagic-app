@@ -5,9 +5,11 @@
 *.swp
 .DS_Store
 .atom/
+.build/
 .buildlog/
 .history
 .svn/
+.swiftpm/
 migrate_working_dir/
 .gradle/
 
@@ -53,3 +55,8 @@ windows/flutter/generated_plugin_registrant.cc
 windows/flutter/generated_plugins.cmake
 macos/Flutter/GeneratedPluginRegistrant.swift
 untranslated.json
+macos/Podfile
+macos/Runner.xcworkspace/contents.xcworkspacedata
+macos/Runner.xcodeproj/project.pbxproj
+macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
+macos/Runner/AppDelegate.swift
