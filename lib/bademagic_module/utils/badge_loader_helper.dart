@@ -66,6 +66,19 @@ class BadgeLoaderHelper {
         return entry.key;
       }
     }
-    return int.tryParse(mode.toString()) ?? 0;
+    final modeString = mode.toString();
+    final asInt = int.tryParse(modeString);
+    if (asInt != null) {
+      return asInt;
+    }
+    final name = modeString.contains('.')
+        ? modeString.split('.').last.toLowerCase()
+        : modeString.toLowerCase();
+    for (final entry in modeValueMap.entries) {
+      if (entry.value.name == name) {
+        return entry.key;
+      }
+    }
+    return 0;
   }
 }
