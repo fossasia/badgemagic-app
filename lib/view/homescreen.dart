@@ -305,31 +305,43 @@ class _HomeScreenState extends State<HomeScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         if (!isSpecial)
-                          TextButton.icon(
-                            style: TextButton.styleFrom(
-                              foregroundColor: Colors.white,
-                              padding: EdgeInsets.symmetric(horizontal: 8.w),
-                            ),
-                            icon: Icon(Icons.save_outlined,
-                                size: 20.sp, color: Colors.white),
-                            label: Text(
-                              l10n.saveButton,
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 13.sp,
-                                fontWeight: FontWeight.w600,
+                          Padding(
+                            padding: EdgeInsets.only(right: 8.w),
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: Colors.white,
+                                minimumSize: Size(0, 32.h),
+                                padding: EdgeInsets.symmetric(horizontal: 16.w),
+                                side: const BorderSide(
+                                    color: Colors.white, width: 1.5),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(8.r),
+                                ),
+                              ),
+                              onPressed: () => _handleSave(animProvider),
+                              child: Text(
+                                l10n.saveButton,
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 13.sp,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                             ),
-                            onPressed: () => _handleSave(animProvider),
                           ),
-                        TextButton.icon(
-                          style: TextButton.styleFrom(
+                        OutlinedButton(
+                          style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,
-                            padding: EdgeInsets.symmetric(horizontal: 8.w),
+                            minimumSize: Size(0, 32.h),
+                            padding: EdgeInsets.symmetric(horizontal: 16.w),
+                            side: const BorderSide(
+                                color: Colors.white, width: 1.5),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8.r),
+                            ),
                           ),
-                          icon: Icon(Icons.send_outlined,
-                              size: 20.sp, color: Colors.white),
-                          label: Text(
+                          onPressed: () => _handleTransfer(animProvider),
+                          child: Text(
                             l10n.transferButton,
                             style: TextStyle(
                               color: Colors.white,
@@ -337,7 +349,6 @@ class _HomeScreenState extends State<HomeScreen>
                               fontWeight: FontWeight.w600,
                             ),
                           ),
-                          onPressed: () => _handleTransfer(animProvider),
                         ),
                         SizedBox(width: 4.w),
                       ],
