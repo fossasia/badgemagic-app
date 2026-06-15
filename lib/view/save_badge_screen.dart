@@ -187,8 +187,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                             builder: (context, isTransferEnabled, _) {
                               return BadgeListView(
                                 isTransferEnabled: isTransferEnabled,
-                                futureBadges:
-                                    Future.value(provider.savedBadgeCache),
+                                badges: provider.savedBadgeCache,
                                 refreshBadgesCallback: (value) {
                                   provider.savedBadgeCache.remove(value);
                                   setState(() {});
