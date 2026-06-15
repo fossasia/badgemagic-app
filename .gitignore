@@ -57,6 +57,5 @@ macos/Flutter/GeneratedPluginRegistrant.swift
 untranslated.json
 macos/Podfile
 macos/Runner.xcworkspace/contents.xcworkspacedata
-macos/Runner.xcodeproj/project.pbxproj
 macos/Runner.xcodeproj/xcshareddata/xcschemes/Runner.xcscheme
 macos/Runner/AppDelegate.swift
