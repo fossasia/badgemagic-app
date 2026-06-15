@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -125,132 +126,172 @@ class RadialDial extends StatefulWidget {
   const RadialDial({super.key});
 
   @override
-  // ignore: library_private_types_in_public_api
-  _RadialDialState createState() => _RadialDialState();
+  State<RadialDial> createState() => _RadialDialState();
 }
 
 class _RadialDialState extends State<RadialDial> {
-  double outerValue = 0.0;
   final double maxValue = 8.0;
-
-  final double initialAngle = 155 * pi / 180;
-  double previousAngle = 0.0;
-  bool isDragging = true;
-
-  @override
-  void initState() {
-    super.initState();
-    previousAngle = initialAngle;
-  }
+  bool isDragging = false;
 
   @override
   Widget build(BuildContext context) {
     SpeedDialProvider outerValueProvider =
-        Provider.of<SpeedDialProvider>(context, listen: false);
+        Provider.of<SpeedDialProvider>(context);
+
+    bool isTouchOnActiveArea(PointerDownEvent event) {
+      final RenderBox box = context.findRenderObject() as RenderBox;
+      final localPosition = box.globalToLocal(event.position);
+      final center = Offset(box.size.width / 2, box.size.height / 2);
+      final distance = (localPosition - center).distance;
+
+      final double minActiveRadius = 30.w;
+      final double maxActiveRadius = 120.w;
+
+      return distance >= minActiveRadius && distance <= maxActiveRadius;
+    }
 
     void updateOuterValue(double angle) {
-      const startAngle = 155 * pi / 270;
-      const endAngle = 360 * pi / 180;
+      const startAngle = 3 * pi / 4;
+      const endAngle = startAngle + 6 * pi / 4;
+      const totalAngle = 6 * pi / 4;
 
-      const totalAngle = endAngle - startAngle;
+      double normalizedAngle = angle;
+
+      if (normalizedAngle < pi / 2) {
+        normalizedAngle += 2 * pi;
+      }
+
+      if (normalizedAngle < startAngle || normalizedAngle > endAngle) {
+        double distToStart = (normalizedAngle - startAngle).abs();
+        double distToEnd = (normalizedAngle - endAngle).abs();
+        if (distToStart < distToEnd) {
+          normalizedAngle = startAngle;
+        } else {
+          normalizedAngle = endAngle;
+        }
+      }
 
       final numSections = maxValue;
-
       final anglePerSection = totalAngle / numSections;
 
-      final section = ((angle - startAngle) / anglePerSection).round();
+      final section =
+          ((normalizedAngle - startAngle) / anglePerSection).round();
+      final clampedSection = section.clamp(1, numSections.toInt());
 
-      final clampedSection = section.clamp(1, numSections);
-
-      setState(() {
-        outerValueProvider.setDialValue(clampedSection.toInt());
-      });
+      if (clampedSection != outerValueProvider.getOuterValue()) {
+        setState(() {
+          outerValueProvider.setDialValue(clampedSection);
+        });
+      }
     }
 
     void updateAngle(Offset position, Size size) {
-      if (!isDragging) return;
-
       final center = Offset(size.width / 2, size.height / 2);
       final dx = position.dx - center.dx;
       final dy = position.dy - center.dy;
-      final distanceFromCenter = sqrt(dx * dx + dy * dy);
-
-      if (distanceFromCenter > size.width / 2) return;
 
       var angle = atan2(dy, dx);
-
       if (angle < 0) {
         angle += 2 * pi;
       }
 
-      const startAngle = 155 * pi / 270;
-      const endAngle = 360 * pi / 180;
-
-      if (angle >= startAngle && angle <= endAngle) {
-        if ((angle >= previousAngle && angle <= endAngle) ||
-            (angle < startAngle && previousAngle < startAngle) ||
-            (angle - previousAngle).abs() < pi) {
-          setState(() {
-            updateOuterValue(angle);
-          });
-        }
-        previousAngle = angle;
-      }
+      updateOuterValue(angle);
     }
 
-    return Stack(
-      alignment: Alignment.center,
-      children: [
-        CustomPaint(
-          painter: RadialDialPainter(
-            value: outerValueProvider.getOuterValue().toDouble(),
-            max: maxValue,
-            color: colorPrimaryDark,
+    return RawGestureDetector(
+      behavior: HitTestBehavior.opaque,
+      gestures: {
+        _SelectivePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+            _SelectivePanGestureRecognizer>(
+          () => _SelectivePanGestureRecognizer(
+            debugOwner: this,
+            shouldClaimGesture: isTouchOnActiveArea,
           ),
-          child: SizedBox(
-            width: 200.w,
-            height: 210.h,
-          ),
-        ),
-        CustomPaint(
-          painter: InnerDialPainter(),
-          child: Container(
-            color: Colors.transparent,
-            width: 180.w,
-          ),
-        ),
-        GestureDetector(
-          onPanUpdate: (details) {
-            if (isDragging) {
+          (_SelectivePanGestureRecognizer instance) {
+            instance.onStart = (details) {
+              FocusScope.of(context).unfocus();
+              isDragging = true;
               RenderBox renderBox = context.findRenderObject() as RenderBox;
-              Offset localPosition =
-                  renderBox.globalToLocal(details.globalPosition);
-              updateAngle(localPosition, renderBox.size);
-            }
+              updateAngle(renderBox.globalToLocal(details.globalPosition),
+                  renderBox.size);
+            };
+            instance.onUpdate = (details) {
+              if (isDragging) {
+                RenderBox renderBox = context.findRenderObject() as RenderBox;
+                updateAngle(renderBox.globalToLocal(details.globalPosition),
+                    renderBox.size);
+              }
+            };
+            instance.onEnd = (details) {
+              isDragging = false;
+            };
           },
-          child: CustomPaint(
+        ),
+      },
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          CustomPaint(
+            painter: RadialDialPainter(
+              value: outerValueProvider.getOuterValue().toDouble(),
+              max: maxValue,
+              color: colorPrimaryDark,
+            ),
+            child: SizedBox(
+              width: 200.w,
+              height: 210.h,
+            ),
+          ),
+          CustomPaint(
+            painter: InnerDialPainter(),
+            child: SizedBox(
+              width: 180.w,
+              height: 180.h,
+            ),
+          ),
+          CustomPaint(
             painter: InnerPointerPainter(
               value: outerValueProvider.getOuterValue().toDouble(),
               max: maxValue,
               color: colorPrimaryDark,
             ),
             child: SizedBox(
-              width: 120.w,
+              width: 140.w,
               height: 140.h,
             ),
           ),
-        ),
-        Positioned(
-          child: Text(
-            (outerValueProvider.getOuterValue()).toString(),
-            style: TextStyle(
-              fontSize: 50.sp,
-              fontWeight: FontWeight.w600,
-              color: const Color.fromRGBO(113, 113, 113, 1),
+          Positioned(
+            child: Text(
+              (outerValueProvider.getOuterValue()).toString(),
+              style: TextStyle(
+                fontSize: 50.sp,
+                fontWeight: FontWeight.w600,
+                color: const Color.fromRGBO(113, 113, 113, 1),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
+  }
+}
+
+class _SelectivePanGestureRecognizer extends PanGestureRecognizer {
+  final bool Function(PointerDownEvent event) shouldClaimGesture;
+
+  _SelectivePanGestureRecognizer({
+    super.debugOwner,
+    required this.shouldClaimGesture,
+  });
+
+  @override
+  void addPointer(PointerDownEvent event) {
+    super.addPointer(event);
+
+    if (shouldClaimGesture(event)) {
+      resolve(GestureDisposition.accepted);
+    } else {
+      resolve(GestureDisposition.rejected);
+    }
   }
 }

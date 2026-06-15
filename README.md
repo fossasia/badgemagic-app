@@ -19,7 +19,7 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 - **Animation Mode**: Advanced animations including Pacman, hearts, fireworks, and more
 
 ### 🎭 **Animation & Effects**
-- **22 Animation Types**: Left, Right, Up, Down, Fixed, Snowflake, Picture, Laser, Pacman, Chevron, Diamond, Broken Hearts, Cupid, Feet, Fish, Diagonal, Emergency, Beating Hearts, Fireworks, Digital Rain (Equalizer), and Cycle
+- **22 Animation Types**: Left, Right, Up, Down, Fixed, Splitting, Snowflake, Picture, Laser, Pacman, Chevron, Diamond, Broken Hearts, Cupid, Feet, Fish, Diagonal, Emergency, Beating Hearts, Fireworks, Digital Rain (Equalizer), and Cycle
 - **3 Visual Effects**: Flash, Invert, and Marquee
 - **Speed Control**: 8-speed radial dial for precise animation timing
 - **Transition Tab**: Quick access to basic animations
@@ -95,6 +95,9 @@ The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and ha
 * **Bluetooth**: For connecting to and sending data to LED badges
 * **Storage**: For saving and loading badge designs and clipart
 * **Location** (Android 11 and below): Required by Android for Bluetooth Low Energy device discovery. For more information, see the [Android documentation](https://source.android.com/devices/bluetooth/ble)
+
+## Privacy
+* See our [Privacy Policy](https://badgemagic.fossasia.org/privacy/) for details on data handling.
 
 ## Supported Platforms
 * **Android**: Full feature support with native Bluetooth integration

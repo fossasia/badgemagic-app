@@ -3,7 +3,7 @@ import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:badgemagic/badge_animation/ani_animation.dart';
+import 'package:badgemagic/badge_animation/ani_splitting.dart';
 import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
@@ -97,7 +97,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                 return SizedBox.shrink();
               }
               return IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete, color: drawerHeaderTitle),
                 tooltip: l10n.deleteSelected,
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
@@ -237,8 +237,8 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                                   (msg) => msg.text.isNotEmpty)
                                               .length >
                                           1) {
-                                        animationBadgeProvider
-                                            .setAnimationMode(AniAnimation());
+                                        animationBadgeProvider.setAnimationMode(
+                                            SplittingAnimation());
                                       } else {
                                         animationBadgeProvider
                                             .setAnimationMode(FixedAnimation());
