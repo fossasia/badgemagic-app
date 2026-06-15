@@ -3,8 +3,6 @@ import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:badgemagic/badge_animation/ani_splitting.dart';
-import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -76,19 +74,31 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         title: l10n.savedBadges,
         index: 2,
         actions: [
-          TextButton(
-            onPressed: () async {
-              final value = await fileHelper.importBadgeData(context);
-              if (value) {
-                logger.d('value: $value');
-                toastUtils.showToast(l10n.badgeImportedSuccessfully);
-                await fileHelper.getBadgeDataFiles();
-                setState(() {});
-              }
-            },
-            child: Text(
-              l10n.import,
-              style: const TextStyle(color: drawerHeaderTitle),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+            child: TextButton(
+              onPressed: () async {
+                final value = await fileHelper.importBadgeData(context);
+                if (value) {
+                  logger.d('value: $value');
+                  toastUtils.showToast(l10n.badgeImportedSuccessfully);
+                  await fileHelper.getBadgeDataFiles();
+                  setState(() {});
+                }
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.r),
+                  side: const BorderSide(color: drawerHeaderTitle),
+                ),
+              ),
+              child: Text(
+                l10n.import,
+                style: const TextStyle(color: drawerHeaderTitle),
+              ),
             ),
           ),
           Consumer<BadgeSlotProvider>(
@@ -131,6 +141,10 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                           .removeWhere((entry) => entry.key == badgeKey);
                     }
                     selectionProvider.clearSelections();
+                    savedBadgeProvider.updateSelectionPreview(
+                        selectionProvider.selectedBadges,
+                        provider.savedBadgeCache,
+                        animationBadgeProvider);
                     setState(() {});
                     ToastUtils().showToast(l10n.badgesDeletedSuccessfully);
                   }
@@ -232,40 +246,10 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                       while (badgeDataList.length < 8) {
                                         badgeDataList.add(Message(text: []));
                                       }
-                                      if (badgeDataList
-                                              .where(
-                                                  (msg) => msg.text.isNotEmpty)
-                                              .length >
-                                          1) {
-                                        animationBadgeProvider.setAnimationMode(
-                                            SplittingAnimation());
-                                      } else {
-                                        animationBadgeProvider
-                                            .setAnimationMode(FixedAnimation());
-                                      }
-                                      List<List<bool>> previewGrid =
-                                          List.generate(11, (_) => <bool>[]);
-                                      for (final msg in badgeDataList) {
-                                        if (msg.text.isEmpty) continue;
-                                        try {
-                                          final grid =
-                                              hexStringToBool(msg.text.join());
-                                          for (int r = 0;
-                                              r < 11 && r < grid.length;
-                                              r++) {
-                                            if (previewGrid[r].isNotEmpty) {
-                                              previewGrid[r]
-                                                  .addAll(List.filled(8, false));
-                                            }
-                                            previewGrid[r].addAll(grid[r]);
-                                          }
-                                        } catch (e) {
-                                          logger.e(
-                                              'Failed to decode saved badge for preview: $e');
-                                        }
-                                      }
-                                      animationBadgeProvider
-                                          .setNewGrid(previewGrid);
+                                      savedBadgeProvider.updateSelectionPreview(
+                                          selectedBadges,
+                                          provider.savedBadgeCache,
+                                          animationBadgeProvider);
                                       final data =
                                           Data(messages: badgeDataList);
                                       badgeMessageProvider.checkAndTransfer(
