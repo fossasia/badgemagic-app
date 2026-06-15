@@ -19,7 +19,7 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 - **Animation Mode**: Advanced animations including Pacman, hearts, fireworks, and more
 
 ### 🎭 **Animation & Effects**
-- **22 Animation Types**: Left, Right, Up, Down, Fixed, Snowflake, Picture, Laser, Pacman, Chevron, Diamond, Broken Hearts, Cupid, Feet, Fish, Diagonal, Emergency, Beating Hearts, Fireworks, Digital Rain (Equalizer), and Cycle
+- **22 Animation Types**: Left, Right, Up, Down, Fixed, Splitting, Snowflake, Picture, Laser, Pacman, Chevron, Diamond, Broken Hearts, Cupid, Feet, Fish, Diagonal, Emergency, Beating Hearts, Fireworks, Digital Rain (Equalizer), and Cycle
 - **3 Visual Effects**: Flash, Invert, and Marquee
 - **Speed Control**: 8-speed radial dial for precise animation timing
 - **Transition Tab**: Quick access to basic animations
