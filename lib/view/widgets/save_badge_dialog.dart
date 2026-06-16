@@ -228,10 +228,12 @@ class SaveBadgeDialog extends StatelessWidget {
                           speed.getOuterValue(),
                           animationProvider.getAnimationIndex() ?? 1,
                         );
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                              content: Text(l10n.badgeUpdatedSuccessfully)),
-                        );
+                        if(context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                                content: Text(l10n.badgeUpdatedSuccessfully)),
+                          );
+                        }
                         Future.delayed(const Duration(milliseconds: 100), () {
                           if (context.mounted) {
                             Navigator.of(context, rootNavigator: true)
@@ -253,9 +255,11 @@ class SaveBadgeDialog extends StatelessWidget {
                         speed.getOuterValue(),
                         animationProvider.getAnimationIndex() ?? 1,
                       );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.badgeSavedSuccessfully)),
-                      );
+                      if(context.mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.badgeSavedSuccessfully)),
+                        );
+                      }
                       if (context.mounted) {
                         Navigator.of(context).pop();
                       }
