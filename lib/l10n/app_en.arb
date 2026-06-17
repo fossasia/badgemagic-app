@@ -68,6 +68,7 @@
   "speed": "Speed",
   "speedTitle": "Speed",
   "animation": "Animation",
+  "animationSplitting": "Splitting",
   "transition": "Transition",
   "transitionTitle": "Transition",
   "effects": "Effects",
@@ -196,7 +197,7 @@
   "flashEffect": "Flash",
   "marqueeEffect": "Marquee",
   "invertColors": "Invert Colors",
-  "save": "SAVE",
+  "save": "Save",
   "badge": "Badge",
   "draw": "Draw",
   "erase": "Erase",
@@ -216,5 +217,6 @@
   "badgeNameHint": "Badge name",
   "triangle": "Triangle",
   "clipartSavedSuccessfully": "Clipart saved successfully",
-  "badgeScanMode": "Badge Scan Mode"
+  "badgeScanMode": "Badge Scan Mode",
+  "pleaseSelectClipart": "Please draw or select a clipart before saving"
 }

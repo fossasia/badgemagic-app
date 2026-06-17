@@ -4,20 +4,14 @@ import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
 import 'package:badgemagic/utils/custom_transfers/common.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:logger/logger.dart';
 
 Future<void> customTransferCycleAnimation(
     Future<void> Function(DataTransferManager) transferData,
     int speedLevel) async {
-  final adapterState = await FlutterBluePlus.adapterState.first;
-  if (adapterState != BluetoothAdapterState.on) {
-    ToastUtils().showErrorToast('Please turn on Bluetooth');
-    return;
-  }
+  if (!await checkAdapterState()) return;
 
   // Use the same speed logic as Diamond/Cupid: always use Speed.eight for seamless animation
   // Cycle animation uses 8 selected frames from infinite back-and-forth movement
