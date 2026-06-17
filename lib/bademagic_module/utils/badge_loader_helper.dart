@@ -3,6 +3,8 @@ import 'dart:io';
 import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/providers/badge_message_provider.dart'
+    show modeValueMap;
 import 'package:path_provider/path_provider.dart';
 
 /// Helper class for loading and parsing badge data and original text from disk.
@@ -56,54 +58,27 @@ class BadgeLoaderHelper {
   ///
   /// This logic is centralized here to allow easy extension if new modes are added.
   static int parseAnimationMode(dynamic mode) {
-    int modeValue = 0;
-    try {
-      if (mode is int) {
-        // If already an int, use directly.
-        modeValue = mode;
-      } else {
-        // Otherwise, parse from string (e.g., 'BadgeMode.left').
-        String modeString = mode.toString();
-        if (modeString.contains('.')) {
-          // Extract the enum name (right of the dot).
-          String modeName = modeString.split('.').last;
-          switch (modeName.toLowerCase()) {
-            case 'left':
-              modeValue = 0;
-              break;
-            case 'right':
-              modeValue = 1;
-              break;
-            case 'up':
-              modeValue = 2;
-              break;
-            case 'down':
-              modeValue = 3;
-              break;
-            case 'fixed':
-              modeValue = 4;
-              break;
-            case 'snowflake':
-              modeValue = 5;
-              break;
-            case 'picture':
-              modeValue = 6;
-              break;
-            case 'animation':
-              modeValue = 7;
-              break;
-            default:
-              modeValue = 0;
-          }
-        } else {
-          // If not an enum string, try parsing as int.
-          modeValue = int.tryParse(modeString) ?? 0;
-        }
-      }
-    } catch (_) {
-      // Defensive: fallback to 0 (left) if parsing fails.
-      modeValue = 0;
+    if (mode is int) {
+      return mode;
     }
-    return modeValue;
+    for (final entry in modeValueMap.entries) {
+      if (entry.value == mode) {
+        return entry.key;
+      }
+    }
+    final modeString = mode.toString();
+    final asInt = int.tryParse(modeString);
+    if (asInt != null) {
+      return asInt;
+    }
+    final name = modeString.contains('.')
+        ? modeString.split('.').last.toLowerCase()
+        : modeString.toLowerCase();
+    for (final entry in modeValueMap.entries) {
+      if (entry.value.name == name) {
+        return entry.key;
+      }
+    }
+    return 0;
   }
 }
