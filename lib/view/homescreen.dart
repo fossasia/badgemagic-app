@@ -116,8 +116,9 @@ class _HomeScreenState extends State<HomeScreen>
         animationProvider.addEffect(effectMap[2]);
       }
       if (savedData != null &&
-          savedData.containsKey('invert') &&
-          savedData['invert'] == true) {
+          savedData['messages'] is List &&
+          (savedData['messages'] as List).isNotEmpty &&
+          savedData['messages'][0]['invert'] == true) {
         animationProvider.addEffect(effectMap[0]);
       }
 

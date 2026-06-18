@@ -156,12 +156,14 @@ class BadgeMessageProvider {
       data = fileHelper.jsonToData(jsonData);
       if (isSavedBadge && data.messages.isNotEmpty) {
         final old = data.messages[0];
+        final combinedBadges =
+            data.messages.where((m) => m.text.isNotEmpty).length > 1;
         final newMessage = Message(
           text: old.text,
           flash: old.flash,
           marquee: old.marquee,
           speed: old.speed,
-          mode: Mode.animation,
+          mode: combinedBadges ? Mode.animation : old.mode,
         );
         data = Data(messages: [newMessage, ...data.messages.skip(1)]);
       }
