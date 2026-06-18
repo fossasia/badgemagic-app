@@ -43,6 +43,20 @@ class _SavedClipartState extends State<SavedClipart> {
       index: 3,
       key: const Key(savedClipartScreen),
       title: l10n.savedClipartTitle,
+      actions: [
+        TextButton(
+          onPressed: () async {
+            bool success = await file.importClipart(context);
+            if (success) {
+              setState(() {});
+            }
+          },
+          child: Text(
+            l10n.import,
+            style: const TextStyle(color: drawerHeaderTitle),
+          ),
+        ),
+      ],
       body: imageprovider.clipartsCache.isEmpty
           ? Center(
               child: Column(
