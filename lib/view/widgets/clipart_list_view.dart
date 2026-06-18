@@ -12,7 +12,7 @@ class SavedClipartListView extends StatelessWidget {
   final FileHelper file = FileHelper();
   final ImageUtils imageUtils = ImageUtils();
 
-  final void Function(String) refreshClipartCallback;
+  final Future<void> Function(String) refreshClipartCallback;
 
   SavedClipartListView({
     super.key,
@@ -26,9 +26,15 @@ class SavedClipartListView extends StatelessWidget {
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
       itemCount: images.length,
       itemBuilder: (context, index) {
-        Future<Uint8List?> image = imageUtils
-            .convert2DListToUint8List(images.values.elementAt(index)!);
-        String fileName = images.keys.elementAt(index);
+        final imageData = images.values.elementAt(index);
+        final String fileName = images.keys.elementAt(index);
+
+        if (imageData == null) {
+          return const SizedBox.shrink();
+        }
+
+        final Future<Uint8List?> image =
+            imageUtils.convert2DListToUint8List(imageData);
 
         return Container(
           margin: EdgeInsets.only(bottom: 12.h),
@@ -83,12 +89,15 @@ class SavedClipartListView extends StatelessWidget {
                   padding: EdgeInsets.all(8.dg),
                 ),
                 onPressed: () {
-                  Navigator.of(context).push(MaterialPageRoute(
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
                       builder: (context) => DrawBadge(
-                            filename: fileName,
-                            isSavedClipart: true,
-                            badgeGrid: images.values.elementAt(index),
-                          )));
+                        filename: fileName,
+                        isSavedClipart: true,
+                        badgeGrid: imageData,
+                      ),
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.edit_outlined),
               ),
@@ -100,13 +109,12 @@ class SavedClipartListView extends StatelessWidget {
                   padding: EdgeInsets.all(8.dg),
                 ),
                 icon: const Icon(Icons.delete_outline_rounded),
-                onPressed: () {
-                  _showDeleteDialog(context).then((value) async {
-                    if (value) {
-                      await file.deleteFile(fileName);
-                      refreshClipartCallback(fileName);
-                    }
-                  });
+                onPressed: () async {
+                  final value = await _showDeleteDialog(context);
+                  if (value) {
+                    await file.deleteFile(fileName);
+                    await refreshClipartCallback(fileName);
+                  }
                 },
               ),
             ],
@@ -117,11 +125,12 @@ class SavedClipartListView extends StatelessWidget {
   }
 
   Future<bool> _showDeleteDialog(BuildContext context) async {
-    return await showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return const DeleteBadgeDialog();
-      },
-    );
+    return await showDialog<bool>(
+          context: context,
+          builder: (BuildContext context) {
+            return const DeleteBadgeDialog();
+          },
+        ) ??
+        false;
   }
 }

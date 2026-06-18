@@ -1,11 +1,8 @@
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:badgemagic/badge_animation/ani_animation.dart';
-import 'package:badgemagic/badge_animation/ani_fixed.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -77,19 +74,31 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
         title: l10n.savedBadges,
         index: 2,
         actions: [
-          TextButton(
-            onPressed: () async {
-              final value = await fileHelper.importBadgeData(context);
-              if (value) {
-                logger.d('value: $value');
-                toastUtils.showToast(l10n.badgeImportedSuccessfully);
-                await fileHelper.getBadgeDataFiles();
-                setState(() {});
-              }
-            },
-            child: Text(
-              l10n.import,
-              style: const TextStyle(color: drawerHeaderTitle),
+          Padding(
+            padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
+            child: TextButton(
+              onPressed: () async {
+                final value = await fileHelper.importBadgeData(context);
+                if (value) {
+                  logger.d('value: $value');
+                  toastUtils.showToast(l10n.badgeImportedSuccessfully);
+                  await fileHelper.getBadgeDataFiles();
+                  setState(() {});
+                }
+              },
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6.r),
+                  side: const BorderSide(color: drawerHeaderTitle),
+                ),
+              ),
+              child: Text(
+                l10n.import,
+                style: const TextStyle(color: drawerHeaderTitle),
+              ),
             ),
           ),
           Consumer<BadgeSlotProvider>(
@@ -98,7 +107,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                 return SizedBox.shrink();
               }
               return IconButton(
-                icon: const Icon(Icons.delete, color: Colors.red),
+                icon: const Icon(Icons.delete, color: drawerHeaderTitle),
                 tooltip: l10n.deleteSelected,
                 onPressed: () async {
                   final confirm = await showDialog<bool>(
@@ -132,6 +141,10 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                           .removeWhere((entry) => entry.key == badgeKey);
                     }
                     selectionProvider.clearSelections();
+                    savedBadgeProvider.updateSelectionPreview(
+                        selectionProvider.selectedBadges,
+                        provider.savedBadgeCache,
+                        animationBadgeProvider);
                     setState(() {});
                     ToastUtils().showToast(l10n.badgesDeletedSuccessfully);
                   }
@@ -188,8 +201,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                             builder: (context, isTransferEnabled, _) {
                               return BadgeListView(
                                 isTransferEnabled: isTransferEnabled,
-                                futureBadges:
-                                    Future.value(provider.savedBadgeCache),
+                                badges: provider.savedBadgeCache,
                                 refreshBadgesCallback: (value) {
                                   provider.savedBadgeCache.remove(value);
                                   setState(() {});
@@ -234,25 +246,10 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                                       while (badgeDataList.length < 8) {
                                         badgeDataList.add(Message(text: []));
                                       }
-                                      if (badgeDataList
-                                              .where(
-                                                  (msg) => msg.text.isNotEmpty)
-                                              .length >
-                                          1) {
-                                        animationBadgeProvider
-                                            .setAnimationMode(AniAnimation());
-                                      } else {
-                                        animationBadgeProvider
-                                            .setAnimationMode(FixedAnimation());
-                                      }
-                                      final fullText = badgeDataList
-                                          .map((m) => m.text.join())
-                                          .join(" ");
-                                      animationBadgeProvider.badgeAnimation(
-                                        fullText,
-                                        Converters(),
-                                        false,
-                                      );
+                                      savedBadgeProvider.updateSelectionPreview(
+                                          selectedBadges,
+                                          provider.savedBadgeCache,
+                                          animationBadgeProvider);
                                       final data =
                                           Data(messages: badgeDataList);
                                       badgeMessageProvider.checkAndTransfer(

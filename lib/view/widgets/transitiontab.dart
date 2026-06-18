@@ -70,8 +70,8 @@ class _TransitionTabState extends State<TransitionTab> {
               ),
               Expanded(
                 child: AniContainer(
-                  animation: animation,
-                  animationName: l10n.animation,
+                  animation: aniSplitting,
+                  animationName: l10n.animationSplitting,
                   index: 5,
                 ),
               ),

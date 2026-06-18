@@ -13,6 +13,7 @@ import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
+import 'package:badgemagic/badge_animation/ani_splitting.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:get_it/get_it.dart';
@@ -34,10 +35,16 @@ Map<int, Mode> modeValueMap = {
   2: Mode.up,
   3: Mode.down,
   4: Mode.fixed,
-  5: Mode.snowflake,
-  6: Mode.picture,
-  7: Mode.animation,
-  8: Mode.laser
+  5: Mode.animation,
+  6: Mode.snowflake,
+  7: Mode.picture,
+  8: Mode.laser,
+  9: Mode.pacman,
+  10: Mode.chevronleft,
+  11: Mode.diamond,
+  12: Mode.brokenhearts,
+  13: Mode.cupid,
+  14: Mode.feet,
 };
 
 class SavedBadgeProvider extends ChangeNotifier {
@@ -88,59 +95,17 @@ class SavedBadgeProvider extends ChangeNotifier {
       animationProvider.addEffect(effectMap[2]); // Marquee effect
     }
     // Set inversion if applicable
-    if (savedData.containsKey('invert') && savedData['invert'] == true) {
+    if (savedData['messages'] is List &&
+        (savedData['messages'] as List).isNotEmpty &&
+        savedData['messages'][0]['invert'] == true) {
       animationProvider.addEffect(effectMap[0]); // Invert effect
     }
-    // Set animation mode
-    int modeValue = 0; // Default to left animation
-    try {
-      // Handle different mode formats - could be enum or int
-      if (message.mode is int) {
-        modeValue = message.mode as int;
-      } else {
-        // Try to extract the mode value from the enum
-        String modeString = message.mode.toString();
-        // If it's in format "Mode.left", extract just the mode name
-        if (modeString.contains('.')) {
-          String modeName = modeString.split('.').last;
-          // Map mode name to value
-          switch (modeName.toLowerCase()) {
-            case 'left':
-              modeValue = 0;
-              break;
-            case 'right':
-              modeValue = 1;
-              break;
-            case 'up':
-              modeValue = 2;
-              break;
-            case 'down':
-              modeValue = 3;
-              break;
-            case 'fixed':
-              modeValue = 4;
-              break;
-            case 'snowflake':
-              modeValue = 5;
-              break;
-            case 'picture':
-              modeValue = 6;
-              break;
-            case 'animation':
-              modeValue = 7;
-              break;
-            default:
-              modeValue = 0; // Default to left
-          }
-        } else {
-          // Try parsing as int
-          modeValue = int.tryParse(modeString) ?? 0;
-        }
+    int modeValue = 0;
+    modeValueMap.forEach((key, value) {
+      if (value == message.mode) {
+        modeValue = key;
       }
-    } catch (e) {
-      // If parsing fails, default to left animation (0)
-      logger.e("Failed to parse mode value: $e");
-    }
+    });
     animationProvider.setAnimationMode(animationMap[modeValue]);
 
     // Set speed using Speed.getIntValue to ensure correct dial value
@@ -324,8 +289,13 @@ class SavedBadgeProvider extends ChangeNotifier {
           data['messages'].isNotEmpty &&
           data['messages'][0] is Map<String, dynamic> &&
           data['messages'][0].containsKey('mode')) {
-        int modeValue =
-            Mode.getIntValue(Mode.fromHex(data['messages'][0]['mode']));
+        final savedMode = Mode.fromHex(data['messages'][0]['mode']);
+        int modeValue = 0;
+        modeValueMap.forEach((key, value) {
+          if (value == savedMode) {
+            modeValue = key;
+          }
+        });
         aniProvider.setAnimationMode(animationMap[modeValue]);
       } else {
         // Default to left animation if mode is missing
@@ -394,6 +364,52 @@ class SavedBadgeProvider extends ChangeNotifier {
           List.generate(8, (_) => List.generate(16, (_) => false));
       aniProvider.setNewGrid(emptyGrid);
     }
+  }
+
+  void updateSelectionPreview(
+    Set<String> selectedKeys,
+    List<MapEntry<String, Map<String, dynamic>>> cache,
+    AnimationBadgeProvider aniProvider,
+  ) {
+    final selected = selectedKeys
+        .map((key) {
+          final match = cache.where((entry) => entry.key == key).toList();
+          return match.isEmpty ? null : match.first.value;
+        })
+        .whereType<Map<String, dynamic>>()
+        .toList();
+
+    if (selected.isEmpty) {
+      aniProvider.stopAllAnimations();
+      aniProvider.setNewGrid(
+          List.generate(11, (_) => List.generate(44, (_) => false)));
+      return;
+    }
+
+    if (selected.length == 1) {
+      savedBadgeAnimation(selected.first, aniProvider);
+      return;
+    }
+
+    aniProvider.clearAllEffects();
+    aniProvider.setAnimationMode(SplittingAnimation());
+    final previewGrid = List.generate(11, (_) => <bool>[]);
+    for (final badge in selected) {
+      try {
+        final text = (badge['messages'][0]['text'] as List).join();
+        if (text.isEmpty) continue;
+        final grid = hexStringToBool(text);
+        for (int r = 0; r < 11 && r < grid.length; r++) {
+          if (previewGrid[r].isNotEmpty) {
+            previewGrid[r].addAll(List.filled(8, false));
+          }
+          previewGrid[r].addAll(grid[r]);
+        }
+      } catch (e) {
+        logger.e('Failed to decode saved badge for preview: $e');
+      }
+    }
+    aniProvider.setNewGrid(previewGrid);
   }
 
   bool getIsSavedBadgeData() => isSavedBadgeData;

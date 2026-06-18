@@ -112,9 +112,15 @@ class InlineImageProvider extends ChangeNotifier {
   //The cache generation time acts as a delay in the splash screen
   Map<Object, Uint8List?> imageCache = {};
 
-  void removeFromCache(String key) {
-    imageCache.remove(key);
-    logger.d('Removed from cache: ${imageCache.containsKey(key)}');
+  void notify() {
+    notifyListeners();
+  }
+
+  void removeFromCache(String filename) {
+    imageCache.removeWhere(
+      (key, value) => key is List && key.isNotEmpty && key[0] == filename,
+    );
+    logger.d('Removed from cache: $filename');
     notifyListeners();
   }
 
@@ -131,7 +137,7 @@ class InlineImageProvider extends ChangeNotifier {
       var unit8List = byteData!.buffer.asUint8List();
       imageCache[x] = unit8List;
     }
-    fileHelper.loadImageCacheFromFiles();
+    await fileHelper.loadImageCacheFromFiles();
     notifyListeners();
   }
 
