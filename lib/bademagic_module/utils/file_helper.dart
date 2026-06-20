@@ -486,6 +486,19 @@ class FileHelper {
     await _addImageDataToCache(image, filename);
   }
 
+  Future<bool> importBadgeFromJson(Map<String, dynamic> json) async {
+    try {
+      Data data = Data.fromJson(json);
+      String filename = 'QR_Badge_${DateTime.now().millisecondsSinceEpoch}';
+      await _writeToFile('$filename.json', jsonEncode(data.toJson()));
+      logger.d('Imported badge from QR: $filename');
+      return true;
+    } catch (e) {
+      logger.i('Error importing badge from QR: $e');
+      return false;
+    }
+  }
+
   Future<bool> importBadgeData(context) async {
     try {
       // Open file picker to select a JSON file

@@ -11,6 +11,7 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
+import 'package:badgemagic/view/widgets/qr_share_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -140,7 +141,7 @@ class SaveBadgeCard extends StatelessWidget {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        file.shareBadgeData(badgeData.key);
+                        _showShareOptions(context);
                       },
                     ),
                     IconButton(
@@ -321,6 +322,37 @@ class SaveBadgeCard extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return DeleteBadgeDialog();
+      },
+    );
+  }
+
+  void _showShareOptions(BuildContext context) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.insert_drive_file),
+                title: const Text('Share as file'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  file.shareBadgeData(badgeData.key);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.qr_code),
+                title: const Text('Share via QR code'),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  showBadgeQrDialog(context, badgeData.value);
+                },
+              ),
+            ],
+          ),
+        );
       },
     );
   }
