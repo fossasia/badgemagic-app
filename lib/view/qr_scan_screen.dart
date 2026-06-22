@@ -1,10 +1,9 @@
 import 'package:badgemagic/bademagic_module/utils/qr_code_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 
-/// Full-screen camera view that scans a Badge Magic QR code and pops with the
-/// decoded badge JSON (`Map<String, dynamic>`), or null if the user backs out.
 class QrScanScreen extends StatefulWidget {
   const QrScanScreen({super.key});
 
@@ -18,7 +17,10 @@ class _QrScanScreenState extends State<QrScanScreen> {
 
   void _onDetect(BarcodeCapture capture) {
     if (_handled) return;
+    _processCapture(capture);
+  }
 
+  bool _processCapture(BarcodeCapture capture) {
     for (final barcode in capture.barcodes) {
       final String? raw = barcode.rawValue;
       if (raw == null || !QrCodeHelper.isBadgePayload(raw)) {
@@ -33,7 +35,30 @@ class _QrScanScreenState extends State<QrScanScreen> {
 
       _handled = true;
       Navigator.of(context).pop(badgeJson);
-      return;
+      return true;
+    }
+    return false;
+  }
+
+  Future<void> _pickFromGallery() async {
+    if (_handled) return;
+    try {
+      final result = await FilePicker.platform.pickFiles(
+        type: FileType.image,
+      );
+      final String? path = result?.files.single.path;
+      if (path == null) return;
+
+      final BarcodeCapture? capture = await _controller.analyzeImage(path);
+      if (!mounted) return;
+
+      if (capture == null || !_processCapture(capture)) {
+        ToastUtils().showToast(
+          'No badge QR code found in that image.',
+        );
+      }
+    } catch (e) {
+      ToastUtils().showToast('Could not read QR code from that image.');
     }
   }
 
@@ -50,11 +75,18 @@ class _QrScanScreenState extends State<QrScanScreen> {
         title: const Text('Scan badge QR code'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.photo_library),
+            tooltip: 'Import QR from image',
+            onPressed: _pickFromGallery,
+          ),
+          IconButton(
             icon: const Icon(Icons.flash_on),
+            tooltip: 'Toggle torch',
             onPressed: () => _controller.toggleTorch(),
           ),
           IconButton(
             icon: const Icon(Icons.cameraswitch),
+            tooltip: 'Switch camera',
             onPressed: () => _controller.switchCamera(),
           ),
         ],
@@ -74,14 +106,26 @@ class _QrScanScreenState extends State<QrScanScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          const Positioned(
+          Positioned(
             bottom: 48,
             left: 24,
             right: 24,
-            child: Text(
-              'Point the camera at a badge QR code shared from another device.',
-              textAlign: TextAlign.center,
-              style: TextStyle(color: Colors.white, fontSize: 14),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Text(
+                  'Point the camera at a badge QR code shared from another '
+                  'device.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                ),
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: _pickFromGallery,
+                  icon: const Icon(Icons.photo_library),
+                  label: const Text('Import from image'),
+                ),
+              ],
             ),
           ),
         ],
