@@ -4,16 +4,19 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:badgemagic/view/widgets/qr_share_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 class SaveBadgeCard extends StatelessWidget {
@@ -327,6 +330,8 @@ class SaveBadgeCard extends StatelessWidget {
   }
 
   void _showShareOptions(BuildContext context) {
+    final AppLocalizations l10n =
+        GetIt.instance.get<LocalizationService>().l10n;
     showModalBottomSheet<void>(
       context: context,
       builder: (sheetContext) {
@@ -336,7 +341,7 @@ class SaveBadgeCard extends StatelessWidget {
             children: [
               ListTile(
                 leading: const Icon(Icons.insert_drive_file),
-                title: const Text('Share as file'),
+                title: Text(l10n.shareAsFile),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   file.shareBadgeData(badgeData.key);
@@ -344,7 +349,7 @@ class SaveBadgeCard extends StatelessWidget {
               ),
               ListTile(
                 leading: const Icon(Icons.qr_code),
-                title: const Text('Share via QR code'),
+                title: Text(l10n.shareViaQrCode),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   showBadgeQrDialog(context, badgeData.value);

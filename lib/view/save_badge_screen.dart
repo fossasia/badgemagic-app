@@ -59,7 +59,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
             children: [
               ListTile(
                 leading: const Icon(Icons.insert_drive_file),
-                title: const Text('Import from file'),
+                title: Text(l10n.importFromFile),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   _importFromFile(l10n);
@@ -67,7 +67,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
               ),
               ListTile(
                 leading: const Icon(Icons.qr_code_scanner),
-                title: const Text('Scan QR code'),
+                title: Text(l10n.scanQrCode),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
                   _importFromQr(l10n);
@@ -100,7 +100,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
       await fileHelper.getBadgeDataFiles();
       if (mounted) setState(() {});
     } else {
-      toastUtils.showToast('Could not import badge from QR code.');
+      toastUtils.showToast(l10n.couldNotImportBadgeFromQr);
     }
   }
 

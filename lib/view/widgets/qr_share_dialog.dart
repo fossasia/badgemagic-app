@@ -4,8 +4,11 @@ import 'dart:ui' as ui;
 
 import 'package:badgemagic/bademagic_module/utils/qr_code_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share_plus/share_plus.dart';
@@ -18,7 +21,7 @@ Future<void> showBadgeQrDialog(
 
   if (payload == null) {
     ToastUtils().showToast(
-      'This badge is too large to share as a QR code. Use file sharing instead.',
+      GetIt.instance.get<LocalizationService>().l10n.badgeTooLargeForQr,
     );
     return;
   }
@@ -44,6 +47,8 @@ class QrShareScreen extends StatefulWidget {
 class _QrShareScreenState extends State<QrShareScreen> {
   final GlobalKey _qrKey = GlobalKey();
 
+  AppLocalizations get _l10n => GetIt.instance.get<LocalizationService>().l10n;
+
   Future<void> _shareQrImage() async {
     try {
       final boundary =
@@ -54,7 +59,7 @@ class _QrShareScreenState extends State<QrShareScreen> {
       final ByteData? byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) {
-        ToastUtils().showToast('Could not generate QR image.');
+        ToastUtils().showToast(_l10n.couldNotGenerateQrImage);
         return;
       }
 
@@ -65,20 +70,21 @@ class _QrShareScreenState extends State<QrShareScreen> {
 
       await SharePlus.instance.share(ShareParams(files: [XFile(file.path)]));
     } catch (e) {
-      ToastUtils().showToast('Could not share QR image.');
+      ToastUtils().showToast(_l10n.couldNotShareQrImage);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = _l10n;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: const Text('Share badge QR code'),
+        title: Text(l10n.shareBadgeQrCode),
         actions: [
           IconButton(
             icon: const Icon(Icons.share),
-            tooltip: 'Share QR image',
+            tooltip: l10n.shareQrImage,
             onPressed: _shareQrImage,
           ),
         ],
@@ -102,13 +108,12 @@ class _QrShareScreenState extends State<QrShareScreen> {
               ),
             ),
             const SizedBox(height: 24),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 32),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
               child: Text(
-                'Scan this code from another device, or tap share to send the '
-                'QR image.',
+                l10n.qrShareInstruction,
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.black54),
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
               ),
             ),
           ],
