@@ -352,7 +352,10 @@ class SaveBadgeCard extends StatelessWidget {
                 title: Text(l10n.shareViaQrCode),
                 onTap: () {
                   Navigator.of(sheetContext).pop();
-                  showBadgeQrDialog(context, badgeData.value);
+                  final String badgeName = badgeData.key.endsWith('.json')
+                      ? badgeData.key.substring(0, badgeData.key.length - 5)
+                      : badgeData.key;
+                  showBadgeQrDialog(context, badgeData.value, badgeName);
                 },
               ),
             ],

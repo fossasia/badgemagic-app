@@ -79,11 +79,6 @@ class _QrScanScreenState extends State<QrScanScreen> {
         title: Text(l10n.scanBadgeQrCode),
         actions: [
           IconButton(
-            icon: const Icon(Icons.photo_library),
-            tooltip: l10n.importQrFromImage,
-            onPressed: _pickFromGallery,
-          ),
-          IconButton(
             icon: const Icon(Icons.flash_on),
             tooltip: l10n.toggleTorch,
             onPressed: () => _controller.toggleTorch(),

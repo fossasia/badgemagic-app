@@ -8,9 +8,13 @@ class QrCodeHelper {
 
   static const int maxPayloadLength = 2800;
 
-  static String? encode(Map<String, dynamic> badgeJson) {
+  static String? encode(Map<String, dynamic> badgeJson, String name) {
     try {
-      final List<int> raw = utf8.encode(jsonEncode(badgeJson));
+      final Map<String, dynamic> payloadMap = {
+        'name': name,
+        'badge': badgeJson
+      };
+      final List<int> raw = utf8.encode(jsonEncode(payloadMap));
       final List<int> compressed = gzip.encode(raw);
       final String payload = '$_scheme${base64Url.encode(compressed)}';
       if (payload.length > maxPayloadLength) {

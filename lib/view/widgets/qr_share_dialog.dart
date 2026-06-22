@@ -16,8 +16,9 @@ import 'package:share_plus/share_plus.dart';
 Future<void> showBadgeQrDialog(
   BuildContext context,
   Map<String, dynamic> badgeJson,
+  String name,
 ) async {
-  final String? payload = QrCodeHelper.encode(badgeJson);
+  final String? payload = QrCodeHelper.encode(badgeJson, name);
 
   if (payload == null) {
     ToastUtils().showToast(

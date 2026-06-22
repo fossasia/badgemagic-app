@@ -220,7 +220,6 @@
   "shareAsFile": "Share as file",
   "shareViaQrCode": "Share via QR code",
   "scanBadgeQrCode": "Scan badge QR code",
-  "importQrFromImage": "Import QR from image",
   "toggleTorch": "Toggle torch",
   "switchCamera": "Switch camera",
   "scanQrInstruction": "Point the camera at a badge QR code shared from another device.",
