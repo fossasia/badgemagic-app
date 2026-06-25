@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
@@ -321,8 +322,40 @@ class FileHelper {
     }
   }
 
-  Future<void> saveBadgeData(Data data, String filename, bool invert) async {
+  Future<void> saveBadgeData(Data data, String filename, bool invert, {String? originalText}) async {
     try {
+      if (originalText != null) {
+        data.originalText = originalText;
+        data.customCliparts = {};
+        
+        // Find clipart tags in the original text, e.g. <<1>>, <<04>>
+        RegExp exp = RegExp(r'<<(\d+)>>');
+        Iterable<RegExpMatch> matches = exp.allMatches(originalText);
+        
+        for (var match in matches) {
+          String? keyStr = match.group(1);
+          if (keyStr != null) {
+            int index = int.parse(keyStr);
+            // Find the cache key which is either an int or [filename, index]
+            var vectorIndex = imageCacheProvider.imageCache.keys.firstWhere(
+              (k) => k == index || (k is List && k.length > 1 && k[1] == index),
+              orElse: () => "",
+            );
+            
+            if (vectorIndex is List && vectorIndex.isNotEmpty) {
+              String clipartName = vectorIndex[0].toString();
+              // If it's a personalized clipart, its name starts with data_
+              if (clipartName.startsWith('data_')) {
+                var matrix = imageCacheProvider.clipartsCache[clipartName];
+                if (matrix != null) {
+                  data.customCliparts![clipartName] = matrix;
+                }
+              }
+            }
+          }
+        }
+      }
+
       Map<String, dynamic> jsonData = data.toJson();
       jsonData['messages'][0]['invert'] = invert;
       logger.d('JSON data: $jsonData');
@@ -371,11 +404,28 @@ class FileHelper {
           !file.path.contains('data_')) {
         try {
           String jsonString = await file.readAsString();
-          Map<String, dynamic> jsonData = jsonDecode(jsonString);
+          final decoded = jsonDecode(jsonString);
 
-          // Defensive: Only add if valid structure
-          if (jsonData.containsKey('messages') &&
-              jsonData['messages'] is List) {
+          Map<String, dynamic>? jsonData;
+
+          if (decoded is Map<String, dynamic>) {
+            // New format: {"messages": [...]}
+            if (decoded.containsKey('messages') && decoded['messages'] is List) {
+              jsonData = decoded;
+            }
+          } else if (decoded is List && decoded.isNotEmpty) {
+            // Legacy format: [{"text": [...], ...}] — a bare list of messages
+            // Distinguish from clipart files (which are List<List<int>>)
+            final first = decoded.first;
+            if (first is Map && first.containsKey('text')) {
+              // Wrap legacy list into the standard format and save it back
+              jsonData = {'messages': decoded};
+              await file.writeAsString(jsonEncode(jsonData));
+              logger.i('Upgraded legacy badge format for: ${file.path}');
+            }
+          }
+
+          if (jsonData != null) {
             badgeDataList.add(MapEntry(file.uri.pathSegments.last, jsonData));
           } else {
             logger.i('Skipping invalid badge file: ${file.path}');
@@ -489,7 +539,7 @@ class FileHelper {
   Future<bool> importBadgeData(context) async {
     try {
       // Open file picker to select a JSON file
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json', 'gif'],
       );
@@ -519,17 +569,132 @@ class FileHelper {
           ],
         });
 
-        await _writeToFile(fileName, jsonEncode(data.toJson()));
+        // Bug 3 fix: ensure GIF-derived filename never starts with 'data_'
+        // so the imported badge appears in the Saved Badges list and not
+        // in the clipart cache.
+        final savedGifName = fileName.startsWith('data_')
+            ? 'badge_${fileName.substring(5)}'
+            : fileName;
 
-        logger.d('Imported badge: $fileName, data: $data');
+        await _writeToFile(savedGifName, jsonEncode(data.toJson()));
+
+        // Bug 2 fix: write a sidecar text entry so the editor has a
+        // meaningful placeholder instead of falling back to "Hello".
+        final gifPlaceholder = savedGifName.endsWith('.json')
+            ? savedGifName.substring(0, savedGifName.length - 5)
+            : savedGifName;
+        await BadgeTextStorage.saveOriginalText(savedGifName, gifPlaceholder);
+
+        logger.d('Imported GIF badge: $savedGifName, data: $data');
 
         return true;
       } else if (file.path.toLowerCase().endsWith('.json')) {
-        Data data = Data.fromJson(jsonDecode(await file.readAsString()));
+        final rawContent = await file.readAsString();
+        final decoded = jsonDecode(rawContent);
 
-        await _writeToFile(result.files.single.name, jsonEncode(data.toJson()));
+        // Support all 3 JSON formats:
+        // 1. New badge format:    {"messages": [...], "originalText": "...", "customCliparts": {...}}
+        // 2. Legacy badge format: [{"text": [...], "speed": ..., "mode": ...}, ...]
+        // 3. Clipart format:      [[0, 1, 0, ...], [1, 0, 1, ...], ...]
+        Map<String, dynamic> finalDecoded;
+        if (decoded is List) {
+          final first = decoded.isNotEmpty ? decoded.first : null;
+          final isBadgeList = first is Map && first.containsKey('text');
 
-        logger.d('Imported badge to: ${result.files.single.name}, data: $data');
+          if (isBadgeList) {
+            // Legacy badge format — wrap it in the expected 'messages' object.
+            finalDecoded = {'messages': decoded};
+            logger.d('Wrapped legacy list-based badge JSON into a proper Data object.');
+          } else if (first is List) {
+            // It's a clipart file (List<List<int>>) — save it to the clipart library!
+            logger.d('Detected clipart file during badge import — saving to clipart library.');
+            final List<List<int>> matrix = decoded.map<List<int>>((row) {
+              return List<int>.from(row as List);
+            }).toList();
+
+            // Use the original filename (without extension) as the clipart name
+            String clipartFilename = result.files.single.name;
+            if (!clipartFilename.startsWith('data_')) {
+              final stem = clipartFilename.endsWith('.json')
+                  ? clipartFilename.substring(0, clipartFilename.length - 5)
+                  : clipartFilename;
+              final safeName = stem.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+              final timestamp = DateTime.now().millisecondsSinceEpoch;
+              clipartFilename = 'data_${safeName}_$timestamp.json';
+            }
+
+            if (!imageCacheProvider.clipartsCache.containsKey(clipartFilename)) {
+              imageCacheProvider.clipartsCache[clipartFilename] = matrix;
+              await _writeToFile(clipartFilename, jsonEncode(matrix));
+              final imageBytes = await imageUtils.convert2DListToUint8List(matrix);
+              addToCache(imageBytes, clipartFilename);
+            }
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Clipart imported and added to your Cliparts library!'),
+                backgroundColor: Colors.green,
+              ),
+            );
+            return true;
+          } else {
+            throw Exception(
+              'Invalid file: Could not recognize this JSON format as a badge or clipart.',
+            );
+          }
+        } else if (decoded is Map<String, dynamic>) {
+          finalDecoded = decoded;
+        } else {
+          throw Exception(
+            'Invalid badge file: Unrecognized JSON structure (${decoded.runtimeType}).'
+          );
+        }
+
+        Data data = Data.fromJson(finalDecoded);
+
+        // Process custom cliparts embedded in the JSON
+        if (data.customCliparts != null && data.customCliparts!.isNotEmpty) {
+          for (var entry in data.customCliparts!.entries) {
+            String clipartName = entry.key;
+            List<List<int>> matrix = entry.value;
+            
+            // Check if it already exists locally
+            if (!imageCacheProvider.clipartsCache.containsKey(clipartName)) {
+              // Add to local cache and save to disk
+              imageCacheProvider.clipartsCache[clipartName] = matrix;
+              await _writeToFile(clipartName, jsonEncode(matrix));
+              
+              // Add to image cache (UI renderer)
+              Uint8List imageBytes = await imageUtils.convert2DListToUint8List(matrix);
+              addToCache(imageBytes, clipartName);
+              
+              logger.d('Auto-saved personalized clipart from imported badge: $clipartName');
+            }
+          }
+        }
+
+        // Bug 3 fix: if the original filename starts with 'data_', it would
+        // be silently bucketed into the clipart cache by getBadgeDataFiles().
+        // Rename it so it is treated as a proper badge file.
+        String savedName = result.files.single.name;
+        if (savedName.startsWith('data_')) {
+          savedName = 'badge_${savedName.substring(5)}';
+          logger.d(
+            'Renamed imported badge from ${result.files.single.name} to '
+            '$savedName to avoid clipart cache collision.',
+          );
+        }
+
+        await _writeToFile(savedName, jsonEncode(data.toJson()));
+
+        // Restore the original text if it exists, otherwise fallback to filename
+        final placeholder = data.originalText ?? 
+            (savedName.endsWith('.json')
+                ? savedName.substring(0, savedName.length - 5)
+                : savedName);
+        await BadgeTextStorage.saveOriginalText(savedName, placeholder);
+
+        logger.d('Imported badge to: $savedName, data: $data');
 
         return true;
       } else {
@@ -545,7 +710,7 @@ class FileHelper {
 
   Future<bool> importClipart(BuildContext context) async {
     try {
-      FilePickerResult? result = await FilePicker.platform.pickFiles(
+      FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );

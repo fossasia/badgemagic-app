@@ -60,9 +60,28 @@ void main() {
       });
     });
 
-    test('falls back to Hello if original text missing', () async {
+    test('falls back to filename stem if original text missing', () async {
       await withTempDir((dir) async {
         final badgeFilename = 'badge2.json';
+        final badgeData =
+            '{"messages":[{"text":["FallbackTest"],"flash":false,"marquee":true,"mode":"1","speed":"2"}],"invert":false}';
+        final badgeFile = File('${dir.path}/$badgeFilename');
+        await badgeFile.writeAsString(badgeData);
+        // Do NOT save original text
+
+        final (text, data, map) =
+            await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
+        expect(text, 'badge2');
+        expect(data.messages[0].text, isA<List<String>>());
+        expect(data.messages[0].text[0], 'FallbackTest');
+        expect(map!['invert'], false);
+      });
+    });
+
+    test('falls back to Hello if original text missing and filename is a timestamp', () async {
+      if (Platform.isWindows) return; // Skip on Windows due to forbidden ':' in filenames
+      await withTempDir((dir) async {
+        final badgeFilename = '2026-06-25 12:34:56.json';
         final badgeData =
             '{"messages":[{"text":["FallbackTest"],"flash":false,"marquee":true,"mode":"1","speed":"2"}],"invert":false}';
         final badgeFile = File('${dir.path}/$badgeFilename');

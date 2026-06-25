@@ -150,7 +150,7 @@ class SavedBadgeProvider extends ChangeNotifier {
     );
 
     // Save the badge data to a file
-    fileHelper.saveBadgeData(data, filename, isInvert);
+    fileHelper.saveBadgeData(data, filename, isInvert, originalText: message);
 
     // Store the original text separately using BadgeTextStorage
     // This will allow us to retrieve it when editing
@@ -198,25 +198,8 @@ class SavedBadgeProvider extends ChangeNotifier {
       if (await file.exists()) {
         logger.i('Found existing badge file to update: $filePath');
 
-        // Convert Data object to JSON string
-        Map<String, dynamic> jsonData = data.toJson();
-        jsonData['messages'][0]['invert'] = isInvert;
-        String jsonString = jsonEncode(jsonData);
-
-        // Overwrite the existing file
-        await file.writeAsString(jsonString);
-
-        // Update the cache
-        final cacheKey = '$cleanFilename.json';
-        final cache = fileHelper.imageCacheProvider.savedBadgeCache;
-        final existingIndex =
-            cache.indexWhere((entry) => entry.key == cacheKey);
-
-        if (existingIndex >= 0) {
-          // Replace the existing entry in the cache
-          logger.i('Updating existing badge in cache: $cacheKey');
-          cache[existingIndex] = MapEntry(cacheKey, jsonData);
-        }
+        // Use the centralized save logic so custom cliparts are properly extracted
+        await fileHelper.saveBadgeData(data, cleanFilename, isInvert, originalText: message);
 
         // Update the original text storage
         await BadgeTextStorage.saveOriginalText('$cleanFilename.json', message);
@@ -224,14 +207,13 @@ class SavedBadgeProvider extends ChangeNotifier {
         logger.i('Successfully updated badge: $cleanFilename');
       } else {
         logger.e('Badge file not found for updating: $filePath');
-        // If file doesn't exist, fall back to creating a new one
-        fileHelper.saveBadgeData(data, cleanFilename, isInvert);
+        fileHelper.saveBadgeData(data, cleanFilename, isInvert, originalText: message);
         await BadgeTextStorage.saveOriginalText('$cleanFilename.json', message);
       }
     } catch (e) {
       logger.e('Error updating badge: $e');
       // Fall back to the regular save method if there's an error
-      fileHelper.saveBadgeData(data, cleanFilename, isInvert);
+      fileHelper.saveBadgeData(data, cleanFilename, isInvert, originalText: message);
       await BadgeTextStorage.saveOriginalText('$cleanFilename.json', message);
     }
 

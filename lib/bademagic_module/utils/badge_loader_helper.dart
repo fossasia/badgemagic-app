@@ -39,8 +39,14 @@ class BadgeLoaderHelper {
           : '$badgeFilename.json';
       badgeText = await BadgeTextStorage.getOriginalText(textFilename);
       if (badgeText.isEmpty) {
-        // Fallback to default text if original is missing (should rarely happen).
-        badgeText = "Hello";
+        // Fallback to filename stem if original is missing (e.g. for imported badges).
+        badgeText = badgeFilename.endsWith('.json')
+            ? badgeFilename.substring(0, badgeFilename.length - 5)
+            : badgeFilename;
+        // If the filename is a timestamp, use a generic text
+        if (badgeText.contains(":") && badgeText.contains("-")) {
+          badgeText = "Hello"; // Default text for timestamp filenames
+        }
       }
       // Parse the JSON map into a strongly-typed Data object for downstream use.
       badgeData = FileHelper().jsonToData(savedData);
