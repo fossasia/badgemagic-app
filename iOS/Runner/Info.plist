@@ -8,6 +8,8 @@
 		<string>App needs Bluetooth Peripheral access to control BLE Badge</string>
 		<key>NSPhotoLibraryUsageDescription</key>
 		<string>App needs Photos access to help convert photos to badge images</string>
+		<key>NSCameraUsageDescription</key>
+		<string>App needs Camera access to scan badge QR codes</string>
 		<key>CFBundleDevelopmentRegion</key>
 		<string>$(DEVELOPMENT_LANGUAGE)</string>
 		<key>CFBundleDisplayName</key>
