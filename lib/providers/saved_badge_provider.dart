@@ -199,7 +199,8 @@ class SavedBadgeProvider extends ChangeNotifier {
         logger.i('Found existing badge file to update: $filePath');
 
         // Use the centralized save logic so custom cliparts are properly extracted
-        await fileHelper.saveBadgeData(data, cleanFilename, isInvert, originalText: message);
+        await fileHelper.saveBadgeData(data, cleanFilename, isInvert,
+            originalText: message);
 
         // Update the original text storage
         await BadgeTextStorage.saveOriginalText('$cleanFilename.json', message);
@@ -207,13 +208,15 @@ class SavedBadgeProvider extends ChangeNotifier {
         logger.i('Successfully updated badge: $cleanFilename');
       } else {
         logger.e('Badge file not found for updating: $filePath');
-        fileHelper.saveBadgeData(data, cleanFilename, isInvert, originalText: message);
+        fileHelper.saveBadgeData(data, cleanFilename, isInvert,
+            originalText: message);
         await BadgeTextStorage.saveOriginalText('$cleanFilename.json', message);
       }
     } catch (e) {
       logger.e('Error updating badge: $e');
       // Fall back to the regular save method if there's an error
-      fileHelper.saveBadgeData(data, cleanFilename, isInvert, originalText: message);
+      fileHelper.saveBadgeData(data, cleanFilename, isInvert,
+          originalText: message);
       await BadgeTextStorage.saveOriginalText('$cleanFilename.json', message);
     }
 

@@ -78,8 +78,11 @@ void main() {
       });
     });
 
-    test('falls back to Hello if original text missing and filename is a timestamp', () async {
-      if (Platform.isWindows) return; // Skip on Windows due to forbidden ':' in filenames
+    test(
+        'falls back to Hello if original text missing and filename is a timestamp',
+        () async {
+      if (Platform.isWindows)
+        return; // Skip on Windows due to forbidden ':' in filenames
       await withTempDir((dir) async {
         final badgeFilename = '2026-06-25 12:34:56.json';
         final badgeData =

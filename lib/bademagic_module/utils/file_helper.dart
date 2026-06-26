@@ -322,16 +322,17 @@ class FileHelper {
     }
   }
 
-  Future<void> saveBadgeData(Data data, String filename, bool invert, {String? originalText}) async {
+  Future<void> saveBadgeData(Data data, String filename, bool invert,
+      {String? originalText}) async {
     try {
       if (originalText != null) {
         data.originalText = originalText;
         data.customCliparts = {};
-        
+
         // Find clipart tags in the original text, e.g. <<1>>, <<04>>
         RegExp exp = RegExp(r'<<(\d+)>>');
         Iterable<RegExpMatch> matches = exp.allMatches(originalText);
-        
+
         for (var match in matches) {
           String? keyStr = match.group(1);
           if (keyStr != null) {
@@ -341,7 +342,7 @@ class FileHelper {
               (k) => k == index || (k is List && k.length > 1 && k[1] == index),
               orElse: () => "",
             );
-            
+
             if (vectorIndex is List && vectorIndex.isNotEmpty) {
               String clipartName = vectorIndex[0].toString();
               // If it's a personalized clipart, its name starts with data_
@@ -410,7 +411,8 @@ class FileHelper {
 
           if (decoded is Map<String, dynamic>) {
             // New format: {"messages": [...]}
-            if (decoded.containsKey('messages') && decoded['messages'] is List) {
+            if (decoded.containsKey('messages') &&
+                decoded['messages'] is List) {
               jsonData = decoded;
             }
           } else if (decoded is List && decoded.isNotEmpty) {
@@ -539,7 +541,7 @@ class FileHelper {
   Future<bool> importBadgeData(context) async {
     try {
       // Open file picker to select a JSON file
-      FilePickerResult? result = await FilePicker.pickFiles(
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json', 'gif'],
       );
@@ -604,10 +606,12 @@ class FileHelper {
           if (isBadgeList) {
             // Legacy badge format — wrap it in the expected 'messages' object.
             finalDecoded = {'messages': decoded};
-            logger.d('Wrapped legacy list-based badge JSON into a proper Data object.');
+            logger.d(
+                'Wrapped legacy list-based badge JSON into a proper Data object.');
           } else if (first is List) {
             // It's a clipart file (List<List<int>>) — save it to the clipart library!
-            logger.d('Detected clipart file during badge import — saving to clipart library.');
+            logger.d(
+                'Detected clipart file during badge import — saving to clipart library.');
             final List<List<int>> matrix = decoded.map<List<int>>((row) {
               return List<int>.from(row as List);
             }).toList();
@@ -623,16 +627,19 @@ class FileHelper {
               clipartFilename = 'data_${safeName}_$timestamp.json';
             }
 
-            if (!imageCacheProvider.clipartsCache.containsKey(clipartFilename)) {
+            if (!imageCacheProvider.clipartsCache
+                .containsKey(clipartFilename)) {
               imageCacheProvider.clipartsCache[clipartFilename] = matrix;
               await _writeToFile(clipartFilename, jsonEncode(matrix));
-              final imageBytes = await imageUtils.convert2DListToUint8List(matrix);
+              final imageBytes =
+                  await imageUtils.convert2DListToUint8List(matrix);
               addToCache(imageBytes, clipartFilename);
             }
 
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Clipart imported and added to your Cliparts library!'),
+                content: Text(
+                    'Clipart imported and added to your Cliparts library!'),
                 backgroundColor: Colors.green,
               ),
             );
@@ -646,8 +653,7 @@ class FileHelper {
           finalDecoded = decoded;
         } else {
           throw Exception(
-            'Invalid badge file: Unrecognized JSON structure (${decoded.runtimeType}).'
-          );
+              'Invalid badge file: Unrecognized JSON structure (${decoded.runtimeType}).');
         }
 
         Data data = Data.fromJson(finalDecoded);
@@ -657,18 +663,20 @@ class FileHelper {
           for (var entry in data.customCliparts!.entries) {
             String clipartName = entry.key;
             List<List<int>> matrix = entry.value;
-            
+
             // Check if it already exists locally
             if (!imageCacheProvider.clipartsCache.containsKey(clipartName)) {
               // Add to local cache and save to disk
               imageCacheProvider.clipartsCache[clipartName] = matrix;
               await _writeToFile(clipartName, jsonEncode(matrix));
-              
+
               // Add to image cache (UI renderer)
-              Uint8List imageBytes = await imageUtils.convert2DListToUint8List(matrix);
+              Uint8List imageBytes =
+                  await imageUtils.convert2DListToUint8List(matrix);
               addToCache(imageBytes, clipartName);
-              
-              logger.d('Auto-saved personalized clipart from imported badge: $clipartName');
+
+              logger.d(
+                  'Auto-saved personalized clipart from imported badge: $clipartName');
             }
           }
         }
@@ -688,7 +696,7 @@ class FileHelper {
         await _writeToFile(savedName, jsonEncode(data.toJson()));
 
         // Restore the original text if it exists, otherwise fallback to filename
-        final placeholder = data.originalText ?? 
+        final placeholder = data.originalText ??
             (savedName.endsWith('.json')
                 ? savedName.substring(0, savedName.length - 5)
                 : savedName);
@@ -710,7 +718,7 @@ class FileHelper {
 
   Future<bool> importClipart(BuildContext context) async {
     try {
-      FilePickerResult? result = await FilePicker.pickFiles(
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );

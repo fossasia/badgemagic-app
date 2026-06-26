@@ -49,7 +49,7 @@ class Data {
         messagesFromJson.map((message) => Message.fromJson(message)).toList();
 
     String? originalText = json['originalText'] as String?;
-    
+
     Map<String, List<List<int>>>? customCliparts;
     if (json.containsKey('customCliparts') && json['customCliparts'] != null) {
       customCliparts = {};
