@@ -232,5 +232,12 @@
   "shareQrImage": "Share QR image",
   "couldNotGenerateQrImage": "Could not generate QR image.",
   "couldNotShareQrImage": "Could not share QR image.",
-  "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image."
+  "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
+  "renameBadge": "Rename Badge",
+  "newName": "New name",
+  "rename": "Rename",
+  "badgeNameEmpty": "Badge name cannot be empty.",
+  "badgeAlreadyExists": "A badge with that name already exists.",
+  "couldNotRenameBadge": "Could not rename the badge. Please try again.",
+  "badgeRenamedSuccessfully": "Badge renamed successfully!"
 }

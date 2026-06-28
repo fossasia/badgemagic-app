@@ -14,6 +14,7 @@ import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:badgemagic/view/widgets/qr_share_dialog.dart';
+import 'package:badgemagic/view/widgets/rename_badge_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
@@ -43,25 +44,31 @@ class SaveBadgeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     BadgeMessageProvider badge = BadgeMessageProvider();
-    return Container(
-      width: 370.w,
-      padding: EdgeInsets.all(6.dg),
-      margin: EdgeInsets.all(10.dg),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(6.dg),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.5),
-            spreadRadius: 2,
-            blurRadius: 5,
-            offset: const Offset(0, 3),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
+    return InkWell(
+      onLongPress: onLongPress,
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(6.dg),
+      child: Container(
+        width: 370.w,
+        padding: EdgeInsets.all(6.dg),
+        margin: EdgeInsets.all(10.dg),
+        decoration: BoxDecoration(
+          color: isSelected
+              ? Colors.grey.shade200
+              : Colors.white,
+          borderRadius: BorderRadius.circular(6.dg),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withValues(alpha: 0.5),
+              spreadRadius: 2,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -72,16 +79,30 @@ class SaveBadgeCard extends StatelessWidget {
                   padding: EdgeInsets.only(
                       right: 8
                           .w), // Adding some padding to separate text and buttons.
-                  child: Text(
-                    badgeData.key.substring(0, badgeData.key.length - 5),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
+                  child: InkWell(
+                    onTap: () {
+                      showDialog<void>(
+                        context: context,
+                        builder: (_) => RenameBadgeDialog(
+                          currentFilename: badgeData.key,
+                          badgeData: badgeData,
+                          refreshBadgesCallback: refreshBadgesCallback,
+                        ),
+                      );
+                    },
+                    child: Text(
+                      badgeData.key.substring(0, badgeData.key.length - 5),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                        decoration: TextDecoration.underline,
+                        decorationStyle: TextDecorationStyle.dotted,
+                      ),
+                      softWrap: true,
+                      overflow: TextOverflow
+                          .ellipsis, // Use ellipsis to indicate overflowed text
+                      maxLines: 1, // Limit to 1 line for a cleaner look
                     ),
-                    softWrap: true,
-                    overflow: TextOverflow
-                        .ellipsis, // Use ellipsis to indicate overflowed text
-                    maxLines: 1, // Limit to 1 line for a cleaner look
                   ),
                 ),
               ),
@@ -124,6 +145,7 @@ class SaveBadgeCard extends StatelessWidget {
                         }
                       },
                     ),
+
                     IconButton(
                       icon: Image.asset(
                         "assets/icons/t_updown.png",
@@ -317,7 +339,8 @@ class SaveBadgeCard extends StatelessWidget {
           ),
         ],
       ),
-    );
+    ),
+  );
   }
 
   Future<bool> _showDeleteDialog(BuildContext context) async {

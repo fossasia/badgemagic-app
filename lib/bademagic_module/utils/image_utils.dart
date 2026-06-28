@@ -98,7 +98,7 @@ class ImageUtils {
           pixelArray[y][x] = color;
         } else {
           // Handle out-of-bounds case gracefully, e.g., fill with a default color
-          pixelArray[y][x] = Colors.transparent.value;
+          pixelArray[y][x] = Colors.transparent.toARGB32();
         }
       }
     }

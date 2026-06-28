@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:badgemagic/bademagic_module/models/data.dart';
+import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
@@ -463,6 +464,53 @@ class FileHelper {
     }
   }
 
+  /// Renames a saved badge file.
+  ///
+  /// [oldFilename] must include the `.json` extension (e.g. `MyBadge.json`).
+  /// [newName] is the bare display name WITHOUT extension (e.g. `NewName`).
+  ///
+  /// Returns `true` on success.
+  /// Returns `false` if [newName] already exists on disk, or on any error.
+  Future<bool> renameBadge(String oldFilename, String newName) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final oldPath = '${directory.path}/$oldFilename';
+      final newFilename = '$newName.json';
+      final newPath = '${directory.path}/$newFilename';
+
+      final oldFile = File(oldPath);
+      if (!await oldFile.exists()) {
+        logger.w('renameBadge: source file not found: $oldPath');
+        return false;
+      }
+      if (await File(newPath).exists()) {
+        logger.w('renameBadge: a badge with that name already exists: $newPath');
+        return false;
+      }
+
+      // Rename the physical file on disk
+      await oldFile.rename(newPath);
+      logger.i('Renamed badge on disk: $oldFilename → $newFilename');
+
+      // Migrate the original-text entry in BadgeTextStorage
+      await BadgeTextStorage.moveOriginalText(oldFilename, newFilename);
+
+      // Update the in-memory savedBadgeCache so the UI reflects the new name
+      // immediately without requiring a full reload
+      final cache = imageCacheProvider.savedBadgeCache;
+      final idx = cache.indexWhere((e) => e.key == oldFilename);
+      if (idx >= 0) {
+        cache[idx] = MapEntry(newFilename, cache[idx].value);
+      }
+      imageCacheProvider.notify();
+
+      return true;
+    } catch (e) {
+      logger.e('Error renaming badge: $e');
+      return false;
+    }
+  }
+
   Future<void> saveImageWithName(
       List<List<bool>> imageData, String customName) async {
     List<List<int>> image = List.generate(
@@ -522,7 +570,7 @@ class FileHelper {
     return candidate;
   }
 
-  Future<bool> importBadgeData(context) async {
+  Future<bool> importBadgeData(BuildContext context) async {
     try {
       // Open file picker to select a JSON file
       FilePickerResult? result = await FilePicker.platform.pickFiles(
@@ -572,9 +620,11 @@ class FileHelper {
         throw Exception('Only .gif and .json are supported!');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error importing badge: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error importing badge: $e')),
+        );
+      }
       return false;
     }
   }
