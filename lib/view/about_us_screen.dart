@@ -204,7 +204,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         fit: BoxFit.contain,
                       ),
                       title: Text(
-                        l10n.license,
+                        l10n.appLicense,
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
@@ -223,24 +223,42 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       onTap: () => openUrl(
                           'https://github.com/fossasia/badgemagic-app/blob/development/LICENSE'),
                     ),
-                    // ListTile(
-                    //   leading: Image.asset('assets/icons/book.png', height: 40),
-                    //   title: Text(
-                    //     'Library Licenses',
-                    //     style: GoogleFonts.sora(
-                    //         fontSize: 16,
-                    //         fontWeight: FontWeight.w500,
-                    //         color: Colors.black),
-                    //   ),
-                    //   subtitle: Text(
-                    //     'Check third-party libs used on Badge Magic.',
-                    //     style: GoogleFonts.sora(
-                    //         fontSize: 12,
-                    //         fontWeight: FontWeight.w500,
-                    //         color: Colors.grey),
-                    //   ),
-                    //   onTap: () => showLicenseDialog(context),
-                    // ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.description_outlined,
+                        size: 38,
+                        color: Colors.black,
+                      ),
+                      title: Text(
+                        l10n.openSourceLicenses,
+                        style: GoogleFonts.sora(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.black,
+                        ),
+                      ),
+                      subtitle: Text(
+                        l10n.openSourceLicensesDescription,
+                        style: GoogleFonts.sora(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey,
+                        ),
+                        softWrap: true,
+                      ),
+                      onTap: () => showLicensePage(
+                        context: context,
+                        applicationName: l10n.appTitle,
+                        applicationIcon: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/icons/icon.png',
+                            height: 48,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
