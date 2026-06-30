@@ -10,6 +10,16 @@ import 'package:path_provider/path_provider.dart';
 /// Helper class for loading and parsing badge data and original text from disk.
 /// This class centralizes logic-heavy operations for badge editing, keeping UI code clean and testable.
 class BadgeLoaderHelper {
+  /// Checks if a badge is a legacy badge (no stored original text).
+  ///
+  /// [badgeFilename] is the filename of the badge JSON.
+  static Future<bool> isLegacyBadge(String badgeFilename) async {
+    final textFilename =
+        badgeFilename.endsWith('.json') ? badgeFilename : '$badgeFilename.json';
+    final text = await BadgeTextStorage.getOriginalText(textFilename);
+    return text.isEmpty;
+  }
+
   /// Loads badge data and original text from disk for editing.
   ///
   /// [badgeFilename] is the filename of the badge JSON (with or without .json extension).

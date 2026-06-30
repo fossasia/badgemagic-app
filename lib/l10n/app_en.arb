@@ -232,5 +232,8 @@
   "shareQrImage": "Share QR image",
   "couldNotGenerateQrImage": "Could not generate QR image.",
   "couldNotShareQrImage": "Could not share QR image.",
-  "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image."
+  "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
+  "legacyBadgeTitle": "Old Badge Format",
+  "legacyBadgeMessage": "This badge was created with an older version of the app and cannot be edited directly. Please create a new badge and recreate your design.",
+  "createNew": "Create New"
 }

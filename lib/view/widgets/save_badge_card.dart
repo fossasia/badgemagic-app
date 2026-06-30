@@ -1,4 +1,5 @@
 import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
@@ -109,11 +110,46 @@ class SaveBadgeCard extends StatelessWidget {
                       ),
                       onPressed: () async {
                         final navigator = Navigator.of(context);
-                        // Show confirmation dialog before editing
+                        final l10n =
+                            GetIt.instance.get<LocalizationService>().l10n;
+
+                        // Check if this is a legacy badge (no stored text).
+                        final isLegacy = await BadgeLoaderHelper.isLegacyBadge(
+                            badgeData.key);
+                        if (isLegacy) {
+                          if (!context.mounted) return;
+                          await showDialog<void>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: Text(l10n.legacyBadgeTitle),
+                              content: Text(l10n.legacyBadgeMessage),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx),
+                                  child: Text(l10n.cancel),
+                                ),
+                                TextButton(
+                                  onPressed: () {
+                                    Navigator.pop(ctx);
+                                    navigator.push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const HomeScreen(),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(l10n.createNew),
+                                ),
+                              ],
+                            ),
+                          );
+                          return;
+                        }
+
+                        // Modern badge — show confirmation then open editor.
+                        if (!context.mounted) return;
                         final confirmed =
                             await provider.showEditBadgeConfirmation(context);
                         if (confirmed) {
-                          // Navigate to HomeScreen for editing the badge
                           navigator.push(
                             MaterialPageRoute(
                               builder: (context) => HomeScreen(
