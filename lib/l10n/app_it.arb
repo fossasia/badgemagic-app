@@ -216,5 +216,13 @@
   "triangle": "Triangolo",
   "clipartSavedSuccessfully": "Clipart salvato con successo",
   "badgeScanMode": "Modalità Scansione Badge",
-  "pleaseSelectClipart": "Si prega di disegnare o selezionare un clipart prima di salvare"
+  "pleaseSelectClipart": "Si prega di disegnare o selezionare un clipart prima di salvare",
+  "clipartCategoryPersonalized": "Personalizzati",
+  "clipartCategoryFaces": "Volti e Mani",
+  "clipartCategoryHeartsStars": "Cuori e Stelle",
+  "clipartCategoryArrows": "Frecce",
+  "clipartCategoryMediaTime": "Media e Tempo",
+  "clipartCategoryNatureWeather": "Natura e Meteo",
+  "clipartCategorySymbolsShapes": "Simboli e Forme",
+  "clipartCategoryObjectsRetro": "Oggetti e Retro"
 }
