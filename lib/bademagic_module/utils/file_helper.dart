@@ -555,6 +555,34 @@ class FileHelper {
       Data data = Data.fromJson(badgeJson);
       String filename = await _uniqueBadgeFilename(baseName);
       await _writeToFile('$filename.json', jsonEncode(data.toJson()));
+
+      // Process custom cliparts embedded in the JSON
+      if (data.customCliparts != null && data.customCliparts!.isNotEmpty) {
+        for (var entry in data.customCliparts!.entries) {
+          String clipartName = entry.key;
+          List<List<int>> matrix = entry.value;
+
+          // Check if it already exists locally
+          if (!imageCacheProvider.clipartsCache.containsKey(clipartName)) {
+            // Add to local cache and save to disk
+            imageCacheProvider.clipartsCache[clipartName] = matrix;
+            await _writeToFile(clipartName, jsonEncode(matrix));
+
+            // Add to image cache (UI renderer)
+            Uint8List imageBytes =
+                await imageUtils.convert2DListToUint8List(matrix);
+            addToCache(imageBytes, clipartName);
+
+            logger.d(
+                'Auto-saved personalized clipart from QR imported badge: $clipartName');
+          }
+        }
+      }
+
+      // Restore the original text if it exists. If missing, save empty string to flag as legacy.
+      final placeholder = data.originalText ?? '';
+      await BadgeTextStorage.saveOriginalText(filename, placeholder);
+
       logger.d('Imported badge from QR: $filename');
       return true;
     } catch (e) {
@@ -731,11 +759,8 @@ class FileHelper {
 
         await _writeToFile(savedName, jsonEncode(data.toJson()));
 
-        // Restore the original text if it exists, otherwise fallback to filename
-        final placeholder = data.originalText ??
-            (savedName.endsWith('.json')
-                ? savedName.substring(0, savedName.length - 5)
-                : savedName);
+        // Restore the original text if it exists. If missing, save empty string to flag as legacy.
+        final placeholder = data.originalText ?? '';
         await BadgeTextStorage.saveOriginalText(savedName, placeholder);
 
         logger.d('Imported badge to: $savedName, data: $data');
