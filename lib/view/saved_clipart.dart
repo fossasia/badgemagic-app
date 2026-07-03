@@ -65,6 +65,15 @@ class _SavedClipartState extends State<SavedClipart> {
                     builder: (context) => HomeScreen(),
                   ));
             },
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+              minimumSize: Size.zero,
+              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(6.r),
+                side: const BorderSide(color: drawerHeaderTitle),
+              ),
+            ),
             child: Text(l10n.create)),
       ],
       body: imageprovider.clipartsCache.isEmpty
