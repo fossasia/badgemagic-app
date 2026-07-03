@@ -66,15 +66,11 @@ class _SavedClipartState extends State<SavedClipart> {
                   ));
             },
             style: TextButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
+              padding: EdgeInsets.symmetric(horizontal:8.w, vertical: 6.h),
               minimumSize: Size.zero,
               tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(6.r),
-                side: const BorderSide(color: drawerHeaderTitle),
-              ),
             ),
-            child: Text(l10n.create)),
+            child: Text(l10n.create,style: TextStyle(color: Colors.white),)),
       ],
       body: imageprovider.clipartsCache.isEmpty
           ? Center(
