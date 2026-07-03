@@ -6,13 +6,21 @@ class FixedAnimation extends BadgeAnimation {
       List<List<bool>> processGrid, List<List<bool>> canvas) {
     int newGridHeight = processGrid.length;
     int newGridWidth = processGrid[0].length;
-    const int startCol = 0;
+
+    int horizontalOffset = 0;
+    if (newGridWidth < badgeWidth) {
+      horizontalOffset = (badgeWidth - newGridWidth) ~/ 2;
+    }
 
     for (int i = 0; i < badgeHeight; i++) {
       for (int j = 0; j < badgeWidth; j++) {
-        bool isNewGridCell = i < newGridHeight && (startCol + j) < newGridWidth;
+        int sourceCol = j - horizontalOffset;
+
+        bool isWithinNewGrid =
+            i < newGridHeight && sourceCol >= 0 && sourceCol < newGridWidth;
+
         bool animationCondition =
-            (isNewGridCell && processGrid[i][startCol + j]);
+            (isWithinNewGrid && processGrid[i][sourceCol]);
 
         canvas[i][j] = animationCondition;
       }
