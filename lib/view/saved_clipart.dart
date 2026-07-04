@@ -58,13 +58,9 @@ class _SavedClipartState extends State<SavedClipart> {
           ),
         ),
         TextButton(
-            onPressed: () {
-              Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => HomeScreen(),
-                  ));
-            },
+          onPressed: () {
+            Navigator.pushNamed(context, '/drawBadge');
+          },
             style: TextButton.styleFrom(
               padding: EdgeInsets.symmetric(horizontal:8.w, vertical: 6.h),
               minimumSize: Size.zero,
