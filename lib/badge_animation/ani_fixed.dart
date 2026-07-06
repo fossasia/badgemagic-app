@@ -1,3 +1,4 @@
+import 'dart:math';
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 
 class FixedAnimation extends BadgeAnimation {
@@ -5,7 +6,7 @@ class FixedAnimation extends BadgeAnimation {
   void processAnimation(int badgeHeight, int badgeWidth, int animationIndex,
       List<List<bool>> processGrid, List<List<bool>> canvas) {
     int newWidth = processGrid[0].length;
-    int horizontalOffset = (badgeWidth - newWidth) ~/ 2;
+    int horizontalOffset = max(0, (badgeWidth - newWidth) ~/ 2);
 
     for (int i = 0; i < badgeHeight; i++) {
       for (int j = 0; j < badgeWidth; j++) {
