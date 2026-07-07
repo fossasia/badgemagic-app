@@ -218,7 +218,6 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int? getAnimationIndex() {
     for (var animation in animationMap.entries) {
       if (animation.value != null && animation.value == _currentAnimation) {
-        logger.i("Animation Index: ${animation.key}");
         return animation.key;
       }
     }
