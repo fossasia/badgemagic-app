@@ -55,6 +55,8 @@ dependencies:
   google_fonts: ^8.0.2
   url_launcher: ^6.3.2
   image: ^4.9.1
+  qr_flutter: ^4.1.0
+  mobile_scanner: ^7.2.0
 
 dev_dependencies:
   flutter_test:

@@ -486,6 +486,42 @@ class FileHelper {
     await _addImageDataToCache(image, filename);
   }
 
+  Future<bool> importBadgeFromJson(Map<String, dynamic> json) async {
+    try {
+      Map<String, dynamic> badgeJson;
+      String baseName;
+      if (json.containsKey('badge') && json.containsKey('name')) {
+        badgeJson = Map<String, dynamic>.from(json['badge'] as Map);
+        baseName = (json['name'] as String?)?.trim() ?? '';
+      } else {
+        badgeJson = json;
+        baseName = '';
+      }
+      if (baseName.isEmpty) {
+        baseName = 'Imported Badge';
+      }
+      Data data = Data.fromJson(badgeJson);
+      String filename = await _uniqueBadgeFilename(baseName);
+      await _writeToFile('$filename.json', jsonEncode(data.toJson()));
+      logger.d('Imported badge from QR: $filename');
+      return true;
+    } catch (e) {
+      logger.i('Error importing badge from QR: $e');
+      return false;
+    }
+  }
+
+  Future<String> _uniqueBadgeFilename(String baseName) async {
+    final directory = await getApplicationDocumentsDirectory();
+    String candidate = baseName;
+    int counter = 1;
+    while (await File('${directory.path}/$candidate.json').exists()) {
+      candidate = '$baseName ($counter)';
+      counter++;
+    }
+    return candidate;
+  }
+
   Future<bool> importBadgeData(context) async {
     try {
       // Open file picker to select a JSON file
