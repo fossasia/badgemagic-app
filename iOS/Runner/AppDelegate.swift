@@ -3,15 +3,15 @@ import Flutter
 import integration_test
 
 @main
-@objc class AppDelegate: FlutterAppDelegate {
+@objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
-    GeneratedPluginRegistrant.register(with: self)
-      
-    let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
-      
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
+
+  func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
+      GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
+    }
 }
