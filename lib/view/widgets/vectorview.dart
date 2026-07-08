@@ -1,5 +1,6 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -68,15 +69,49 @@ class VectorGridView extends StatefulWidget {
 
 class _VectorGridViewState extends State<VectorGridView> {
   late final ScrollController _scrollController;
+  late final TextEditingController _messageController;
+  Set<int> _selectedIndices = {};
+
+  static final RegExp _placeholderRegExp = RegExp(r'<<(\d+)>>');
 
   @override
   void initState() {
     super.initState();
     _scrollController = widget.controller ?? ScrollController();
+    _messageController =
+        Provider.of<InlineImageProvider>(context, listen: false)
+            .getController();
+    _messageController.addListener(_updateSelectionFromText);
+    _updateSelectionFromText();
+  }
+
+  void _updateSelectionFromText() {
+    final indices = _placeholderRegExp
+        .allMatches(_messageController.text)
+        .map((m) => int.parse(m.group(1)!))
+        .toSet();
+    if (!setEquals(indices, _selectedIndices)) {
+      setState(() {
+        _selectedIndices = indices;
+      });
+    }
+  }
+
+  int _indexForKey(dynamic key) {
+    if (key is int) return key;
+    if (key is List && key.length > 1 && key[1] is int) return key[1] as int;
+    return -1;
+  }
+
+  int _columnsForWidth(double width) {
+    if (width < 300) return (width / 44).round().clamp(4, 7);
+    if (width <= 520) return 8;
+    return (width / 46).round();
   }
 
   @override
   void dispose() {
+    _messageController.removeListener(_updateSelectionFromText);
     if (widget.controller == null) {
       _scrollController.dispose();
     }
@@ -116,69 +151,80 @@ class _VectorGridViewState extends State<VectorGridView> {
       ...defaultKeys,
     ];
 
-    return GridView.builder(
-      controller: _scrollController,
-      shrinkWrap: true,
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(right: 12.0),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 9,
-        childAspectRatio: 1.0,
-        crossAxisSpacing: 4.0,
-        mainAxisSpacing: 4.0,
-      ),
-      itemCount: keys.length + 1,
-      itemBuilder: (context, index) {
-        if (index == 0) {
-          return GestureDetector(
-            onTap: () {
-              Navigator.pushNamed(context, '/drawBadge');
-            },
-            child: Card(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5),
-              ),
-              surfaceTintColor: Colors.white,
-              color: Colors.white,
-              elevation: 2,
-              child: Center(
-                child: Icon(
-                  Icons.add_circle_outline_rounded,
-                  color: colorPrimary,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final int crossAxisCount = _columnsForWidth(constraints.maxWidth);
+        return GridView.builder(
+          controller: _scrollController,
+          shrinkWrap: true,
+          physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.only(right: 12.0),
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: crossAxisCount,
+            childAspectRatio: 1.0,
+            crossAxisSpacing: 6.0,
+            mainAxisSpacing: 6.0,
+          ),
+          itemCount: keys.length + 1,
+          itemBuilder: (context, index) {
+            if (index == 0) {
+              return GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, '/drawBadge');
+                },
+                child: Card(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  surfaceTintColor: Colors.white,
+                  color: Colors.white,
+                  elevation: 2,
+                  child: Center(
+                    child: Icon(
+                      Icons.add_circle_outline_rounded,
+                      color: colorPrimary,
+                    ),
+                  ),
+                ),
+              );
+            }
+
+            final imageKey = keys[index - 1];
+
+            final imageBytes = inlineImageProvider.imageCache[imageKey];
+
+            if (imageBytes == null) {
+              return const SizedBox.shrink();
+            }
+
+            final bool isSelected =
+                _selectedIndices.contains(_indexForKey(imageKey));
+
+            return GestureDetector(
+              onTap: () {
+                inlineImageProvider.insertInlineImage(imageKey);
+              },
+              child: Card(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5),
+                  side: isSelected
+                      ? BorderSide(color: Colors.grey.shade500, width: 2)
+                      : BorderSide.none,
+                ),
+                surfaceTintColor: Colors.white,
+                color: isSelected ? Colors.grey.shade300 : Colors.white,
+                elevation: isSelected ? 4 : 2,
+                child: Padding(
+                  padding: const EdgeInsets.all(4.0),
+                  child: Image.memory(
+                    imageBytes,
+                    fit: BoxFit.contain,
+                    filterQuality: FilterQuality.none,
+                  ),
                 ),
               ),
-            ),
-          );
-        }
-
-        final imageKey = keys[index - 1];
-
-        final imageBytes = inlineImageProvider.imageCache[imageKey];
-
-        if (imageBytes == null) {
-          return const SizedBox.shrink();
-        }
-
-        return GestureDetector(
-          onTap: () {
-            inlineImageProvider.insertInlineImage(imageKey);
+            );
           },
-          child: Card(
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(5),
-            ),
-            surfaceTintColor: Colors.white,
-            color: Colors.white,
-            elevation: 2,
-            child: Padding(
-              padding: const EdgeInsets.all(6.0),
-              child: Image.memory(
-                imageBytes,
-                fit: BoxFit.contain,
-                filterQuality: FilterQuality.none,
-              ),
-            ),
-          ),
         );
       },
     );

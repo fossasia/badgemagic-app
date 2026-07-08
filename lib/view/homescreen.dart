@@ -464,7 +464,7 @@ class _HomeScreenState extends State<HomeScreen>
                           child: Visibility(
                             visible: isPrefixIconClicked,
                             child: Container(
-                              height: isPrefixIconClicked ? 170.h : 0,
+                              height: isPrefixIconClicked ? 200.h : 0,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10.r),
                                 color: Colors.grey[200],
