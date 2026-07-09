@@ -21,6 +21,7 @@ import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/special_text_field.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
+import 'package:badgemagic/view/widgets/netx_gen_dialog.dart';
 import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
 import 'package:badgemagic/view/widgets/speedial.dart';
 import 'package:badgemagic/view/widgets/transitiontab.dart';
@@ -32,6 +33,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -659,7 +661,7 @@ class _HomeScreenState extends State<HomeScreen>
                             Expanded(
                               child: GestureDetector(
                                 onTap: () async {
-                                  await animationProvider
+                                  final finalState = await animationProvider
                                       .handleAnimationTransfer(
                                     badgeData: badgeData,
                                     inlineImageProvider: inlineImageProvider,
@@ -672,6 +674,27 @@ class _HomeScreenState extends State<HomeScreen>
                                         .isEffectActive(InvertLEDEffect()),
                                     context: context,
                                   );
+
+                                  if (finalState != null &&
+                                      finalState.isSuccess &&
+                                      finalState.isNextGen) {
+                                    if (!context.mounted) return;
+
+                                    final manager = badgeData.deviceManager;
+                                    final device = manager?.connectedDevice;
+
+                                    debugPrint(manager.toString());
+
+                                    if (device != null && manager != null) {
+                                      showDialog(
+                                          context: context,
+                                          barrierDismissible: false,
+                                          builder: (_) => NextGenOptionsDialog(
+                                                device: device,
+                                                manager: manager,
+                                              ));
+                                    }
+                                  }
                                 },
                                 child: Container(
                                   height: 32.h,

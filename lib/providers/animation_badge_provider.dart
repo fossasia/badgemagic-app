@@ -34,6 +34,8 @@ import 'package:flutter/material.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart'; // new import of EqualizerAnimation
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
 
+import '../bademagic_module/bluetooth/completed_state.dart';
+
 Map<int, BadgeAnimation?> animationMap = {
   0: LeftAnimation(),
   1: RightAnimation(),
@@ -268,7 +270,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   /// Handles animation transfer selection logic for the current animation index.
-  Future<void> handleAnimationTransfer({
+  Future<CompletedState?> handleAnimationTransfer({
     required BadgeMessageProvider badgeData,
     required InlineImageProvider inlineImageProvider,
     required SpeedDialProvider speedDialProvider,
@@ -279,6 +281,9 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }) async {
     final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();
+
+    dynamic transferResult;
+
     if (aniIndex == 9) {
       // Pacman
       await transferPacmanAnimation(badgeData, selectedSpeed);
@@ -310,7 +315,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
     } else if (aniIndex == 21) {
       await transferCycleAnimation(badgeData, selectedSpeed);
     } else {
-      await badgeData.checkAndTransfer(
+      transferResult = await badgeData.checkAndTransfer(
         inlineImageProvider.getController().text,
         flash,
         marquee,
@@ -322,5 +327,9 @@ class AnimationBadgeProvider extends ChangeNotifier {
         context,
       );
     }
+    if (transferResult is CompletedState) {
+      return transferResult;
+    }
+    return null;
   }
 }

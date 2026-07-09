@@ -4,6 +4,7 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
+import 'package:badgemagic/bademagic_module/bluetooth/completed_state.dart'; // Importato esplicitamente per il tipo di ritorno
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
@@ -16,7 +17,7 @@ import 'package:badgemagic/utils/custom_transfers/transfers.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart'; // Import the new EqualizerAnimation
+import 'package:provider/provider.dart';
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -54,6 +55,8 @@ class BadgeMessageProvider {
   FileHelper fileHelper = FileHelper();
   Converters converters = Converters();
 
+  DataTransferManager? deviceManager;
+
   Future<Data> getBadgeData(String text, bool flash, bool marq, Speed speed,
       Mode mode, bool isInverted) async {
     List<String> message = await converters.messageTohex(text, isInverted);
@@ -85,10 +88,12 @@ class BadgeMessageProvider {
     }
   }
 
-  Future<void> transferData(
+  Future<CompletedState?> transferData(
     DataTransferManager manager, {
     BuildContext? context,
   }) async {
+    deviceManager = manager;
+
     final scanProvider = context != null
         ? Provider.of<BadgeScanProvider>(context, listen: false)
         : null;
@@ -100,17 +105,24 @@ class BadgeMessageProvider {
     );
 
     BleState? state = initialState;
+    BleState? lastValidState;
     DateTime now = DateTime.now();
 
     while (state != null) {
+      lastValidState = state;
       state = await state.process();
     }
 
     logger.d("Time to transfer data: ${DateTime.now().difference(now)}");
     logger.d(".......Data transfer completed.......");
+
+    if (lastValidState is CompletedState) {
+      return lastValidState;
+    }
+    return null;
   }
 
-  Future<void> checkAndTransfer(
+  Future<CompletedState?> checkAndTransfer(
       String? text,
       bool? flash,
       bool? marq,
@@ -138,7 +150,7 @@ class BadgeMessageProvider {
       if (mode != Mode.pacman && !isFireworks) {
         final l10n = GetIt.instance.get<LocalizationService>().l10n;
         ToastUtils().showErrorToast(l10n.pleaseEnterMessage);
-        return;
+        return null;
       }
     }
 
@@ -148,7 +160,7 @@ class BadgeMessageProvider {
     if (adapterState != AvailabilityState.poweredOn) {
       ToastUtils().showErrorToast('Please turn on Bluetooth in your settings');
       logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
-      return;
+      return null;
     }
 
     Data data;
@@ -173,7 +185,7 @@ class BadgeMessageProvider {
     }
 
     DataTransferManager manager = DataTransferManager(data);
-    await transferData(manager, context: context);
+    return await transferData(manager, context: context);
   }
 }
 
@@ -254,5 +266,3 @@ Future<void> transferCycleAnimation(
   return customTransferCycleAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
-
-// helper moved to utils/custom_transfers/common.dart
