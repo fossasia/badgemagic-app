@@ -83,24 +83,25 @@ class _HomeScreenState extends State<HomeScreen>
     _setPortraitOrientation();
     animationProvider = context.read<AnimationBadgeProvider>();
     speedDialProvider = context.read<SpeedDialProvider>();
-    inlineimagecontroller.addListener(_savePreferences);
-    animationProvider.addListener(_savePreferences);
-    speedDialProvider.addListener(_savePreferences);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      await _loadPreferences();
+      await _startImageCaching();
+      await loadPreferences();
 
       inlineImageProvider.setContext(context);
 
       if (widget.savedBadgeFilename != null) {
         await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
       }
+
+      inlineimagecontroller.addListener(savePreferences);
+      animationProvider.addListener(savePreferences);
+      speedDialProvider.addListener(savePreferences);
     });
-    _startImageCaching();
     _tabController = TabController(length: 4, vsync: this);
   }
 
-  Future<void> _loadPreferences() async {
+  Future<void> loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();
 
     final text = prefs.getString(_textKey);
@@ -141,7 +142,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Future<void> _savePreferences() async {
+  Future<void> savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_textKey, inlineimagecontroller.text);
     await prefs.setInt(
@@ -258,6 +259,9 @@ class _HomeScreenState extends State<HomeScreen>
     _vectorScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
+    inlineimagecontroller.removeListener(savePreferences);
+    animationProvider.removeListener(savePreferences);
+    speedDialProvider.removeListener(savePreferences);
     _tabController.dispose();
     super.dispose();
   }
