@@ -33,16 +33,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
-  final int? initialSpeed;
 
-  const HomeScreen({
-    super.key,
-    this.savedBadgeFilename,
-    this.initialSpeed,
-  });
+  const HomeScreen({super.key, this.savedBadgeFilename});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -72,6 +68,12 @@ class _HomeScreenState extends State<HomeScreen>
   String errorVal = "";
   late final ScrollController _vectorScrollController;
 
+  //Shared preferences keys
+  static const _textKey = 'badge_text';
+  static const _speedKey = 'badge_speed';
+  static const _transitionKey = 'badge_transition';
+  static const _effectsKey = 'badge_effects';
+
   @override
   void initState() {
     super.initState();
@@ -81,12 +83,13 @@ class _HomeScreenState extends State<HomeScreen>
     _setPortraitOrientation();
     animationProvider = context.read<AnimationBadgeProvider>();
     speedDialProvider = context.read<SpeedDialProvider>();
-
-    if (widget.initialSpeed != null) {
-      speedDialProvider.setDialValue(widget.initialSpeed!);
-    }
+    inlineimagecontroller.addListener(_savePreferences);
+    animationProvider.addListener(_savePreferences);
+    speedDialProvider.addListener(_savePreferences);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _loadPreferences();
+
       inlineImageProvider.setContext(context);
 
       if (widget.savedBadgeFilename != null) {
@@ -95,6 +98,71 @@ class _HomeScreenState extends State<HomeScreen>
     });
     _startImageCaching();
     _tabController = TabController(length: 4, vsync: this);
+  }
+
+  Future<void> _loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final text = prefs.getString(_textKey);
+    final speed = prefs.getInt(_speedKey);
+    final transition = prefs.getInt(_transitionKey);
+    final effects = prefs.getStringList(_effectsKey);
+    if (text != null) {
+      inlineimagecontroller.text = text;
+    }
+    if (speed != null) {
+      speedDialProvider.setDialValue(speed);
+    }
+    if (transition != null) {
+      animationProvider.setAnimationMode(animationMap[transition]);
+    }
+    if (effects != null) {
+      animationProvider.removeEffect(effectMap[0]);
+      animationProvider.removeEffect(effectMap[1]);
+      animationProvider.removeEffect(effectMap[2]);
+      for (final effect in effects) {
+        switch (effect) {
+          case 'invert':
+            animationProvider.addEffect(effectMap[0]);
+            break;
+          case 'flash':
+            animationProvider.addEffect(effectMap[1]);
+            break;
+          case 'marquee':
+            animationProvider.addEffect(effectMap[2]);
+            break;
+        }
+      }
+    }
+    animationProvider.badgeAnimation(
+      inlineimagecontroller.text,
+      _converters,
+      animationProvider.isEffectActive(InvertLEDEffect()),
+    );
+  }
+
+  Future<void> _savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_textKey, inlineimagecontroller.text);
+    await prefs.setInt(
+      _speedKey,
+      speedDialProvider.getOuterValue(),
+    );
+    await prefs.setInt(
+      _transitionKey,
+      animationProvider.getAnimationIndex() ?? 0,
+    );
+    final effects = <String>[];
+    if (animationProvider.isEffectActive(InvertLEDEffect())) {
+      effects.add('invert');
+    }
+    if (animationProvider.isEffectActive(FlashEffect())) {
+      effects.add('flash');
+    }
+    if (animationProvider.isEffectActive(MarqueeEffect())) {
+      effects.add('marquee');
+    }
+    await prefs.setStringList(_effectsKey, effects);
   }
 
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
