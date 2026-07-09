@@ -252,7 +252,9 @@ class Converters {
           }
         } else if (segment['type'] == 'image') {
           int index = segment['index'];
-          var key = controllerData.imageCache.keys.toList()[index];
+          final cacheKeys = controllerData.imageCache.keys.toList();
+          if (index < 0 || index >= cacheKeys.length) continue;
+          var key = cacheKeys[index];
           List<List<int>> imageData;
           if (key is List) {
             String filename = key[0];
@@ -262,6 +264,9 @@ class Converters {
                 decodedData!.cast<List<dynamic>>();
             imageData = image.map((list) => list.cast<int>()).toList();
           } else {
+            if (index < 0 || index >= controllerData.vectors.length) {
+              continue;
+            }
             imageData = await imageUtils
                 .generateLedHexMatrix(controllerData.vectors[index]);
           }
@@ -379,6 +384,9 @@ class Converters {
           final List<List<dynamic>> image = decodedData!.cast<List<dynamic>>();
           imageData = image.map((list) => list.cast<int>()).toList();
         } else {
+          if (index < 0 || index >= controllerData.vectors.length) {
+            continue;
+          }
           imageData = await imageUtils
               .generateLedHexMatrix(controllerData.vectors[index]);
         }
