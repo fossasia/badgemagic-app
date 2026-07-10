@@ -21,7 +21,6 @@ import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/special_text_field.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
-import 'package:badgemagic/view/widgets/netx_gen_dialog.dart';
 import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
 import 'package:badgemagic/view/widgets/speedial.dart';
 import 'package:badgemagic/view/widgets/transitiontab.dart';
@@ -587,7 +586,7 @@ class _HomeScreenState extends State<HomeScreen>
                               builder: (context, animProvider, _) {
                                 final availableHeight =
                                     animProvider.isNgConnected
-                                        ? 0.38 * ScreenUtil().screenHeight
+                                        ? 0.3 * ScreenUtil().screenHeight
                                         : 0.5 * ScreenUtil().screenHeight;
 
                                 return ConstrainedBox(
@@ -620,14 +619,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                 animProvider.isNgConnected
                                                     ? Alignment.topCenter
                                                     : Alignment.center,
-                                            child: Padding(
-                                              padding: EdgeInsets.only(
-                                                  top:
-                                                      animProvider.isNgConnected
-                                                          ? 5.h
-                                                          : 0),
-                                              child: RadialDial(),
-                                            ),
+                                            child: RadialDial(),
                                           ),
                                         ),
                                         const TransitionTab(),
@@ -721,72 +713,134 @@ class _HomeScreenState extends State<HomeScreen>
                                     ),
                                     SizedBox(height: 8.h),
                                     Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
                                       children: [
                                         Expanded(
-                                          child: ElevatedButton.icon(
-                                            style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    Colors.red[400],
-                                                foregroundColor: Colors.white),
-                                            onPressed: () async {
-                                              await sendNgCmd(
-                                                  NgCommand.powerOff(),
-                                                  "Power Off sent");
-                                              await UniversalBle.disconnect(
-                                                  device.deviceId);
-                                              animationProvider
-                                                  .setNgConnected(false);
-                                            },
-                                            icon: const Icon(
-                                                Icons.power_settings_new),
-                                            label: const Text("Power Off"),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                style: IconButton.styleFrom(
+                                                  backgroundColor:
+                                                      Colors.red[400],
+                                                  foregroundColor: Colors.white,
+                                                  padding: EdgeInsets.all(12.w),
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12.r)),
+                                                ),
+                                                onPressed: () async {
+                                                  await animationProvider
+                                                      .stopLiveStreaming(); // Sicurezza se era attivo il mirroring
+                                                  await sendNgCmd(
+                                                      NgCommand.powerOff(),
+                                                      "Power Off sent");
+                                                  await UniversalBle.disconnect(
+                                                      device.deviceId);
+                                                  animationProvider
+                                                      .setNgConnected(false);
+                                                },
+                                                icon: const Icon(
+                                                    Icons.power_settings_new),
+                                              ),
+                                              SizedBox(height: 4.h),
+                                              Text(
+                                                "Power Off",
+                                                style: TextStyle(
+                                                    fontSize: 11.sp,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.red[400]),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                         SizedBox(width: 8.w),
                                         Expanded(
-                                          child: ElevatedButton.icon(
-                                            style: ElevatedButton.styleFrom(
-                                                backgroundColor: colorPrimary,
-                                                foregroundColor: Colors.white),
-                                            onPressed: () => sendNgCmd(
-                                                NgCommand.saveCfg(),
-                                                "Saved to Flash!"),
-                                            icon: const Icon(Icons.save),
-                                            label: const Text("Save Flash"),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: ElevatedButton.icon(
-                                            style: ElevatedButton.styleFrom(
-                                                backgroundColor: mdGrey400,
-                                                foregroundColor: Colors.black),
-                                            onPressed: () async {
-                                              await UniversalBle.disconnect(
-                                                  device.deviceId);
-                                              animationProvider
-                                                  .setNgConnected(false);
-                                              ToastUtils()
-                                                  .showToast("Disconnected");
-                                            },
-                                            icon: const Icon(
-                                                Icons.bluetooth_disabled),
-                                            label: const Text("Disconnect"),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                style: IconButton.styleFrom(
+                                                  backgroundColor: mdGrey400,
+                                                  foregroundColor: Colors.black,
+                                                  padding: EdgeInsets.all(12.w),
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12.r)),
+                                                ),
+                                                onPressed: () async {
+                                                  await animationProvider
+                                                      .stopLiveStreaming();
+                                                  await UniversalBle.disconnect(
+                                                      device.deviceId);
+                                                  animationProvider
+                                                      .setNgConnected(false);
+                                                  ToastUtils().showToast(
+                                                      "Disconnected");
+                                                },
+                                                icon: const Icon(
+                                                    Icons.bluetooth_disabled),
+                                              ),
+                                              SizedBox(height: 4.h),
+                                              Text(
+                                                "Disconnect",
+                                                style: TextStyle(
+                                                    fontSize: 11.sp,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black87),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                         SizedBox(width: 8.w),
                                         Expanded(
-                                          child: OutlinedButton.icon(
-                                            style: OutlinedButton.styleFrom(
-                                                foregroundColor: colorAccent),
-                                            onPressed: () =>
-                                                _showMoreOptionsBottomSheet(
-                                                    context, device, sendNgCmd),
-                                            icon: const Icon(Icons.more_horiz),
-                                            label: const Text("More Options"),
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                style: IconButton.styleFrom(
+                                                  foregroundColor:
+                                                      animationProvider
+                                                              .isStreaming
+                                                          ? Colors.red
+                                                          : colorAccent,
+                                                  padding: EdgeInsets.all(12.w),
+                                                  side: BorderSide(
+                                                    color: animationProvider
+                                                            .isStreaming
+                                                        ? Colors.red
+                                                        : colorAccent,
+                                                    width: 1.5.w,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12.r)),
+                                                ),
+                                                onPressed: () =>
+                                                    _showMoreOptionsBottomSheet(
+                                                        context,
+                                                        device,
+                                                        sendNgCmd),
+                                                icon: const Icon(
+                                                    Icons.more_horiz),
+                                              ),
+                                              SizedBox(height: 4.h),
+                                              Text(
+                                                "Options",
+                                                style: TextStyle(
+                                                  fontSize: 11.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: animationProvider
+                                                          .isStreaming
+                                                      ? Colors.red
+                                                      : colorAccent,
+                                                ),
+                                              ),
+                                            ],
                                           ),
                                         ),
                                       ],
@@ -1002,18 +1056,6 @@ class _HomeScreenState extends State<HomeScreen>
                 maxLength: 20,
                 decoration: InputDecoration(
                   labelText: "Rename Badge",
-                  suffixIcon: IconButton(
-                    icon: const Icon(Icons.check, color: Colors.green),
-                    onPressed: () {
-                      final newName = nameController.text.trim();
-                      if (newName.isNotEmpty) {
-                        sendCmd(NgCommand.setBleName(newName),
-                            "Name applied to device");
-                        animProvider.setNgDeviceName(newName);
-                        FocusScope.of(context).unfocus();
-                      }
-                    },
-                  ),
                 ),
               ),
               SizedBox(height: 12.h),
@@ -1032,6 +1074,86 @@ class _HomeScreenState extends State<HomeScreen>
                     },
                   );
                 },
+              ),
+              SizedBox(height: 24.h),
+              Center(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: colorPrimary,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r))),
+                    onPressed: () async {
+                      final newName = nameController.text.trim();
+                      FocusScope.of(context).unfocus();
+
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext dialogContext) {
+                          return PopScope(
+                            canPop: false,
+                            child: AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.r)),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(4.w),
+                                    child: SizedBox(
+                                      width: 40.w,
+                                      height: 40.w,
+                                      child: CircularProgressIndicator(
+                                        color: colorPrimary,
+                                        strokeWidth: 3.5.w,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 20.h),
+                                  Text(
+                                    "Saving and rebooting badge...",
+                                    style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+
+                      try {
+                        if (newName.isNotEmpty &&
+                            newName != animProvider.ngDeviceName) {
+                          await sendCmd(NgCommand.setBleName(newName),
+                              "Name applied to device");
+                          animProvider.setNgDeviceName(newName);
+                        }
+
+                        await sendCmd(NgCommand.saveCfg(), "Saved to Flash!");
+                        await sendCmd(NgCommand.powerOff(), "Turn Off");
+                        await UniversalBle.disconnect(device.deviceId);
+
+                        animProvider.setNgConnected(false);
+                      } catch (e) {
+                        debugPrint("Error during save sequence: $e");
+                      } finally {
+                        if (context.mounted) {
+                          Navigator.of(context, rootNavigator: true).pop();
+                          Navigator.pop(context);
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.save),
+                    label: const Text("Save Flash and Reboot"),
+                  ),
+                ),
               ),
               SizedBox(height: 24.h),
             ],

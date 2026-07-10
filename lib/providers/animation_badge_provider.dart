@@ -421,8 +421,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         await Future.delayed(const Duration(milliseconds: 50));
       }
 
-      logger.i(
-          "Next-Gen Channel: Badge updated successfully via direct flow!");
+      logger.i("Next-Gen Channel: Badge updated successfully via direct flow!");
     } catch (e) {
       logger.e("Error during direct Next-Gen update: $e");
     }
@@ -552,8 +551,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         logger.i(
             "Live Streaming stopped. The badge has returned to standard mode.");
       } catch (e) {
-        logger
-            .e("Error during streaming channel deactivation: $e");
+        logger.e("Error during streaming channel deactivation: $e");
       }
     }
     notifyListeners();
