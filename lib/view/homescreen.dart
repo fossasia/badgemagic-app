@@ -34,6 +34,10 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_ble/universal_ble.dart';
+
+import '../bademagic_module/bluetooth/ng_command_state.dart';
+import '../providers/next_gen_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
@@ -68,10 +72,12 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
+  int brightnessLevel = 1;
   String previousText = '';
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
+  Timer? _debounceTimer;
 
   @override
   void initState() {
@@ -189,6 +195,7 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   void dispose() {
     _vectorScrollController.dispose();
+    _debounceTimer?.cancel();
     WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
     _tabController.dispose();
@@ -236,6 +243,48 @@ class _HomeScreenState extends State<HomeScreen>
             body: SafeArea(
               child: Stack(
                 children: [
+                  Consumer<AnimationBadgeProvider>(
+                    builder: (context, animProvider, _) {
+                      if (!animProvider.isNgConnected)
+                        return const SizedBox.shrink();
+                      return Positioned(
+                        top: 10.h,
+                        right: 15.w,
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 8.w, vertical: 4.h),
+                          decoration: BoxDecoration(
+                            color: Colors.green.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(12.r),
+                            border: Border.all(color: Colors.green, width: 1),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Container(
+                                width: 8.w,
+                                height: 8.w,
+                                decoration: const BoxDecoration(
+                                  color: Colors.green,
+                                  shape: BoxShape.circle,
+                                ),
+                              ),
+                              SizedBox(width: 6.w),
+                              Text(
+                                "CONNECTED",
+                                style: TextStyle(
+                                  color: Colors.green,
+                                  fontSize: 10.sp,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                   SingleChildScrollView(
                     physics: isDialInteracting
                         ? const NeverScrollableScrollPhysics()
@@ -534,36 +583,61 @@ class _HomeScreenState extends State<HomeScreen>
                         ),
                         LayoutBuilder(
                           builder: (context, constraints) {
-                            final availableHeight =
-                                0.5 * ScreenUtil().screenHeight;
+                            return Consumer<AnimationBadgeProvider>(
+                              builder: (context, animProvider, _) {
+                                final availableHeight =
+                                    animProvider.isNgConnected
+                                        ? 0.38 * ScreenUtil().screenHeight
+                                        : 0.5 * ScreenUtil().screenHeight;
 
-                            return ConstrainedBox(
-                              constraints: BoxConstraints(
-                                minHeight: 220.h,
-                                maxHeight: availableHeight,
-                              ),
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(
-                                    horizontal: 8.w, vertical: 12.h),
-                                child: TabBarView(
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  controller: _tabController,
-                                  children: [
-                                    GestureDetector(
-                                      onPanDown: (_) => setState(
-                                          () => isDialInteracting = true),
-                                      onPanCancel: () => setState(
-                                          () => isDialInteracting = false),
-                                      onPanEnd: (_) => setState(
-                                          () => isDialInteracting = false),
-                                      child: RadialDial(),
+                                return ConstrainedBox(
+                                  constraints: BoxConstraints(
+                                    minHeight: animProvider.isNgConnected
+                                        ? 170.h
+                                        : 220.h,
+                                    maxHeight: availableHeight,
+                                  ),
+                                  child: Padding(
+                                    padding: EdgeInsets.symmetric(
+                                        horizontal: 8.w,
+                                        vertical: animProvider.isNgConnected
+                                            ? 2.h
+                                            : 12.h),
+                                    child: TabBarView(
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
+                                      controller: _tabController,
+                                      children: [
+                                        GestureDetector(
+                                          onPanDown: (_) => setState(
+                                              () => isDialInteracting = true),
+                                          onPanCancel: () => setState(
+                                              () => isDialInteracting = false),
+                                          onPanEnd: (_) => setState(
+                                              () => isDialInteracting = false),
+                                          child: Align(
+                                            alignment:
+                                                animProvider.isNgConnected
+                                                    ? Alignment.topCenter
+                                                    : Alignment.center,
+                                            child: Padding(
+                                              padding: EdgeInsets.only(
+                                                  top:
+                                                      animProvider.isNgConnected
+                                                          ? 5.h
+                                                          : 0),
+                                              child: RadialDial(),
+                                            ),
+                                          ),
+                                        ),
+                                        const TransitionTab(),
+                                        const EffectTab(),
+                                        const AnimationTab(),
+                                      ],
                                     ),
-                                    const TransitionTab(),
-                                    const EffectTab(),
-                                    const AnimationTab(),
-                                  ],
-                                ),
-                              ),
+                                  ),
+                                );
+                              },
                             );
                           },
                         ),
@@ -578,6 +652,188 @@ class _HomeScreenState extends State<HomeScreen>
                           builder: (context, animationProvider, _) {
                         final isSpecial =
                             animationProvider.isSpecialAnimationSelected();
+                        final device = animationProvider.ngDevice;
+
+                        Future<void> sendNgCmd(
+                            List<int> cmd, String msg) async {
+                          if (device == null) return;
+                          try {
+                            final state =
+                                NgCommandState(device: device, command: cmd);
+                            final res = await state.process();
+                            if (res != null) debugPrint(msg);
+                          } catch (e) {
+                            ToastUtils().showErrorToast(
+                                e.toString().replaceAll("Exception: ", ""));
+                          }
+                        }
+
+                        if (animationProvider.isNgConnected && device != null) {
+                          return Card(
+                              elevation: 8,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14.r)),
+                              color: Colors.white,
+                              child: Padding(
+                                padding: EdgeInsets.all(12.w),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Card(
+                                      color: animationProvider.isStreaming
+                                          ? colorPrimary.withOpacity(0.05)
+                                          : Colors.grey[100],
+                                      elevation: 0,
+                                      shape: RoundedRectangleBorder(
+                                          borderRadius:
+                                              BorderRadius.circular(10.r)),
+                                      child: SwitchListTile(
+                                        secondary: Icon(
+                                          animationProvider.isStreaming
+                                              ? Icons.live_tv
+                                              : Icons.tv_off,
+                                          color: animationProvider.isStreaming
+                                              ? colorPrimary
+                                              : mdGrey400,
+                                        ),
+                                        title: const Text(
+                                          "Live Mirroring",
+                                          style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              fontSize: 13),
+                                        ),
+                                        subtitle: const Text(
+                                          "Sync the app preview to the badge in real timee",
+                                          style: TextStyle(fontSize: 10),
+                                        ),
+                                        value: animationProvider.isStreaming,
+                                        activeColor: colorPrimary,
+                                        onChanged: (bool value) async {
+                                          if (value) {
+                                            await animationProvider
+                                                .startLiveStreaming();
+                                          } else {
+                                            await animationProvider
+                                                .stopLiveStreaming();
+                                          }
+                                        },
+                                      ),
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton.icon(
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    Colors.red[400],
+                                                foregroundColor: Colors.white),
+                                            onPressed: () async {
+                                              await sendNgCmd(
+                                                  NgCommand.powerOff(),
+                                                  "Power Off sent");
+                                              await UniversalBle.disconnect(
+                                                  device.deviceId);
+                                              animationProvider
+                                                  .setNgConnected(false);
+                                            },
+                                            icon: const Icon(
+                                                Icons.power_settings_new),
+                                            label: const Text("Power Off"),
+                                          ),
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Expanded(
+                                          child: ElevatedButton.icon(
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: colorPrimary,
+                                                foregroundColor: Colors.white),
+                                            onPressed: () => sendNgCmd(
+                                                NgCommand.saveCfg(),
+                                                "Saved to Flash!"),
+                                            icon: const Icon(Icons.save),
+                                            label: const Text("Save Flash"),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: ElevatedButton.icon(
+                                            style: ElevatedButton.styleFrom(
+                                                backgroundColor: mdGrey400,
+                                                foregroundColor: Colors.black),
+                                            onPressed: () async {
+                                              await UniversalBle.disconnect(
+                                                  device.deviceId);
+                                              animationProvider
+                                                  .setNgConnected(false);
+                                              ToastUtils()
+                                                  .showToast("Disconnected");
+                                            },
+                                            icon: const Icon(
+                                                Icons.bluetooth_disabled),
+                                            label: const Text("Disconnect"),
+                                          ),
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Expanded(
+                                          child: OutlinedButton.icon(
+                                            style: OutlinedButton.styleFrom(
+                                                foregroundColor: colorAccent),
+                                            onPressed: () =>
+                                                _showMoreOptionsBottomSheet(
+                                                    context, device, sendNgCmd),
+                                            icon: const Icon(Icons.more_horiz),
+                                            label: const Text("More Options"),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    StatefulBuilder(
+                                      builder: (context, setSliderState) {
+                                        return Row(
+                                          children: [
+                                            SizedBox(width: 8.w),
+                                            Icon(Icons.wb_sunny,
+                                                color: colorPrimary,
+                                                size: 18.sp),
+                                            SizedBox(width: 8.w),
+                                            Expanded(
+                                              child: Slider(
+                                                value: animationProvider
+                                                    .ngBrightness
+                                                    .toDouble(),
+                                                min: 0,
+                                                max: 3,
+                                                divisions: 3,
+                                                activeColor: colorPrimary,
+                                                onChanged: (double newValue) {
+                                                  setSliderState(() {
+                                                    animationProvider
+                                                        .setNgBrightness(
+                                                            newValue.toInt());
+                                                  });
+                                                },
+                                                onChangeEnd: (double
+                                                        finalValue) =>
+                                                    sendNgCmd(
+                                                        NgCommand.setBrightness(
+                                                            finalValue.toInt()),
+                                                        "Brightness updated"),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ));
+                        }
+
                         return Row(
                           children: [
                             if (!isSpecial) ...[
@@ -677,22 +933,10 @@ class _HomeScreenState extends State<HomeScreen>
                                   if (finalState != null &&
                                       finalState.isSuccess &&
                                       finalState.isNextGen) {
-                                    if (!context.mounted) return;
-
-                                    final manager = badgeData.deviceManager;
-                                    final device = manager?.connectedDevice;
-
-                                    debugPrint(manager.toString());
-
-                                    if (device != null && manager != null) {
-                                      showDialog(
-                                          context: context,
-                                          barrierDismissible: false,
-                                          builder: (_) => NextGenOptionsDialog(
-                                                device: device,
-                                                manager: manager,
-                                              ));
-                                    }
+                                    animationProvider.setNgConnected(true,
+                                        manager: badgeData.deviceManager,
+                                        device: badgeData
+                                            .deviceManager?.connectedDevice);
                                   }
                                 },
                                 child: Container(
@@ -722,7 +966,106 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
+  void _showMoreOptionsBottomSheet(BuildContext context, BleDevice device,
+      Function(List<int>, String) sendCmd) {
+    final animProvider =
+        Provider.of<AnimationBadgeProvider>(context, listen: false);
+    final TextEditingController nameController =
+        TextEditingController(text: animProvider.ngDeviceName);
+    bool alwaysOnBle = true;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16.r))),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 16.w,
+              right: 16.w,
+              top: 16.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text("Advanced Options",
+                  style:
+                      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16.h),
+              Text("Current Name: ${animProvider.ngDeviceName}",
+                  style: TextStyle(fontSize: 11.sp, color: mdGrey400)),
+              SizedBox(height: 16.h),
+              TextField(
+                controller: nameController,
+                maxLength: 20,
+                decoration: InputDecoration(
+                  labelText: "Rename Badge",
+                  suffixIcon: IconButton(
+                    icon: const Icon(Icons.check, color: Colors.green),
+                    onPressed: () {
+                      final newName = nameController.text.trim();
+                      if (newName.isNotEmpty) {
+                        sendCmd(NgCommand.setBleName(newName),
+                            "Name applied to device");
+                        animProvider.setNgDeviceName(newName);
+                        FocusScope.of(context).unfocus();
+                      }
+                    },
+                  ),
+                ),
+              ),
+              SizedBox(height: 12.h),
+              StatefulBuilder(
+                builder: (context, setSheetState) {
+                  return SwitchListTile(
+                    title: const Text("BLE Always On"),
+                    subtitle:
+                        const Text("Keep bluetooth active during animations"),
+                    value: alwaysOnBle,
+                    activeColor: colorPrimary,
+                    onChanged: (v) {
+                      setSheetState(() => alwaysOnBle = v);
+                      sendCmd(NgCommand.setAlwaysOnBle(v),
+                          v ? "Always-On Enabled" : "Always-On Disabled");
+                    },
+                  );
+                },
+              ),
+              SizedBox(height: 24.h),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void handleTextChange() {
+    if (animationProvider.isStreaming) {
+      animationProvider.badgeAnimation(
+        inlineimagecontroller.text,
+        _converters,
+        animationProvider.isEffectActive(InvertLEDEffect()),
+      );
+      setState(() {});
+      return;
+    }
+
+    if (animationProvider.isNgConnected) {
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
+        await animationProvider.sendDirectLegacyUpdate(
+          text: inlineimagecontroller.text,
+          badgeData: badgeData,
+          flash: animationProvider.isEffectActive(FlashEffect()),
+          marquee: animationProvider.isEffectActive(MarqueeEffect()),
+          invert: animationProvider.isEffectActive(InvertLEDEffect()),
+          speed: speedDialProvider.getOuterValue(),
+        );
+      });
+    }
+
     final currentText = inlineimagecontroller.text;
 
     if (currentText != previousText) {

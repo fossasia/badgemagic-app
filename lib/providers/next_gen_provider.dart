@@ -8,7 +8,7 @@ class NgCommand {
   static List<int> enterStreaming() => [0x02, 0x00];
   static List<int> leaveStreaming() => [0x02, 0x01];
 
-  // 0x03 - stream_bitmap (word 16-bit per colonna, LSB = pixel in alto)
+  // 0x03 - stream_bitmap (word 16-bit per column, LSB = high pixel) <- this method is slow
   static List<int> streamBitmap(List<int> columnWords) {
     final bytes = <int>[0x03];
     for (final w in columnWords) {
@@ -48,5 +48,5 @@ class NgCommand {
         speedMs & 0xFF,
         (speedMs >> 8) & 0xFF,
       ];
-  static List<int> setBrightness(int level /* 0-3 */) => [0x08, 0x01, level];
+  static List<int> setBrightness(int level) => [0x08, 0x01, level];
 }
