@@ -463,6 +463,65 @@ class FileHelper {
     }
   }
 
+  Future<void> saveImageWithName(
+      List<List<bool>> imageData, String customName) async {
+    List<List<int>> image = List.generate(
+        imageData.length, (i) => List<int>.filled(imageData[i].length, 0));
+
+    for (int i = 0; i < imageData.length; i++) {
+      for (int j = 0; j < imageData[i].length; j++) {
+        image[i][j] = imageData[i][j] ? 1 : 0;
+      }
+    }
+
+    String safeName = customName.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+    String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+
+    String filename = 'data_${safeName}_$timestamp.json';
+
+    logger.d('Saving named clipart to file: $filename');
+
+    String jsonData = jsonEncode(image);
+    await _writeToFile(filename, jsonData);
+    await _addImageDataToCache(image, filename);
+  }
+
+  Future<bool> importBadgeFromJson(Map<String, dynamic> json) async {
+    try {
+      Map<String, dynamic> badgeJson;
+      String baseName;
+      if (json.containsKey('badge') && json.containsKey('name')) {
+        badgeJson = Map<String, dynamic>.from(json['badge'] as Map);
+        baseName = (json['name'] as String?)?.trim() ?? '';
+      } else {
+        badgeJson = json;
+        baseName = '';
+      }
+      if (baseName.isEmpty) {
+        baseName = 'Imported Badge';
+      }
+      Data data = Data.fromJson(badgeJson);
+      String filename = await _uniqueBadgeFilename(baseName);
+      await _writeToFile('$filename.json', jsonEncode(data.toJson()));
+      logger.d('Imported badge from QR: $filename');
+      return true;
+    } catch (e) {
+      logger.i('Error importing badge from QR: $e');
+      return false;
+    }
+  }
+
+  Future<String> _uniqueBadgeFilename(String baseName) async {
+    final directory = await getApplicationDocumentsDirectory();
+    String candidate = baseName;
+    int counter = 1;
+    while (await File('${directory.path}/$candidate.json').exists()) {
+      candidate = '$baseName ($counter)';
+      counter++;
+    }
+    return candidate;
+  }
+
   Future<bool> importBadgeData(context) async {
     try {
       // Open file picker to select a JSON file
@@ -517,6 +576,107 @@ class FileHelper {
         SnackBar(content: Text('Error importing badge: $e')),
       );
       return false;
+    }
+  }
+
+  Future<bool> importClipart(BuildContext context) async {
+    try {
+      FilePickerResult? result = await FilePicker.platform.pickFiles(
+        type: FileType.custom,
+        allowedExtensions: ['json'],
+      );
+
+      if (result == null || result.files.isEmpty) {
+        ToastUtils().showToast('No file selected');
+        return false;
+      }
+
+      File file = File(result.files.single.path!);
+
+      String originalName = result.files.single.name;
+
+      String baseName =
+          originalName.replaceAll(RegExp(r'\.json$', caseSensitive: false), '');
+
+      String safeName = baseName.replaceAll(RegExp(r'[^a-zA-Z0-9_]'), '_');
+
+      if (safeName.isEmpty || safeName == 'data') {
+        safeName = 'Imported_Clipart';
+      }
+
+      String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
+      String newFilename = 'data_${safeName}_$timestamp.json';
+
+      String content = await file.readAsString();
+      final List<dynamic> decodedData = jsonDecode(content);
+
+      if (decodedData.isNotEmpty && decodedData[0] is List) {
+        await _writeToFile(newFilename, content);
+
+        final List<List<dynamic>> imageData = decodedData.cast<List<dynamic>>();
+        List<List<int>> intImageData =
+            imageData.map((list) => list.cast<int>()).toList();
+
+        await _addImageDataToCache(imageData, newFilename);
+        imageCacheProvider.clipartsCache[newFilename] = intImageData;
+
+        logger.d('Clipart imported successfully: $newFilename');
+        ToastUtils().showToast('Clipart imported successfully!');
+        return true;
+      } else {
+        throw Exception(
+            'Invalid Clipart Format: File does not contain badge data.');
+      }
+    } catch (e) {
+      logger.i('Error importing clipart: $e');
+
+      return false;
+    }
+  }
+
+  Future<void> exportClipart(String filename) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final filePath = '${directory.path}/$filename';
+
+      File file = File(filePath);
+      if (await file.exists()) {
+        String cleanName = 'BadgeMagic_Clipart';
+
+        if (filename.startsWith('data_')) {
+          String namePart = filename.substring(5);
+          int lastUnderscore = namePart.lastIndexOf('_');
+
+          if (lastUnderscore != -1) {
+            String extractedName = namePart.substring(0, lastUnderscore);
+            if (extractedName.isNotEmpty) {
+              cleanName = extractedName;
+            }
+          }
+        }
+
+        String cleanFilename = '$cleanName.json';
+
+        String fileContent = await file.readAsString();
+        final tempDir = await getTemporaryDirectory();
+        final tempFilePath = '${tempDir.path}/$cleanFilename';
+
+        File tempFile = File(tempFilePath);
+        await tempFile.writeAsString(fileContent);
+
+        final result = await SharePlus.instance
+            .share(ShareParams(files: [XFile(tempFilePath)]));
+
+        if (result.status == ShareResultStatus.success) {
+          logger.i('Clipart exported successfully as $cleanFilename');
+        } else {
+          logger.i('Error exporting clipart');
+        }
+      } else {
+        logger.i('Clipart file not found: $filePath');
+      }
+    } catch (e) {
+      logger.i('Error exporting clipart: $e');
     }
   }
 }
