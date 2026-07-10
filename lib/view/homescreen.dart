@@ -68,6 +68,7 @@ class _HomeScreenState extends State<HomeScreen>
       GetIt.instance.get<InlineImageProvider>().getController();
 
   final Converters _converters = Converters();
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
@@ -138,11 +139,11 @@ class _HomeScreenState extends State<HomeScreen>
         speedDialProvider.setDialValue(1);
       }
 
-      ToastUtils().showToast(
-          "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
+      ToastUtils().showToast(l10n.editingBadgeWithName(
+          badgeFilename.substring(0, badgeFilename.length - 5)));
     } catch (e, st) {
       debugPrint("Failed to load badge data: $e\n$st");
-      ToastUtils().showToast("Failed to load badge data");
+      ToastUtils().showToast(l10n.failedToLoadBadgeData);
     }
   }
 
@@ -232,7 +233,6 @@ class _HomeScreenState extends State<HomeScreen>
     return ValueListenableBuilder<Locale?>(
       valueListenable: appLocale,
       builder: (context, _, __) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
         return DefaultTabController(
           length: 4,
           child: CommonScaffold(
@@ -242,48 +242,6 @@ class _HomeScreenState extends State<HomeScreen>
             body: SafeArea(
               child: Stack(
                 children: [
-                  Consumer<AnimationBadgeProvider>(
-                    builder: (context, animProvider, _) {
-                      if (!animProvider.isNgConnected)
-                        return const SizedBox.shrink();
-                      return Positioned(
-                        top: 10.h,
-                        right: 15.w,
-                        child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 8.w, vertical: 4.h),
-                          decoration: BoxDecoration(
-                            color: Colors.green.withOpacity(0.15),
-                            borderRadius: BorderRadius.circular(12.r),
-                            border: Border.all(color: Colors.green, width: 1),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Container(
-                                width: 8.w,
-                                height: 8.w,
-                                decoration: const BoxDecoration(
-                                  color: Colors.green,
-                                  shape: BoxShape.circle,
-                                ),
-                              ),
-                              SizedBox(width: 6.w),
-                              Text(
-                                "CONNECTED",
-                                style: TextStyle(
-                                  color: Colors.green,
-                                  fontSize: 10.sp,
-                                  fontWeight: FontWeight.bold,
-                                  letterSpacing: 0.5,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
-                  ),
                   SingleChildScrollView(
                     physics: isDialInteracting
                         ? const NeverScrollableScrollPhysics()
@@ -357,7 +315,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             fontSize: 12.sp,
                                           ),
                                           hint: Text(
-                                            'Font',
+                                            l10n.font,
                                             style: TextStyle(
                                               fontSize: 12.sp,
                                               color: mdGrey400,
@@ -384,7 +342,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                       BorderRadius.circular(4),
                                                 ),
                                                 child: Text(
-                                                  'Default',
+                                                  l10n.defaultFont,
                                                   style: TextStyle(
                                                     fontSize: 12.sp,
                                                     color: fontProvider
@@ -451,7 +409,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             ];
                                             return options.map((opt) {
                                               final String label =
-                                                  opt ?? 'Default';
+                                                  opt ?? l10n.defaultFont;
                                               return Container(
                                                 padding: EdgeInsets.only(
                                                   left: 4.w,
@@ -688,15 +646,15 @@ class _HomeScreenState extends State<HomeScreen>
                                               ? colorPrimary
                                               : mdGrey400,
                                         ),
-                                        title: const Text(
-                                          "Live Mirroring",
-                                          style: TextStyle(
+                                        title: Text(
+                                          l10n.liveMirroring,
+                                          style: const TextStyle(
                                               fontWeight: FontWeight.bold,
                                               fontSize: 13),
                                         ),
-                                        subtitle: const Text(
-                                          "Sync the app preview to the badge in real timee",
-                                          style: TextStyle(fontSize: 10),
+                                        subtitle: Text(
+                                          l10n.liveMirroringSubtitle,
+                                          style: const TextStyle(fontSize: 10),
                                         ),
                                         value: animationProvider.isStreaming,
                                         activeColor: colorPrimary,
@@ -747,7 +705,7 @@ class _HomeScreenState extends State<HomeScreen>
                                               ),
                                               SizedBox(height: 4.h),
                                               Text(
-                                                "Power Off",
+                                                l10n.powerOff,
                                                 style: TextStyle(
                                                     fontSize: 11.sp,
                                                     fontWeight: FontWeight.w500,
@@ -779,14 +737,14 @@ class _HomeScreenState extends State<HomeScreen>
                                                   animationProvider
                                                       .setNgConnected(false);
                                                   ToastUtils().showToast(
-                                                      "Disconnected");
+                                                      l10n.disconnected);
                                                 },
                                                 icon: const Icon(
                                                     Icons.bluetooth_disabled),
                                               ),
                                               SizedBox(height: 4.h),
                                               Text(
-                                                "Disconnect",
+                                                l10n.disconnect,
                                                 style: TextStyle(
                                                     fontSize: 11.sp,
                                                     fontWeight: FontWeight.w500,
@@ -830,7 +788,7 @@ class _HomeScreenState extends State<HomeScreen>
                                               ),
                                               SizedBox(height: 4.h),
                                               Text(
-                                                "Options",
+                                                l10n.options,
                                                 style: TextStyle(
                                                   fontSize: 11.sp,
                                                   fontWeight: FontWeight.w500,
@@ -898,7 +856,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         .trim()
                                         .isEmpty) {
                                       ToastUtils()
-                                          .showToast("Please enter a message");
+                                          .showToast(l10n.pleaseEnterMessage);
                                       return;
                                     }
 
@@ -927,7 +885,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       );
 
                                       ToastUtils().showToast(
-                                          "Badge Updated Successfully");
+                                          l10n.badgeUpdatedSuccessfully);
                                       if (!context.mounted) return;
                                       Navigator.pushNamedAndRemoveUntil(
                                         context,
@@ -1044,33 +1002,32 @@ class _HomeScreenState extends State<HomeScreen>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text("Advanced Options",
+              Text(l10n.advancedOptions,
                   style:
                       TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.h),
-              Text("Current Name: ${animProvider.ngDeviceName}",
+              Text(l10n.currentName(animProvider.ngDeviceName),
                   style: TextStyle(fontSize: 11.sp, color: mdGrey400)),
               SizedBox(height: 16.h),
               TextField(
                 controller: nameController,
                 maxLength: 20,
                 decoration: InputDecoration(
-                  labelText: "Rename Badge",
+                  labelText: l10n.renameBadge,
                 ),
               ),
               SizedBox(height: 12.h),
               StatefulBuilder(
                 builder: (context, setSheetState) {
                   return SwitchListTile(
-                    title: const Text("BLE Always On"),
-                    subtitle:
-                        const Text("Keep bluetooth active during animations"),
+                    title: Text(l10n.bleAlwaysOn),
+                    subtitle: Text(l10n.bleAlwaysOnSubtitle),
                     value: alwaysOnBle,
                     activeColor: colorPrimary,
                     onChanged: (v) {
                       setSheetState(() => alwaysOnBle = v);
                       sendCmd(NgCommand.setAlwaysOnBle(v),
-                          v ? "Always-On Enabled" : "Always-On Disabled");
+                          v ? l10n.alwaysOnEnabled : l10n.alwaysOnDisabled);
                     },
                   );
                 },
@@ -1116,7 +1073,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                   SizedBox(height: 20.h),
                                   Text(
-                                    "Saving and rebooting badge...",
+                                    l10n.savingAndRebooting,
                                     style: TextStyle(
                                         fontSize: 14.sp,
                                         fontWeight: FontWeight.w500),
@@ -1131,16 +1088,16 @@ class _HomeScreenState extends State<HomeScreen>
                       try {
                         if (newName.isNotEmpty &&
                             newName != animProvider.ngDeviceName) {
-                          await sendCmd(NgCommand.setBleName(newName),
-                              "Name applied to device");
+                          await sendCmd(
+                              NgCommand.setBleName(newName), l10n.nameApplied);
                           animProvider.setNgDeviceName(newName);
+
+                          await sendCmd(NgCommand.saveCfg(), l10n.savedToFlash);
+                          await sendCmd(NgCommand.powerOff(), l10n.turnOff);
+                          await UniversalBle.disconnect(device.deviceId);
+
+                          animProvider.setNgConnected(false);
                         }
-
-                        await sendCmd(NgCommand.saveCfg(), "Saved to Flash!");
-                        await sendCmd(NgCommand.powerOff(), "Turn Off");
-                        await UniversalBle.disconnect(device.deviceId);
-
-                        animProvider.setNgConnected(false);
                       } catch (e) {
                         debugPrint("Error during save sequence: $e");
                       } finally {
@@ -1151,7 +1108,7 @@ class _HomeScreenState extends State<HomeScreen>
                       }
                     },
                     icon: const Icon(Icons.save),
-                    label: const Text("Save Flash and Reboot"),
+                    label: Text(l10n.saveFlashAndReboot),
                   ),
                 ),
               ),

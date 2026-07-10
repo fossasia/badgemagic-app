@@ -235,5 +235,41 @@
   "shareQrImage": "Share QR image",
   "couldNotGenerateQrImage": "Could not generate QR image.",
   "couldNotShareQrImage": "Could not share QR image.",
-  "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image."
+  "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
+  "defaultFont": "Default",
+  "font": "Font",
+  "connected": "Connected",
+  "liveMirroring": "Live Mirroring",
+  "liveMirroringSubtitle": "Sync the app preview to the badge in real time",
+  "powerOff": "Power Off",
+  "disconnect": "Disconnect",
+  "disconnected": "Disconnected",
+  "options": "Options",
+  "advancedOptions": "Advanced Options",
+  "currentName": "Current Name: {name}",
+  "@currentName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "renameBadge": "Rename Badge",
+  "bleAlwaysOn": "BLE Always On",
+  "bleAlwaysOnSubtitle": "Keep bluetooth active during animations",
+  "alwaysOnEnabled": "Always-On Enabled",
+  "alwaysOnDisabled": "Always-On Disabled",
+  "savingAndRebooting": "Saving and rebooting badge...",
+  "nameApplied": "Name applied to device",
+  "savedToFlash": "Saved to Flash!",
+  "turnOff": "Turn Off",
+  "editingBadgeWithName": "Editing badge: {name}",
+  "@editingBadgeWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saveFlashAndReboot": "Save Flash and Reboot"
 }
