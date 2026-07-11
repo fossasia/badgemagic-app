@@ -1,1 +1,10 @@
-{}
+{
+    "appTitle": "Badge Magic",
+    "checkApacheLicense": "Ознакомьтесь с условиями лицензии Apache 2.0, применяемой к",
+    "saveButton": "Сохранить",
+    "save": "Сохранить",
+    "savedBadges": "Сохранённые бейджи",
+    "savedBadgesTitle": "Сохранённые бейджи",
+    "drawClipart": "Нарисовать клипарт",
+    "drawClipartTitle": "Нарисовать клипарт"
+}
