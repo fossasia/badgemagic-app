@@ -472,7 +472,7 @@ class _HomeScreenState extends State<HomeScreen>
                               margin: EdgeInsets.symmetric(
                                   horizontal: 15.w, vertical: 8.h),
                               padding: EdgeInsets.symmetric(
-                                  vertical: 10.h, horizontal: 10.w),
+                                  vertical: 10.h, horizontal: 8),
                               child: Scrollbar(
                                 controller: _vectorScrollController,
                                 thumbVisibility: true,

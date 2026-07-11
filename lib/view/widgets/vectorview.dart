@@ -104,9 +104,9 @@ class _VectorGridViewState extends State<VectorGridView> {
   }
 
   int _columnsForWidth(double width) {
-    if (width < 300) return (width / 44).round().clamp(4, 7);
-    if (width <= 520) return 8;
-    return (width / 46).round();
+    if (width < 300) return (width / 48).round().clamp(3, 6);
+    if (width <= 520) return 7;
+    return (width / 54).round();
   }
 
   @override
@@ -158,12 +158,12 @@ class _VectorGridViewState extends State<VectorGridView> {
           controller: _scrollController,
           shrinkWrap: true,
           physics: const AlwaysScrollableScrollPhysics(),
-          padding: const EdgeInsets.only(right: 12.0),
+          padding: const EdgeInsets.only(right: 4.0),
           gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: crossAxisCount,
             childAspectRatio: 1.0,
-            crossAxisSpacing: 6.0,
-            mainAxisSpacing: 6.0,
+            crossAxisSpacing: 2.0,
+            mainAxisSpacing: 2.0,
           ),
           itemCount: keys.length + 1,
           itemBuilder: (context, index) {
@@ -215,7 +215,7 @@ class _VectorGridViewState extends State<VectorGridView> {
                 color: isSelected ? Colors.grey.shade300 : Colors.white,
                 elevation: isSelected ? 4 : 2,
                 child: Padding(
-                  padding: const EdgeInsets.all(4.0),
+                  padding: const EdgeInsets.all(2.0),
                   child: Image.memory(
                     imageBytes,
                     fit: BoxFit.contain,
