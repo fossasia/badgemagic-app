@@ -9,7 +9,7 @@ class WriteState extends NormalBleState {
   final BleDevice device;
   final DataTransferManager manager;
 
-  WriteState({required this.manager, required this.device, required});
+  WriteState({required this.manager, required this.device});
 
   @override
   Future<BleState?> processState() async {

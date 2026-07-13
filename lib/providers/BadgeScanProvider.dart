@@ -131,9 +131,6 @@ class BadgeScanProvider with ChangeNotifier {
   }
 
   List<String> getSelectedBadgeNames() {
-    return _selectedIndices
-        .where((index) => index < _badgeNames.length)
-        .map((index) => _badgeNames[index])
-        .toList();
+    return _badgeNames;
   }
 }
