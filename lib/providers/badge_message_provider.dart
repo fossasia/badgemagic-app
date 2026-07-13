@@ -4,7 +4,7 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/completed_state.dart'; // Importato esplicitamente per il tipo di ritorno
+import 'package:badgemagic/bademagic_module/bluetooth/completed_state.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
