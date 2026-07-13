@@ -1,3 +1,4 @@
+import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -131,9 +132,6 @@ class BadgeScanProvider with ChangeNotifier {
   }
 
   List<String> getSelectedBadgeNames() {
-    return _selectedIndices
-        .where((index) => index < _badgeNames.length)
-        .map((index) => _badgeNames[index])
-        .toList();
+    return _badgeNames;
   }
 }
