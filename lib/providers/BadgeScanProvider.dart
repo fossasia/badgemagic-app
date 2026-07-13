@@ -1,4 +1,3 @@
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
