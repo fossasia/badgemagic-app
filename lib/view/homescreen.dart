@@ -785,13 +785,13 @@ class _HomeScreenState extends State<HomeScreen>
                                                         context,
                                                         device,
                                                         sendNgCmd),
-                                                icon: const Icon(
-                                                    Icons.more_horiz),
+                                                icon: const Icon(Icons
+                                                    .drive_file_rename_outline),
                                               ),
                                               SizedBox(height: 4.h),
                                               Text(
                                                 textAlign: TextAlign.center,
-                                                l10n.options,
+                                                l10n.renameBadge,
                                                 style: TextStyle(
                                                   fontSize: 11.sp,
                                                   fontWeight: FontWeight.w500,
@@ -1004,7 +1004,7 @@ class _HomeScreenState extends State<HomeScreen>
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(l10n.advancedOptions,
+              Text(l10n.renameBadge,
                   style:
                       TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.h),
