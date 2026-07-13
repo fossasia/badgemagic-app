@@ -247,7 +247,7 @@
   "currentName": "Current Name: ",
   "renameBadge": "Rename Badge",
   "bleAlwaysOn": "BLE Always On",
-  "bleAlwaysOnSubtitle": "Keep bluetooth active during animations",
+  "bleAlwaysOnSubtitle": "Keep Bluetooth active during animations",
   "alwaysOnEnabled": "Always-On Enabled",
   "alwaysOnDisabled": "Always-On Disabled",
   "savingAndRebooting": "Saving and rebooting badge...",

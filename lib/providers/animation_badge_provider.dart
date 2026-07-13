@@ -243,22 +243,23 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int _ngBrightness = 1;
   int get ngBrightness => _ngBrightness;
 
-  dynamic _ngManager;
-  dynamic get ngManager => _ngManager;
+  DataTransferManager? _ngManager;
+  DataTransferManager? get ngManager => _ngManager;
 
-  dynamic _ngDevice;
-  dynamic get ngDevice => _ngDevice;
+  BleDevice? _ngDevice;
+  BleDevice? get ngDevice => _ngDevice;
 
   bool _isStreaming = false;
   bool get isStreaming => _isStreaming;
 
-  void setNgConnected(bool connected, {dynamic manager, dynamic device}) {
+  void setNgConnected(bool connected,
+      {DataTransferManager? manager, BleDevice? device}) {
     _isNgConnected = connected;
     if (connected) {
       _ngManager = manager;
       _ngDevice = device;
-      if (device != null && device.name != null && device.name.isNotEmpty) {
-        _ngDeviceName = device.name;
+      if (device != null && device.name != null && device.name!.isNotEmpty) {
+        _ngDeviceName = device.name!;
       }
     }
     notifyListeners();
@@ -391,7 +392,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }) async {
     if (!_isNgConnected || _ngDevice == null) return;
 
-    final String deviceId = _ngDevice.deviceId;
+    final String? deviceId = _ngDevice?.deviceId;
 
     try {
       final data = await badgeData.generateData(
@@ -412,7 +413,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
       for (List<int> chunk in dataChunks) {
         await UniversalBle.write(
-          deviceId,
+          deviceId!,
           serviceUuid, // 0xFEE0
           characteristicUuid, // 0xFEE1
           Uint8List.fromList(chunk),
@@ -454,13 +455,13 @@ class AnimationBadgeProvider extends ChangeNotifier {
   Future<void> startLiveStreaming() async {
     if (!_isNgConnected || _ngDevice == null || _isStreaming) return;
 
-    final String deviceId = _ngDevice.deviceId;
+    final String? deviceId = _ngDevice?.deviceId;
     _isStreaming = true;
     notifyListeners();
 
     try {
       await UniversalBle.subscribeNotifications(
-          deviceId, ngServiceUuid, ngNotifyCharUuid);
+          deviceId!, ngServiceUuid, ngNotifyCharUuid);
 
       _ngNotifySubscription =
           UniversalBle.characteristicValueStream(deviceId, ngNotifyCharUuid)
@@ -497,7 +498,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   /// Internal asynchronous loop throttled at ~25-30 FPS with GATT backpressure control
   void _runStreamingLoop() async {
-    final String deviceId = _ngDevice.deviceId;
+    final String? deviceId = _ngDevice?.deviceId;
     final Duration frameDuration = const Duration(milliseconds: 40);
 
     while (_isStreaming && _isNgConnected) {
@@ -508,7 +509,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         final Uint8List framePayload = encodeGridToNgFrame(_paintGrid);
 
         await UniversalBle.write(
-          deviceId,
+          deviceId!,
           ngServiceUuid,
           ngWriteCharUuid,
           framePayload,
@@ -539,7 +540,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
     if (_ngDevice != null && _isNgConnected) {
       try {
         await UniversalBle.write(
-          _ngDevice.deviceId,
+          _ngDevice!.deviceId,
           ngServiceUuid,
           ngWriteCharUuid,
           Uint8List.fromList(NgCommand.leaveStreaming()),
@@ -547,7 +548,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         );
 
         await UniversalBle.unsubscribe(
-            _ngDevice.deviceId, ngServiceUuid, ngNotifyCharUuid);
+            _ngDevice!.deviceId, ngServiceUuid, ngNotifyCharUuid);
         logger.i(
             "Live Streaming stopped. The badge has returned to standard mode.");
       } catch (e) {

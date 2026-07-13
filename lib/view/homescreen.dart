@@ -72,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
-  int brightnessLevel = 1;
   String previousText = '';
   String _cachedText = '';
   String errorVal = "";
