@@ -705,6 +705,7 @@ class _HomeScreenState extends State<HomeScreen>
                                               ),
                                               SizedBox(height: 4.h),
                                               Text(
+                                                textAlign: TextAlign.center,
                                                 l10n.powerOff,
                                                 style: TextStyle(
                                                     fontSize: 11.sp,
@@ -744,6 +745,7 @@ class _HomeScreenState extends State<HomeScreen>
                                               ),
                                               SizedBox(height: 4.h),
                                               Text(
+                                                textAlign: TextAlign.center,
                                                 l10n.disconnect,
                                                 style: TextStyle(
                                                     fontSize: 11.sp,
@@ -788,6 +790,7 @@ class _HomeScreenState extends State<HomeScreen>
                                               ),
                                               SizedBox(height: 4.h),
                                               Text(
+                                                textAlign: TextAlign.center,
                                                 l10n.options,
                                                 style: TextStyle(
                                                   fontSize: 11.sp,
@@ -984,7 +987,6 @@ class _HomeScreenState extends State<HomeScreen>
         Provider.of<AnimationBadgeProvider>(context, listen: false);
     final TextEditingController nameController =
         TextEditingController(text: animProvider.ngDeviceName);
-    bool alwaysOnBle = true;
 
     showModalBottomSheet(
       context: context,
@@ -1006,8 +1008,21 @@ class _HomeScreenState extends State<HomeScreen>
                   style:
                       TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
               SizedBox(height: 16.h),
-              Text(l10n.currentName(animProvider.ngDeviceName),
-                  style: TextStyle(fontSize: 11.sp, color: mdGrey400)),
+              Text.rich(
+                TextSpan(
+                  text: l10n.currentName,
+                  style: TextStyle(fontSize: 11.sp, color: Colors.black),
+                  children: [
+                    TextSpan(
+                      text: animProvider.ngDeviceName,
+                      style: TextStyle(
+                          fontSize: 11.sp,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(height: 16.h),
               TextField(
                 controller: nameController,
@@ -1015,22 +1030,6 @@ class _HomeScreenState extends State<HomeScreen>
                 decoration: InputDecoration(
                   labelText: l10n.renameBadge,
                 ),
-              ),
-              SizedBox(height: 12.h),
-              StatefulBuilder(
-                builder: (context, setSheetState) {
-                  return SwitchListTile(
-                    title: Text(l10n.bleAlwaysOn),
-                    subtitle: Text(l10n.bleAlwaysOnSubtitle),
-                    value: alwaysOnBle,
-                    activeColor: colorPrimary,
-                    onChanged: (v) {
-                      setSheetState(() => alwaysOnBle = v);
-                      sendCmd(NgCommand.setAlwaysOnBle(v),
-                          v ? l10n.alwaysOnEnabled : l10n.alwaysOnDisabled);
-                    },
-                  );
-                },
               ),
               SizedBox(height: 24.h),
               Center(

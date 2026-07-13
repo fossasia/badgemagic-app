@@ -241,19 +241,12 @@
   "connected": "Connected",
   "liveMirroring": "Live Mirroring",
   "liveMirroringSubtitle": "Sync the app preview to the badge in real time",
-  "powerOff": "Power Off",
+  "powerOff": "Turn off the badge",
   "disconnect": "Disconnect",
   "disconnected": "Disconnected",
-  "options": "Options",
-  "advancedOptions": "Advanced Options",
-  "currentName": "Current Name: {name}",
-  "@currentName": {
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
-  },
+  "options": "Rename the badge",
+  "advancedOptions": "Rename the badge",
+  "currentName": "Current Name: ",
   "renameBadge": "Rename Badge",
   "bleAlwaysOn": "BLE Always On",
   "bleAlwaysOnSubtitle": "Keep bluetooth active during animations",
@@ -262,7 +255,7 @@
   "savingAndRebooting": "Saving and rebooting badge...",
   "nameApplied": "Name applied to device",
   "savedToFlash": "Saved to Flash!",
-  "turnOff": "Turn Off",
+  "turnOff": "Turn Off tha badge",
   "editingBadgeWithName": "Editing badge: {name}",
   "@editingBadgeWithName": {
     "placeholders": {
@@ -271,5 +264,5 @@
       }
     }
   },
-  "saveFlashAndReboot": "Save Flash and Reboot"
+  "saveFlashAndReboot": "Save and Reboot the badge"
 }
