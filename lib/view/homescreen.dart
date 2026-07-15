@@ -97,6 +97,9 @@ class _HomeScreenState extends State<HomeScreen>
     });
     _startImageCaching();
     _tabController = TabController(length: 4, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<UsbTransferProvider>(context, listen: false).connectUsb();
+    });
   }
 
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
@@ -725,16 +728,16 @@ class _HomeScreenState extends State<HomeScreen>
                                               .writeBytes(generatedData);
                                           if (success) {
                                             ToastUtils().showToast(
-                                                "Trasferimento USB completato!");
+                                                "USB transfer success!");
                                           }
                                         } else {
                                           ToastUtils().showErrorToast(
-                                              "Errore nella generazione dei dati.");
+                                              "generation data error.");
                                         }
                                       } catch (e) {
-                                        debugPrint("Errore USB: $e");
+                                        debugPrint("Error USB: $e");
                                         ToastUtils().showErrorToast(
-                                            "Errore di trasmissione USB.");
+                                            "Error USB transfer");
                                       }
                                     },
                                     child: Container(

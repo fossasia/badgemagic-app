@@ -355,18 +355,18 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
       if (chunks.isEmpty) {
         debugPrint(
-            "Errore: Il convertitore nativo ha restituito chunks vuoti.");
+            "Error: Native converter returned empty chunks.");
         return null;
       }
 
       final List<int> flatPayload = chunks.expand((chunk) => chunk).toList();
 
       debugPrint(
-          "Payload USB generato tramite convertitore nativo. Dimensione: ${flatPayload.length} byte.");
+          "USB payload generated via native converter. Size: ${flatPayload.length} bytes.");
       return flatPayload;
     } catch (e, stack) {
       debugPrint(
-          "Errore durante la generazione del payload con convertitore nativo: $e\n$stack");
+          "Error during payload generation with native converter: $e\n$stack");
       return null;
     }
   }

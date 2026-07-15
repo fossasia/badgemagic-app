@@ -6,7 +6,7 @@ import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 
 class UsbTransferProvider with ChangeNotifier {
   SerialPort? _activePort;
-  SerialPortReader? _portReader;
+  //SerialPortReader? _portReader;
   StreamSubscription<Uint8List>? _rxSubscription;
   bool _isConnected = false;
   String? _connectedPortName;
@@ -20,7 +20,7 @@ class UsbTransferProvider with ChangeNotifier {
 
       if (availablePorts.isEmpty) {
         ToastUtils().showErrorToast(
-            "Nessun dispositivo USB seriale rilevato. Verifica la connessione OTG.");
+            "No USB serial device detected. Please check the OTG connection.");
         return false;
       }
 
@@ -32,14 +32,14 @@ class UsbTransferProvider with ChangeNotifier {
           final vid = port.vendorId;
           final pid = port.productId;
           debugPrint(
-              "Porta trovata: $name - VID: 0x${vid?.toRadixString(16)}, PID: 0x${pid?.toRadixString(16)}");
+              "Port found: $name - VID: 0x${vid?.toRadixString(16)}, PID: 0x${pid?.toRadixString(16)}");
 
           if (vid == 0x0416) {
             targetPortName = name;
             break;
           }
         } catch (e) {
-          debugPrint("Info non leggibili sulla porta $name: $e");
+          debugPrint("Unreadable info on port $name: $e");
         }
       }
 
@@ -49,12 +49,12 @@ class UsbTransferProvider with ChangeNotifier {
 
       if (!port.openReadWrite()) {
         final lastError = SerialPort.lastError;
-        ToastUtils().showErrorToast("Errore di apertura porta: $lastError");
+        ToastUtils().showErrorToast("Error opening port: $lastError");
         return false;
       }
 
       final config = SerialPortConfig()
-        ..baudRate = 115200
+        ..baudRate = 115200 //WARNING: do not touch this value
         ..bits = 8
         ..stopBits = 1
         ..parity = SerialPortParity.none;
@@ -72,15 +72,15 @@ class UsbTransferProvider with ChangeNotifier {
         final message = String.fromCharCodes(data);
         debugPrint("USB Rx (Badge): $message");
       }, onError: (error) {
-        debugPrint("Errore durante la lettura seriale: $error");
+        debugPrint("Error during serial read: $error");
         disconnectUsb();
       });*/
 
-      ToastUtils().showToast("Badge connesso con successo via USB seriale!");
+      ToastUtils().showToast("Badge successfully connected via USB serial!");
       return true;
     } catch (e) {
-      debugPrint("Errore generico di connessione seriale: $e");
-      ToastUtils().showErrorToast("Errore di connessione: $e");
+      debugPrint("Generic serial connection error: $e");
+      ToastUtils().showErrorToast("Connection error: $e");
       disconnectUsb();
       return false;
     }
@@ -88,28 +88,28 @@ class UsbTransferProvider with ChangeNotifier {
 
   Future<bool> writeBytes(List<int> bytes) async {
     if (!_isConnected || _activePort == null) {
-      ToastUtils().showErrorToast("Nessun badge connesso via USB.");
+      ToastUtils().showErrorToast("No badge connected via USB.");
       return false;
     }
 
     try {
       final uint8list = Uint8List.fromList(bytes);
 
-      // La scrittura restituisce il numero di byte effettivamente scritti
+      // Writing returns the amount of bytes actually written
       final bytesWritten = _activePort!.write(uint8list, timeout: 2000);
 
       if (bytesWritten == uint8list.length) {
         debugPrint(
-            "Scrittura USB completata con successo ($bytesWritten byte inviati).");
+            "USB write completed successfully ($bytesWritten bytes sent).");
         return true;
       } else {
         debugPrint(
-            "Scrittura parziale: inviati solo $bytesWritten di ${uint8list.length} byte.");
+            "Partial write: only $bytesWritten of ${uint8list.length} bytes sent.");
         return false;
       }
     } catch (e) {
-      debugPrint("Errore durante la scrittura sulla porta seriale: $e");
-      ToastUtils().showErrorToast("Errore di trasmissione dati USB.");
+      debugPrint("Error writing to serial port: $e");
+      ToastUtils().showErrorToast("USB data transmission error.");
       return false;
     }
   }
@@ -117,14 +117,14 @@ class UsbTransferProvider with ChangeNotifier {
   void disconnectUsb() {
     _rxSubscription?.cancel();
     _rxSubscription = null;
-    _portReader = null;
+    //_portReader = null;
 
     if (_activePort != null) {
       try {
         _activePort!.close();
         _activePort!.dispose();
       } catch (e) {
-        debugPrint("Errore durante il rilascio della porta seriale: $e");
+        debugPrint("Error releasing serial port: $e");
       }
       _activePort = null;
     }
