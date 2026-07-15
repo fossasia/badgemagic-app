@@ -4,7 +4,7 @@ inputs:
   IPAD_DEVICE_MODEL:
     description: 'Model of the iPad device to be used when running tests'
     required: false
-    default: iPad Pro 13-inch (M4)
+    default: iPad Pro 13-inch (M5)
 
 runs:
   using: "composite"
@@ -24,7 +24,7 @@ runs:
 
     - name: Create iPad Simulator
       id: ipad_sim
-      uses: futureware-tech/simulator-action@v4
+      uses: futureware-tech/simulator-action@v5
       with:
         model: ${{ inputs.IPAD_DEVICE_MODEL }}
         wait_for_boot: true
@@ -57,7 +57,7 @@ runs:
         git push --force origin fastlane-ios
 
     - name: Upload Screenshots
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: iPad Screenshots
         path: screenshots/*

@@ -8,8 +8,8 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   ANDROID_EMULATOR_API: 34
   ANDROID_EMULATOR_ARCH: x86_64
-  IPHONE_DEVICE_MODEL: iPhone 16 Pro Max
-  IPAD_DEVICE_MODEL: iPad Pro 13-inch (M4)
+  IPHONE_DEVICE_MODEL: iPhone 17 Pro Max
+  IPAD_DEVICE_MODEL: iPad Pro 13-inch (M5)
 
 jobs:
   common:
@@ -159,7 +159,7 @@ jobs:
     runs-on: macos-latest
     steps:
       - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1.6.0
+        uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
           xcode-version: latest-stable
 
@@ -242,7 +242,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1.6.0
+        uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
           xcode-version: latest-stable
 
@@ -259,7 +259,7 @@ jobs:
     timeout-minutes: 30
     steps:
       - name: Set up Xcode
-        uses: maxim-lobanov/setup-xcode@v1.6.0
+        uses: maxim-lobanov/setup-xcode@v1.7.0
         with:
           xcode-version: latest-stable
 
