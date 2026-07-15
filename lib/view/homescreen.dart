@@ -97,9 +97,6 @@ class _HomeScreenState extends State<HomeScreen>
     });
     _startImageCaching();
     _tabController = TabController(length: 4, vsync: this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<UsbTransferProvider>(context, listen: false).connectUsb();
-    });
   }
 
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
@@ -221,170 +218,9 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  /// Opens the transfer sheet displaying selection between Bluetooth and USB.
-  void _showTransferBottomSheet(BuildContext context) {
-    showModalBottomSheet(
-      context: context,
-      backgroundColor: Colors.white,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
-      ),
-      builder: (bottomSheetContext) {
-        return Container(
-            padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  "Choose Transfer Method",
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 24.h),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    // Bluetooth Button
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        GestureDetector(
-                          onTap: () async {
-                            Navigator.pop(bottomSheetContext);
-                            await animationProvider.handleAnimationTransfer(
-                              badgeData: badgeData,
-                              inlineImageProvider: inlineImageProvider,
-                              speedDialProvider: speedDialProvider,
-                              flash: animationProvider
-                                  .isEffectActive(FlashEffect()),
-                              marquee: animationProvider
-                                  .isEffectActive(MarqueeEffect()),
-                              invert: animationProvider
-                                  .isEffectActive(InvertLEDEffect()),
-                              context: context,
-                            );
-                          },
-                          child: Container(
-                            width: 64.w,
-                            height: 64.w,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: colorAccent.withOpacity(0.1),
-                              border: Border.all(
-                                  color: colorAccent, width: 2),
-                            ),
-                            child: Icon(
-                              Icons.bluetooth,
-                              size: 28.w,
-                              color: colorAccent,
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: 8.h),
-                        Text(
-                          "Bluetooth",
-                          style: TextStyle(
-                            fontSize: 12.sp,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ],
-                    ),
-
-                      Consumer<UsbTransferProvider>(
-                        builder: (context, usbProvider, _) {
-                          final isUsbConnected = usbProvider.isConnected;
-                          final usbColor =
-                              isUsbConnected ? colorAccent : mdGrey400;
-
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            GestureDetector(
-                              onTap: () async {
-                                Navigator.pop(bottomSheetContext);
-
-                                await usbProvider.connectUsb();
-
-                                try {
-                                  final generatedData = await animationProvider
-                                      .generateLegacyPayload(
-                                    text: inlineimagecontroller.text,
-                                    flash: animationProvider
-                                        .isEffectActive(FlashEffect()),
-                                    marquee: animationProvider
-                                        .isEffectActive(MarqueeEffect()),
-                                    invert: animationProvider
-                                        .isEffectActive(InvertLEDEffect()),
-                                    speed: speedDialProvider.getOuterValue(),
-                                    badgeData: badgeData,
-                                  );
-
-                                  if (generatedData != null &&
-                                      generatedData.isNotEmpty) {
-                                    final success = await usbProvider
-                                        .writeBytes(generatedData);
-                                    if (success) {
-                                      ToastUtils()
-                                          .showToast("USB transfer success!");
-                                    }
-                                  } else {
-                                    ToastUtils().showErrorToast(
-                                        "Generation data error.");
-                                  }
-                                } catch (e) {
-                                  debugPrint("Error USB: $e");
-                                  ToastUtils()
-                                      .showErrorToast("Error USB transfer");
-                                }
-                              },
-                              child: Container(
-                                width: 64.w,
-                                height: 64.w,
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: usbColor.withOpacity(0.1),
-                                  border: Border.all(color: usbColor, width: 2),
-                                ),
-                                child: Icon(
-                                  Icons.usb,
-                                  size: 28.w,
-                                  color: usbColor,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 8.h),
-                            Text(
-                              "USB",
-                              style: TextStyle(
-                                fontSize: 12.sp,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.black87,
-                              ),
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12.h),
-              ],
-            )
-        );
-      },
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    InlineImageProvider inlineImageProvider =
-        Provider.of<InlineImageProvider>(context);
 
     return ValueListenableBuilder<Locale?>(
       valueListenable: appLocale,
@@ -451,12 +287,10 @@ class _HomeScreenState extends State<HomeScreen>
                                 ),
                                 suffixIcon: Container(
                                   constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width *
-                                            0.280,
+                                    maxWidth: 0.32.sw,
                                   ),
                                   padding:
-                                      EdgeInsets.only(left: 8.w, right: 8.w),
+                                      EdgeInsets.symmetric(horizontal: 4.w),
                                   child: Consumer<FontProvider>(
                                     builder: (context, fontProvider, _) {
                                       return DropdownButtonHideUnderline(
@@ -474,7 +308,7 @@ class _HomeScreenState extends State<HomeScreen>
                                           hint: Text(
                                             'Font',
                                             style: TextStyle(
-                                              fontSize: 12.sp,
+                                              fontSize: 11.sp,
                                               color: mdGrey400,
                                             ),
                                             overflow: TextOverflow.ellipsis,
@@ -487,7 +321,7 @@ class _HomeScreenState extends State<HomeScreen>
                                               value: null,
                                               child: Container(
                                                 padding: EdgeInsets.symmetric(
-                                                    horizontal: 16.w,
+                                                    horizontal: 12.w,
                                                     vertical: 8.h),
                                                 decoration: BoxDecoration(
                                                   color: fontProvider
@@ -524,7 +358,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                 value: font,
                                                 child: Container(
                                                   padding: EdgeInsets.symmetric(
-                                                      horizontal: 16.w,
+                                                      horizontal: 12.w,
                                                       vertical: 8.h),
                                                   decoration: BoxDecoration(
                                                     color: fontProvider
@@ -568,20 +402,22 @@ class _HomeScreenState extends State<HomeScreen>
                                               final String label =
                                                   opt ?? 'Default';
                                               return Container(
-                                                padding: EdgeInsets.only(
-                                                  left: 4.w,
-                                                  right: 4.w,
-                                                ),
+                                                alignment:
+                                                    Alignment.centerRight,
                                                 child: Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
                                                   mainAxisSize:
-                                                      MainAxisSize.min,
+                                                      MainAxisSize.max,
                                                   children: [
-                                                    Flexible(
+                                                    Expanded(
                                                       child: Text(
                                                         label,
+                                                        textAlign:
+                                                            TextAlign.end,
                                                         style: TextStyle(
                                                           color: mdGrey400,
-                                                          fontSize: 12.sp,
+                                                          fontSize: 11.sp,
                                                         ),
                                                         overflow: TextOverflow
                                                             .ellipsis,
@@ -591,7 +427,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                     SizedBox(width: 2.w),
                                                     Icon(
                                                       Icons.arrow_drop_down,
-                                                      size: 18,
+                                                      size: 16.w,
                                                       color: mdGrey400,
                                                     ),
                                                   ],
@@ -893,6 +729,182 @@ class _HomeScreenState extends State<HomeScreen>
 
       setState(() {});
     }
+  }
+
+  void _showTransferBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (bottomSheetContext) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: 20.h,
+                bottom:
+                    MediaQuery.of(bottomSheetContext).viewInsets.bottom + 20.h,
+                left: 16.w,
+                right: 16.w,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    "Choose Transfer Method",
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              Navigator.pop(bottomSheetContext);
+                              await animationProvider.handleAnimationTransfer(
+                                badgeData: badgeData,
+                                inlineImageProvider: inlineImageProvider,
+                                speedDialProvider: speedDialProvider,
+                                flash: animationProvider
+                                    .isEffectActive(FlashEffect()),
+                                marquee: animationProvider
+                                    .isEffectActive(MarqueeEffect()),
+                                invert: animationProvider
+                                    .isEffectActive(InvertLEDEffect()),
+                                context: context,
+                              );
+                            },
+                            child: Container(
+                              width: 56.w,
+                              height: 56.w,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: colorAccent.withOpacity(0.1),
+                                border:
+                                    Border.all(color: colorAccent, width: 2),
+                              ),
+                              child: Icon(
+                                Icons.bluetooth,
+                                size: 24.w,
+                                color: colorAccent,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 6.h),
+                          Text(
+                            "Bluetooth",
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Consumer<UsbTransferProvider>(
+                        builder: (context, usbProvider, _) {
+                          final usbColor = colorAccent;
+
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  Navigator.pop(bottomSheetContext);
+
+                                  await usbProvider.connectUsb();
+
+                                  try {
+                                    final generatedData =
+                                        await animationProvider
+                                            .generateLegacyPayload(
+                                      text: inlineimagecontroller.text,
+                                      flash: animationProvider
+                                          .isEffectActive(FlashEffect()),
+                                      marquee: animationProvider
+                                          .isEffectActive(MarqueeEffect()),
+                                      invert: animationProvider
+                                          .isEffectActive(InvertLEDEffect()),
+                                      speed: speedDialProvider.getOuterValue(),
+                                      badgeData: badgeData,
+                                    );
+
+                                    if (generatedData != null &&
+                                        generatedData.isNotEmpty) {
+                                      final success = await usbProvider
+                                          .writeBytes(generatedData);
+                                      if (success) {
+                                        ToastUtils()
+                                            .showToast("USB transfer success!");
+                                      }
+                                    } else {
+                                      ToastUtils().showErrorToast(
+                                          "Generation data error.");
+                                    }
+                                  } catch (e) {
+                                    debugPrint("Error USB: $e");
+                                    ToastUtils()
+                                        .showErrorToast("Error USB transfer");
+                                  }
+                                },
+                                child: Container(
+                                  width: 56.w,
+                                  height: 56.w,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: usbColor.withOpacity(0.1),
+                                    border:
+                                        Border.all(color: usbColor, width: 2),
+                                  ),
+                                  child: Icon(
+                                    Icons.usb,
+                                    size: 24.w,
+                                    color: usbColor,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 6.h),
+                              Text(
+                                "USB",
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8.h),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   @override
