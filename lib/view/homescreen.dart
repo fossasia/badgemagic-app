@@ -33,6 +33,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../providers/usb_transfer_provider.dart';
 
@@ -658,8 +659,32 @@ class _HomeScreenState extends State<HomeScreen>
                             ],
                             Expanded(
                               child: GestureDetector(
-                                onTap: () {
-                                  _showTransferBottomSheet(context);
+                                onTap: () async {
+                                  final prefs =
+                                      await SharedPreferences.getInstance();
+                                  final isUsbEnabled =
+                                      prefs.getBool('usb_transfer_enabled') ??
+                                          false;
+
+                                  if (!context.mounted) return;
+
+                                  if (isUsbEnabled) {
+                                    _showTransferBottomSheet(context);
+                                  } else {
+                                    await animationProvider
+                                        .handleAnimationTransfer(
+                                      badgeData: badgeData,
+                                      inlineImageProvider: inlineImageProvider,
+                                      speedDialProvider: speedDialProvider,
+                                      flash: animationProvider
+                                          .isEffectActive(FlashEffect()),
+                                      marquee: animationProvider
+                                          .isEffectActive(MarqueeEffect()),
+                                      invert: animationProvider
+                                          .isEffectActive(InvertLEDEffect()),
+                                      context: context,
+                                    );
+                                  }
                                 },
                                 child: Container(
                                   height: 32.h,

@@ -6,7 +6,7 @@ import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 
 class UsbTransferProvider with ChangeNotifier {
   SerialPort? _activePort;
-  //SerialPortReader? _portReader;
+  SerialPortReader? _portReader;
   StreamSubscription<Uint8List>? _rxSubscription;
   bool _isConnected = false;
   String? _connectedPortName;
@@ -67,14 +67,14 @@ class UsbTransferProvider with ChangeNotifier {
       _isConnected = true;
       notifyListeners();
 
-      /*_portReader = SerialPortReader(port);
+      _portReader = SerialPortReader(port);
       _rxSubscription = _portReader!.stream.listen((Uint8List data) {
         final message = String.fromCharCodes(data);
         debugPrint("USB Rx (Badge): $message");
       }, onError: (error) {
         debugPrint("Error during serial read: $error");
         disconnectUsb();
-      });*/
+      });
 
       ToastUtils().showToast("Badge successfully connected via USB serial!");
       return true;
@@ -95,7 +95,6 @@ class UsbTransferProvider with ChangeNotifier {
     try {
       final uint8list = Uint8List.fromList(bytes);
 
-      // Writing returns the amount of bytes actually written
       final bytesWritten = _activePort!.write(uint8list, timeout: 2000);
 
       if (bytesWritten == uint8list.length) {
@@ -117,7 +116,7 @@ class UsbTransferProvider with ChangeNotifier {
   void disconnectUsb() {
     _rxSubscription?.cancel();
     _rxSubscription = null;
-    //_portReader = null;
+    _portReader = null;
 
     if (_activePort != null) {
       try {

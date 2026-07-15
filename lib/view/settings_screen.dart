@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -22,11 +23,13 @@ class SettingsScreenState extends State<SettingsScreen> {
   late BadgeScanMode _scanMode;
   late List<TextEditingController> _controllers;
   bool _initialized = false;
+  bool _isUsbTransferEnabled = false;
 
   @override
   void initState() {
     super.initState();
     _setOrientation();
+    _loadUsbSetting();
   }
 
   void _setOrientation() {
@@ -34,6 +37,18 @@ class SettingsScreenState extends State<SettingsScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+  }
+
+  Future<void> _loadUsbSetting() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isUsbTransferEnabled = prefs.getBool('usb_transfer_enabled') ?? false;
+    });
+  }
+
+  Future<void> _saveUsbSetting(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('usb_transfer_enabled', value);
   }
 
   @override
@@ -109,6 +124,35 @@ class SettingsScreenState extends State<SettingsScreen> {
                     border: OutlineInputBorder(),
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
+                const SizedBox(height: 24),
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  child: SwitchListTile(
+                    title: const Text(
+                      "Enable USB Transfers",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      "Allows sending badge data via OTG USB cable in addition to Bluetooth.",
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    activeColor: colorAccent,
+                    value: _isUsbTransferEnabled,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _isUsbTransferEnabled = value;
+                      });
+                      _saveUsbSetting(value);
+                    },
                   ),
                 ),
                 const SizedBox(height: 24),
