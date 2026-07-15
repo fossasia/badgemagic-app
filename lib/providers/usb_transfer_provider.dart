@@ -34,12 +34,12 @@ class UsbTransferProvider with ChangeNotifier {
           debugPrint(
               "Porta trovata: $name - VID: 0x${vid?.toRadixString(16)}, PID: 0x${pid?.toRadixString(16)}");
 
-          if (vid == 0x1A86) {
+          if (vid == 0x0416) {
             targetPortName = name;
             break;
           }
         } catch (e) {
-          debugPrint("Impossibile leggere le info per la porta $name: $e");
+          debugPrint("Info non leggibili sulla porta $name: $e");
         }
       }
 
@@ -67,14 +67,14 @@ class UsbTransferProvider with ChangeNotifier {
       _isConnected = true;
       notifyListeners();
 
-      _portReader = SerialPortReader(port);
+      /*_portReader = SerialPortReader(port);
       _rxSubscription = _portReader!.stream.listen((Uint8List data) {
         final message = String.fromCharCodes(data);
         debugPrint("USB Rx (Badge): $message");
       }, onError: (error) {
         debugPrint("Errore durante la lettura seriale: $error");
         disconnectUsb();
-      });
+      });*/
 
       ToastUtils().showToast("Badge connesso con successo via USB seriale!");
       return true;

@@ -716,6 +716,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   InvertLEDEffect()),
                                           speed:
                                               speedDialProvider.getOuterValue(),
+                                          badgeData: badgeData,
                                         );
 
                                         if (generatedData != null &&

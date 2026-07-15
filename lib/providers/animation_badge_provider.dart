@@ -332,54 +332,41 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required bool marquee,
     required bool invert,
     required int speed,
+    required BadgeMessageProvider badgeData,
   }) async {
     if (text.trim().isEmpty) return null;
 
     try {
-      final converters = Converters();
+      final dataObj = await badgeData.generateData(
+        text,
+        flash,
+        marquee,
+        invert,
+        speedMap[speed],
+        _currentAnimation == LeftAnimation()
+            ? Mode.left
+            : modeValueMap[getAnimationIndex() ?? 0],
+        null,
+      );
 
-      // 1. Converte il testo nell'equivalente array esadecimale (utilizzando il font bitmap dell'app)
-      List<String> hexString = await converters.messageTohex(text, invert);
+      final transferManager = DataTransferManager(dataObj);
 
-      // 2. Crea l'header standard "wang" del protocollo (1024 bit / 128 byte totali di intestazione)
-      // Il protocollo prevede: "wang" (4 byte) + opzioni di velocità/effetti + padding
-      final List<int> header = List.filled(128, 0);
+      final List<List<int>> chunks = await transferManager.generateDataChunk();
 
-      // Firma d'intestazione "wang" (0x77, 0x61, 0x6e, 0x67)
-      header[0] = 0x77; // 'w'
-      header[1] = 0x61; // 'a'
-      header[2] = 0x6e; // 'n'
-      header[3] = 0x67; // 'g'
-
-      // Configurazione velocità ed effetti (Mappatura standard nel primo blocco di opzioni)
-      // La velocità nel protocollo si posiziona solitamente traslata
-      header[4] = (speed - 1) & 0x0F;
-
-      if (flash) {
-        header[5] |= 0x01;
-      }
-      if (marquee) {
-        header[5] |= 0x02;
+      if (chunks.isEmpty) {
+        debugPrint(
+            "Errore: Il convertitore nativo ha restituito chunks vuoti.");
+        return null;
       }
 
-      final List<int> pixelBytes = [];
-      final String hexData = hexString.join();
-
-      for (int i = 0; i < hexData.length; i += 2) {
-        if (i + 2 <= hexData.length) {
-          final String byteString = hexData.substring(i, i + 2);
-          pixelBytes.add(int.parse(byteString, radix: 16));
-        }
-      }
-
-      final List<int> fullPayload = [...header, ...pixelBytes];
+      final List<int> flatPayload = chunks.expand((chunk) => chunk).toList();
 
       debugPrint(
-          "Payload USB generato con successo. Dimensione totale: ${fullPayload.length} byte.");
-      return fullPayload;
-    } catch (e) {
+          "Payload USB generato tramite convertitore nativo. Dimensione: ${flatPayload.length} byte.");
+      return flatPayload;
+    } catch (e, stack) {
       debugPrint(
-          "Errore durante la generazione autonoma del payload legacy: $e");
+          "Errore durante la generazione del payload con convertitore nativo: $e\n$stack");
       return null;
     }
   }
