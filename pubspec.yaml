@@ -57,6 +57,7 @@ dependencies:
   image: ^4.9.1
   qr_flutter: ^4.1.0
   mobile_scanner: ^7.2.0
+  flutter_libserialport: ^0.6.0
 
 dev_dependencies:
   flutter_test:

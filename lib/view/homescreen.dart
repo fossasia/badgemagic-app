@@ -34,6 +34,8 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../providers/usb_transfer_provider.dart';
+
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
   final int? initialSpeed;
@@ -684,6 +686,101 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                   child: Text(l10n.transferButton),
                                 ),
+                              ),
+                            ),
+                            SizedBox(width: 8.w),
+                            Expanded(
+                              child: Consumer<UsbTransferProvider>(
+                                builder: (context, usbProvider, _) {
+                                  final isUsbConnected =
+                                      usbProvider.isConnected;
+
+                                  return GestureDetector(
+                                    onTap: () async {
+                                      if (!isUsbConnected) {
+                                        await usbProvider.connectUsb();
+                                        return;
+                                      }
+
+                                      try {
+                                        final generatedData =
+                                            await animationProvider
+                                                .generateLegacyPayload(
+                                          text: inlineimagecontroller.text,
+                                          flash: animationProvider
+                                              .isEffectActive(FlashEffect()),
+                                          marquee: animationProvider
+                                              .isEffectActive(MarqueeEffect()),
+                                          invert:
+                                              animationProvider.isEffectActive(
+                                                  InvertLEDEffect()),
+                                          speed:
+                                              speedDialProvider.getOuterValue(),
+                                        );
+
+                                        if (generatedData != null &&
+                                            generatedData.isNotEmpty) {
+                                          final success = await usbProvider
+                                              .writeBytes(generatedData);
+                                          if (success) {
+                                            ToastUtils().showToast(
+                                                "Trasferimento USB completato!");
+                                          }
+                                        } else {
+                                          ToastUtils().showErrorToast(
+                                              "Errore nella generazione dei dati.");
+                                        }
+                                      } catch (e) {
+                                        debugPrint("Errore USB: $e");
+                                        ToastUtils().showErrorToast(
+                                            "Errore di trasmissione USB.");
+                                      }
+                                    },
+                                    child: Container(
+                                      height: 32.h,
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 16.w, vertical: 8.h),
+                                      decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(8.r),
+                                        color: isUsbConnected
+                                            ? colorAccent
+                                            : mdGrey400.withOpacity(0.6),
+                                        border: isUsbConnected
+                                            ? null
+                                            : Border.all(
+                                                color: mdGrey400, width: 1),
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Icon(
+                                            Icons.usb,
+                                            size: 16.w,
+                                            color: isUsbConnected
+                                                ? Colors.white
+                                                : Colors.black54,
+                                          ),
+                                          SizedBox(width: 4.w),
+                                          Text(
+                                            "USB",
+                                            style: TextStyle(
+                                              fontSize: 12.sp,
+                                              fontWeight: isUsbConnected
+                                                  ? FontWeight.bold
+                                                  : FontWeight.normal,
+                                              color: isUsbConnected
+                                                  ? Colors.white
+                                                  : Colors.black54,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
