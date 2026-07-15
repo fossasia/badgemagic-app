@@ -354,8 +354,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
       final List<List<int>> chunks = await transferManager.generateDataChunk();
 
       if (chunks.isEmpty) {
-        debugPrint(
-            "Error: Native converter returned empty chunks.");
+        debugPrint("Error: Native converter returned empty chunks.");
         return null;
       }
 

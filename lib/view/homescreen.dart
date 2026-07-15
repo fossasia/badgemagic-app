@@ -221,6 +221,167 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  /// Opens the transfer sheet displaying selection between Bluetooth and USB.
+  void _showTransferBottomSheet(BuildContext context) {
+    showModalBottomSheet(
+        context: context,
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        ),
+        builder: (bottomSheetContext) {
+          return Container(
+              padding: EdgeInsets.symmetric(vertical: 24.h, horizontal: 16.w),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    "Choose Transfer Method",
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 24.h),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          GestureDetector(
+                            onTap: () async {
+                              Navigator.pop(bottomSheetContext);
+                              await animationProvider.handleAnimationTransfer(
+                                badgeData: badgeData,
+                                inlineImageProvider: inlineImageProvider,
+                                speedDialProvider: speedDialProvider,
+                                flash: animationProvider
+                                    .isEffectActive(FlashEffect()),
+                                marquee: animationProvider
+                                    .isEffectActive(MarqueeEffect()),
+                                invert: animationProvider
+                                    .isEffectActive(InvertLEDEffect()),
+                                context: context,
+                              );
+                            },
+                            child: Container(
+                              width: 64.w,
+                              height: 64.w,
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: colorAccent.withOpacity(0.1),
+                                border: Border.all(
+                                    color: colorAccent, width: 2),
+                              ),
+                              child: Icon(
+                                Icons.bluetooth,
+                                size: 28.w,
+                                color: colorAccent,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 8.h),
+                          Text(
+                            "Bluetooth",
+                            style: TextStyle(
+                              fontSize: 12.sp,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.black87,
+                            ),
+                          ),
+                        ],
+                      ),
+
+                      Consumer<UsbTransferProvider>(
+                        builder: (context, usbProvider, _) {
+                          final isUsbConnected = usbProvider.isConnected;
+                          final usbColor =
+                              isUsbConnected ? colorAccent : mdGrey400;
+
+                          return Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              GestureDetector(
+                                onTap: () async {
+                                  Navigator.pop(bottomSheetContext);
+
+                                  if (!isUsbConnected) {
+                                    await usbProvider.connectUsb();
+                                    return;
+                                  }
+
+                                  try {
+                                    final generatedData =
+                                        await animationProvider
+                                            .generateLegacyPayload(
+                                      text: inlineimagecontroller.text,
+                                      flash: animationProvider
+                                          .isEffectActive(FlashEffect()),
+                                      marquee: animationProvider
+                                          .isEffectActive(MarqueeEffect()),
+                                      invert: animationProvider
+                                          .isEffectActive(InvertLEDEffect()),
+                                      speed: speedDialProvider.getOuterValue(),
+                                      badgeData: badgeData,
+                                    );
+
+                                    if (generatedData != null &&
+                                        generatedData.isNotEmpty) {
+                                      final success = await usbProvider
+                                          .writeBytes(generatedData);
+                                      if (success) {
+                                        ToastUtils()
+                                            .showToast("USB transfer success!");
+                                      }
+                                    } else {
+                                      ToastUtils().showErrorToast(
+                                          "Generation data error.");
+                                    }
+                                  } catch (e) {
+                                    debugPrint("Error USB: $e");
+                                    ToastUtils()
+                                        .showErrorToast("Error USB transfer");
+                                  }
+                                },
+                                child: Container(
+                                  width: 64.w,
+                                  height: 64.w,
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+                                    color: usbColor.withOpacity(0.1),
+                                    border:
+                                        Border.all(color: usbColor, width: 2),
+                                  ),
+                                  child: Icon(
+                                    Icons.usb,
+                                    size: 28.w,
+                                    color: usbColor,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 8.h),
+                              Text(
+                                "USB",
+                                style: TextStyle(
+                                  fontSize: 12.sp,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.black87,
+                                ),
+                              ),
+                            ],
+                          );
+                        },
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 12.h),
+                ],
+              ));
+        });
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -663,20 +824,8 @@ class _HomeScreenState extends State<HomeScreen>
                             ],
                             Expanded(
                               child: GestureDetector(
-                                onTap: () async {
-                                  await animationProvider
-                                      .handleAnimationTransfer(
-                                    badgeData: badgeData,
-                                    inlineImageProvider: inlineImageProvider,
-                                    speedDialProvider: speedDialProvider,
-                                    flash: animationProvider
-                                        .isEffectActive(FlashEffect()),
-                                    marquee: animationProvider
-                                        .isEffectActive(MarqueeEffect()),
-                                    invert: animationProvider
-                                        .isEffectActive(InvertLEDEffect()),
-                                    context: context,
-                                  );
+                                onTap: () {
+                                  _showTransferBottomSheet(context);
                                 },
                                 child: Container(
                                   height: 32.h,
@@ -689,102 +838,6 @@ class _HomeScreenState extends State<HomeScreen>
                                   ),
                                   child: Text(l10n.transferButton),
                                 ),
-                              ),
-                            ),
-                            SizedBox(width: 8.w),
-                            Expanded(
-                              child: Consumer<UsbTransferProvider>(
-                                builder: (context, usbProvider, _) {
-                                  final isUsbConnected =
-                                      usbProvider.isConnected;
-
-                                  return GestureDetector(
-                                    onTap: () async {
-                                      if (!isUsbConnected) {
-                                        await usbProvider.connectUsb();
-                                        return;
-                                      }
-
-                                      try {
-                                        final generatedData =
-                                            await animationProvider
-                                                .generateLegacyPayload(
-                                          text: inlineimagecontroller.text,
-                                          flash: animationProvider
-                                              .isEffectActive(FlashEffect()),
-                                          marquee: animationProvider
-                                              .isEffectActive(MarqueeEffect()),
-                                          invert:
-                                              animationProvider.isEffectActive(
-                                                  InvertLEDEffect()),
-                                          speed:
-                                              speedDialProvider.getOuterValue(),
-                                          badgeData: badgeData,
-                                        );
-
-                                        if (generatedData != null &&
-                                            generatedData.isNotEmpty) {
-                                          final success = await usbProvider
-                                              .writeBytes(generatedData);
-                                          if (success) {
-                                            ToastUtils().showToast(
-                                                "USB transfer success!");
-                                          }
-                                        } else {
-                                          ToastUtils().showErrorToast(
-                                              "generation data error.");
-                                        }
-                                      } catch (e) {
-                                        debugPrint("Error USB: $e");
-                                        ToastUtils().showErrorToast(
-                                            "Error USB transfer");
-                                      }
-                                    },
-                                    child: Container(
-                                      height: 32.h,
-                                      alignment: Alignment.center,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 16.w, vertical: 8.h),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(8.r),
-                                        color: isUsbConnected
-                                            ? colorAccent
-                                            : mdGrey400.withOpacity(0.6),
-                                        border: isUsbConnected
-                                            ? null
-                                            : Border.all(
-                                                color: mdGrey400, width: 1),
-                                      ),
-                                      child: Row(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Icon(
-                                            Icons.usb,
-                                            size: 16.w,
-                                            color: isUsbConnected
-                                                ? Colors.white
-                                                : Colors.black54,
-                                          ),
-                                          SizedBox(width: 4.w),
-                                          Text(
-                                            "USB",
-                                            style: TextStyle(
-                                              fontSize: 12.sp,
-                                              fontWeight: isUsbConnected
-                                                  ? FontWeight.bold
-                                                  : FontWeight.normal,
-                                              color: isUsbConnected
-                                                  ? Colors.white
-                                                  : Colors.black54,
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  );
-                                },
                               ),
                             ),
                           ],
