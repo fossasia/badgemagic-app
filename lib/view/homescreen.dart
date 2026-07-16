@@ -36,6 +36,7 @@ import 'package:provider/provider.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 import '../bademagic_module/bluetooth/ng_command_state.dart';
+import '../providers/BadgeScanProvider.dart';
 import '../providers/next_gen_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -943,6 +944,8 @@ class _HomeScreenState extends State<HomeScreen>
       Function(List<int>, String) sendCmd) {
     final animProvider =
         Provider.of<AnimationBadgeProvider>(context, listen: false);
+    final badgeScanProvider =
+        Provider.of<BadgeScanProvider>(context, listen: false);
     final TextEditingController nameController =
         TextEditingController(text: animProvider.ngDeviceName);
 
@@ -1052,6 +1055,8 @@ class _HomeScreenState extends State<HomeScreen>
                           await sendCmd(NgCommand.saveCfg(), l10n.savedToFlash);
                           await sendCmd(NgCommand.powerOff(), l10n.turnOff);
                           await UniversalBle.disconnect(device.deviceId);
+
+                          badgeScanProvider.addBadgeName(newName);
 
                           animProvider.setNgConnected(false);
                         }
