@@ -2,6 +2,8 @@ import 'dart:async';
 import 'package:badgemagic/bademagic_module/bluetooth/connect_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:universal_ble/universal_ble.dart';
 import '../../globals/globals.dart';
 import 'base_ble_state.dart';
@@ -10,6 +12,7 @@ class ScanState extends NormalBleState {
   final DataTransferManager manager;
   final BadgeScanMode mode;
   final List<String> allowedNames;
+  final BuildContext context;
 
   final String targetServiceUuid = serviceUuid;
 
@@ -17,10 +20,14 @@ class ScanState extends NormalBleState {
     required this.manager,
     required this.mode,
     required this.allowedNames,
+    required this.context,
   });
 
   @override
   Future<BleState?> processState() async {
+    final badgeScanProvider =
+        Provider.of<BadgeScanProvider>(context, listen: false);
+
     manager.clearConnectedDevice();
     await UniversalBle.stopScan();
 
@@ -48,6 +55,7 @@ class ScanState extends NormalBleState {
                 normalizedAllowedNames.contains(deviceName);
 
             if (matchesUuid && matchesName) {
+              badgeScanProvider.addBadgeName(deviceName);
               isCompleted = true;
               timeoutTimer?.cancel();
               await UniversalBle.stopScan();
