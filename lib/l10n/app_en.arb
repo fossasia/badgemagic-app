@@ -262,5 +262,8 @@
       }
     }
   },
-  "saveFlashAndReboot": "Save and Reboot the badge"
+  "saveFlashAndReboot": "Save and Reboot the badge",
+  "appFeaturesTitle": "App Features",
+  "enableBadheStreaming": "Enable Badge Streaming",
+  "enableBadheStreamingWarning": "Only FOSSASIA firmware supports this feature"
 }

@@ -604,6 +604,10 @@ class _HomeScreenState extends State<HomeScreen>
                             animationProvider.isSpecialAnimationSelected();
                         final device = animationProvider.ngDevice;
 
+                        final scanProvider = context.watch<BadgeScanProvider>();
+                        final isStreamingFeatureEnabled =
+                            scanProvider.isStreamingEnabled;
+
                         Future<void> sendNgCmd(
                             List<int> cmd, String msg) async {
                           if (device == null) return;
@@ -629,46 +633,48 @@ class _HomeScreenState extends State<HomeScreen>
                                 child: Column(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Card(
-                                      color: animationProvider.isStreaming
-                                          ? colorPrimary.withOpacity(0.05)
-                                          : Colors.grey[100],
-                                      elevation: 0,
-                                      shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10.r)),
-                                      child: SwitchListTile(
-                                        secondary: Icon(
-                                          animationProvider.isStreaming
-                                              ? Icons.live_tv
-                                              : Icons.tv_off,
-                                          color: animationProvider.isStreaming
-                                              ? colorPrimary
-                                              : mdGrey400,
+                                    if (isStreamingFeatureEnabled)
+                                      Card(
+                                        color: animationProvider.isStreaming
+                                            ? colorPrimary.withOpacity(0.05)
+                                            : Colors.grey[100],
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.r)),
+                                        child: SwitchListTile(
+                                          secondary: Icon(
+                                            animationProvider.isStreaming
+                                                ? Icons.live_tv
+                                                : Icons.tv_off,
+                                            color: animationProvider.isStreaming
+                                                ? colorPrimary
+                                                : mdGrey400,
+                                          ),
+                                          title: Text(
+                                            l10n.liveMirroring,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 13),
+                                          ),
+                                          subtitle: Text(
+                                            l10n.liveMirroringSubtitle,
+                                            style:
+                                                const TextStyle(fontSize: 10),
+                                          ),
+                                          value: animationProvider.isStreaming,
+                                          activeColor: colorPrimary,
+                                          onChanged: (bool value) async {
+                                            if (value) {
+                                              await animationProvider
+                                                  .startLiveStreaming();
+                                            } else {
+                                              await animationProvider
+                                                  .stopLiveStreaming();
+                                            }
+                                          },
                                         ),
-                                        title: Text(
-                                          l10n.liveMirroring,
-                                          style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 13),
-                                        ),
-                                        subtitle: Text(
-                                          l10n.liveMirroringSubtitle,
-                                          style: const TextStyle(fontSize: 10),
-                                        ),
-                                        value: animationProvider.isStreaming,
-                                        activeColor: colorPrimary,
-                                        onChanged: (bool value) async {
-                                          if (value) {
-                                            await animationProvider
-                                                .startLiveStreaming();
-                                          } else {
-                                            await animationProvider
-                                                .stopLiveStreaming();
-                                          }
-                                        },
                                       ),
-                                    ),
                                     SizedBox(height: 8.h),
                                     Row(
                                       mainAxisAlignment:
