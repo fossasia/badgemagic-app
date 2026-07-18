@@ -1,5 +1,7 @@
+import 'package:badgemagic/bademagic_module/transport/badge_transport.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
+import 'package:badgemagic/providers/transport_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -110,6 +112,43 @@ class SettingsScreenState extends State<SettingsScreen> {
                     contentPadding:
                         EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
+                ),
+                Consumer<TransportProvider>(
+                  builder: (context, transport, _) {
+                    if (!transport.usbSupported) {
+                      return const SizedBox.shrink();
+                    }
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 24),
+                        const Text('Connection',
+                            style: TextStyle(
+                                fontSize: 16, fontWeight: FontWeight.bold)),
+                        const SizedBox(height: 8),
+                        RadioListTile<BadgeTransportType>(
+                          title: const Text('Bluetooth'),
+                          value: BadgeTransportType.bluetooth,
+                          groupValue: transport.transportType,
+                          onChanged: (value) {
+                            if (value != null) {
+                              transport.setTransportType(value);
+                            }
+                          },
+                        ),
+                        RadioListTile<BadgeTransportType>(
+                          title: const Text('USB'),
+                          value: BadgeTransportType.usb,
+                          groupValue: transport.transportType,
+                          onChanged: (value) {
+                            if (value != null) {
+                              transport.setTransportType(value);
+                            }
+                          },
+                        ),
+                      ],
+                    );
+                  },
                 ),
                 const SizedBox(height: 24),
                 Text(l10n.badgeScanMode,

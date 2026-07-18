@@ -1,10 +1,12 @@
 import 'dart:io';
-import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/bademagic_module/transport/badge_transport.dart';
+import 'package:badgemagic/bademagic_module/transport/ble_transport.dart';
+import 'package:badgemagic/bademagic_module/transport/usb_hid_transport.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
+import 'package:badgemagic/providers/transport_provider.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
 import 'package:badgemagic/bademagic_module/models/mode.dart';
@@ -17,7 +19,6 @@ import 'package:badgemagic/utils/custom_transfers/transfers.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart'; // Import the new EqualizerAnimation
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -90,21 +91,28 @@ class BadgeMessageProvider {
     DataTransferManager manager, {
     BuildContext? context,
   }) async {
-    final scanProvider = context != null
-        ? Provider.of<BadgeScanProvider>(context, listen: false)
-        : null;
+    final transportProvider = GetIt.instance<TransportProvider>();
 
-    final BleState initialState = ScanState(
-      manager: manager,
-      mode: scanProvider?.mode ?? BadgeScanMode.any,
-      allowedNames: scanProvider?.getSelectedBadgeNames() ?? <String>[],
-    );
+    final BadgeTransport transport;
+    if (transportProvider.transportType == BadgeTransportType.usb) {
+      transport = UsbHidBadgeTransport();
+    } else {
+      final scanProvider = GetIt.instance<BadgeScanProvider>();
+      transport = BleBadgeTransport(
+        mode: scanProvider.mode,
+        allowedNames: scanProvider.getSelectedBadgeNames(),
+      );
+    }
 
-    BleState? state = initialState;
     DateTime now = DateTime.now();
 
-    while (state != null) {
-      state = await state.process();
+    try {
+      await transport.send(manager);
+      if (transport.type == BadgeTransportType.usb) {
+        ToastUtils().showToast("Data transferred successfully");
+      }
+    } on BadgeTransportException catch (e) {
+      ToastUtils().showErrorToast(e.toString());
     }
 
     logger.d("Time to transfer data: ${DateTime.now().difference(now)}");
@@ -122,7 +130,10 @@ class BadgeMessageProvider {
       bool isSavedBadge,
       BuildContext context,
       {TextStyle? textStyle}) async {
-    if (await FlutterBluePlus.isSupported == false) {
+    final bool isUsb = GetIt.instance<TransportProvider>().transportType ==
+        BadgeTransportType.usb;
+
+    if (!isUsb && await FlutterBluePlus.isSupported == false) {
       final l10n = GetIt.instance.get<LocalizationService>().l10n;
       ToastUtils().showErrorToast(l10n.error);
       return;
@@ -152,58 +163,62 @@ class BadgeMessageProvider {
       }
     }
 
-    BluetoothAdapterState adapterState =
-        await FlutterBluePlus.adapterState.first;
-    if (adapterState != BluetoothAdapterState.on) {
-      if (Platform.isAndroid) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        ToastUtils().showToast(l10n.loading);
-        try {
-          await FlutterBluePlus.turnOn();
-        } catch (e) {
-          ToastUtils().showErrorToast('Failed to enable Bluetooth: $e');
-          logger.e('Bluetooth turnOn() failed: $e');
-          return;
-        }
+    if (!isUsb) {
+      BluetoothAdapterState adapterState =
+          await FlutterBluePlus.adapterState.first;
+      if (adapterState != BluetoothAdapterState.on) {
+        if (Platform.isAndroid) {
+          final l10n = GetIt.instance.get<LocalizationService>().l10n;
+          ToastUtils().showToast(l10n.loading);
+          try {
+            await FlutterBluePlus.turnOn();
+          } catch (e) {
+            ToastUtils().showErrorToast('Failed to enable Bluetooth: $e');
+            logger.e('Bluetooth turnOn() failed: $e');
+            return;
+          }
 
-        try {
-          adapterState = await FlutterBluePlus.adapterState
-              .where((state) => state == BluetoothAdapterState.on)
-              .first
-              .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              ToastUtils().showErrorToast('Bluetooth did not turn on in time.');
-              throw Exception('Bluetooth enable timeout');
-            },
-          );
-        } catch (e) {
-          logger.e('Error while waiting for Bluetooth to turn on: $e');
-          return;
-        }
-      } else if (Platform.isIOS) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        ToastUtils().showErrorToast(l10n.error);
+          try {
+            adapterState = await FlutterBluePlus.adapterState
+                .where((state) => state == BluetoothAdapterState.on)
+                .first
+                .timeout(
+              const Duration(seconds: 10),
+              onTimeout: () {
+                ToastUtils()
+                    .showErrorToast('Bluetooth did not turn on in time.');
+                throw Exception('Bluetooth enable timeout');
+              },
+            );
+          } catch (e) {
+            logger.e('Error while waiting for Bluetooth to turn on: $e');
+            return;
+          }
+        } else if (Platform.isIOS) {
+          final l10n = GetIt.instance.get<LocalizationService>().l10n;
+          ToastUtils().showErrorToast(l10n.error);
 
-        try {
-          adapterState = await FlutterBluePlus.adapterState
-              .where((state) => state == BluetoothAdapterState.on)
-              .first
-              .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              ToastUtils().showErrorToast('Bluetooth did not turn on in time.');
-              throw Exception('Bluetooth enable timeout');
-            },
-          );
-        } catch (e) {
-          logger.e('Error while waiting for Bluetooth to turn on: $e');
+          try {
+            adapterState = await FlutterBluePlus.adapterState
+                .where((state) => state == BluetoothAdapterState.on)
+                .first
+                .timeout(
+              const Duration(seconds: 10),
+              onTimeout: () {
+                ToastUtils()
+                    .showErrorToast('Bluetooth did not turn on in time.');
+                throw Exception('Bluetooth enable timeout');
+              },
+            );
+          } catch (e) {
+            logger.e('Error while waiting for Bluetooth to turn on: $e');
+            return;
+          }
+        } else {
+          final l10n = GetIt.instance.get<LocalizationService>().l10n;
+          ToastUtils().showErrorToast(l10n.error);
           return;
         }
-      } else {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        ToastUtils().showErrorToast(l10n.error);
-        return;
       }
     }
 

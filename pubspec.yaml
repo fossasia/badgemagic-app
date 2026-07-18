@@ -55,6 +55,7 @@ dependencies:
   google_fonts: ^6.3.2
   url_launcher: ^6.3.2
   image: ^4.5.4
+  ffi: ^2.1.4
 
 dev_dependencies:
   flutter_test:
