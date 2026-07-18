@@ -1,8 +1,10 @@
+import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/getitlocator.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/transport_provider.dart';
+import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/view/about_us_screen.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/homescreen.dart';
@@ -53,6 +55,12 @@ Future<void> main() async {
       ChangeNotifierProvider<TransportProvider>(
         create: (_) => getIt<TransportProvider>(),
       ),
+      ChangeNotifierProvider<AnimationBadgeProvider>(
+        create: (_) => AnimationBadgeProvider(),
+      ),
+      ChangeNotifierProvider<SpeedDialProvider>(
+        create: (ctx) => SpeedDialProvider(ctx.read<AnimationBadgeProvider>()),
+      ),
     ],
     child: const MyApp(),
   ));
@@ -82,6 +90,28 @@ class MyApp extends StatelessWidget {
               theme: ThemeData(
                 colorSchemeSeed: Colors.white,
                 useMaterial3: true,
+                dialogTheme: DialogThemeData(
+                  backgroundColor: Colors.white,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28.0),
+                  ),
+                  actionsPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  titleTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
+                ),
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    padding: const EdgeInsets.all(15),
+                  ),
+                ),
               ),
               locale: locale ?? const Locale('en', 'US'),
               localizationsDelegates: const [

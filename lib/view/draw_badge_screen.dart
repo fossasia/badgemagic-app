@@ -9,6 +9,7 @@ import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/virtualbadge/view/draw_badge.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class DrawBadge extends StatefulWidget {
   final String? filename;
@@ -56,6 +57,64 @@ class _DrawBadgeState extends State<DrawBadge> {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+  }
+
+  Future<String?> _showNameDialog() async {
+    TextEditingController controller = TextEditingController();
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
+    return showDialog<String>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          scrollable: true,
+          insetPadding:
+              const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
+          titlePadding:
+              const EdgeInsets.only(left: 16, top: 12, right: 16, bottom: 4),
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+          actionsPadding: const EdgeInsets.only(right: 8, bottom: 4, top: 0),
+          title: Text(
+            l10n.save,
+            style: const TextStyle(fontSize: 16),
+          ),
+          content: SizedBox(
+            width: 300,
+            child: TextField(
+              controller: controller,
+              decoration: const InputDecoration(
+                hintText: 'Enter clipart name',
+                isDense: true,
+                contentPadding:
+                    EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              ),
+              autofocus: true,
+            ),
+          ),
+          actions: [
+            TextButton(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                minimumSize: Size.zero,
+              ),
+              child: Text(l10n.cancel),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            TextButton(
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                minimumSize: Size.zero,
+              ),
+              child: Text(l10n.save),
+              onPressed: () {
+                Navigator.of(context).pop(controller.text.trim());
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -109,7 +168,8 @@ class _DrawBadgeState extends State<DrawBadge> {
                           const SizedBox(width: 2),
                           Flexible(
                               child: _buildCompactButton(
-                                  false, Icons.delete, l10n.erase)),
+                                  false, Icons.delete, l10n.erase,
+                                  iconAsset: 'assets/icons/eraser.svg')),
                           const SizedBox(width: 2),
                           Flexible(child: _buildResetButton()),
                           const SizedBox(width: 2),
@@ -185,8 +245,10 @@ class _DrawBadgeState extends State<DrawBadge> {
     );
   }
 
-  Widget _buildCompactButton(bool isDraw, IconData icon, String label) {
+  Widget _buildCompactButton(bool isDraw, IconData icon, String label,
+      {String? iconAsset}) {
     final isSelected = drawToggle.isDrawing == isDraw;
+    final tint = isSelected ? colorPrimary : Colors.black;
 
     return TextButton(
       onPressed: () {
@@ -201,12 +263,16 @@ class _DrawBadgeState extends State<DrawBadge> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, color: isSelected ? colorPrimary : Colors.black, size: 20),
+          iconAsset != null
+              ? SvgPicture.asset(
+                  iconAsset,
+                  width: 20,
+                  height: 20,
+                  colorFilter: ColorFilter.mode(tint, BlendMode.srcIn),
+                )
+              : Icon(icon, color: tint, size: 20),
           const SizedBox(height: 2),
-          Text(label,
-              style: TextStyle(
-                  color: isSelected ? colorPrimary : Colors.black,
-                  fontSize: 10)),
+          Text(label, style: TextStyle(color: tint, fontSize: 10)),
         ],
       ),
     );
@@ -235,6 +301,10 @@ class _DrawBadgeState extends State<DrawBadge> {
     );
   }
 
+  bool _isBadgeGridEmpty(List<List<int>> grid) {
+    return grid.every((row) => row.every((cell) => cell == 0));
+  }
+
   Widget _buildSaveButton(FileHelper fileHelper) {
     return TextButton(
       onPressed: () async {
@@ -242,6 +312,15 @@ class _DrawBadgeState extends State<DrawBadge> {
             .getDrawViewGrid()
             .map((e) => e.map((e) => e ? 1 : 0).toList())
             .toList();
+
+        if (_isBadgeGridEmpty(badgeGrid)) {
+          ToastUtils().showToast(GetIt.instance
+              .get<LocalizationService>()
+              .l10n
+              .pleaseSelectClipart);
+          return;
+        }
+
         List<String> hexString =
             Converters.convertBitmapToLEDHex(badgeGrid, false);
 
@@ -250,7 +329,14 @@ class _DrawBadgeState extends State<DrawBadge> {
         } else if (widget.isSavedClipart!) {
           await fileHelper.updateClipart(widget.filename!, badgeGrid);
         } else {
-          await fileHelper.saveImage(drawToggle.getDrawViewGrid());
+          String? customName = await _showNameDialog();
+
+          if (customName == null || customName.isEmpty) {
+            return;
+          }
+
+          await fileHelper.saveImageWithName(
+              drawToggle.getDrawViewGrid(), customName);
         }
 
         fileHelper.generateClipartCache();
@@ -258,10 +344,6 @@ class _DrawBadgeState extends State<DrawBadge> {
             .get<LocalizationService>()
             .l10n
             .clipartSavedSuccessfully);
-
-        if (mounted) {
-          Navigator.of(context).popUntil((route) => route.isFirst);
-        }
       },
       style: TextButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),

@@ -60,6 +60,9 @@
   "contactUs": "Contattaci",
   "contactWithUs": "Contatta con Noi",
   "license": "Licenza",
+  "appLicense": "Licenza dell'app (Apache 2.0)",
+  "openSourceLicenses": "Licenze open source",
+  "openSourceLicensesDescription": "Visualizza le licenze delle librerie open source utilizzate in questa app.",
   "speed": "Velocità",
   "speedTitle": "Velocità",
   "animation": "Animazione",
@@ -191,7 +194,7 @@
   "flashEffect": "Flash",
   "marqueeEffect": "Marquee",
   "invertColors": "Inverti Colori",
-  "save": "SALVA",
+  "save": "Salva",
   "badge": "Badge",
   "draw": "Disegna",
   "erase": "Cancella",
@@ -211,5 +214,6 @@
   "badgeNameHint": "Nome badge",
   "triangle": "Triangolo",
   "clipartSavedSuccessfully": "Clipart salvato con successo",
-  "badgeScanMode": "Modalità Scansione Badge"
+  "badgeScanMode": "Modalità Scansione Badge",
+  "pleaseSelectClipart": "Si prega di disegnare o selezionare un clipart prima di salvare"
 }

@@ -3,7 +3,7 @@ import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
 import 'package:badgemagic/bademagic_module/transport/badge_transport.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:universal_ble/universal_ble.dart';
 
 class BleBadgeTransport extends BadgeTransport {
   final BadgeScanMode mode;
@@ -19,7 +19,8 @@ class BleBadgeTransport extends BadgeTransport {
 
   @override
   Future<bool> isAvailable() async {
-    return FlutterBluePlus.isSupported;
+    final state = await UniversalBle.getBluetoothAvailabilityState();
+    return state != AvailabilityState.unsupported;
   }
 
   @override
