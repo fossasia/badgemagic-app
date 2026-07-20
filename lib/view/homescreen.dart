@@ -159,6 +159,36 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  Future<void> _sendViaUsb(UsbTransferProvider usbProvider, bool hid) async {
+    final connected = hid
+        ? await usbProvider.connectHid()
+        : await usbProvider.connectSerial();
+    if (!connected) return;
+
+    try {
+      final generatedData = await animationProvider.generateLegacyPayload(
+        text: inlineimagecontroller.text,
+        flash: animationProvider.isEffectActive(FlashEffect()),
+        marquee: animationProvider.isEffectActive(MarqueeEffect()),
+        invert: animationProvider.isEffectActive(InvertLEDEffect()),
+        speed: speedDialProvider.getOuterValue(),
+        badgeData: badgeData,
+      );
+
+      if (generatedData != null && generatedData.isNotEmpty) {
+        final success = await usbProvider.writeBytes(generatedData);
+        if (success) {
+          ToastUtils().showToast("USB transfer success!");
+        }
+      } else {
+        ToastUtils().showErrorToast("Generation data error.");
+      }
+    } catch (e) {
+      debugPrint("Error USB: $e");
+      ToastUtils().showErrorToast("Error USB transfer");
+    }
+  }
+
   TextStyle _getFontStyle(String fontName) {
     const baseStyle = TextStyle(fontSize: 12);
     switch (fontName) {
@@ -796,13 +826,52 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   ),
                   SizedBox(height: 20.h),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Column(
-                        mainAxisSize: MainAxisSize.min,
+                  Consumer<UsbTransferProvider>(
+                    builder: (context, usbProvider, _) {
+                      Widget option({
+                        required String label,
+                        required IconData icon,
+                        required Color color,
+                        required Future<void> Function() onTap,
+                      }) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: onTap,
+                              child: Container(
+                                width: 56.w,
+                                height: 56.w,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: color.withOpacity(0.1),
+                                  border: Border.all(color: color, width: 2),
+                                ),
+                                child: Icon(icon, size: 24.w, color: color),
+                              ),
+                            ),
+                            SizedBox(height: 6.h),
+                            Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      return Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 24.w,
+                        runSpacing: 16.h,
                         children: [
-                          GestureDetector(
+                          option(
+                            label: "Bluetooth",
+                            icon: Icons.bluetooth,
+                            color: colorAccent,
                             onTap: () async {
                               Navigator.pop(bottomSheetContext);
                               await animationProvider.handleAnimationTransfer(
@@ -818,109 +887,28 @@ class _HomeScreenState extends State<HomeScreen>
                                 context: context,
                               );
                             },
-                            child: Container(
-                              width: 56.w,
-                              height: 56.w,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: colorAccent.withOpacity(0.1),
-                                border:
-                                    Border.all(color: colorAccent, width: 2),
-                              ),
-                              child: Icon(
-                                Icons.bluetooth,
-                                size: 24.w,
-                                color: colorAccent,
-                              ),
-                            ),
                           ),
-                          SizedBox(height: 6.h),
-                          Text(
-                            "Bluetooth",
-                            style: TextStyle(
-                              fontSize: 12.sp,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black87,
-                            ),
+                          option(
+                            label: "USB Serial",
+                            icon: Icons.cable,
+                            color: colorAccent,
+                            onTap: () async {
+                              Navigator.pop(bottomSheetContext);
+                              await _sendViaUsb(usbProvider, false);
+                            },
+                          ),
+                          option(
+                            label: "USB HID",
+                            icon: Icons.usb,
+                            color: colorAccent,
+                            onTap: () async {
+                              Navigator.pop(bottomSheetContext);
+                              await _sendViaUsb(usbProvider, true);
+                            },
                           ),
                         ],
-                      ),
-                      Consumer<UsbTransferProvider>(
-                        builder: (context, usbProvider, _) {
-                          final usbColor = colorAccent;
-
-                          return Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              GestureDetector(
-                                onTap: () async {
-                                  Navigator.pop(bottomSheetContext);
-
-                                  await usbProvider.connectUsb();
-
-                                  try {
-                                    final generatedData =
-                                        await animationProvider
-                                            .generateLegacyPayload(
-                                      text: inlineimagecontroller.text,
-                                      flash: animationProvider
-                                          .isEffectActive(FlashEffect()),
-                                      marquee: animationProvider
-                                          .isEffectActive(MarqueeEffect()),
-                                      invert: animationProvider
-                                          .isEffectActive(InvertLEDEffect()),
-                                      speed: speedDialProvider.getOuterValue(),
-                                      badgeData: badgeData,
-                                    );
-
-                                    if (generatedData != null &&
-                                        generatedData.isNotEmpty) {
-                                      final success = await usbProvider
-                                          .writeBytes(generatedData);
-                                      if (success) {
-                                        ToastUtils()
-                                            .showToast("USB transfer success!");
-                                      }
-                                    } else {
-                                      ToastUtils().showErrorToast(
-                                          "Generation data error.");
-                                    }
-                                  } catch (e) {
-                                    debugPrint("Error USB: $e");
-                                    ToastUtils()
-                                        .showErrorToast("Error USB transfer");
-                                  }
-                                },
-                                child: Container(
-                                  width: 56.w,
-                                  height: 56.w,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.circle,
-                                    color: usbColor.withOpacity(0.1),
-                                    border:
-                                        Border.all(color: usbColor, width: 2),
-                                  ),
-                                  child: Icon(
-                                    Icons.usb,
-                                    size: 24.w,
-                                    color: usbColor,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(height: 6.h),
-                              Text(
-                                "USB",
-                                style: TextStyle(
-                                  fontSize: 12.sp,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black87,
-                                ),
-                              ),
-                            ],
-                          );
-                        },
-                      ),
-                    ],
+                      );
+                    },
                   ),
                   SizedBox(height: 8.h),
                 ],

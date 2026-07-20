@@ -1,93 +1,108 @@
 import 'dart:async';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
-import 'package:flutter_libserialport/flutter_libserialport.dart';
+import 'package:hid_tool/hid_tool.dart';
+import 'package:flserial/flserial.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 
+enum UsbConnectionType { none, serial, hid }
+
 class UsbTransferProvider with ChangeNotifier {
-  SerialPort? _activePort;
-  SerialPortReader? _portReader;
-  StreamSubscription<Uint8List>? _rxSubscription;
-  bool _isConnected = false;
-  String? _connectedPortName;
+  UsbConnectionType _connectionType = UsbConnectionType.none;
+  bool get isConnected => _connectionType != UsbConnectionType.none;
+  UsbConnectionType get connectionType => _connectionType;
 
-  bool get isConnected => _isConnected;
-  String? get connectedPortName => _connectedPortName;
+  FlSerial? _activeSerial;
+  StreamSubscription<SerialEvent>? _serialRxSubscription;
 
-  Future<bool> connectUsb() async {
+  HidDevice? _activeHidDevice;
+
+  Future<bool> connectSerial() async {
+    await disconnectUsb();
     try {
-      final availablePorts = SerialPort.availablePorts;
+      final ports = await FlSerial.availablePorts();
 
-      if (availablePorts.isEmpty) {
-        ToastUtils().showErrorToast(
-            "No USB serial device detected. Please check the OTG connection.");
+      if (ports.isEmpty) {
+        ToastUtils().showErrorToast("No USB COM device detected.");
         return false;
       }
 
-      String? targetPortName;
+      final targetPort = ports.first;
+      _activeSerial = FlSerial();
 
-      for (final name in availablePorts) {
-        final port = SerialPort(name);
-        try {
-          final vid = port.vendorId;
-          final pid = port.productId;
-          debugPrint(
-              "Port found: $name - VID: 0x${vid?.toRadixString(16)}, PID: 0x${pid?.toRadixString(16)}");
-
-          if (vid == 0x0416) {
-            targetPortName = name;
+      _serialRxSubscription = _activeSerial!.events.listen((event) {
+        switch (event.type) {
+          case SerialEventType.connected:
+            debugPrint("USB COM: Port opened");
             break;
-          }
-        } catch (e) {
-          debugPrint("Unreadable info on port $name: $e");
+          case SerialEventType.data:
+            debugPrint("USB COM Rx: ${String.fromCharCodes(event.data as Uint8List)}");
+            break;
+          case SerialEventType.disconnected:
+            debugPrint("USB COM: Port closed/disconnected");
+            disconnectUsb();
+            break;
+          default:
+            break;
         }
-      }
-
-      targetPortName ??= availablePorts.first;
-
-      final port = SerialPort(targetPortName);
-
-      if (!port.openReadWrite()) {
-        final lastError = SerialPort.lastError;
-        ToastUtils().showErrorToast("Error opening port: $lastError");
-        return false;
-      }
-
-      final config = SerialPortConfig()
-        ..baudRate = 115200 //WARNING: do not touch this value
-        ..bits = 8
-        ..stopBits = 1
-        ..parity = SerialPortParity.none;
-      config.setFlowControl(SerialPortFlowControl.none);
-
-      port.config = config;
-
-      _activePort = port;
-      _connectedPortName = targetPortName;
-      _isConnected = true;
-      notifyListeners();
-
-      _portReader = SerialPortReader(port);
-      _rxSubscription = _portReader!.stream.listen((Uint8List data) {
-        final message = String.fromCharCodes(data);
-        debugPrint("USB Rx (Badge): $message");
-      }, onError: (error) {
-        debugPrint("Error during serial read: $error");
-        disconnectUsb();
       });
 
-      ToastUtils().showToast("Badge successfully connected via USB serial!");
+      final config = SerialConfig(baudRate: 115200);
+      final ok = await _activeSerial!.open(targetPort.path, config);
+
+      if (!ok) {
+        ToastUtils().showErrorToast("Error opening COM port.");
+        return false;
+      }
+
+      _connectionType = UsbConnectionType.serial;
+      notifyListeners();
+
+      ToastUtils().showToast("Badge successfully connected via USB (COM)!");
       return true;
     } catch (e) {
-      debugPrint("Generic serial connection error: $e");
+      debugPrint("COM connection error: $e");
       ToastUtils().showErrorToast("Connection error: $e");
-      disconnectUsb();
+      await disconnectUsb();
+      return false;
+    }
+  }
+
+  Future<bool> connectHid() async {
+    await disconnectUsb();
+    try {
+      final availableDevices =
+          await Hid.getDevices(vendorId: 0x0416, productId: 0x5020);
+
+      if (availableDevices.isEmpty) {
+        ToastUtils().showErrorToast("No USB HID device detected.");
+        return false;
+      }
+
+      final targetDevice = availableDevices.first;
+      await targetDevice.open();
+
+      if (!targetDevice.isOpen) {
+        ToastUtils().showErrorToast("Error opening HID device.");
+        return false;
+      }
+
+      _activeHidDevice = targetDevice;
+      _connectionType = UsbConnectionType.hid;
+      notifyListeners();
+
+      ToastUtils().showToast("Badge successfully connected via USB (HID)!");
+      return true;
+    } catch (e) {
+      debugPrint("HID connection error: $e");
+      ToastUtils().showErrorToast("HID Connection error: $e");
+      await disconnectUsb();
       return false;
     }
   }
 
   Future<bool> writeBytes(List<int> bytes) async {
-    if (!_isConnected || _activePort == null) {
+    if (!isConnected) {
       ToastUtils().showErrorToast("No badge connected via USB.");
       return false;
     }
@@ -95,41 +110,62 @@ class UsbTransferProvider with ChangeNotifier {
     try {
       final uint8list = Uint8List.fromList(bytes);
 
-      final bytesWritten = _activePort!.write(uint8list, timeout: 2000);
-
-      if (bytesWritten == uint8list.length) {
-        debugPrint(
-            "USB write completed successfully ($bytesWritten bytes sent).");
+      if (_connectionType == UsbConnectionType.serial) {
+        _activeSerial!.write(uint8list);
+        debugPrint("USB COM write completed successfully (${uint8list.length} bytes sent).");
         return true;
-      } else {
-        debugPrint(
-            "Partial write: only $bytesWritten of ${uint8list.length} bytes sent.");
-        return false;
+
+      }else if (_connectionType == UsbConnectionType.hid) {
+        const int hidDataChunkSize = 64;
+
+        for (int i = 0; i < bytes.length; i += hidDataChunkSize) {
+          int end = (i + hidDataChunkSize < bytes.length) ? i + hidDataChunkSize : bytes.length;
+          List<int> chunk = bytes.sublist(i, end);
+
+          if (chunk.length < hidDataChunkSize) {
+            chunk = List<int>.from(chunk)..addAll(List<int>.filled(hidDataChunkSize - chunk.length, 0));
+          }
+
+          await _activeHidDevice!
+              .sendReport(Uint8List.fromList(chunk), reportId: 0x00);
+
+          await Future.delayed(const Duration(milliseconds: 50));
+        }
+
+        debugPrint("USB HID write completed successfully.");
+        return true;
       }
     } catch (e) {
-      debugPrint("Error writing to serial port: $e");
+      debugPrint("Error writing data: $e");
       ToastUtils().showErrorToast("USB data transmission error.");
       return false;
     }
+    return false;
   }
 
-  void disconnectUsb() {
-    _rxSubscription?.cancel();
-    _rxSubscription = null;
-    _portReader = null;
-
-    if (_activePort != null) {
+  Future<void> disconnectUsb() async {
+    _serialRxSubscription?.cancel();
+    _serialRxSubscription = null;
+    if (_activeSerial != null) {
       try {
-        _activePort!.close();
-        _activePort!.dispose();
+        await _activeSerial!.close();
+        await _activeSerial!.dispose();
       } catch (e) {
         debugPrint("Error releasing serial port: $e");
       }
-      _activePort = null;
+      _activeSerial = null;
     }
 
-    _connectedPortName = null;
-    _isConnected = false;
+    if (_activeHidDevice != null) {
+      try {
+        await _activeHidDevice!.close();
+      } catch (e) {
+        debugPrint("Error releasing HID device: $e");
+      }
+      _activeHidDevice = null;
+    }
+
+    _connectionType = UsbConnectionType.none;
     notifyListeners();
   }
 
