@@ -36,7 +36,8 @@ class UsbTransferProvider with ChangeNotifier {
             debugPrint("USB COM: Port opened");
             break;
           case SerialEventType.data:
-            debugPrint("USB COM Rx: ${String.fromCharCodes(event.data as Uint8List)}");
+            debugPrint(
+                "USB COM Rx: ${String.fromCharCodes(event.data as Uint8List)}");
             break;
           case SerialEventType.disconnected:
             debugPrint("USB COM: Port closed/disconnected");
@@ -112,18 +113,21 @@ class UsbTransferProvider with ChangeNotifier {
 
       if (_connectionType == UsbConnectionType.serial) {
         _activeSerial!.write(uint8list);
-        debugPrint("USB COM write completed successfully (${uint8list.length} bytes sent).");
+        debugPrint(
+            "USB COM write completed successfully (${uint8list.length} bytes sent).");
         return true;
-
-      }else if (_connectionType == UsbConnectionType.hid) {
+      } else if (_connectionType == UsbConnectionType.hid) {
         const int hidDataChunkSize = 64;
 
         for (int i = 0; i < bytes.length; i += hidDataChunkSize) {
-          int end = (i + hidDataChunkSize < bytes.length) ? i + hidDataChunkSize : bytes.length;
+          int end = (i + hidDataChunkSize < bytes.length)
+              ? i + hidDataChunkSize
+              : bytes.length;
           List<int> chunk = bytes.sublist(i, end);
 
           if (chunk.length < hidDataChunkSize) {
-            chunk = List<int>.from(chunk)..addAll(List<int>.filled(hidDataChunkSize - chunk.length, 0));
+            chunk = List<int>.from(chunk)
+              ..addAll(List<int>.filled(hidDataChunkSize - chunk.length, 0));
           }
 
           await _activeHidDevice!
