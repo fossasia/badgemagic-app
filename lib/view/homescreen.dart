@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
@@ -863,6 +864,10 @@ class _HomeScreenState extends State<HomeScreen>
                         );
                       }
 
+                      final bool isDesktop = Platform.isWindows ||
+                          Platform.isLinux ||
+                          Platform.isMacOS;
+
                       return Wrap(
                         alignment: WrapAlignment.center,
                         spacing: 24.w,
@@ -888,24 +893,26 @@ class _HomeScreenState extends State<HomeScreen>
                               );
                             },
                           ),
-                          option(
-                            label: "USB Serial",
-                            icon: Icons.cable,
-                            color: colorAccent,
-                            onTap: () async {
-                              Navigator.pop(bottomSheetContext);
-                              await _sendViaUsb(usbProvider, false);
-                            },
-                          ),
-                          option(
-                            label: "USB HID",
-                            icon: Icons.usb,
-                            color: colorAccent,
-                            onTap: () async {
-                              Navigator.pop(bottomSheetContext);
-                              await _sendViaUsb(usbProvider, true);
-                            },
-                          ),
+                          if (isDesktop) ...[
+                            option(
+                              label: "USB Serial",
+                              icon: Icons.cable,
+                              color: colorAccent,
+                              onTap: () async {
+                                Navigator.pop(bottomSheetContext);
+                                await _sendViaUsb(usbProvider, false);
+                              },
+                            ),
+                            option(
+                              label: "USB HID",
+                              icon: Icons.usb,
+                              color: colorAccent,
+                              onTap: () async {
+                                Navigator.pop(bottomSheetContext);
+                                await _sendViaUsb(usbProvider, true);
+                              },
+                            ),
+                          ],
                         ],
                       );
                     },
