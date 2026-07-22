@@ -864,7 +864,8 @@ class _HomeScreenState extends State<HomeScreen>
                         );
                       }
 
-                      final bool isDesktop = Platform.isWindows ||
+                      final bool supportsUsb = Platform.isAndroid ||
+                          Platform.isWindows ||
                           Platform.isLinux ||
                           Platform.isMacOS;
 
@@ -893,7 +894,7 @@ class _HomeScreenState extends State<HomeScreen>
                               );
                             },
                           ),
-                          if (isDesktop) ...[
+                          if (supportsUsb) ...[
                             option(
                               label: "USB Serial",
                               icon: Icons.cable,
