@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:hid_tool/hid_tool.dart';
@@ -130,8 +131,15 @@ class UsbTransferProvider with ChangeNotifier {
               ..addAll(List<int>.filled(hidDataChunkSize - chunk.length, 0));
           }
 
-          await _activeHidDevice!
-              .sendReport(Uint8List.fromList(chunk), reportId: 0x00);
+          if (Platform.isAndroid) {
+            await _activeHidDevice!.sendReport(
+              Uint8List.fromList(chunk.sublist(1)),
+              reportId: chunk[0],
+            );
+          } else {
+            await _activeHidDevice!
+                .sendReport(Uint8List.fromList(chunk), reportId: 0x00);
+          }
 
           await Future.delayed(const Duration(milliseconds: 50));
         }
