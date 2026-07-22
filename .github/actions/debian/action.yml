@@ -33,7 +33,8 @@ runs:
           libglib2.0-dev \
           libblkid-dev \
           libgcrypt20-dev \
-          libusb-1.0-0-dev
+          libusb-1.0-0-dev \
+          libudev-dev
 
     - name: Build Linux (Debian) App
       shell: bash
