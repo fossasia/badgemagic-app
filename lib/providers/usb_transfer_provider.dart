@@ -18,13 +18,13 @@ class UsbTransferProvider with ChangeNotifier {
 
   HidDevice? _activeHidDevice;
 
-  Future<bool> connectSerial() async {
+  Future<bool> connectSerial({bool silent = false}) async {
     await disconnectUsb();
     try {
       final ports = await FlSerial.availablePorts();
 
       if (ports.isEmpty) {
-        ToastUtils().showErrorToast("No USB COM device detected.");
+        if (!silent) ToastUtils().showErrorToast("No USB COM device detected.");
         return false;
       }
 
@@ -53,31 +53,33 @@ class UsbTransferProvider with ChangeNotifier {
       final ok = await _activeSerial!.open(targetPort.path, config);
 
       if (!ok) {
-        ToastUtils().showErrorToast("Error opening COM port.");
+        if (!silent) ToastUtils().showErrorToast("Error opening COM port.");
         return false;
       }
 
       _connectionType = UsbConnectionType.serial;
       notifyListeners();
 
-      ToastUtils().showToast("Badge successfully connected via USB (COM)!");
+      if (!silent) {
+        ToastUtils().showToast("Badge successfully connected via USB (COM)!");
+      }
       return true;
     } catch (e) {
       debugPrint("COM connection error: $e");
-      ToastUtils().showErrorToast("Connection error: $e");
+      if (!silent) ToastUtils().showErrorToast("Connection error: $e");
       await disconnectUsb();
       return false;
     }
   }
 
-  Future<bool> connectHid() async {
+  Future<bool> connectHid({bool silent = false}) async {
     await disconnectUsb();
     try {
       final availableDevices =
           await Hid.getDevices(vendorId: 0x0416, productId: 0x5020);
 
       if (availableDevices.isEmpty) {
-        ToastUtils().showErrorToast("No USB HID device detected.");
+        if (!silent) ToastUtils().showErrorToast("No USB HID device detected.");
         return false;
       }
 
@@ -85,7 +87,7 @@ class UsbTransferProvider with ChangeNotifier {
       await targetDevice.open();
 
       if (!targetDevice.isOpen) {
-        ToastUtils().showErrorToast("Error opening HID device.");
+        if (!silent) ToastUtils().showErrorToast("Error opening HID device.");
         return false;
       }
 
@@ -93,19 +95,21 @@ class UsbTransferProvider with ChangeNotifier {
       _connectionType = UsbConnectionType.hid;
       notifyListeners();
 
-      ToastUtils().showToast("Badge successfully connected via USB (HID)!");
+      if (!silent) {
+        ToastUtils().showToast("Badge successfully connected via USB (HID)!");
+      }
       return true;
     } catch (e) {
       debugPrint("HID connection error: $e");
-      ToastUtils().showErrorToast("HID Connection error: $e");
+      if (!silent) ToastUtils().showErrorToast("HID Connection error: $e");
       await disconnectUsb();
       return false;
     }
   }
 
-  Future<bool> writeBytes(List<int> bytes) async {
+  Future<bool> writeBytes(List<int> bytes, {bool silent = false}) async {
     if (!isConnected) {
-      ToastUtils().showErrorToast("No badge connected via USB.");
+      if (!silent) ToastUtils().showErrorToast("No badge connected via USB.");
       return false;
     }
 
@@ -149,7 +153,7 @@ class UsbTransferProvider with ChangeNotifier {
       }
     } catch (e) {
       debugPrint("Error writing data: $e");
-      ToastUtils().showErrorToast("USB data transmission error.");
+      if (!silent) ToastUtils().showErrorToast("USB data transmission error.");
       return false;
     }
     return false;

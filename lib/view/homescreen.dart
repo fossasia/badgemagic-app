@@ -161,28 +161,52 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _sendViaUsb(UsbTransferProvider usbProvider, bool hid) async {
-    final connected = hid
-        ? await usbProvider.connectHid()
-        : await usbProvider.connectSerial();
-    if (!connected) return;
+    final int aniIndex = animationProvider.getAnimationIndex() ?? 0;
+    if (aniIndex >= 9) {
+      ToastUtils()
+          .showErrorToast("Animations can be transferred over Bluetooth only.");
+      return;
+    }
+
+    final generatedData = await animationProvider.generateLegacyPayload(
+      text: inlineimagecontroller.text,
+      flash: animationProvider.isEffectActive(FlashEffect()),
+      marquee: animationProvider.isEffectActive(MarqueeEffect()),
+      invert: animationProvider.isEffectActive(InvertLEDEffect()),
+      speed: speedDialProvider.getOuterValue(),
+      badgeData: badgeData,
+    );
+
+    if (generatedData == null || generatedData.isEmpty) {
+      ToastUtils().showErrorToast("Please enter a message to transfer.");
+      return;
+    }
 
     try {
-      final generatedData = await animationProvider.generateLegacyPayload(
-        text: inlineimagecontroller.text,
-        flash: animationProvider.isEffectActive(FlashEffect()),
-        marquee: animationProvider.isEffectActive(MarqueeEffect()),
-        invert: animationProvider.isEffectActive(InvertLEDEffect()),
-        speed: speedDialProvider.getOuterValue(),
-        badgeData: badgeData,
-      );
-
-      if (generatedData != null && generatedData.isNotEmpty) {
-        final success = await usbProvider.writeBytes(generatedData);
-        if (success) {
-          ToastUtils().showToast("USB transfer success!");
+      ToastUtils().showToast("Searching for USB badge...");
+      bool connected = false;
+      const int maxAttempts = 40;
+      for (int attempt = 0; attempt < maxAttempts; attempt++) {
+        connected = hid
+            ? await usbProvider.connectHid(silent: true)
+            : await usbProvider.connectSerial(silent: true);
+        if (connected) break;
+        if (attempt < maxAttempts - 1) {
+          await Future.delayed(const Duration(milliseconds: 300));
         }
+      }
+
+      if (!connected) {
+        ToastUtils().showErrorToast(
+            "No USB badge found. Check the cable and try again.");
+        return;
+      }
+
+      final success = await usbProvider.writeBytes(generatedData, silent: true);
+      if (success) {
+        ToastUtils().showToast("USB transfer success!");
       } else {
-        ToastUtils().showErrorToast("Generation data error.");
+        ToastUtils().showErrorToast("USB transfer failed. Try again.");
       }
     } catch (e) {
       debugPrint("Error USB: $e");
@@ -788,6 +812,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void _showTransferBottomSheet(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.white,
