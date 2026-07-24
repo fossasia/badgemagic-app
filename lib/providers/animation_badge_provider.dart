@@ -335,34 +335,34 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
     if (aniIndex == 9) {
       // Pacman
-      await transferPacmanAnimation(badgeData, selectedSpeed);
+      await transferPacmanAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 10) {
-      await transferChevronAnimation(badgeData, selectedSpeed);
+      await transferChevronAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 11) {
-      await transferDiamondAnimation(badgeData, selectedSpeed);
+      await transferDiamondAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 12) {
-      await transferBrokenHeartsAnimation(badgeData, selectedSpeed);
+      await transferBrokenHeartsAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 13) {
-      await transferCupidAnimation(badgeData, selectedSpeed);
+      await transferCupidAnimation(badgeData, selectedSpeed, context);
       setAnimationMode(CupidAnimation());
       _animationIndex = 0;
       if (_timer == null || !_timer!.isActive) startTimer();
     } else if (aniIndex == 14) {
-      await transferFeetAnimation(badgeData, selectedSpeed);
+      await transferFeetAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 15) {
-      await transferFishAnimation(badgeData, selectedSpeed);
+      await transferFishAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 16) {
-      await transferDiagonalAnimation(badgeData, selectedSpeed);
+      await transferDiagonalAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 17) {
-      await transferEmergencyAnimation(badgeData, selectedSpeed);
+      await transferEmergencyAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 18) {
-      await transferBeatingHeartsAnimation(badgeData, selectedSpeed);
+      await transferBeatingHeartsAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 19) {
-      await transferFireworksAnimation(badgeData, selectedSpeed);
+      await transferFireworksAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 20) {
-      await transferEqualizerAnimation(badgeData, selectedSpeed);
+      await transferEqualizerAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 21) {
-      await transferCycleAnimation(badgeData, selectedSpeed);
+      await transferCycleAnimation(badgeData, selectedSpeed, context);
     } else {
       transferResult = await badgeData.checkAndTransfer(
         inlineImageProvider.getController().text,
