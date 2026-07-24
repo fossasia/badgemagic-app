@@ -189,80 +189,97 @@ class BadgeMessageProvider {
   }
 }
 
-Future<void> transferFireworksAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferFireworksAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferFireworksAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
 Future<void> transferBeatingHeartsAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider,
+    int speedLevel,
+    BuildContext context) async {
   return customTransferBeatingHeartsAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferEmergencyAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferEmergencyAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferEmergencyAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferDiagonalAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferDiagonalAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferDiagonalAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferFishAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferFishAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferFishAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferEqualizerAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferEqualizerAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferEqualizerAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferPacmanAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferPacmanAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferPacmanAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferChevronAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferChevronAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferChevronAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferDiamondAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferDiamondAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferDiamondAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
 Future<void> transferBrokenHeartsAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider,
+    int speedLevel,
+    BuildContext context) async {
   return customTransferBrokenHeartsAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferFeetAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferFeetAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferFeetAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferCupidAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferCupidAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferCupidAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
 
-Future<void> transferCycleAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+Future<void> transferCycleAnimation(BadgeMessageProvider badgeDataProvider,
+    int speedLevel, BuildContext context) async {
   return customTransferCycleAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      (manager) => badgeDataProvider.transferData(manager, context: context),
+      speedLevel);
 }
