@@ -369,4 +369,76 @@ class AnimationBadgeProvider extends ChangeNotifier {
       return null;
     }
   }
+
+  Future<List<int>?> generateAnimationUsbPayload(
+    BadgeMessageProvider badgeData,
+    int speedLevel,
+  ) async {
+    List<int>? payload;
+    Future<void> capture(DataTransferManager manager) async {
+      final chunks = await manager.generateDataChunk();
+      if (chunks.isNotEmpty) {
+        payload = chunks.expand((chunk) => chunk).toList();
+      }
+    }
+
+    final int aniIndex = getAnimationIndex() ?? 0;
+    switch (aniIndex) {
+      case 9:
+        await transferPacmanAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 10:
+        await transferChevronAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 11:
+        await transferDiamondAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 12:
+        await transferBrokenHeartsAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 13:
+        await transferCupidAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 14:
+        await transferFeetAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 15:
+        await transferFishAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 16:
+        await transferDiagonalAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 17:
+        await transferEmergencyAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 18:
+        await transferBeatingHeartsAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 19:
+        await transferFireworksAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 20:
+        await transferEqualizerAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 21:
+        await transferCycleAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      default:
+        return null;
+    }
+    return payload;
+  }
 }

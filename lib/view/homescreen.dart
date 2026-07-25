@@ -162,24 +162,30 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> _sendViaUsb(UsbTransferProvider usbProvider, bool hid) async {
     final int aniIndex = animationProvider.getAnimationIndex() ?? 0;
+
+    List<int>? generatedData;
     if (aniIndex >= 9) {
-      ToastUtils()
-          .showErrorToast("Animations can be transferred over Bluetooth only.");
-      return;
-    }
-
-    final generatedData = await animationProvider.generateLegacyPayload(
-      text: inlineimagecontroller.text,
-      flash: animationProvider.isEffectActive(FlashEffect()),
-      marquee: animationProvider.isEffectActive(MarqueeEffect()),
-      invert: animationProvider.isEffectActive(InvertLEDEffect()),
-      speed: speedDialProvider.getOuterValue(),
-      badgeData: badgeData,
-    );
-
-    if (generatedData == null || generatedData.isEmpty) {
-      ToastUtils().showErrorToast("Please enter a message to transfer.");
-      return;
+      generatedData = await animationProvider.generateAnimationUsbPayload(
+        badgeData,
+        speedDialProvider.getOuterValue(),
+      );
+      if (generatedData == null || generatedData.isEmpty) {
+        ToastUtils().showErrorToast("Could not generate animation data.");
+        return;
+      }
+    } else {
+      generatedData = await animationProvider.generateLegacyPayload(
+        text: inlineimagecontroller.text,
+        flash: animationProvider.isEffectActive(FlashEffect()),
+        marquee: animationProvider.isEffectActive(MarqueeEffect()),
+        invert: animationProvider.isEffectActive(InvertLEDEffect()),
+        speed: speedDialProvider.getOuterValue(),
+        badgeData: badgeData,
+      );
+      if (generatedData == null || generatedData.isEmpty) {
+        ToastUtils().showErrorToast("Please enter a message to transfer.");
+        return;
+      }
     }
 
     try {

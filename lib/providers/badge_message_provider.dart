@@ -178,81 +178,120 @@ class BadgeMessageProvider {
 }
 
 Future<void> transferFireworksAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferFireworksAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferBeatingHeartsAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferBeatingHeartsAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferEmergencyAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferEmergencyAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferDiagonalAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferDiagonalAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferFishAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferFishAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferEqualizerAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferEqualizerAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferPacmanAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferPacmanAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferChevronAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferChevronAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferDiamondAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferDiamondAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferBrokenHeartsAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferBrokenHeartsAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferFeetAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferFeetAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferCupidAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferCupidAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferCycleAnimation(
-    BadgeMessageProvider badgeDataProvider, int speedLevel) async {
+    BadgeMessageProvider badgeDataProvider, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferCycleAnimation(
-      (manager) => badgeDataProvider.transferData(manager), speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager), speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 // helper moved to utils/custom_transfers/common.dart

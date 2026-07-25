@@ -9,9 +9,9 @@ import 'package:badgemagic/utils/custom_transfers/common.dart';
 import 'package:logger/logger.dart';
 
 Future<void> customTransferCycleAnimation(
-    Future<void> Function(DataTransferManager) transferData,
-    int speedLevel) async {
-  if (!await checkAdapterState()) return;
+    Future<void> Function(DataTransferManager) transferData, int speedLevel,
+    {bool skipAdapterCheck = false}) async {
+  if (!skipAdapterCheck && !await checkAdapterState()) return;
 
   // Use the same speed logic as Diamond/Cupid: always use Speed.eight for seamless animation
   // Cycle animation uses 8 selected frames from infinite back-and-forth movement

@@ -9,9 +9,9 @@ import 'package:badgemagic/utils/custom_transfers/common.dart';
 import 'package:logger/logger.dart';
 
 Future<void> customTransferFishAnimation(
-    Future<void> Function(DataTransferManager) transferData,
-    int speedLevel) async {
-  if (!await checkAdapterState()) return;
+    Future<void> Function(DataTransferManager) transferData, int speedLevel,
+    {bool skipAdapterCheck = false}) async {
+  if (!skipAdapterCheck && !await checkAdapterState()) return;
 
   const int badgeHeight = 11;
   const int badgeWidth = 44;
