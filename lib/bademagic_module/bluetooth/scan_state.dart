@@ -19,6 +19,32 @@ class ScanState extends NormalBleState {
     required this.allowedNames,
   });
 
+  /// Whether [device] is a badge this scan should connect to.
+  ///
+  /// Two independent questions, deliberately kept apart:
+  ///
+  /// 1. Does it look like a badge at all? Satisfied by the advertised service
+  ///    UUID **or** the advertised name. These are OR'd because OEM firmware
+  ///    advertises no service UUIDs, while the open firmware's name is
+  ///    user-changeable - requiring both would exclude one or the other.
+  /// 2. Does it pass the user's badge-selection setting? Only consulted in
+  ///    [BadgeScanMode.specific], and matched on the full name, lower-cased.
+  bool _isTargetBadge(BleDevice device) {
+    // device.services holds what the advertisement carried, not the full GATT
+    // table, so OEM badges contribute nothing here and rely on the name.
+    final looksLikeBadge = device.services.contains(targetServiceUuid) ||
+        matchesBadgeName(device.name);
+
+    if (!looksLikeBadge) return false;
+    if (mode == BadgeScanMode.any) return true;
+
+    final deviceName = (device.name ?? '').trim().toLowerCase();
+    return allowedNames
+        .map((e) => e.trim().toLowerCase())
+        .where((e) => e.isNotEmpty)
+        .contains(deviceName);
+  }
+
   @override
   Future<BleState?> processState() async {
     manager.clearConnectedDevice();
@@ -36,24 +62,7 @@ class ScanState extends NormalBleState {
           if (isCompleted) return;
 
           try {
-            final normalizedAllowedNames = allowedNames
-                .map((e) => e.trim().toLowerCase())
-                .where((e) => e.isNotEmpty)
-                .toList();
-
-            // device.services here is what was in the advertisement, not the
-            // full GATT table. OEM badges advertise no service UUIDs at all,
-            // so this alone rejects them - match the advertised name too.
-            final matchesUuid = device.services.contains(targetServiceUuid);
-            final rawName = (device.name ?? "").trim();
-            final matchesBadgeName =
-                badgeNamePrefixes.any((prefix) => rawName.startsWith(prefix));
-
-            final deviceName = rawName.toLowerCase();
-            final matchesName = mode == BadgeScanMode.any ||
-                normalizedAllowedNames.contains(deviceName);
-
-            if ((matchesUuid || matchesBadgeName) && matchesName) {
+            if (_isTargetBadge(device)) {
               isCompleted = true;
               timeoutTimer?.cancel();
               await UniversalBle.stopScan();
