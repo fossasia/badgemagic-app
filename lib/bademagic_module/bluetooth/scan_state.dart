@@ -41,13 +41,19 @@ class ScanState extends NormalBleState {
                 .where((e) => e.isNotEmpty)
                 .toList();
 
+            // device.services here is what was in the advertisement, not the
+            // full GATT table. OEM badges advertise no service UUIDs at all,
+            // so this alone rejects them - match the advertised name too.
             final matchesUuid = device.services.contains(targetServiceUuid);
+            final rawName = (device.name ?? "").trim();
+            final matchesBadgeName =
+                badgeNamePrefixes.any((prefix) => rawName.startsWith(prefix));
 
-            final deviceName = (device.name ?? "").trim().toLowerCase();
+            final deviceName = rawName.toLowerCase();
             final matchesName = mode == BadgeScanMode.any ||
                 normalizedAllowedNames.contains(deviceName);
 
-            if (matchesUuid && matchesName) {
+            if ((matchesUuid || matchesBadgeName) && matchesName) {
               isCompleted = true;
               timeoutTimer?.cancel();
               await UniversalBle.stopScan();
@@ -76,9 +82,15 @@ class ScanState extends NormalBleState {
         },
       );
 
+      // Supplying withNamePrefix switches universal_ble into custom-filter
+      // mode, where the *native* scanner runs unfiltered and matching happens
+      // in the plugin with OR semantics across filter kinds. That is what lets
+      // OEM badges - which advertise no service UUIDs - be seen at all, and it
+      // mirrors what the stock vendor app does.
       await UniversalBle.startScan(
         scanFilter: ScanFilter(
           withServices: [targetServiceUuid],
+          withNamePrefix: badgeNamePrefixes,
         ),
       );
 
