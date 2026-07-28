@@ -121,6 +121,7 @@ class BadgeMessageProvider {
       bool isSavedBadge,
       BuildContext context,
       {TextStyle? textStyle}) async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     if (controllerData.getController().text.isEmpty && isSavedBadge == false) {
       bool isFireworks = false;
       try {
@@ -136,7 +137,6 @@ class BadgeMessageProvider {
             modeValueMap[cycleIndex] == Mode.cycle) {}
       } catch (_) {}
       if (mode != Mode.pacman && !isFireworks) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
         ToastUtils().showErrorToast(l10n.pleaseEnterMessage);
         return;
       }
@@ -146,7 +146,11 @@ class BadgeMessageProvider {
         await UniversalBle.getBluetoothAvailabilityState();
 
     if (adapterState != AvailabilityState.poweredOn) {
-      ToastUtils().showErrorToast('Please turn on Bluetooth in your settings');
+      try {
+        await UniversalBle.enableBluetooth();
+      } catch (e) {
+        ToastUtils().showErrorToast(l10n.turnBLEOn);
+      }
       logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
       return;
     }

@@ -6,12 +6,18 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 
+import '../../services/localization_service.dart';
 import '../utils/toast_utils.dart';
 
 Future<bool> checkAdapterState() async {
   final adapterState = await UniversalBle.getBluetoothAvailabilityState();
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
   if (adapterState != AvailabilityState.poweredOn) {
-    ToastUtils().showErrorToast('Please turn on Bluetooth');
+    try {
+      await UniversalBle.enableBluetooth();
+    } catch (e) {
+      ToastUtils().showErrorToast(l10n.turnBLEOn);
+    }
     return false;
   }
   return true;
