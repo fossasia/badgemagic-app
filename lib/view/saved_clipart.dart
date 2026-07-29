@@ -60,12 +60,16 @@ class _SavedClipartState extends State<SavedClipart> {
           onPressed: () {
             Navigator.pushNamed(context, '/drawBadge');
           },
-            style: TextButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal:8.w, vertical: 6.h),
-              minimumSize: Size.zero,
-              tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-            ),
-            child: Text(l10n.create,style: TextStyle(color: Colors.white),)),
+          style: TextButton.styleFrom(
+            padding: EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+            minimumSize: Size.zero,
+            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          ),
+          child: Text(
+            l10n.create,
+            style: const TextStyle(color: drawerHeaderTitle),
+          ),
+        ),
       ],
       body: imageprovider.clipartsCache.isEmpty
           ? Center(
