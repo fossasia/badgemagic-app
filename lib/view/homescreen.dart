@@ -76,6 +76,8 @@ class _HomeScreenState extends State<HomeScreen>
   static const _transitionKey = 'badge_transition';
   static const _effectsKey = 'badge_effects';
 
+  Timer? _debounceTimer;
+
   @override
   void initState() {
     super.initState();
@@ -96,9 +98,9 @@ class _HomeScreenState extends State<HomeScreen>
         await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
       }
 
-      inlineimagecontroller.addListener(savePreferences);
-      animationProvider.addListener(savePreferences);
-      speedDialProvider.addListener(savePreferences);
+      inlineimagecontroller.addListener(_debouncedSavePreferences);
+      animationProvider.addListener(_debouncedSavePreferences);
+      speedDialProvider.addListener(_debouncedSavePreferences);
     });
     _tabController = TabController(length: 4, vsync: this);
   }
@@ -258,12 +260,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _vectorScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
-    inlineimagecontroller.removeListener(savePreferences);
-    animationProvider.removeListener(savePreferences);
-    speedDialProvider.removeListener(savePreferences);
+    inlineimagecontroller.removeListener(_debouncedSavePreferences);
+    animationProvider.removeListener(_debouncedSavePreferences);
+    speedDialProvider.removeListener(_debouncedSavePreferences);
     _tabController.dispose();
     super.dispose();
   }
@@ -813,6 +816,13 @@ class _HomeScreenState extends State<HomeScreen>
       Future.delayed(const Duration(milliseconds: 2000), () {
         if (context.mounted) Navigator.of(context).pop();
       });
+    });
+  }
+
+  void _debouncedSavePreferences() {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      savePreferences();
     });
   }
 
