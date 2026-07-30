@@ -4,7 +4,6 @@ import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
@@ -19,7 +18,10 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart'; // Import the new EqualizerAnimation
+import 'package:provider/provider.dart';
+
+import '../../view/widgets/ble_progress_dialog.dart';
+import '../../view/widgets/ble_progress_dialog_controller.dart';
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -125,6 +127,8 @@ class BadgeMessageProvider {
       BuildContext context,
       {TextStyle? textStyle}) async {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    final bleDialogController = GetIt.instance<BleDialogController>();
+
     if (controllerData.getController().text.isEmpty && isSavedBadge == false) {
       bool isFireworks = false;
       try {
@@ -140,7 +144,8 @@ class BadgeMessageProvider {
             modeValueMap[cycleIndex] == Mode.cycle) {}
       } catch (_) {}
       if (mode != Mode.pacman && !isFireworks) {
-        ToastUtils().showErrorToast(l10n.pleaseEnterMessage);
+        bleDialogController.update(
+            BleDialogStatus.error, l10n.pleaseEnterMessage);
         return;
       }
     }
@@ -165,7 +170,8 @@ class BadgeMessageProvider {
       try {
         await UniversalBle.enableBluetooth();
       } catch (e) {
-        ToastUtils().showErrorToast(l10n.turnBLEOn);
+        bleDialogController.update(
+          BleDialogStatus.error, l10n.turnOnBluetoothMessage);
       }
       logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
       return;
