@@ -19,6 +19,8 @@ import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/special_text_field.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/firmware_update_dialog.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
@@ -700,21 +702,8 @@ class _HomeScreenState extends State<HomeScreen>
                             ],
                             Expanded(
                               child: GestureDetector(
-                                onTap: () async {
-                                  await animationProvider
-                                      .handleAnimationTransfer(
-                                    badgeData: badgeData,
-                                    inlineImageProvider: inlineImageProvider,
-                                    speedDialProvider: speedDialProvider,
-                                    flash: animationProvider
-                                        .isEffectActive(FlashEffect()),
-                                    marquee: animationProvider
-                                        .isEffectActive(MarqueeEffect()),
-                                    invert: animationProvider
-                                        .isEffectActive(InvertLEDEffect()),
-                                    context: context,
-                                  );
-                                },
+                                onTap: () => _showBleTransferDialog(
+                                    context, inlineImageProvider),
                                 child: Container(
                                   height: 32.h,
                                   alignment: Alignment.center,
@@ -740,6 +729,61 @@ class _HomeScreenState extends State<HomeScreen>
         );
       },
     );
+  }
+
+  void _showBleTransferDialog(
+      BuildContext context, InlineImageProvider inlineImageProvider) {
+    final bleDialogController = GetIt.instance<BleDialogController>();
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    bleDialogController.update(
+        BleDialogStatus.searching, l10n.searchingDeviceBLE);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return ValueListenableBuilder<BleDialogStatus>(
+          valueListenable: bleDialogController.status,
+          builder: (context, status, _) {
+            return ValueListenableBuilder<double>(
+              valueListenable: bleDialogController.progress,
+              builder: (context, progress, _) {
+                return ValueListenableBuilder<String>(
+                  valueListenable: bleDialogController.message,
+                  builder: (context, message, _) {
+                    return BleProgressDialog(
+                      status: status,
+                      progress: progress,
+                      message: message,
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+
+    animationProvider
+        .handleAnimationTransfer(
+      badgeData: badgeData,
+      inlineImageProvider: inlineImageProvider,
+      speedDialProvider: speedDialProvider,
+      flash: animationProvider.isEffectActive(FlashEffect()),
+      marquee: animationProvider.isEffectActive(MarqueeEffect()),
+      invert: animationProvider.isEffectActive(InvertLEDEffect()),
+      context: context,
+    )
+        .catchError((error) {
+      bleDialogController.update(
+        BleDialogStatus.error,
+        "An unexpected error\noccurred.",
+      );
+      Future.delayed(const Duration(milliseconds: 2000), () {
+        if (context.mounted) Navigator.of(context).pop();
+      });
+    });
   }
 
   void handleTextChange() {

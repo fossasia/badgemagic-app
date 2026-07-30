@@ -1,9 +1,10 @@
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/view/qr_scan_screen.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
@@ -48,6 +49,61 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
     ]);
   }
 
+  void _showImportOptions(BuildContext context, AppLocalizations l10n) {
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.insert_drive_file),
+                title: Text(l10n.importFromFile),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _importFromFile(l10n);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.qr_code_scanner),
+                title: Text(l10n.scanQrCode),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  _importFromQr(l10n);
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _importFromFile(AppLocalizations l10n) async {
+    final value = await fileHelper.importBadgeData(context);
+    if (value) {
+      toastUtils.showToast(l10n.badgeImportedSuccessfully);
+      await fileHelper.getBadgeDataFiles();
+      if (mounted) setState(() {});
+    }
+  }
+
+  Future<void> _importFromQr(AppLocalizations l10n) async {
+    final result = await Navigator.of(context).push<Map<String, dynamic>>(
+      MaterialPageRoute(builder: (_) => const QrScanScreen()),
+    );
+    if (result == null) return;
+    final success = await fileHelper.importBadgeFromJson(result);
+    if (success) {
+      toastUtils.showToast(l10n.badgeImportedSuccessfully);
+      await fileHelper.getBadgeDataFiles();
+      if (mounted) setState(() {});
+    } else {
+      toastUtils.showToast(l10n.couldNotImportBadgeFromQr);
+    }
+  }
+
   @override
   void dispose() {
     animationBadgeProvider.stopAnimation();
@@ -77,15 +133,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
           Padding(
             padding: EdgeInsets.symmetric(vertical: 8.h, horizontal: 8.w),
             child: TextButton(
-              onPressed: () async {
-                final value = await fileHelper.importBadgeData(context);
-                if (value) {
-                  logger.d('value: $value');
-                  toastUtils.showToast(l10n.badgeImportedSuccessfully);
-                  await fileHelper.getBadgeDataFiles();
-                  setState(() {});
-                }
-              },
+              onPressed: () => _showImportOptions(context, l10n),
               style: TextButton.styleFrom(
                 padding: EdgeInsets.symmetric(horizontal: 14.w, vertical: 6.h),
                 minimumSize: Size.zero,
