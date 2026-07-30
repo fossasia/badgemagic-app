@@ -10,6 +10,7 @@ import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/save_badge_screen.dart';
 import 'package:badgemagic/view/saved_clipart.dart';
 import 'package:badgemagic/view/settings_screen.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
@@ -25,6 +26,7 @@ Future<void> main() async {
 
   // Initialize global localization service for usage outside of widgets
   final localizationService = getIt<LocalizationService>();
+  getIt.registerLazySingleton<BleDialogController>(() => BleDialogController());
   // Keep initial UI in English for integration tests that tap by English text
   // Apply saved locale on the next frame so visible strings change after first paint
   final saved = await localizationService.loadSavedLocale();
