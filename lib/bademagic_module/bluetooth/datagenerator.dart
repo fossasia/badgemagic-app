@@ -12,7 +12,6 @@ import 'package:get_it/get_it.dart';
 import '../../services/localization_service.dart';
 import '../../view/widgets/ble_progress_dialog.dart';
 import '../../view/widgets/ble_progress_dialog_controller.dart';
-import '../utils/toast_utils.dart';
 
 Future<bool> checkAdapterState() async {
   final adapterState = await UniversalBle.getBluetoothAvailabilityState();
