@@ -1,9 +1,14 @@
 import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../view/widgets/ble_progress_dialog.dart';
+import '../../view/widgets/ble_progress_dialog_controller.dart';
 
 class CompletedState extends NormalBleState {
   final bool isSuccess;
   final String message;
   final bool isNextGen;
+  final bleDialogController = GetIt.instance<BleDialogController>();
 
   CompletedState(
       {required this.isSuccess, required this.message, this.isNextGen = false});
@@ -11,9 +16,9 @@ class CompletedState extends NormalBleState {
   @override
   Future<BleState?> processState() async {
     if (isSuccess) {
-      toast.showToast(message);
+      bleDialogController.update(BleDialogStatus.success, message);
     } else {
-      toast.showErrorToast(message);
+      bleDialogController.update(BleDialogStatus.error, message);
     }
     return null;
   }
