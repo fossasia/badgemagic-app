@@ -20,7 +20,6 @@ import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 import 'package:badgemagic/view/widgets/auth_pin_dialog.dart';
-import 'package:provider/provider.dart';
 
 import '../../view/widgets/ble_progress_dialog.dart';
 import '../../view/widgets/ble_progress_dialog_controller.dart';
@@ -195,7 +194,8 @@ class BadgeMessageProvider {
           currentPin = await showPinAuthDialog(context);
 
           if (currentPin == null) {
-            ToastUtils().showToast('Transfer canceled by user');
+            bleDialogController.update(
+                BleDialogStatus.error, l10n.transferCanceledByUser);
             return;
           }
         }
@@ -219,7 +219,8 @@ class BadgeMessageProvider {
           savedPin = currentPin;
           isHardwareUnlocked = true;
           isTransferred = true;
-          ToastUtils().showToast('Data transferred successfully!');
+          bleDialogController.update(
+              BleDialogStatus.success, l10n.transferSucceeded);
         } else {
           savedPin = null;
           isHardwareUnlocked = false;
