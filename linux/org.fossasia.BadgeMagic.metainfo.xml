@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>org.fossasia.BadgeMagic</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>Apache-2.0</project_license>
+    <name>BadgeMagic</name>
+    <summary>Badge Magic App</summary>
+    <developer id="org.fossasia">
+        <name>FOSSASIA</name>
+    </developer>
+    <project_group>FOSSASIA</project_group>
+    <description>
+        <p>An intuitive app for creating, customizing, and transferring dynamic text and vector graphics to Bluetooth LED name badges.</p>
+        <p>Badge Magic turns your device into a portable studio for LED badge customization. Featuring an 11×44 grid editor, multi-badge slot management, and seamless Bluetooth Low Energy (BLE) transfer, it allows makers, event organizers, and hobbyists to program custom badges effortlessly.</p>
+        <p>Key features include:</p>
+        <ul>
+            <li>22 Animation Effects (including Pacman, Digital Rain, Fireworks, and scrolling text)</li>
+            <li>3 Visual Effects: Flash, Invert, and Marquee</li>
+            <li>Pixel-art drawing editor with shape tools (Square, Circle, Triangle) and Undo/Redo</li>
+            <li>Save, edit, import, and export custom badge layouts</li>
+            <li>Batch transfer up to 8 badges via Bluetooth Low Energy</li>
+            <li>Multi-language support and custom Bluetooth device alias management</li>
+        </ul>
+        <p>More feature on our personalized firmware!</p>
+    </description>
+    <launchable type="desktop-id">org.fossasia.BadgeMagic.desktop</launchable>
+
+    <branding>
+        <color type="primary" scheme_preference="light">#D32F2F</color>
+        <color type="primary" scheme_preference="dark">#D32F2F</color>
+    </branding>
+
+    <screenshots>
+        <screenshot type="default">
+            <caption>Home Screen</caption>
+            <image>https://raw.githubusercontent.com/badgemagic-app/tree/development/linux/assets/screenshots/cine_0001.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Transfer</caption>
+            <image>https://raw.githubusercontent.com/badgemagic-app/tree/development/linux/assets/screenshots/cine_0002.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Animations</caption>
+            <image>https://raw.githubusercontent.com/badgemagic-app/tree/development/linux/assets/screenshots/cine_0003.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Clipart Drawer</caption>
+            <image>https://raw.githubusercontent.com/badgemagic-app/tree/development/linux/assets/screenshots/cine_0004.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Menu</caption>
+            <image>https://raw.githubusercontent.com/badgemagic-app/tree/development/linux/assets/screenshots/cine_0005.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Saved Badges</caption>
+            <image>https://raw.githubusercontent.com/badgemagic-app/tree/development/linux/assets/screenshots/cine_0006.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Saved Cliparts</caption>
+            <image>https://raw.githubusercontent.com/badgemagic-app/tree/development/linux/assets/screenshots/cine_0007.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Settings</caption>
+            <image>https://raw.githubusercontent.com/badgemagic-app/tree/development/linux/assets/screenshots/cine_0008.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>About us</caption>
+            <image>https://raw.githubusercontent.com/badgemagic-app/tree/development/linux/assets/screenshots/cine_0009.jpg</image>
+        </screenshot>
+    </screenshots>
+
+
+    <url type="homepage">https://badgemagic.fossasia.org/</url>
+    <url type="bugtracker">https://github.com/fossasia/badgemagic-appissues</url>
+    <url type="vcs-browser">https://github.com/fossasia/badgemagic-app</url>
+    <url type="translate">https://hosted.weblate.org/projects/fossasia/badge-magic-app/</url>
+
+    <categories>
+        <category>Graphics</category>
+        <category>Utility</category>
+        <category>HardwareSettings</category>
+        <category>Electronics</category>
+    </categories>
+
+    <supports>
+        <control>keyboard</control>
+        <control>pointing</control>
+        <control>touch</control>
+    </supports>
+
+    <content_rating type="oars-1.1" />
+    <releases>
+        <release version="1.34.0" date="2026-07-30">
+            <description>
+                <p>First upload on Flathub!</p>
+            </description>
+        </release>
+    </releases>
+</component>
