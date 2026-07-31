@@ -157,7 +157,7 @@ class BadgeMessageProvider {
         connectStatus = await Permission.bluetoothConnect.request();
 
         if (!connectStatus.isGranted) {
-          ToastUtils().showErrorToast(l10n.turnBLEOn);
+          bleDialogController.update(BleDialogStatus.error, l10n.turnBLEOn);
           return;
         }
       }
@@ -171,7 +171,7 @@ class BadgeMessageProvider {
         await UniversalBle.enableBluetooth();
       } catch (e) {
         bleDialogController.update(
-          BleDialogStatus.error, l10n.turnOnBluetoothMessage);
+            BleDialogStatus.error, l10n.turnOnBluetoothMessage);
       }
       logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
       return;

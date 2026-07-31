@@ -10,11 +10,14 @@ import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../services/localization_service.dart';
+import '../../view/widgets/ble_progress_dialog.dart';
+import '../../view/widgets/ble_progress_dialog_controller.dart';
 import '../utils/toast_utils.dart';
 
 Future<bool> checkAdapterState() async {
   final adapterState = await UniversalBle.getBluetoothAvailabilityState();
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
+  final bleDialogController = GetIt.instance<BleDialogController>();
 
   if (Platform.isAndroid) {
     PermissionStatus connectStatus = await Permission.bluetoothConnect.status;
@@ -23,7 +26,7 @@ Future<bool> checkAdapterState() async {
       connectStatus = await Permission.bluetoothConnect.request();
 
       if (!connectStatus.isGranted) {
-        ToastUtils().showErrorToast(l10n.turnBLEOn);
+        bleDialogController.update(BleDialogStatus.error, l10n.turnBLEOn);
         return false;
       }
     }
@@ -33,7 +36,7 @@ Future<bool> checkAdapterState() async {
     try {
       await UniversalBle.enableBluetooth();
     } catch (e) {
-      ToastUtils().showErrorToast(l10n.turnBLEOn);
+      bleDialogController.update(BleDialogStatus.error, l10n.turnBLEOn);
     }
     return false;
   }
