@@ -4,7 +4,6 @@ import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
@@ -19,8 +18,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart'; // Import the new EqualizerAnimation
+import 'package:provider/provider.dart';
 import 'package:badgemagic/view/widgets/auth_pin_dialog.dart';
+import 'package:provider/provider.dart';
+
+import '../../view/widgets/ble_progress_dialog.dart';
+import '../../view/widgets/ble_progress_dialog_controller.dart';
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -144,6 +147,9 @@ class BadgeMessageProvider {
       bool isSavedBadge,
       BuildContext context,
       {TextStyle? textStyle}) async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    final bleDialogController = GetIt.instance<BleDialogController>();
+
     if (controllerData.getController().text.isEmpty && isSavedBadge == false) {
       bool isFireworks = false;
       try {
@@ -159,8 +165,8 @@ class BadgeMessageProvider {
             modeValueMap[cycleIndex] == Mode.cycle) {}
       } catch (_) {}
       if (mode != Mode.pacman && !isFireworks) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        ToastUtils().showErrorToast(l10n.pleaseEnterMessage);
+        bleDialogController.update(
+            BleDialogStatus.error, l10n.pleaseEnterMessage);
         return;
       }
     }
@@ -169,7 +175,8 @@ class BadgeMessageProvider {
         await UniversalBle.getBluetoothAvailabilityState();
 
     if (adapterState != AvailabilityState.poweredOn) {
-      ToastUtils().showErrorToast('Please turn on Bluetooth in your settings');
+      bleDialogController.update(
+          BleDialogStatus.error, l10n.turnOnBluetoothMessage);
       logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
       return;
     }
