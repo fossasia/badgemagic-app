@@ -71,7 +71,7 @@
 
 
     <url type="homepage">https://badgemagic.fossasia.org/</url>
-    <url type="bugtracker">https://github.com/fossasia/badgemagic-appissues</url>
+    <url type="bugtracker">https://github.com/fossasia/badgemagic-app/issues</url>
     <url type="vcs-browser">https://github.com/fossasia/badgemagic-app</url>
     <url type="translate">https://hosted.weblate.org/projects/fossasia/badge-magic-app/</url>
 
