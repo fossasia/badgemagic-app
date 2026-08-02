@@ -347,5 +347,7 @@
   "testBleFirmwareDescription": "Use the HARDCODED firmware to test the flash on the badge via BLE",
   "flashingFirmwareProgress": "Flashing firmware... {progress}%",
   "writingInProgress": "Writing in progress: {progress}%",
-  "preparing": "Preparing..."
+  "preparing": "Preparing...",
+  "addFrame": "Add Frame",
+  "frameHint": "Type text for this frame"
 }

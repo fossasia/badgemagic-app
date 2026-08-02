@@ -268,5 +268,7 @@
   "testBleFirmwareDescription": "Usa il firmware integrato per testare il flash sul badge tramite BLE",
   "flashingFirmwareProgress": "Flash firmware in corso... {progress}%",
   "writingInProgress": "Scrittura in corso: {progress}%",
-  "preparing": "Preparazione..."
+  "preparing": "Preparazione...",
+  "addFrame": "Aggiungi Fotogramma",
+  "frameHint": "Scrivi il testo per questo fotogramma"
 }
