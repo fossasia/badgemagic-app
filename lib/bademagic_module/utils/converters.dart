@@ -224,6 +224,14 @@ class Converters {
           segments.add(
               {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
           i += 6;
+        } else if (text[i] == '\f') {
+          // Frame separator: flush current text then pad to next screen boundary.
+          if (currentText.isNotEmpty) {
+            segments.add({'type': 'text', 'content': currentText});
+            currentText = '';
+          }
+          segments.add({'type': 'frame_break'});
+          i++;
         } else {
           currentText += text[i];
           i++;
@@ -237,7 +245,9 @@ class Converters {
 
       // Process each segment
       for (var segment in segments) {
-        if (segment['type'] == 'text') {
+        if (segment['type'] == 'frame_break') {
+          _padMatrixToNextFrame(combinedMatrix);
+        } else if (segment['type'] == 'text') {
           String text = segment['content'];
           for (int i = 0; i < text.length; i++) {
             String char = text[i];
@@ -325,6 +335,27 @@ class Converters {
     return hexStrings;
   }
 
+  /// Pads [combinedMatrix] with empty columns until its width is a multiple of
+  /// [badgeScreenWidth] (default 44). Used to align frames at screen boundaries
+  /// when the "Animation" (Splitting) transition is active.
+  void _padMatrixToNextFrame(
+      List<List<bool>> combinedMatrix, {
+    int badgeScreenWidth = 44,
+  }) {
+    final currentWidth =
+        combinedMatrix.isNotEmpty ? combinedMatrix[0].length : 0;
+    if (currentWidth == 0) return;
+    final remainder = currentWidth % badgeScreenWidth;
+    if (remainder == 0) return; // already aligned
+    final paddingNeeded = badgeScreenWidth - remainder;
+    final emptyCol = List<bool>.filled(11, false);
+    for (int p = 0; p < paddingNeeded; p++) {
+      for (int row = 0; row < 11; row++) {
+        combinedMatrix[row].add(emptyCol[row]);
+      }
+    }
+  }
+
   Future<List<String>> _processDefaultFont(String text) async {
     List<Map<String, dynamic>> segments = [];
     String currentText = '';
@@ -339,6 +370,15 @@ class Converters {
         segments.add(
             {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
         i += 6;
+      } else if (text[i] == '\f') {
+        // Frame separator: flush current text segment then pad matrix to the
+        // next 44-column screen boundary so the following frame starts fresh.
+        if (currentText.isNotEmpty) {
+          segments.add({'type': 'text', 'content': currentText});
+          currentText = '';
+        }
+        segments.add({'type': 'frame_break'});
+        i++;
       } else {
         currentText += text[i];
         i++;
@@ -351,7 +391,10 @@ class Converters {
     List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
 
     for (var segment in segments) {
-      if (segment['type'] == 'text') {
+      if (segment['type'] == 'frame_break') {
+        // Pad to the next full badge screen (44 columns).
+        _padMatrixToNextFrame(combinedMatrix);
+      } else if (segment['type'] == 'text') {
         String segmentText = segment['content'];
         for (final char in segmentText.split('')) {
           if (!converter.charCodes.containsKey(char)) continue;

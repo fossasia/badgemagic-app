@@ -218,10 +218,11 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int? getAnimationIndex() {
     for (var animation in animationMap.entries) {
       if (animation.value != null && animation.value == _currentAnimation) {
+        logger.i("Animation Index: ${animation.key}");
         return animation.key;
       }
     }
-    return 0;
+    return null;
   }
 
   bool isAnimationActive(BadgeAnimation? badgeAnimation) {
@@ -233,7 +234,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
       String message, Converters converters, bool isInverted) async {
     bool isSpecial = isSpecialAnimationSelected();
     if (message.isEmpty && !isSpecial) {
-      stopAllAnimations();
+      _timer?.cancel();
+      _animationIndex = 0;
       List<List<bool>> emptyGrid =
           List.generate(11, (i) => List.generate(44, (j) => false));
       _newGrid = emptyGrid;

@@ -215,5 +215,7 @@
   "triangle": "Triangolo",
   "clipartSavedSuccessfully": "Clipart salvato con successo",
   "badgeScanMode": "Modalità Scansione Badge",
-  "pleaseSelectClipart": "Si prega di disegnare o selezionare un clipart prima di salvare"
+  "pleaseSelectClipart": "Si prega di disegnare o selezionare un clipart prima di salvare",
+  "addFrame": "Aggiungi Fotogramma",
+  "frameHint": "Scrivi il testo per questo fotogramma"
 }

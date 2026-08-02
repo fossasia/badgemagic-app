@@ -1,12 +1,12 @@
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/view/widgets/special_animation_dialog.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 
@@ -71,11 +71,62 @@ class _AniContainerState extends State<AniContainer> {
       height: 65.h,
       child: GestureDetector(
         onTap: () async {
+          final imageProvider =
+              Provider.of<InlineImageProvider>(context, listen: false);
+          final textController = imageProvider.getController();
+
+          // Switch logic for Splitting (index 5) vs other animations
+          final currentIndex =
+              Provider.of<AnimationBadgeProvider>(context, listen: false)
+                  .getAnimationIndex();
+                  
+          if (currentIndex == 5 && widget.index != 5) {
+            // WE ARE LEAVING SPLITTING
+            // Save the full multi-frame text
+            imageProvider.savedMultiFrameText = textController.text;
+            
+            // Find which frame is active
+            int activeIndex = 0;
+            final parts = textController.text.split('\f');
+            if (imageProvider.activeFrameController != null) {
+              final activeText = imageProvider.activeFrameController!.text;
+              activeIndex = parts.indexOf(activeText);
+              if (activeIndex == -1) activeIndex = 0;
+            }
+            imageProvider.savedActiveFrameIndex = activeIndex;
+            
+            // Set the main controller to just the active frame's text
+            if (parts.isNotEmpty) {
+              textController.text = parts[activeIndex];
+            }
+            
+            // Clear the active-frame reference
+            imageProvider.activeFrameController = null;
+          } else if (currentIndex != 5 && widget.index == 5) {
+            // WE ARE ENTERING SPLITTING
+            // Restore previous frames if they exist
+            if (imageProvider.savedMultiFrameText != null) {
+              List<String> parts =
+                  imageProvider.savedMultiFrameText!.split('\f');
+              int activeIndex = imageProvider.savedActiveFrameIndex ?? 0;
+              
+              // Replace the old active frame with any edits made in other modes
+              if (activeIndex < parts.length) {
+                parts[activeIndex] = textController.text;
+              } else if (parts.isEmpty) {
+                parts = [textController.text];
+              }
+              
+              textController.text = parts.join('\f');
+              
+              // Clear saved state so we don't accidentally restore stale data later
+              imageProvider.savedMultiFrameText = null;
+              imageProvider.savedActiveFrameIndex = null;
+            }
+          }
+
           // Only show dialog for special animations (index >= 9)
           if (widget.index >= 9) {
-            final textController =
-                Provider.of<InlineImageProvider>(context, listen: false)
-                    .getController();
             if (textController.text.trim().isNotEmpty) {
               final shouldSwitch = await showSpecialAnimationDialog(
                   context, textController.text.trim());
