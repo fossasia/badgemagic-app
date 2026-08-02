@@ -232,7 +232,7 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
-  Future<void> _sendViaUsb(UsbTransferProvider usbProvider, bool hid) async {
+  Future<void> _sendViaUsb(UsbTransferProvider usbProvider) async {
     final int aniIndex = animationProvider.getAnimationIndex() ?? 0;
 
     List<int>? generatedData;
@@ -265,9 +265,7 @@ class _HomeScreenState extends State<HomeScreen>
       bool connected = false;
       const int maxAttempts = 40;
       for (int attempt = 0; attempt < maxAttempts; attempt++) {
-        connected = hid
-            ? await usbProvider.connectHid(silent: true)
-            : await usbProvider.connectSerial(silent: true);
+        connected = await usbProvider.connectHid(silent: true);
         if (connected) break;
         if (attempt < maxAttempts - 1) {
           await Future.delayed(const Duration(milliseconds: 300));
@@ -1042,26 +1040,16 @@ class _HomeScreenState extends State<HomeScreen>
                                   context, inlineImageProvider);
                             },
                           ),
-                          if (supportsUsb) ...[
+                          if (supportsUsb)
                             option(
-                              label: "USB Serial",
-                              icon: Icons.cable,
-                              color: colorAccent,
-                              onTap: () async {
-                                Navigator.pop(bottomSheetContext);
-                                await _sendViaUsb(usbProvider, false);
-                              },
-                            ),
-                            option(
-                              label: "USB HID",
+                              label: "USB",
                               icon: Icons.usb,
                               color: colorAccent,
                               onTap: () async {
                                 Navigator.pop(bottomSheetContext);
-                                await _sendViaUsb(usbProvider, true);
+                                await _sendViaUsb(usbProvider);
                               },
                             ),
-                          ],
                         ],
                       );
                     },

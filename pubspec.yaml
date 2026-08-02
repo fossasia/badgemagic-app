@@ -61,8 +61,7 @@ dependencies:
   image: ^4.9.1
   qr_flutter: ^4.1.0
   mobile_scanner: ^7.2.0
-  hid_tool: ^0.1.1
-  flserial: ^0.7.2
+  hid_tool: 0.1.1
 
 dev_dependencies:
   flutter_test:
