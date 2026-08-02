@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=BadgeMagic
+Exec=badgemagic
+Icon=badgemagic
+Terminal=false
+Type=Application
+Categories=Graphics;Electronics;HardwareSettings;Utility;
