@@ -8,17 +8,63 @@ import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 enum UsbConnectionType { none, hid }
 
 class UsbTransferProvider with ChangeNotifier {
+  static const int _badgeVendorId = 0x0416;
+  static const int _badgeProductId = 0x5020;
+
   UsbConnectionType _connectionType = UsbConnectionType.none;
   bool get isConnected => _connectionType != UsbConnectionType.none;
   UsbConnectionType get connectionType => _connectionType;
 
   HidDevice? _activeHidDevice;
 
+  StreamSubscription<HidDeviceEvent>? _attachSubscription;
+  StreamSubscription<HidDeviceEvent>? _detachSubscription;
+  bool _prewarming = false;
+  bool _permissionPrewarmed = false;
+
+  Future<void> startUsbMonitoring() async {
+    if (!Platform.isAndroid) return;
+    if (_attachSubscription != null) return;
+    await HidDeviceEvents.startListening();
+    _attachSubscription = HidDeviceEvents.onConnected.listen((event) {
+      if (event.vendorId == _badgeVendorId &&
+          event.productId == _badgeProductId) {
+        _prewarmPermission();
+      }
+    });
+    _detachSubscription = HidDeviceEvents.onDisconnected.listen((event) {
+      if (event.vendorId == _badgeVendorId &&
+          event.productId == _badgeProductId) {
+        _permissionPrewarmed = false;
+      }
+    });
+  }
+
+  Future<void> _prewarmPermission() async {
+    if (_prewarming || _permissionPrewarmed || isConnected) return;
+    _prewarming = true;
+    try {
+      final devices = await Hid.getDevices(
+          vendorId: _badgeVendorId, productId: _badgeProductId);
+      if (devices.isEmpty) return;
+      final device = devices.first;
+      await device.open();
+      if (device.isOpen) {
+        _permissionPrewarmed = true;
+        await device.close();
+      }
+    } catch (e) {
+      debugPrint("USB permission pre-warm skipped: $e");
+    } finally {
+      _prewarming = false;
+    }
+  }
+
   Future<bool> connectHid({bool silent = false}) async {
     await disconnectUsb();
     try {
-      final availableDevices =
-          await Hid.getDevices(vendorId: 0x0416, productId: 0x5020);
+      final availableDevices = await Hid.getDevices(
+          vendorId: _badgeVendorId, productId: _badgeProductId);
 
       if (availableDevices.isEmpty) {
         if (!silent) ToastUtils().showErrorToast("No USB HID device detected.");
@@ -107,6 +153,8 @@ class UsbTransferProvider with ChangeNotifier {
 
   @override
   void dispose() {
+    _attachSubscription?.cancel();
+    _detachSubscription?.cancel();
     disconnectUsb();
     super.dispose();
   }

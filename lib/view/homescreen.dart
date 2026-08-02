@@ -95,6 +95,11 @@ class _HomeScreenState extends State<HomeScreen>
       await _startImageCaching();
       await loadPreferences();
 
+      final usbPrefs = await SharedPreferences.getInstance();
+      if ((usbPrefs.getBool('usb_transfer_enabled') ?? false) && mounted) {
+        await context.read<UsbTransferProvider>().startUsbMonitoring();
+      }
+
       inlineImageProvider.setContext(context);
 
       if (widget.savedBadgeFilename != null) {
