@@ -1042,7 +1042,7 @@ class _HomeScreenState extends State<HomeScreen>
                           ),
                           if (supportsUsb)
                             option(
-                              label: "USB",
+                              label: "USB HID",
                               icon: Icons.usb,
                               color: colorAccent,
                               onTap: () async {
