@@ -27,6 +27,7 @@ import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
 import 'package:badgemagic/view/widgets/speedial.dart';
 import 'package:badgemagic/view/widgets/transitiontab.dart';
 import 'package:badgemagic/view/widgets/vectorview.dart';
+import 'package:badgemagic/view/widgets/multi_frame_input_widget.dart';
 import 'package:badgemagic/virtualbadge/view/animated_badge.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
@@ -320,220 +321,267 @@ class _HomeScreenState extends State<HomeScreen>
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         AnimationBadge(),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 15.w, vertical: 12.h),
-                          child: Material(
-                            color: drawerHeaderTitle,
-                            borderRadius: BorderRadius.circular(10.r),
-                            elevation: 4,
-                            child: ExtendedTextField(
-                              controller: inlineimagecontroller,
-                              specialTextSpanBuilder: ImageBuilder(),
-                              style: Provider.of<FontProvider>(context)
-                                          .selectedFont !=
-                                      null
-                                  ? _getFontStyle(
-                                          Provider.of<FontProvider>(context)
-                                              .selectedFont!)
-                                      .copyWith(fontSize: 14)
-                                  : const TextStyle(fontSize: 14),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                  borderSide: BorderSide(color: colorPrimary),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12.w,
-                                  vertical: 12.h,
-                                ),
-                                prefixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      isPrefixIconClicked =
-                                          !isPrefixIconClicked;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.tag_faces_outlined),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  splashRadius: 24,
-                                ),
-                                suffixIcon: Container(
-                                  constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width *
-                                            0.280,
-                                  ),
-                                  padding:
-                                      EdgeInsets.only(left: 8.w, right: 8.w),
-                                  child: Consumer<FontProvider>(
-                                    builder: (context, fontProvider, _) {
-                                      return DropdownButtonHideUnderline(
-                                        child: DropdownButton<String>(
-                                          value: fontProvider.selectedFont,
-                                          icon: const SizedBox.shrink(),
-                                          iconEnabledColor: mdGrey400,
-                                          dropdownColor: Colors.white,
-                                          itemHeight: 48,
-                                          isExpanded: true,
-                                          style: TextStyle(
-                                            color: mdGrey400,
-                                            fontSize: 12.sp,
-                                          ),
-                                          hint: Text(
-                                            'Font',
-                                            style: TextStyle(
-                                              fontSize: 12.sp,
-                                              color: mdGrey400,
-                                            ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          alignment:
-                                              AlignmentDirectional.centerEnd,
-                                          padding: EdgeInsets.zero,
-                                          items: [
-                                            DropdownMenuItem(
-                                              value: null,
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 16.w,
-                                                    vertical: 8.h),
-                                                decoration: BoxDecoration(
-                                                  color: fontProvider
-                                                              .selectedFont ==
-                                                          null
-                                                      ? dividerColor
-                                                      : Colors.transparent,
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
-                                                ),
-                                                child: Text(
-                                                  'Default',
-                                                  style: TextStyle(
-                                                    fontSize: 12.sp,
-                                                    color: fontProvider
-                                                                .selectedFont ==
-                                                            null
-                                                        ? colorAccent
-                                                        : Colors.black,
-                                                    fontWeight: fontProvider
-                                                                .selectedFont ==
-                                                            null
-                                                        ? FontWeight.bold
-                                                        : FontWeight.normal,
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
-                                                ),
+                        Consumer<AnimationBadgeProvider>(
+                          builder: (context, aniProvider, _) {
+                            final isAnimationMode =
+                                aniProvider.getAnimationIndex() == 5;
+                            
+                            final sharedDecoration = InputDecoration(
+                                    border: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(10.r),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(10.r),
+                                      borderSide:
+                                          BorderSide(color: colorPrimary),
+                                    ),
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                      vertical: 12.h,
+                                    ),
+                                    prefixIcon: IconButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isPrefixIconClicked =
+                                              !isPrefixIconClicked;
+                                        });
+                                      },
+                                      icon: const Icon(
+                                          Icons.tag_faces_outlined),
+                                      padding: EdgeInsets.zero,
+                                      constraints: const BoxConstraints(),
+                                      splashRadius: 24,
+                                    ),
+                                    suffixIcon: Container(
+                                      constraints: BoxConstraints(
+                                        maxWidth:
+                                            MediaQuery.of(context).size.width *
+                                                0.280,
+                                      ),
+                                      padding: EdgeInsets.only(
+                                          left: 8.w, right: 8.w),
+                                      child: Consumer<FontProvider>(
+                                        builder: (context, fontProvider, _) {
+                                          return DropdownButtonHideUnderline(
+                                            child: DropdownButton<String>(
+                                              value:
+                                                  fontProvider.selectedFont,
+                                              icon: const SizedBox.shrink(),
+                                              iconEnabledColor: mdGrey400,
+                                              dropdownColor: Colors.white,
+                                              itemHeight: 48,
+                                              isExpanded: true,
+                                              style: TextStyle(
+                                                color: mdGrey400,
+                                                fontSize: 12.sp,
                                               ),
-                                            ),
-                                            ...fontProvider.availableFonts.map(
-                                              (font) => DropdownMenuItem(
-                                                value: font,
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 16.w,
-                                                      vertical: 8.h),
-                                                  decoration: BoxDecoration(
-                                                    color: fontProvider
-                                                                .selectedFont ==
-                                                            font
-                                                        ? dividerColor
-                                                        : Colors.transparent,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                  ),
-                                                  child: Text(
-                                                    font,
-                                                    style: _getFontStyle(font)
-                                                        .copyWith(
+                                              hint: Text(
+                                                'Font',
+                                                style: TextStyle(
+                                                  fontSize: 12.sp,
+                                                  color: mdGrey400,
+                                                ),
+                                                overflow:
+                                                    TextOverflow.ellipsis,
+                                              ),
+                                              alignment:
+                                                  AlignmentDirectional
+                                                      .centerEnd,
+                                              padding: EdgeInsets.zero,
+                                              items: [
+                                                DropdownMenuItem(
+                                                  value: null,
+                                                  child: Container(
+                                                    padding:
+                                                        EdgeInsets.symmetric(
+                                                            horizontal: 16.w,
+                                                            vertical: 8.h),
+                                                    decoration: BoxDecoration(
                                                       color: fontProvider
                                                                   .selectedFont ==
-                                                              font
-                                                          ? colorAccent
-                                                          : Colors.black,
-                                                      fontWeight: fontProvider
-                                                                  .selectedFont ==
-                                                              font
-                                                          ? FontWeight.bold
-                                                          : FontWeight.normal,
+                                                              null
+                                                          ? dividerColor
+                                                          : Colors.transparent,
+                                                      borderRadius:
+                                                          BorderRadius
+                                                              .circular(4),
                                                     ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 1,
+                                                    child: Text(
+                                                      'Default',
+                                                      style: TextStyle(
+                                                        fontSize: 12.sp,
+                                                        color: fontProvider
+                                                                    .selectedFont ==
+                                                                null
+                                                            ? colorAccent
+                                                            : Colors.black,
+                                                        fontWeight: fontProvider
+                                                                    .selectedFont ==
+                                                                null
+                                                            ? FontWeight.bold
+                                                            : FontWeight.normal,
+                                                      ),
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      maxLines: 1,
+                                                    ),
                                                   ),
                                                 ),
-                                              ),
-                                            )
-                                          ],
-                                          selectedItemBuilder: (context) {
-                                            final List<String?> options = [
-                                              null,
-                                              ...fontProvider.availableFonts,
-                                            ];
-                                            return options.map((opt) {
-                                              final String label =
-                                                  opt ?? 'Default';
-                                              return Container(
-                                                padding: EdgeInsets.only(
-                                                  left: 4.w,
-                                                  right: 4.w,
-                                                ),
-                                                child: Row(
-                                                  mainAxisSize:
-                                                      MainAxisSize.min,
-                                                  children: [
-                                                    Flexible(
+                                                ...fontProvider.availableFonts
+                                                    .map(
+                                                  (font) => DropdownMenuItem(
+                                                    value: font,
+                                                    child: Container(
+                                                      padding:
+                                                          EdgeInsets.symmetric(
+                                                              horizontal: 16.w,
+                                                              vertical: 8.h),
+                                                      decoration: BoxDecoration(
+                                                        color: fontProvider
+                                                                    .selectedFont ==
+                                                                font
+                                                            ? dividerColor
+                                                            : Colors
+                                                                .transparent,
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(4),
+                                                      ),
                                                       child: Text(
-                                                        label,
-                                                        style: TextStyle(
-                                                          color: mdGrey400,
-                                                          fontSize: 12.sp,
+                                                        font,
+                                                        style: _getFontStyle(
+                                                                font)
+                                                            .copyWith(
+                                                          color: fontProvider
+                                                                      .selectedFont ==
+                                                                  font
+                                                              ? colorAccent
+                                                              : Colors.black,
+                                                          fontWeight: fontProvider
+                                                                      .selectedFont ==
+                                                                  font
+                                                              ? FontWeight.bold
+                                                              : FontWeight
+                                                                  .normal,
                                                         ),
                                                         overflow: TextOverflow
                                                             .ellipsis,
                                                         maxLines: 1,
                                                       ),
                                                     ),
-                                                    SizedBox(width: 2.w),
-                                                    Icon(
-                                                      Icons.arrow_drop_down,
-                                                      size: 18,
-                                                      color: mdGrey400,
+                                                  ),
+                                                )
+                                              ],
+                                              selectedItemBuilder: (context) {
+                                                final List<String?> options = [
+                                                  null,
+                                                  ...fontProvider.availableFonts,
+                                                ];
+                                                return options.map((opt) {
+                                                  final String label =
+                                                      opt ?? 'Default';
+                                                  return Container(
+                                                    padding: EdgeInsets.only(
+                                                      left: 4.w,
+                                                      right: 4.w,
                                                     ),
-                                                  ],
-                                                ),
-                                              );
-                                            }).toList();
-                                          },
-                                          onChanged: (String? newFont) {
-                                            fontProvider.changeFont(newFont);
+                                                    child: Row(
+                                                      mainAxisSize:
+                                                          MainAxisSize.min,
+                                                      children: [
+                                                        Flexible(
+                                                          child: Text(
+                                                            label,
+                                                            style: TextStyle(
+                                                              color: mdGrey400,
+                                                              fontSize: 12.sp,
+                                                            ),
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                            maxLines: 1,
+                                                          ),
+                                                        ),
+                                                        SizedBox(width: 2.w),
+                                                        Icon(
+                                                          Icons.arrow_drop_down,
+                                                          size: 18,
+                                                          color: mdGrey400,
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  );
+                                                }).toList();
+                                              },
+                                              onChanged: (String? newFont) {
+                                                fontProvider
+                                                    .changeFont(newFont);
+                                                animationProvider
+                                                    .badgeAnimation(
+                                                  inlineimagecontroller.text,
+                                                  _converters,
+                                                  animationProvider
+                                                      .isEffectActive(
+                                                          InvertLEDEffect()),
+                                                );
+                                              },
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              elevation: 2,
+                                              isDense: true,
+                                              menuMaxHeight: 300.h,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  );
+
+                            return Padding(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 15.w, vertical: 12.h),
+                              child: Material(
+                                color: drawerHeaderTitle,
+                                borderRadius: BorderRadius.circular(10.r),
+                                elevation: 4,
+                                child: isAnimationMode
+                                    ? InputDecorator(
+                                        decoration: sharedDecoration.copyWith(
+                                          contentPadding: EdgeInsets.symmetric(
+                                            horizontal: 12.w,
+                                            vertical: 8.h,
+                                          ),
+                                        ),
+                                        child: MultiFrameInputWidget(
+                                          globalController: inlineimagecontroller,
+                                          onChanged: () {
                                             animationProvider.badgeAnimation(
                                               inlineimagecontroller.text,
                                               _converters,
-                                              animationProvider.isEffectActive(
-                                                  InvertLEDEffect()),
+                                              animationProvider
+                                                  .isEffectActive(InvertLEDEffect()),
                                             );
                                           },
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
-                                          elevation: 2,
-                                          isDense: true,
-                                          menuMaxHeight: 300.h,
                                         ),
-                                      );
-                                    },
-                                  ),
-                                ),
+                                      )
+                                    : ExtendedTextField(
+                                        controller: inlineimagecontroller,
+                                        specialTextSpanBuilder: ImageBuilder(),
+                                        style: Provider.of<FontProvider>(context)
+                                                    .selectedFont !=
+                                                null
+                                            ? _getFontStyle(
+                                                    Provider.of<FontProvider>(context)
+                                                        .selectedFont!)
+                                                .copyWith(fontSize: 14)
+                                            : const TextStyle(fontSize: 14),
+                                        decoration: sharedDecoration,
+                                      ),
                               ),
-                            ),
-                          ),
+                            );
+                          },
                         ),
                         AnimatedSize(
                           duration: const Duration(milliseconds: 300),

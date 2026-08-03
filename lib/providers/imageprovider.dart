@@ -93,6 +93,18 @@ class InlineImageProvider extends ChangeNotifier {
   //controller for the Textfield
   TextEditingController message = TextEditingController();
 
+  /// When the multi-frame input widget is active, this is set to the
+  /// [TextEditingController] of the frame that is currently focused.
+  /// Clipart will be inserted into this controller instead of [message].
+  TextEditingController? activeFrameController;
+
+  /// Saves the full multi-frame text (with \f separators) when switching away
+  /// from the Animation (Splitting) transition, so it can be restored.
+  String? savedMultiFrameText;
+
+  /// Remembers which frame index was active when switching away from Splitting.
+  int? savedActiveFrameIndex;
+
   //getter for the textfield controller
   TextEditingController getController() => message;
 
@@ -150,12 +162,15 @@ class InlineImageProvider extends ChangeNotifier {
     }
     logger.d('Inserting image at index: $index');
     String placeholder = index < 10 ? '<<0$index>>' : '<<$index>>';
+    // Insert into the currently focused frame if available, otherwise the
+    // main message controller.
+    final target = activeFrameController ?? message;
     int cursorPos =
-        message.selection.baseOffset == -1 ? 0 : message.selection.baseOffset;
-    String beforeCursor = message.text.substring(0, cursorPos);
-    String afterCursor = message.text.substring(cursorPos);
-    message.text = beforeCursor + placeholder + afterCursor;
-    message.selection = TextSelection.fromPosition(
+        target.selection.baseOffset == -1 ? 0 : target.selection.baseOffset;
+    String beforeCursor = target.text.substring(0, cursorPos);
+    String afterCursor = target.text.substring(cursorPos);
+    target.text = beforeCursor + placeholder + afterCursor;
+    target.selection = TextSelection.fromPosition(
         TextPosition(offset: cursorPos + placeholder.length));
   }
 }
