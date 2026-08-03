@@ -19,6 +19,8 @@ import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/special_text_field.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
 import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
@@ -33,16 +35,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
-  final int? initialSpeed;
 
-  const HomeScreen({
-    super.key,
-    this.savedBadgeFilename,
-    this.initialSpeed,
-  });
+  const HomeScreen({super.key, this.savedBadgeFilename});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -72,6 +70,14 @@ class _HomeScreenState extends State<HomeScreen>
   String errorVal = "";
   late final ScrollController _vectorScrollController;
 
+  //Shared preferences keys
+  static const _textKey = 'badge_text';
+  static const _speedKey = 'badge_speed';
+  static const _transitionKey = 'badge_transition';
+  static const _effectsKey = 'badge_effects';
+
+  Timer? _debounceTimer;
+
   @override
   void initState() {
     super.initState();
@@ -82,19 +88,86 @@ class _HomeScreenState extends State<HomeScreen>
     animationProvider = context.read<AnimationBadgeProvider>();
     speedDialProvider = context.read<SpeedDialProvider>();
 
-    if (widget.initialSpeed != null) {
-      speedDialProvider.setDialValue(widget.initialSpeed!);
-    }
-
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _startImageCaching();
+      await loadPreferences();
+
       inlineImageProvider.setContext(context);
 
       if (widget.savedBadgeFilename != null) {
         await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
       }
+
+      inlineimagecontroller.addListener(_debouncedSavePreferences);
+      animationProvider.addListener(_debouncedSavePreferences);
+      speedDialProvider.addListener(_debouncedSavePreferences);
     });
-    _startImageCaching();
     _tabController = TabController(length: 4, vsync: this);
+  }
+
+  Future<void> loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final text = prefs.getString(_textKey);
+    final speed = prefs.getInt(_speedKey);
+    final transition = prefs.getInt(_transitionKey);
+    final effects = prefs.getStringList(_effectsKey);
+    if (text != null) {
+      inlineimagecontroller.text = text;
+    }
+    if (speed != null) {
+      speedDialProvider.setDialValue(speed);
+    }
+    if (transition != null) {
+      animationProvider.setAnimationMode(animationMap[transition]);
+    }
+    if (effects != null) {
+      animationProvider.removeEffect(effectMap[0]);
+      animationProvider.removeEffect(effectMap[1]);
+      animationProvider.removeEffect(effectMap[2]);
+      for (final effect in effects) {
+        switch (effect) {
+          case 'invert':
+            animationProvider.addEffect(effectMap[0]);
+            break;
+          case 'flash':
+            animationProvider.addEffect(effectMap[1]);
+            break;
+          case 'marquee':
+            animationProvider.addEffect(effectMap[2]);
+            break;
+        }
+      }
+    }
+    animationProvider.badgeAnimation(
+      inlineimagecontroller.text,
+      _converters,
+      animationProvider.isEffectActive(InvertLEDEffect()),
+    );
+  }
+
+  Future<void> savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_textKey, inlineimagecontroller.text);
+    await prefs.setInt(
+      _speedKey,
+      speedDialProvider.getOuterValue(),
+    );
+    await prefs.setInt(
+      _transitionKey,
+      animationProvider.getAnimationIndex() ?? 0,
+    );
+    final effects = <String>[];
+    if (animationProvider.isEffectActive(InvertLEDEffect())) {
+      effects.add('invert');
+    }
+    if (animationProvider.isEffectActive(FlashEffect())) {
+      effects.add('flash');
+    }
+    if (animationProvider.isEffectActive(MarqueeEffect())) {
+      effects.add('marquee');
+    }
+    await prefs.setStringList(_effectsKey, effects);
   }
 
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
@@ -187,9 +260,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _vectorScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
+    inlineimagecontroller.removeListener(_debouncedSavePreferences);
+    animationProvider.removeListener(_debouncedSavePreferences);
+    speedDialProvider.removeListener(_debouncedSavePreferences);
     _tabController.dispose();
     super.dispose();
   }
@@ -658,21 +735,8 @@ class _HomeScreenState extends State<HomeScreen>
                             ],
                             Expanded(
                               child: GestureDetector(
-                                onTap: () async {
-                                  await animationProvider
-                                      .handleAnimationTransfer(
-                                    badgeData: badgeData,
-                                    inlineImageProvider: inlineImageProvider,
-                                    speedDialProvider: speedDialProvider,
-                                    flash: animationProvider
-                                        .isEffectActive(FlashEffect()),
-                                    marquee: animationProvider
-                                        .isEffectActive(MarqueeEffect()),
-                                    invert: animationProvider
-                                        .isEffectActive(InvertLEDEffect()),
-                                    context: context,
-                                  );
-                                },
+                                onTap: () => _showBleTransferDialog(
+                                    context, inlineImageProvider),
                                 child: Container(
                                   height: 32.h,
                                   alignment: Alignment.center,
@@ -698,6 +762,68 @@ class _HomeScreenState extends State<HomeScreen>
         );
       },
     );
+  }
+
+  void _showBleTransferDialog(
+      BuildContext context, InlineImageProvider inlineImageProvider) {
+    final bleDialogController = GetIt.instance<BleDialogController>();
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    bleDialogController.update(
+        BleDialogStatus.searching, l10n.searchingDeviceBLE);
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return ValueListenableBuilder<BleDialogStatus>(
+          valueListenable: bleDialogController.status,
+          builder: (context, status, _) {
+            return ValueListenableBuilder<double>(
+              valueListenable: bleDialogController.progress,
+              builder: (context, progress, _) {
+                return ValueListenableBuilder<String>(
+                  valueListenable: bleDialogController.message,
+                  builder: (context, message, _) {
+                    return BleProgressDialog(
+                      status: status,
+                      progress: progress,
+                      message: message,
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+
+    animationProvider
+        .handleAnimationTransfer(
+      badgeData: badgeData,
+      inlineImageProvider: inlineImageProvider,
+      speedDialProvider: speedDialProvider,
+      flash: animationProvider.isEffectActive(FlashEffect()),
+      marquee: animationProvider.isEffectActive(MarqueeEffect()),
+      invert: animationProvider.isEffectActive(InvertLEDEffect()),
+      context: context,
+    )
+        .catchError((error) {
+      bleDialogController.update(
+        BleDialogStatus.error,
+        "An unexpected error\noccurred.",
+      );
+      Future.delayed(const Duration(milliseconds: 2000), () {
+        if (context.mounted) Navigator.of(context).pop();
+      });
+    });
+  }
+
+  void _debouncedSavePreferences() {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      savePreferences();
+    });
   }
 
   void handleTextChange() {
