@@ -25,7 +25,7 @@ const Color dividerColor = Color(0xFFE0E0E0);
 const Color drawerHeaderTitle = Color(0xFFFFFFFF);
 
 //path to all the animation assets used
-const String animation = 'assets/animations/ic_anim_animation.gif';
+const String aniSplitting = 'assets/animations/ic_anim_animation.gif';
 const String aniLeft = 'assets/animations/ic_anim_left.gif';
 const String aniDown = 'assets/animations/ic_anim_down.gif';
 const String aniFixed = 'assets/animations/ic_anim_fixed.gif';

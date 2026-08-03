@@ -4,14 +4,19 @@ import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/badge_slot_provider..dart';
+import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
+import 'package:badgemagic/view/widgets/qr_share_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 class SaveBadgeCard extends StatelessWidget {
@@ -47,7 +52,7 @@ class SaveBadgeCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(6.dg),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withOpacity(0.5),
+            color: Colors.grey.withValues(alpha: 0.5),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -103,12 +108,13 @@ class SaveBadgeCard extends StatelessWidget {
                         color: Colors.black,
                       ),
                       onPressed: () async {
+                        final navigator = Navigator.of(context);
                         // Show confirmation dialog before editing
                         final confirmed =
                             await provider.showEditBadgeConfirmation(context);
                         if (confirmed) {
                           // Navigate to HomeScreen for editing the badge
-                          Navigator.of(context).push(
+                          navigator.push(
                             MaterialPageRoute(
                               builder: (context) => HomeScreen(
                                 savedBadgeFilename: badgeData.key,
@@ -138,7 +144,7 @@ class SaveBadgeCard extends StatelessWidget {
                         color: Colors.black,
                       ),
                       onPressed: () {
-                        file.shareBadgeData(badgeData.key);
+                        _showShareOptions(context);
                       },
                     ),
                     IconButton(
@@ -148,13 +154,28 @@ class SaveBadgeCard extends StatelessWidget {
                       ),
                       onPressed: () async {
                         //add a dialog for confirmation before deleting
-                        await _showDeleteDialog(context).then((value) async {
-                          if (value == true) {
-                            file.deleteFile(badgeData.key);
-                            toastUtils.showToast("Badge Deleted Successfully");
-                            await refreshBadgesCallback(badgeData);
+                        final slotProvider = Provider.of<BadgeSlotProvider>(
+                            context,
+                            listen: false);
+                        final imgProvider = Provider.of<InlineImageProvider>(
+                            context,
+                            listen: false);
+                        final aniProvider = Provider.of<AnimationBadgeProvider>(
+                            context,
+                            listen: false);
+                        final confirmed = await _showDeleteDialog(context);
+                        if (confirmed == true) {
+                          file.deleteFile(badgeData.key);
+                          if (slotProvider.isSelected(badgeData.key)) {
+                            slotProvider.toggleSelection(badgeData.key);
                           }
-                        });
+                          toastUtils.showToast("Badge Deleted Successfully");
+                          await refreshBadgesCallback(badgeData);
+                          provider.updateSelectionPreview(
+                              slotProvider.selectedBadges,
+                              imgProvider.savedBadgeCache,
+                              aniProvider);
+                        }
                       },
                     ),
                   ],
@@ -165,58 +186,55 @@ class SaveBadgeCard extends StatelessWidget {
           SizedBox(height: 8.h),
           Row(
             children: [
-              Row(
-                children: [
-                  Visibility(
-                    visible: file.jsonToData(badgeData.value).messages[0].flash,
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: colorPrimary,
-                        borderRadius: BorderRadius.circular(100),
+              Expanded(
+                child: Wrap(
+                  spacing: 8.w,
+                  runSpacing: 6.h,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    if (file.jsonToData(badgeData.value).messages[0].flash)
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 10.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: colorPrimary,
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: Image.asset(
+                          "assets/icons/flash.png",
+                          color: Colors.white,
+                          height: 14.h,
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/icons/flash.png",
-                            color: Colors.white,
-                            height: 14.h,
-                          )
-                        ],
+                    if (file.jsonToData(badgeData.value).messages[0].marquee)
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: colorPrimary,
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: Image.asset(
+                          "assets/icons/square.png",
+                          color: Colors.white,
+                          height: 14.h,
+                        ),
                       ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 8.w,
-                  ),
-                  Visibility(
-                    visible:
-                        file.jsonToData(badgeData.value).messages[0].marquee,
-                    child: Container(
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                      decoration: BoxDecoration(
-                        color: colorPrimary,
-                        borderRadius: BorderRadius.circular(100),
+                    if (badgeData.value['messages'][0]['invert'] ?? false)
+                      Container(
+                        padding: EdgeInsets.symmetric(
+                            horizontal: 12.w, vertical: 4.h),
+                        decoration: BoxDecoration(
+                          color: colorPrimary,
+                          borderRadius: BorderRadius.circular(100),
+                        ),
+                        child: Image.asset(
+                          "assets/icons/t_invert.png",
+                          color: Colors.white,
+                          height: 14.h,
+                        ),
                       ),
-                      child: Row(
-                        children: [
-                          Image.asset(
-                            "assets/icons/square.png",
-                            color: Colors.white,
-                            height: 14.h,
-                          )
-                        ],
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 8.w,
-                  ),
-                  Visibility(
-                    visible: badgeData.value['messages'][0]['invert'] ?? false,
-                    child: Container(
+                    Container(
                       padding:
                           EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
                       decoration: BoxDecoration(
@@ -224,70 +242,49 @@ class SaveBadgeCard extends StatelessWidget {
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Image.asset(
-                            "assets/icons/t_invert.png",
+                            "assets/icons/t_double.png",
                             color: Colors.white,
                             height: 14.h,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            Speed.getIntValue(
+                              file
+                                  .jsonToData(badgeData.value)
+                                  .messages[0]
+                                  .speed,
+                            ).toString(),
+                            style: const TextStyle(color: Colors.white),
                           )
                         ],
                       ),
                     ),
-                  )
-                ],
-              ),
-              SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: colorPrimary,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Row(
-                    children: [
-                      Image.asset(
-                        "assets/icons/t_double.png",
-                        color: Colors.white,
-                        height: 14.h,
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
+                      decoration: BoxDecoration(
+                        color: colorPrimary,
+                        borderRadius: BorderRadius.circular(100),
                       ),
-                      const SizedBox(width: 4),
-                      Text(
-                        Speed.getIntValue(
-                          file.jsonToData(badgeData.value).messages[0].speed,
-                        ).toString(),
+                      child: Text(
+                        file
+                            .jsonToData(badgeData.value)
+                            .messages[0]
+                            .mode
+                            .toString()
+                            .split('.')
+                            .last
+                            .toUpperCase(),
                         style: const TextStyle(color: Colors.white),
-                      )
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
               SizedBox(width: 8.w),
-              GestureDetector(
-                onTap: () {},
-                child: Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 12.w, vertical: 4.h),
-                  decoration: BoxDecoration(
-                    color: colorPrimary,
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Text(
-                    file
-                        .jsonToData(badgeData.value)
-                        .messages[0]
-                        .mode
-                        .toString()
-                        .split('.')
-                        .last
-                        .toUpperCase(),
-                    style: const TextStyle(color: Colors.white),
-                  ),
-                ),
-              ),
-              const Spacer(),
               Consumer<BadgeSlotProvider>(
                 builder: (context, selectionProvider, _) {
                   final isSelected =
@@ -295,8 +292,22 @@ class SaveBadgeCard extends StatelessWidget {
                   return Switch(
                     value: isSelected,
                     onChanged: (selectionProvider.canSelectMore || isSelected)
-                        ? (value) =>
-                            selectionProvider.toggleSelection(badgeData.key)
+                        ? (value) {
+                            selectionProvider.toggleSelection(badgeData.key);
+                            final cache = Provider.of<InlineImageProvider>(
+                                    context,
+                                    listen: false)
+                                .savedBadgeCache;
+                            final aniProvider =
+                                Provider.of<AnimationBadgeProvider>(context,
+                                    listen: false);
+                            Provider.of<SavedBadgeProvider>(context,
+                                    listen: false)
+                                .updateSelectionPreview(
+                                    selectionProvider.selectedBadges,
+                                    cache,
+                                    aniProvider);
+                          }
                         : null,
                     activeThumbColor: colorPrimary,
                   );
@@ -314,6 +325,42 @@ class SaveBadgeCard extends StatelessWidget {
       context: context,
       builder: (BuildContext context) {
         return DeleteBadgeDialog();
+      },
+    );
+  }
+
+  void _showShareOptions(BuildContext context) {
+    final AppLocalizations l10n =
+        GetIt.instance.get<LocalizationService>().l10n;
+    showModalBottomSheet<void>(
+      context: context,
+      builder: (sheetContext) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ListTile(
+                leading: const Icon(Icons.insert_drive_file),
+                title: Text(l10n.shareAsFile),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  file.shareBadgeData(badgeData.key);
+                },
+              ),
+              ListTile(
+                leading: const Icon(Icons.qr_code),
+                title: Text(l10n.shareViaQrCode),
+                onTap: () {
+                  Navigator.of(sheetContext).pop();
+                  final String badgeName = badgeData.key.endsWith('.json')
+                      ? badgeData.key.substring(0, badgeData.key.length - 5)
+                      : badgeData.key;
+                  showBadgeQrDialog(context, badgeData.value, badgeName);
+                },
+              ),
+            ],
+          ),
+        );
       },
     );
   }

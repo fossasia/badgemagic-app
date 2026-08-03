@@ -1,9 +1,9 @@
 import 'dart:io';
+
 import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
 import 'package:badgemagic/bademagic_module/models/data.dart';
 import 'package:badgemagic/bademagic_module/models/messages.dart';
@@ -14,10 +14,14 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/utils/custom_transfers/transfers.dart';
-import 'package:flutter_blue_plus/flutter_blue_plus.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
-import 'package:provider/provider.dart'; // Import the new EqualizerAnimation
+import 'package:provider/provider.dart';
+
+import '../../view/widgets/ble_progress_dialog.dart';
+import '../../view/widgets/ble_progress_dialog_controller.dart';
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -122,18 +126,12 @@ class BadgeMessageProvider {
       bool isSavedBadge,
       BuildContext context,
       {TextStyle? textStyle}) async {
-    if (await FlutterBluePlus.isSupported == false) {
-      final l10n = GetIt.instance.get<LocalizationService>().l10n;
-      ToastUtils().showErrorToast(l10n.error);
-      return;
-    }
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    final bleDialogController = GetIt.instance<BleDialogController>();
 
     if (controllerData.getController().text.isEmpty && isSavedBadge == false) {
-      // Allow empty text if Pacman or Fireworks mode is selected
-      // Fireworks: Mode.fixed and animation index 19
       bool isFireworks = false;
       try {
-        // Try to get animation index from modeValueMap
         int fireworksIndex = 19;
         int cycleIndex = 20;
         if (mode == Mode.fixed &&
@@ -146,65 +144,37 @@ class BadgeMessageProvider {
             modeValueMap[cycleIndex] == Mode.cycle) {}
       } catch (_) {}
       if (mode != Mode.pacman && !isFireworks) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        ToastUtils().showErrorToast(l10n.pleaseEnterMessage);
+        bleDialogController.update(
+            BleDialogStatus.error, l10n.pleaseEnterMessage);
         return;
       }
     }
 
-    BluetoothAdapterState adapterState =
-        await FlutterBluePlus.adapterState.first;
-    if (adapterState != BluetoothAdapterState.on) {
-      if (Platform.isAndroid) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        ToastUtils().showToast(l10n.loading);
-        try {
-          await FlutterBluePlus.turnOn();
-        } catch (e) {
-          ToastUtils().showErrorToast('Failed to enable Bluetooth: $e');
-          logger.e('Bluetooth turnOn() failed: $e');
-          return;
-        }
+    if (Platform.isAndroid) {
+      PermissionStatus connectStatus = await Permission.bluetoothConnect.status;
 
-        try {
-          adapterState = await FlutterBluePlus.adapterState
-              .where((state) => state == BluetoothAdapterState.on)
-              .first
-              .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              ToastUtils().showErrorToast('Bluetooth did not turn on in time.');
-              throw Exception('Bluetooth enable timeout');
-            },
-          );
-        } catch (e) {
-          logger.e('Error while waiting for Bluetooth to turn on: $e');
-          return;
-        }
-      } else if (Platform.isIOS) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        ToastUtils().showErrorToast(l10n.error);
+      if (!connectStatus.isGranted) {
+        connectStatus = await Permission.bluetoothConnect.request();
 
-        try {
-          adapterState = await FlutterBluePlus.adapterState
-              .where((state) => state == BluetoothAdapterState.on)
-              .first
-              .timeout(
-            const Duration(seconds: 10),
-            onTimeout: () {
-              ToastUtils().showErrorToast('Bluetooth did not turn on in time.');
-              throw Exception('Bluetooth enable timeout');
-            },
-          );
-        } catch (e) {
-          logger.e('Error while waiting for Bluetooth to turn on: $e');
+        if (!connectStatus.isGranted) {
+          bleDialogController.update(BleDialogStatus.error, l10n.turnBLEOn);
           return;
         }
-      } else {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        ToastUtils().showErrorToast(l10n.error);
-        return;
       }
+    }
+
+    AvailabilityState adapterState =
+        await UniversalBle.getBluetoothAvailabilityState();
+
+    if (adapterState != AvailabilityState.poweredOn) {
+      try {
+        await UniversalBle.enableBluetooth();
+      } catch (e) {
+        bleDialogController.update(
+            BleDialogStatus.error, l10n.turnOnBluetoothMessage);
+      }
+      logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
+      return;
     }
 
     Data data;
@@ -212,12 +182,14 @@ class BadgeMessageProvider {
       data = fileHelper.jsonToData(jsonData);
       if (isSavedBadge && data.messages.isNotEmpty) {
         final old = data.messages[0];
+        final combinedBadges =
+            data.messages.where((m) => m.text.isNotEmpty).length > 1;
         final newMessage = Message(
-          text: old.text, // use the already-padded hex string
+          text: old.text,
           flash: old.flash,
           marquee: old.marquee,
           speed: old.speed,
-          mode: Mode.animation, // Force seamless marquee
+          mode: combinedBadges ? Mode.animation : old.mode,
         );
         data = Data(messages: [newMessage, ...data.messages.skip(1)]);
       }
@@ -227,7 +199,7 @@ class BadgeMessageProvider {
     }
 
     DataTransferManager manager = DataTransferManager(data);
-    await transferData(manager);
+    await transferData(manager, context: context);
   }
 }
 
@@ -249,14 +221,12 @@ Future<void> transferEmergencyAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
 
-/// Transfers the continuous diagonal V animation to the badge hardware.
 Future<void> transferDiagonalAnimation(
     BadgeMessageProvider badgeDataProvider, int speedLevel) async {
   return customTransferDiagonalAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
 
-/// Transfers the Fish Kiss animation to the badge, even if the homescreen text box is empty.
 Future<void> transferFishAnimation(
     BadgeMessageProvider badgeDataProvider, int speedLevel) async {
   return customTransferFishAnimation(

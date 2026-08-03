@@ -11,6 +11,8 @@ import 'package:logger/logger.dart';
 Future<void> customTransferPacmanAnimation(
     Future<void> Function(DataTransferManager) transferData,
     int speedLevel) async {
+  if (!await checkAdapterState()) return;
+
   const int frameCount = 8;
   const int badgeHeight = 11;
   const int badgeWidth = 44;

@@ -19,6 +19,8 @@ import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/special_text_field.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/homescreentabs.dart';
 import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
@@ -33,16 +35,12 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
-  final int? initialSpeed;
 
-  const HomeScreen({
-    super.key,
-    this.savedBadgeFilename,
-    this.initialSpeed,
-  });
+  const HomeScreen({super.key, this.savedBadgeFilename});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -54,14 +52,16 @@ class _HomeScreenState extends State<HomeScreen>
         AutomaticKeepAliveClientMixin,
         WidgetsBindingObserver {
   late final TabController _tabController;
-  final AnimationBadgeProvider animationProvider = AnimationBadgeProvider();
-  late SpeedDialProvider speedDialProvider;
+  late final AnimationBadgeProvider animationProvider;
+  late final SpeedDialProvider speedDialProvider;
   final BadgeMessageProvider badgeData = BadgeMessageProvider();
   final ImageUtils imageUtils = ImageUtils();
   final InlineImageProvider inlineImageProvider =
       GetIt.instance<InlineImageProvider>();
   final TextEditingController inlineimagecontroller =
       GetIt.instance.get<InlineImageProvider>().getController();
+
+  final Converters _converters = Converters();
 
   bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
@@ -70,6 +70,14 @@ class _HomeScreenState extends State<HomeScreen>
   String errorVal = "";
   late final ScrollController _vectorScrollController;
 
+  //Shared preferences keys
+  static const _textKey = 'badge_text';
+  static const _speedKey = 'badge_speed';
+  static const _transitionKey = 'badge_transition';
+  static const _effectsKey = 'badge_effects';
+
+  Timer? _debounceTimer;
+
   @override
   void initState() {
     super.initState();
@@ -77,21 +85,89 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.addObserver(this);
     inlineimagecontroller.addListener(handleTextChange);
     _setPortraitOrientation();
-    speedDialProvider = SpeedDialProvider(animationProvider);
-
-    if (widget.initialSpeed != null) {
-      speedDialProvider.setDialValue(widget.initialSpeed!);
-    }
+    animationProvider = context.read<AnimationBadgeProvider>();
+    speedDialProvider = context.read<SpeedDialProvider>();
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
+      await _startImageCaching();
+      await loadPreferences();
+
       inlineImageProvider.setContext(context);
 
       if (widget.savedBadgeFilename != null) {
         await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
       }
+
+      inlineimagecontroller.addListener(_debouncedSavePreferences);
+      animationProvider.addListener(_debouncedSavePreferences);
+      speedDialProvider.addListener(_debouncedSavePreferences);
     });
-    _startImageCaching();
     _tabController = TabController(length: 4, vsync: this);
+  }
+
+  Future<void> loadPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final text = prefs.getString(_textKey);
+    final speed = prefs.getInt(_speedKey);
+    final transition = prefs.getInt(_transitionKey);
+    final effects = prefs.getStringList(_effectsKey);
+    if (text != null) {
+      inlineimagecontroller.text = text;
+    }
+    if (speed != null) {
+      speedDialProvider.setDialValue(speed);
+    }
+    if (transition != null) {
+      animationProvider.setAnimationMode(animationMap[transition]);
+    }
+    if (effects != null) {
+      animationProvider.removeEffect(effectMap[0]);
+      animationProvider.removeEffect(effectMap[1]);
+      animationProvider.removeEffect(effectMap[2]);
+      for (final effect in effects) {
+        switch (effect) {
+          case 'invert':
+            animationProvider.addEffect(effectMap[0]);
+            break;
+          case 'flash':
+            animationProvider.addEffect(effectMap[1]);
+            break;
+          case 'marquee':
+            animationProvider.addEffect(effectMap[2]);
+            break;
+        }
+      }
+    }
+    animationProvider.badgeAnimation(
+      inlineimagecontroller.text,
+      _converters,
+      animationProvider.isEffectActive(InvertLEDEffect()),
+    );
+  }
+
+  Future<void> savePreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_textKey, inlineimagecontroller.text);
+    await prefs.setInt(
+      _speedKey,
+      speedDialProvider.getOuterValue(),
+    );
+    await prefs.setInt(
+      _transitionKey,
+      animationProvider.getAnimationIndex() ?? 0,
+    );
+    final effects = <String>[];
+    if (animationProvider.isEffectActive(InvertLEDEffect())) {
+      effects.add('invert');
+    }
+    if (animationProvider.isEffectActive(FlashEffect())) {
+      effects.add('flash');
+    }
+    if (animationProvider.isEffectActive(MarqueeEffect())) {
+      effects.add('marquee');
+    }
+    await prefs.setStringList(_effectsKey, effects);
   }
 
   Future<void> _loadBadgeDataFromDisk(String badgeFilename) async {
@@ -113,8 +189,9 @@ class _HomeScreenState extends State<HomeScreen>
         animationProvider.addEffect(effectMap[2]);
       }
       if (savedData != null &&
-          savedData.containsKey('invert') &&
-          savedData['invert'] == true) {
+          savedData['messages'] is List &&
+          (savedData['messages'] as List).isNotEmpty &&
+          savedData['messages'][0]['invert'] == true) {
         animationProvider.addEffect(effectMap[0]);
       }
 
@@ -130,8 +207,8 @@ class _HomeScreenState extends State<HomeScreen>
 
       ToastUtils().showToast(
           "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
-    } catch (e) {
-      print("Failed to load badge data: $e");
+    } catch (e, st) {
+      debugPrint("Failed to load badge data: $e\n$st");
       ToastUtils().showToast("Failed to load badge data");
     }
   }
@@ -183,11 +260,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
     _vectorScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineimagecontroller.removeListener(handleTextChange);
-    inlineimagecontroller.removeListener(_controllerListner);
-    animationProvider.stopAnimation();
+    inlineimagecontroller.removeListener(_debouncedSavePreferences);
+    animationProvider.removeListener(_debouncedSavePreferences);
+    speedDialProvider.removeListener(_debouncedSavePreferences);
     _tabController.dispose();
     super.dispose();
   }
@@ -202,7 +281,7 @@ class _HomeScreenState extends State<HomeScreen>
       }
       animationProvider.badgeAnimation(
         inlineimagecontroller.text,
-        Converters(),
+        _converters,
         animationProvider.isEffectActive(InvertLEDEffect()),
       );
       if (mounted) setState(() {});
@@ -224,116 +303,138 @@ class _HomeScreenState extends State<HomeScreen>
       valueListenable: appLocale,
       builder: (context, _, __) {
         final l10n = GetIt.instance.get<LocalizationService>().l10n;
-        return MultiProvider(
-          providers: [
-            ChangeNotifierProvider<AnimationBadgeProvider>(
-              create: (context) => animationProvider,
-            ),
-            ChangeNotifierProvider<SpeedDialProvider>(
-              create: (context) {
-                inlineImageProvider
-                    .getController()
-                    .addListener(_controllerListner);
-                return speedDialProvider;
-              },
-            ),
-          ],
-          child: DefaultTabController(
-            length: 4,
-            child: CommonScaffold(
-              index: 0,
-              title: l10n.appTitle,
-              scaffoldKey: const Key(homeScreenTitleKey),
-              body: SafeArea(
-                child: Stack(
-                  children: [
-                    SingleChildScrollView(
-                      physics: isDialInteracting
-                          ? const NeverScrollableScrollPhysics()
-                          : const AlwaysScrollableScrollPhysics(),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          AnimationBadge(),
-                          Padding(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 15.w, vertical: 12.h),
-                            child: Material(
-                              color: drawerHeaderTitle,
-                              borderRadius: BorderRadius.circular(10.r),
-                              elevation: 4,
-                              child: ExtendedTextField(
-                                onChanged: (value) {},
-                                controller: inlineimagecontroller,
-                                specialTextSpanBuilder: ImageBuilder(),
-                                style: Provider.of<FontProvider>(context)
-                                            .selectedFont !=
-                                        null
-                                    ? _getFontStyle(
-                                            Provider.of<FontProvider>(context)
-                                                .selectedFont!)
-                                        .copyWith(fontSize: 14)
-                                    : const TextStyle(fontSize: 14),
-                                decoration: InputDecoration(
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.r),
+        return DefaultTabController(
+          length: 4,
+          child: CommonScaffold(
+            index: 0,
+            title: l10n.appTitle,
+            scaffoldKey: const Key(homeScreenTitleKey),
+            body: SafeArea(
+              child: Stack(
+                children: [
+                  SingleChildScrollView(
+                    physics: isDialInteracting
+                        ? const NeverScrollableScrollPhysics()
+                        : const AlwaysScrollableScrollPhysics(),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimationBadge(),
+                        Padding(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 15.w, vertical: 12.h),
+                          child: Material(
+                            color: drawerHeaderTitle,
+                            borderRadius: BorderRadius.circular(10.r),
+                            elevation: 4,
+                            child: ExtendedTextField(
+                              controller: inlineimagecontroller,
+                              specialTextSpanBuilder: ImageBuilder(),
+                              style: Provider.of<FontProvider>(context)
+                                          .selectedFont !=
+                                      null
+                                  ? _getFontStyle(
+                                          Provider.of<FontProvider>(context)
+                                              .selectedFont!)
+                                      .copyWith(fontSize: 14)
+                                  : const TextStyle(fontSize: 14),
+                              decoration: InputDecoration(
+                                border: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                ),
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(10.r),
+                                  borderSide: BorderSide(color: colorPrimary),
+                                ),
+                                contentPadding: EdgeInsets.symmetric(
+                                  horizontal: 12.w,
+                                  vertical: 12.h,
+                                ),
+                                prefixIcon: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isPrefixIconClicked =
+                                          !isPrefixIconClicked;
+                                    });
+                                  },
+                                  icon: const Icon(Icons.tag_faces_outlined),
+                                  padding: EdgeInsets.zero,
+                                  constraints: const BoxConstraints(),
+                                  splashRadius: 24,
+                                ),
+                                suffixIcon: Container(
+                                  constraints: BoxConstraints(
+                                    maxWidth:
+                                        MediaQuery.of(context).size.width *
+                                            0.280,
                                   ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(10.r),
-                                    borderSide: BorderSide(color: colorPrimary),
-                                  ),
-                                  contentPadding: EdgeInsets.symmetric(
-                                    horizontal: 12.w,
-                                    vertical: 12.h,
-                                  ),
-                                  prefixIcon: IconButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isPrefixIconClicked =
-                                            !isPrefixIconClicked;
-                                      });
-                                    },
-                                    icon: const Icon(Icons.tag_faces_outlined),
-                                    padding: EdgeInsets.zero,
-                                    constraints: const BoxConstraints(),
-                                    splashRadius: 24,
-                                  ),
-                                  suffixIcon: Container(
-                                    constraints: BoxConstraints(
-                                      maxWidth:
-                                          MediaQuery.of(context).size.width *
-                                              0.280,
-                                    ),
-                                    padding:
-                                        EdgeInsets.only(left: 8.w, right: 8.w),
-                                    child: Consumer<FontProvider>(
-                                      builder: (context, fontProvider, _) {
-                                        return DropdownButtonHideUnderline(
-                                          child: DropdownButton<String>(
-                                            value: fontProvider.selectedFont,
-                                            icon: const SizedBox.shrink(),
-                                            iconEnabledColor: mdGrey400,
-                                            dropdownColor: Colors.white,
-                                            itemHeight: 48,
-                                            isExpanded: true,
+                                  padding:
+                                      EdgeInsets.only(left: 8.w, right: 8.w),
+                                  child: Consumer<FontProvider>(
+                                    builder: (context, fontProvider, _) {
+                                      return DropdownButtonHideUnderline(
+                                        child: DropdownButton<String>(
+                                          value: fontProvider.selectedFont,
+                                          icon: const SizedBox.shrink(),
+                                          iconEnabledColor: mdGrey400,
+                                          dropdownColor: Colors.white,
+                                          itemHeight: 48,
+                                          isExpanded: true,
+                                          style: TextStyle(
+                                            color: mdGrey400,
+                                            fontSize: 12.sp,
+                                          ),
+                                          hint: Text(
+                                            'Font',
                                             style: TextStyle(
-                                              color: mdGrey400,
                                               fontSize: 12.sp,
+                                              color: mdGrey400,
                                             ),
-                                            hint: Text(
-                                              'Font',
-                                              style: TextStyle(
-                                                fontSize: 12.sp,
-                                                color: mdGrey400,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          alignment:
+                                              AlignmentDirectional.centerEnd,
+                                          padding: EdgeInsets.zero,
+                                          items: [
+                                            DropdownMenuItem(
+                                              value: null,
+                                              child: Container(
+                                                padding: EdgeInsets.symmetric(
+                                                    horizontal: 16.w,
+                                                    vertical: 8.h),
+                                                decoration: BoxDecoration(
+                                                  color: fontProvider
+                                                              .selectedFont ==
+                                                          null
+                                                      ? dividerColor
+                                                      : Colors.transparent,
+                                                  borderRadius:
+                                                      BorderRadius.circular(4),
+                                                ),
+                                                child: Text(
+                                                  'Default',
+                                                  style: TextStyle(
+                                                    fontSize: 12.sp,
+                                                    color: fontProvider
+                                                                .selectedFont ==
+                                                            null
+                                                        ? colorAccent
+                                                        : Colors.black,
+                                                    fontWeight: fontProvider
+                                                                .selectedFont ==
+                                                            null
+                                                        ? FontWeight.bold
+                                                        : FontWeight.normal,
+                                                  ),
+                                                  overflow:
+                                                      TextOverflow.ellipsis,
+                                                  maxLines: 1,
+                                                ),
                                               ),
-                                              overflow: TextOverflow.ellipsis,
                                             ),
-                                            alignment:
-                                                AlignmentDirectional.centerEnd,
-                                            padding: EdgeInsets.zero,
-                                            items: [
-                                              DropdownMenuItem(
-                                                value: null,
+                                            ...fontProvider.availableFonts.map(
+                                              (font) => DropdownMenuItem(
+                                                value: font,
                                                 child: Container(
                                                   padding: EdgeInsets.symmetric(
                                                       horizontal: 16.w,
@@ -341,7 +442,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   decoration: BoxDecoration(
                                                     color: fontProvider
                                                                 .selectedFont ==
-                                                            null
+                                                            font
                                                         ? dividerColor
                                                         : Colors.transparent,
                                                     borderRadius:
@@ -349,17 +450,17 @@ class _HomeScreenState extends State<HomeScreen>
                                                             4),
                                                   ),
                                                   child: Text(
-                                                    'Default',
-                                                    style: TextStyle(
-                                                      fontSize: 12.sp,
+                                                    font,
+                                                    style: _getFontStyle(font)
+                                                        .copyWith(
                                                       color: fontProvider
                                                                   .selectedFont ==
-                                                              null
+                                                              font
                                                           ? colorAccent
                                                           : Colors.black,
                                                       fontWeight: fontProvider
                                                                   .selectedFont ==
-                                                              null
+                                                              font
                                                           ? FontWeight.bold
                                                           : FontWeight.normal,
                                                     ),
@@ -369,330 +470,253 @@ class _HomeScreenState extends State<HomeScreen>
                                                   ),
                                                 ),
                                               ),
-                                              ...fontProvider.availableFonts
-                                                  .map(
-                                                (font) => DropdownMenuItem(
-                                                  value: font,
-                                                  child: Container(
-                                                    padding:
-                                                        EdgeInsets.symmetric(
-                                                            horizontal: 16.w,
-                                                            vertical: 8.h),
-                                                    decoration: BoxDecoration(
-                                                      color: fontProvider
-                                                                  .selectedFont ==
-                                                              font
-                                                          ? dividerColor
-                                                          : Colors.transparent,
-                                                      borderRadius:
-                                                          BorderRadius.circular(
-                                                              4),
-                                                    ),
-                                                    child: Text(
-                                                      font,
-                                                      style: _getFontStyle(font)
-                                                          .copyWith(
-                                                        color: fontProvider
-                                                                    .selectedFont ==
-                                                                font
-                                                            ? colorAccent
-                                                            : Colors.black,
-                                                        fontWeight: fontProvider
-                                                                    .selectedFont ==
-                                                                font
-                                                            ? FontWeight.bold
-                                                            : FontWeight.normal,
-                                                      ),
-                                                      overflow:
-                                                          TextOverflow.ellipsis,
-                                                      maxLines: 1,
-                                                    ),
-                                                  ),
+                                            )
+                                          ],
+                                          selectedItemBuilder: (context) {
+                                            final List<String?> options = [
+                                              null,
+                                              ...fontProvider.availableFonts,
+                                            ];
+                                            return options.map((opt) {
+                                              final String label =
+                                                  opt ?? 'Default';
+                                              return Container(
+                                                padding: EdgeInsets.only(
+                                                  left: 4.w,
+                                                  right: 4.w,
                                                 ),
-                                              )
-                                            ],
-                                            selectedItemBuilder: (context) {
-                                              final List<String?> options = [
-                                                null,
-                                                ...fontProvider.availableFonts,
-                                              ];
-                                              return options.map((opt) {
-                                                final String label =
-                                                    opt ?? 'Default';
-                                                return Container(
-                                                  padding: EdgeInsets.only(
-                                                    left: 4.w,
-                                                    right: 4.w,
-                                                  ),
-                                                  child: Row(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      Flexible(
-                                                        child: Text(
-                                                          label,
-                                                          style: TextStyle(
-                                                            color: mdGrey400,
-                                                            fontSize: 12.sp,
-                                                          ),
-                                                          overflow: TextOverflow
-                                                              .ellipsis,
-                                                          maxLines: 1,
+                                                child: Row(
+                                                  mainAxisSize:
+                                                      MainAxisSize.min,
+                                                  children: [
+                                                    Flexible(
+                                                      child: Text(
+                                                        label,
+                                                        style: TextStyle(
+                                                          color: mdGrey400,
+                                                          fontSize: 12.sp,
                                                         ),
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
+                                                        maxLines: 1,
                                                       ),
-                                                      SizedBox(width: 2.w),
-                                                      Icon(
-                                                        Icons.arrow_drop_down,
-                                                        size: 18,
-                                                        color: mdGrey400,
-                                                      ),
-                                                    ],
-                                                  ),
-                                                );
-                                              }).toList();
-                                            },
-                                            onChanged: (String? newFont) {
-                                              fontProvider.changeFont(newFont);
-                                              animationProvider.badgeAnimation(
-                                                inlineimagecontroller.text,
-                                                Converters(),
-                                                animationProvider
-                                                    .isEffectActive(
-                                                        InvertLEDEffect()),
+                                                    ),
+                                                    SizedBox(width: 2.w),
+                                                    Icon(
+                                                      Icons.arrow_drop_down,
+                                                      size: 18,
+                                                      color: mdGrey400,
+                                                    ),
+                                                  ],
+                                                ),
                                               );
-                                            },
-                                            borderRadius:
-                                                BorderRadius.circular(8.r),
-                                            elevation: 2,
-                                            isDense: true,
-                                            menuMaxHeight: 300.h,
-                                          ),
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          AnimatedSize(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeInOut,
-                            child: Visibility(
-                              visible: isPrefixIconClicked,
-                              child: Container(
-                                height: isPrefixIconClicked ? 170.h : 0,
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                  color: Colors.grey[200],
-                                ),
-                                margin: EdgeInsets.symmetric(
-                                    horizontal: 15.w, vertical: 8.h),
-                                padding: EdgeInsets.symmetric(
-                                    vertical: 10.h, horizontal: 10.w),
-                                child: Scrollbar(
-                                  controller: _vectorScrollController,
-                                  thumbVisibility: true,
-                                  trackVisibility: true,
-                                  thickness: 4.0,
-                                  radius: const Radius.circular(10),
-                                  child: VectorGridView(
-                                      controller: _vectorScrollController),
-                                ),
-                              ),
-                            ),
-                          ),
-                          Padding(
-                            padding: EdgeInsets.only(top: 8.h),
-                            child: TabBar(
-                              isScrollable: false,
-                              indicatorSize: TabBarIndicatorSize.tab,
-                              labelStyle: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.3,
-                              ),
-                              unselectedLabelStyle: TextStyle(
-                                fontSize: 14.sp,
-                                fontWeight: FontWeight.w500,
-                              ),
-                              labelColor: Colors.black,
-                              unselectedLabelColor: mdGrey400,
-                              indicatorColor: colorPrimary,
-                              controller: _tabController,
-                              splashFactory: InkRipple.splashFactory,
-                              overlayColor:
-                                  WidgetStateProperty.resolveWith<Color?>(
-                                (states) => states.contains(WidgetState.pressed)
-                                    ? dividerColor
-                                    : null,
-                              ),
-                              labelPadding:
-                                  EdgeInsets.symmetric(horizontal: 4.w),
-                              tabs: [
-                                Tab(
-                                  key: const ValueKey('tab_speed'),
-                                  text: l10n.speedTitle,
-                                ),
-                                Tab(
-                                  key: const ValueKey('tab_transition'),
-                                  text: l10n.transitionTitle,
-                                ),
-                                Tab(
-                                  key: const ValueKey('tab_effects'),
-                                  text: l10n.effectsTitle,
-                                ),
-                                Tab(
-                                  key: const ValueKey('tab_animation'),
-                                  text: l10n.animation,
-                                ),
-                              ],
-                            ),
-                          ),
-                          LayoutBuilder(
-                            builder: (context, constraints) {
-                              final availableHeight =
-                                  0.5 * ScreenUtil().screenHeight;
-
-                              return ConstrainedBox(
-                                constraints: BoxConstraints(
-                                  minHeight: 220.h,
-                                  maxHeight: availableHeight,
-                                ),
-                                child: Padding(
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 8.w, vertical: 12.h),
-                                  child: TabBarView(
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    controller: _tabController,
-                                    children: [
-                                      GestureDetector(
-                                        onPanDown: (_) => setState(
-                                            () => isDialInteracting = true),
-                                        onPanCancel: () => setState(
-                                            () => isDialInteracting = false),
-                                        onPanEnd: (_) => setState(
-                                            () => isDialInteracting = false),
-                                        child: RadialDial(),
-                                      ),
-                                      const TransitionTab(),
-                                      const EffectTab(),
-                                      const AnimationTab(),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    ),
-                    Padding(
-                      padding: EdgeInsets.all(16.w),
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: Consumer<AnimationBadgeProvider>(
-                            builder: (context, animationProvider, _) {
-                          final isSpecial =
-                              animationProvider.isSpecialAnimationSelected();
-                          return Row(
-                            children: [
-                              if (!isSpecial) ...[
-                                Expanded(
-                                  child: GestureDetector(
-                                    onTap: () async {
-                                      if (inlineimagecontroller.text
-                                          .trim()
-                                          .isEmpty) {
-                                        ToastUtils().showToast(
-                                            "Please enter a message");
-                                        return;
-                                      }
-
-                                      if (widget.savedBadgeFilename != null) {
-                                        SavedBadgeProvider savedBadgeProvider =
-                                            SavedBadgeProvider();
-                                        String baseFilename =
-                                            widget.savedBadgeFilename!;
-                                        if (baseFilename.endsWith('.json')) {
-                                          baseFilename = baseFilename.substring(
-                                              0, baseFilename.length - 5);
-                                        }
-
-                                        await savedBadgeProvider
-                                            .updateBadgeData(
-                                          baseFilename,
-                                          inlineimagecontroller.text,
-                                          animationProvider
-                                              .isEffectActive(FlashEffect()),
-                                          animationProvider
-                                              .isEffectActive(MarqueeEffect()),
-                                          animationProvider.isEffectActive(
-                                              InvertLEDEffect()),
-                                          speedDialProvider.getOuterValue(),
-                                          animationProvider
-                                                  .getAnimationIndex() ??
-                                              1,
-                                        );
-
-                                        ToastUtils().showToast(
-                                            "Badge Updated Successfully");
-                                        Navigator.pushNamedAndRemoveUntil(
-                                          context,
-                                          '/savedBadge',
-                                          (route) => false,
-                                        );
-                                      } else {
-                                        showDialog(
-                                          context: context,
-                                          builder: (context) {
-                                            return SaveBadgeDialog(
-                                              speed: speedDialProvider,
-                                              animationProvider:
-                                                  animationProvider,
-                                              textController:
-                                                  inlineimagecontroller,
-                                              isInverse: animationProvider
-                                                  .isEffectActive(
-                                                      InvertLEDEffect()),
+                                            }).toList();
+                                          },
+                                          onChanged: (String? newFont) {
+                                            fontProvider.changeFont(newFont);
+                                            animationProvider.badgeAnimation(
+                                              inlineimagecontroller.text,
+                                              _converters,
+                                              animationProvider.isEffectActive(
+                                                  InvertLEDEffect()),
                                             );
                                           },
-                                        );
-                                      }
+                                          borderRadius:
+                                              BorderRadius.circular(8.r),
+                                          elevation: 2,
+                                          isDense: true,
+                                          menuMaxHeight: 300.h,
+                                        ),
+                                      );
                                     },
-                                    child: Container(
-                                      height: 32.h,
-                                      alignment: Alignment.center,
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 16.w, vertical: 8.h),
-                                      decoration: BoxDecoration(
-                                        borderRadius:
-                                            BorderRadius.circular(8.r),
-                                        color: mdGrey400,
-                                      ),
-                                      child: Text(l10n.saveButton),
-                                    ),
                                   ),
                                 ),
-                                SizedBox(width: 24.w),
-                              ],
+                              ),
+                            ),
+                          ),
+                        ),
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          child: Visibility(
+                            visible: isPrefixIconClicked,
+                            child: Container(
+                              height: isPrefixIconClicked ? 170.h : 0,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10.r),
+                                color: Colors.grey[200],
+                              ),
+                              margin: EdgeInsets.symmetric(
+                                  horizontal: 15.w, vertical: 8.h),
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 10.h, horizontal: 10.w),
+                              child: Scrollbar(
+                                controller: _vectorScrollController,
+                                thumbVisibility: true,
+                                trackVisibility: true,
+                                thickness: 4.0,
+                                radius: const Radius.circular(10),
+                                child: VectorGridView(
+                                    controller: _vectorScrollController),
+                              ),
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsets.only(top: 8.h),
+                          child: TabBar(
+                            isScrollable: false,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            labelStyle: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w600,
+                              letterSpacing: 0.3,
+                            ),
+                            unselectedLabelStyle: TextStyle(
+                              fontSize: 14.sp,
+                              fontWeight: FontWeight.w500,
+                            ),
+                            labelColor: Colors.black,
+                            unselectedLabelColor: mdGrey400,
+                            indicatorColor: colorPrimary,
+                            controller: _tabController,
+                            splashFactory: InkRipple.splashFactory,
+                            overlayColor:
+                                WidgetStateProperty.resolveWith<Color?>(
+                              (states) => states.contains(WidgetState.pressed)
+                                  ? dividerColor
+                                  : null,
+                            ),
+                            labelPadding: EdgeInsets.symmetric(horizontal: 4.w),
+                            tabs: [
+                              Tab(
+                                key: const ValueKey('tab_speed'),
+                                text: l10n.speedTitle,
+                              ),
+                              Tab(
+                                key: const ValueKey('tab_transition'),
+                                text: l10n.transitionTitle,
+                              ),
+                              Tab(
+                                key: const ValueKey('tab_effects'),
+                                text: l10n.effectsTitle,
+                              ),
+                              Tab(
+                                key: const ValueKey('tab_animation'),
+                                text: l10n.animation,
+                              ),
+                            ],
+                          ),
+                        ),
+                        LayoutBuilder(
+                          builder: (context, constraints) {
+                            final availableHeight =
+                                0.5 * ScreenUtil().screenHeight;
+
+                            return ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: 220.h,
+                                maxHeight: availableHeight,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(
+                                    horizontal: 8.w, vertical: 12.h),
+                                child: TabBarView(
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  controller: _tabController,
+                                  children: [
+                                    GestureDetector(
+                                      onPanDown: (_) => setState(
+                                          () => isDialInteracting = true),
+                                      onPanCancel: () => setState(
+                                          () => isDialInteracting = false),
+                                      onPanEnd: (_) => setState(
+                                          () => isDialInteracting = false),
+                                      child: RadialDial(),
+                                    ),
+                                    const TransitionTab(),
+                                    const EffectTab(),
+                                    const AnimationTab(),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.all(16.w),
+                    child: Align(
+                      alignment: Alignment.bottomCenter,
+                      child: Consumer<AnimationBadgeProvider>(
+                          builder: (context, animationProvider, _) {
+                        final isSpecial =
+                            animationProvider.isSpecialAnimationSelected();
+                        return Row(
+                          children: [
+                            if (!isSpecial) ...[
                               Expanded(
                                 child: GestureDetector(
                                   onTap: () async {
-                                    await animationProvider
-                                        .handleAnimationTransfer(
-                                      badgeData: badgeData,
-                                      inlineImageProvider: inlineImageProvider,
-                                      speedDialProvider: speedDialProvider,
-                                      flash: animationProvider
-                                          .isEffectActive(FlashEffect()),
-                                      marquee: animationProvider
-                                          .isEffectActive(MarqueeEffect()),
-                                      invert: animationProvider
-                                          .isEffectActive(InvertLEDEffect()),
-                                      context: context,
-                                    );
+                                    if (inlineimagecontroller.text
+                                        .trim()
+                                        .isEmpty) {
+                                      ToastUtils()
+                                          .showToast("Please enter a message");
+                                      return;
+                                    }
+
+                                    if (widget.savedBadgeFilename != null) {
+                                      SavedBadgeProvider savedBadgeProvider =
+                                          SavedBadgeProvider();
+                                      String baseFilename =
+                                          widget.savedBadgeFilename!;
+                                      if (baseFilename.endsWith('.json')) {
+                                        baseFilename = baseFilename.substring(
+                                            0, baseFilename.length - 5);
+                                      }
+
+                                      await savedBadgeProvider.updateBadgeData(
+                                        baseFilename,
+                                        inlineimagecontroller.text,
+                                        animationProvider
+                                            .isEffectActive(FlashEffect()),
+                                        animationProvider
+                                            .isEffectActive(MarqueeEffect()),
+                                        animationProvider
+                                            .isEffectActive(InvertLEDEffect()),
+                                        speedDialProvider.getOuterValue(),
+                                        animationProvider.getAnimationIndex() ??
+                                            1,
+                                      );
+
+                                      ToastUtils().showToast(
+                                          "Badge Updated Successfully");
+                                      if (!context.mounted) return;
+                                      Navigator.pushNamedAndRemoveUntil(
+                                        context,
+                                        '/savedBadge',
+                                        (route) => false,
+                                      );
+                                    } else {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return SaveBadgeDialog(
+                                            speed: speedDialProvider,
+                                            animationProvider:
+                                                animationProvider,
+                                            textController:
+                                                inlineimagecontroller,
+                                            isInverse: animationProvider
+                                                .isEffectActive(
+                                                    InvertLEDEffect()),
+                                          );
+                                        },
+                                      );
+                                    }
                                   },
                                   child: Container(
                                     height: 32.h,
@@ -703,17 +727,35 @@ class _HomeScreenState extends State<HomeScreen>
                                       borderRadius: BorderRadius.circular(8.r),
                                       color: mdGrey400,
                                     ),
-                                    child: Text(l10n.transferButton),
+                                    child: Text(l10n.saveButton),
                                   ),
                                 ),
                               ),
+                              SizedBox(width: 24.w),
                             ],
-                          );
-                        }),
-                      ),
+                            Expanded(
+                              child: GestureDetector(
+                                onTap: () => _showBleTransferDialog(
+                                    context, inlineImageProvider),
+                                child: Container(
+                                  height: 32.h,
+                                  alignment: Alignment.center,
+                                  padding: EdgeInsets.symmetric(
+                                      horizontal: 16.w, vertical: 8.h),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(8.r),
+                                    color: mdGrey400,
+                                  ),
+                                  child: Text(l10n.transferButton),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -722,49 +764,109 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void handleTextChange() {
-    final currentText = inlineimagecontroller.text;
-    final selection = inlineimagecontroller.selection;
+  void _showBleTransferDialog(
+      BuildContext context, InlineImageProvider inlineImageProvider) {
+    final bleDialogController = GetIt.instance<BleDialogController>();
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    bleDialogController.update(
+        BleDialogStatus.searching, l10n.searchingDeviceBLE);
 
-    // Always reset to text animation if a special animation is selected and user types
-    if (animationProvider.isSpecialAnimationSelected() &&
-        currentText.isNotEmpty) {
-      animationProvider.resetToTextAnimation();
-      animationProvider.badgeAnimation(currentText, Converters(),
-          animationProvider.isEffectActive(InvertLEDEffect()));
-      setState(() {}); // Ensure UI updates
-    }
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) {
+        return ValueListenableBuilder<BleDialogStatus>(
+          valueListenable: bleDialogController.status,
+          builder: (context, status, _) {
+            return ValueListenableBuilder<double>(
+              valueListenable: bleDialogController.progress,
+              builder: (context, progress, _) {
+                return ValueListenableBuilder<String>(
+                  valueListenable: bleDialogController.message,
+                  builder: (context, message, _) {
+                    return BleProgressDialog(
+                      status: status,
+                      progress: progress,
+                      message: message,
+                    );
+                  },
+                );
+              },
+            );
+          },
+        );
+      },
+    );
 
-    if (previousText.length > currentText.length) {
-      final deletionIndex = selection.baseOffset;
-      final regex = RegExp(r'<<\d+>>');
-      final matches = regex.allMatches(previousText);
-
-      bool placeholderDeleted = false;
-      for (final match in matches) {
-        if (deletionIndex > match.start && deletionIndex < match.end) {
-          inlineimagecontroller.text =
-              previousText.replaceRange(match.start, match.end, '');
-          inlineimagecontroller.selection =
-              TextSelection.collapsed(offset: match.start);
-          placeholderDeleted = true;
-          break;
-        }
-      }
-      if (!placeholderDeleted) {
-        previousText = inlineimagecontroller.text;
-      }
-    } else {
-      previousText = currentText;
-    }
+    animationProvider
+        .handleAnimationTransfer(
+      badgeData: badgeData,
+      inlineImageProvider: inlineImageProvider,
+      speedDialProvider: speedDialProvider,
+      flash: animationProvider.isEffectActive(FlashEffect()),
+      marquee: animationProvider.isEffectActive(MarqueeEffect()),
+      invert: animationProvider.isEffectActive(InvertLEDEffect()),
+      context: context,
+    )
+        .catchError((error) {
+      bleDialogController.update(
+        BleDialogStatus.error,
+        "An unexpected error\noccurred.",
+      );
+      Future.delayed(const Duration(milliseconds: 2000), () {
+        if (context.mounted) Navigator.of(context).pop();
+      });
+    });
   }
 
-  void _controllerListner() {
-    animationProvider.badgeAnimation(
-      inlineImageProvider.getController().text,
-      Converters(),
-      animationProvider.isEffectActive(InvertLEDEffect()),
-    );
+  void _debouncedSavePreferences() {
+    if (_debounceTimer?.isActive ?? false) _debounceTimer!.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 500), () {
+      savePreferences();
+    });
+  }
+
+  void handleTextChange() {
+    final currentText = inlineimagecontroller.text;
+
+    if (currentText != previousText) {
+      if (animationProvider.isSpecialAnimationSelected() &&
+          currentText.isNotEmpty) {
+        animationProvider.resetToTextAnimation();
+      }
+
+      final selection = inlineimagecontroller.selection;
+      if (previousText.length > currentText.length) {
+        final deletionIndex = selection.baseOffset;
+        final regex = RegExp(r'<<\d+>>');
+        final matches = regex.allMatches(previousText);
+
+        bool placeholderDeleted = false;
+        for (final match in matches) {
+          if (deletionIndex > match.start && deletionIndex < match.end) {
+            inlineimagecontroller.text =
+                previousText.replaceRange(match.start, match.end, '');
+            inlineimagecontroller.selection =
+                TextSelection.collapsed(offset: match.start);
+            placeholderDeleted = true;
+            break;
+          }
+        }
+        if (!placeholderDeleted) {
+          previousText = inlineimagecontroller.text;
+        }
+      } else {
+        previousText = currentText;
+      }
+
+      animationProvider.badgeAnimation(
+        inlineimagecontroller.text,
+        _converters,
+        animationProvider.isEffectActive(InvertLEDEffect()),
+      );
+
+      setState(() {});
+    }
   }
 
   @override

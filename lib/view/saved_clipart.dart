@@ -1,8 +1,8 @@
 import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/view/widgets/clipart_list_view.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
@@ -38,10 +38,25 @@ class _SavedClipartState extends State<SavedClipart> {
   @override
   Widget build(BuildContext context) {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
     return CommonScaffold(
       index: 3,
       key: const Key(savedClipartScreen),
       title: l10n.savedClipartTitle,
+      actions: [
+        TextButton(
+          onPressed: () async {
+            bool success = await file.importClipart(context);
+            if (success) {
+              setState(() {});
+            }
+          },
+          child: Text(
+            l10n.import,
+            style: const TextStyle(color: drawerHeaderTitle),
+          ),
+        ),
+      ],
       body: imageprovider.clipartsCache.isEmpty
           ? Center(
               child: Column(
@@ -54,19 +69,21 @@ class _SavedClipartState extends State<SavedClipart> {
                       height: 200.h,
                     ),
                   ),
-                  SizedBox(
-                    height: 20.h,
+                  SizedBox(height: 20.h),
+                  Text(
+                    l10n.noSavedClipart,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 20.sp,
+                    ),
                   ),
-                  Text(l10n.noSavedClipart,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 20.sp,
-                      )),
-                  Text(l10n.noSavedClipartMessage,
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontSize: 14.sp,
-                      )),
+                  Text(
+                    l10n.noSavedClipartMessage,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 14.sp,
+                    ),
+                  ),
                 ],
               ),
             )
@@ -74,13 +91,13 @@ class _SavedClipartState extends State<SavedClipart> {
               images: imageprovider.clipartsCache,
               refreshClipartCallback: (String fileName) async {
                 imageprovider.clipartsCache.remove(fileName);
+                imageprovider.removeFromCache(fileName);
+
                 setState(() {
                   logger.i('Clipart $fileName deleted');
                 });
-                imageprovider.removeFromCache(fileName);
-                imageprovider.generateImageCache();
               },
-            ), // Use the separate ListView widget here
+            ),
     );
   }
 }

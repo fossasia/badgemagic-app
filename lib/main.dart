@@ -1,13 +1,16 @@
+import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/getitlocator.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/view/about_us_screen.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/homescreen.dart';
 import 'package:badgemagic/view/save_badge_screen.dart';
 import 'package:badgemagic/view/saved_clipart.dart';
 import 'package:badgemagic/view/settings_screen.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
@@ -23,6 +26,7 @@ Future<void> main() async {
 
   // Initialize global localization service for usage outside of widgets
   final localizationService = getIt<LocalizationService>();
+  getIt.registerLazySingleton<BleDialogController>(() => BleDialogController());
   // Keep initial UI in English for integration tests that tap by English text
   // Apply saved locale on the next frame so visible strings change after first paint
   final saved = await localizationService.loadSavedLocale();
@@ -48,6 +52,12 @@ Future<void> main() async {
           create: (context) => getIt<FontProvider>()),
       ChangeNotifierProvider<BadgeScanProvider>(
         create: (_) => getIt<BadgeScanProvider>(),
+      ),
+      ChangeNotifierProvider<AnimationBadgeProvider>(
+        create: (_) => AnimationBadgeProvider(),
+      ),
+      ChangeNotifierProvider<SpeedDialProvider>(
+        create: (ctx) => SpeedDialProvider(ctx.read<AnimationBadgeProvider>()),
       ),
     ],
     child: const MyApp(),
@@ -78,6 +88,28 @@ class MyApp extends StatelessWidget {
               theme: ThemeData(
                 colorSchemeSeed: Colors.white,
                 useMaterial3: true,
+                dialogTheme: DialogThemeData(
+                  backgroundColor: Colors.white,
+                  surfaceTintColor: Colors.transparent,
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28.0),
+                  ),
+                  actionsPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  titleTextStyle: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: Colors.black,
+                  ),
+                ),
+                textButtonTheme: TextButtonThemeData(
+                  style: TextButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                    padding: const EdgeInsets.all(15),
+                  ),
+                ),
               ),
               locale: locale ?? const Locale('en', 'US'),
               localizationsDelegates: const [
