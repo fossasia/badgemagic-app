@@ -10,16 +10,15 @@
     </developer>
     <project_group>FOSSASIA</project_group>
     <description>
-        <p>An intuitive app for creating, customizing, and transferring dynamic text and vector graphics to Bluetooth LED name badges.</p>
-        <p>Badge Magic turns your device into a portable studio for LED badge customization. Featuring an 11×44 grid editor, multi-badge slot management, and seamless Bluetooth Low Energy (BLE) transfer, it allows makers, event organizers, and hobbyists to program custom badges effortlessly.</p>
+        <p>The Badge Magic app is a comprehensive LED badge management system that lets you create, customize, save, and transfer dynamic text and graphics to LED name badges via Bluetooth. The app features an intuitive interface with multiple creation modes, extensive animation options, and powerful customization tools.</p>
         <p>Key features include:</p>
         <ul>
-            <li>22 Animation Effects (including Pacman, Digital Rain, Fireworks, and scrolling text)</li>
+            <li>22 Animation Effects</li>
             <li>3 Visual Effects: Flash, Invert, and Marquee</li>
-            <li>Pixel-art drawing editor with shape tools (Square, Circle, Triangle) and Undo/Redo</li>
-            <li>Save, edit, import, and export custom badge layouts</li>
-            <li>Batch transfer up to 8 badges via Bluetooth Low Energy</li>
-            <li>Multi-language support and custom Bluetooth device alias management</li>
+            <li>Freehand drawing with shape tools</li>
+            <li>Save, edit, import, and export custom badges</li>
+            <li>Transferring badges via Bluetooth Low Energy or USB</li>
+            <li>Custom Bluetooth device alias management</li>
         </ul>
         <p>More feature on our personalized firmware!</p>
     </description>
