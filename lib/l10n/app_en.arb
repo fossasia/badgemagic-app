@@ -14,6 +14,7 @@
   "english": "English",
   "hindi": "Hindi",
   "italian": "Italian",
+  "russian": "Russian",
   "save": "Save",
   "cancel": "Cancel",
   "overwrite": "Overwrite",
@@ -253,5 +254,6 @@
   "couldNotGenerateQrImage": "Could not generate QR image.",
   "couldNotShareQrImage": "Could not share QR image.",
   "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
-  "transferCanceledByUser": "Transfer canceled by user"
+  "transferCanceledByUser": "Transfer canceled by user",
+  "turnBLEOn": "Please turn on Bluetooth in your settings"
 }
