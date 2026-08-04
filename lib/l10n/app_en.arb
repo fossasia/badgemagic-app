@@ -274,6 +274,6 @@
       }
     }
   },
-  "saveFlashAndReboot": "Save and Reboot the badge"
+  "saveFlashAndReboot": "Save and Reboot the badge",
   "turnBLEOn": "Please turn on Bluetooth in your settings"
 }

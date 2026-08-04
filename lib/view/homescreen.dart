@@ -74,7 +74,6 @@ class _HomeScreenState extends State<HomeScreen>
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
-  Timer? _debounceTimer;
 
   //Shared preferences keys
   static const _textKey = 'badge_text';
@@ -874,6 +873,8 @@ class _HomeScreenState extends State<HomeScreen>
                             Expanded(
                               child: GestureDetector(
                                 onTap: () async {
+                                  _showBleTransferDialog(
+                                      context, inlineImageProvider);
                                   final finalState = await animationProvider
                                       .handleAnimationTransfer(
                                     badgeData: badgeData,
@@ -887,7 +888,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         .isEffectActive(InvertLEDEffect()),
                                     context: context,
                                   );
-                                  
+
                                   if (finalState != null &&
                                       finalState.isSuccess &&
                                       finalState.isNextGen) {

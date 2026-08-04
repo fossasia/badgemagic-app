@@ -48,12 +48,12 @@ class WriteState extends NormalBleState {
     final int totalChunks = dataChunks.length;
     int currentChunkIndex = 0;
     bool verifiedNextGen = false;
-    
-    List<BleService> discoveredServices =
-          await UniversalBle.discoverServices(deviceId);
 
-      verifiedNextGen = discoveredServices.any((service) =>
-          service.uuid.toLowerCase() == ngServiceUuid.toLowerCase());
+    List<BleService> discoveredServices =
+        await UniversalBle.discoverServices(deviceId);
+
+    verifiedNextGen = discoveredServices.any(
+        (service) => service.uuid.toLowerCase() == ngServiceUuid.toLowerCase());
 
     double displayedProgress = 0.0;
     double targetProgress = 0.0;
@@ -135,8 +135,9 @@ class WriteState extends NormalBleState {
       } else {
         logger
             .i("Keeping GATT connection alive for Next-Gen profile commands.");
-      progressTimer.cancel();
-      await _safeDisconnect(deviceId);
+        progressTimer.cancel();
+        await _safeDisconnect(deviceId);
+      }
     }
   }
 

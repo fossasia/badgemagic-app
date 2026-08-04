@@ -170,7 +170,7 @@ class BadgeMessageProvider {
 
         if (!connectStatus.isGranted) {
           bleDialogController.update(BleDialogStatus.error, l10n.turnBLEOn);
-          return;
+          return null;
         }
       }
     }
