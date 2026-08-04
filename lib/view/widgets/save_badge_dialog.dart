@@ -142,8 +142,7 @@ class SaveBadgeDialog extends StatelessWidget {
                         context: context,
                         builder: (context) => AlertDialog(
                           title: Text(l10n.badgeNameExists),
-                          content:
-                              Text(l10n.badgeExistsMessage(trimmedBadgeName)),
+                          content: Text(l10n.badgeExistsMessage),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'rename'),

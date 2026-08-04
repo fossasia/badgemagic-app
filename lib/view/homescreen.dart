@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:badgemagic/bademagic_module/models/speed.dart';
 import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
@@ -55,6 +56,8 @@ class _HomeScreenState extends State<HomeScreen>
         TickerProviderStateMixin,
         AutomaticKeepAliveClientMixin,
         WidgetsBindingObserver {
+  static const double _badgePreviewMaxWidth = 560;
+
   late final TabController _tabController;
   late final AnimationBadgeProvider animationProvider;
   late final SpeedDialProvider speedDialProvider;
@@ -69,7 +72,6 @@ class _HomeScreenState extends State<HomeScreen>
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   bool isPrefixIconClicked = false;
-  bool isDialInteracting = false;
   String previousText = '';
   String _cachedText = '';
   String errorVal = "";
@@ -315,167 +317,162 @@ class _HomeScreenState extends State<HomeScreen>
             title: l10n.appTitle,
             scaffoldKey: const Key(homeScreenTitleKey),
             body: SafeArea(
-              child: Stack(
-                children: [
-                  SingleChildScrollView(
-                    physics: isDialInteracting
-                        ? const NeverScrollableScrollPhysics()
-                        : const AlwaysScrollableScrollPhysics(),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        AnimationBadge(),
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 15.w, vertical: 12.h),
-                          child: Material(
-                            color: drawerHeaderTitle,
+              child: LayoutBuilder(
+                builder: (context, layoutConstraints) {
+                  final badgePreview = Center(
+                    child: ConstrainedBox(
+                      constraints:
+                          const BoxConstraints(maxWidth: _badgePreviewMaxWidth),
+                      child: AnimationBadge(),
+                    ),
+                  );
+                  final textField = Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
+                    child: Material(
+                      color: drawerHeaderTitle,
+                      borderRadius: BorderRadius.circular(10.r),
+                      elevation: 4,
+                      child: ExtendedTextField(
+                        controller: inlineimagecontroller,
+                        specialTextSpanBuilder: ImageBuilder(),
+                        style: Provider.of<FontProvider>(context)
+                                    .selectedFont !=
+                                null
+                            ? _getFontStyle(Provider.of<FontProvider>(context)
+                                    .selectedFont!)
+                                .copyWith(fontSize: 14)
+                            : const TextStyle(fontSize: 14),
+                        decoration: InputDecoration(
+                          border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10.r),
-                            elevation: 4,
-                            child: ExtendedTextField(
-                              controller: inlineimagecontroller,
-                              specialTextSpanBuilder: ImageBuilder(),
-                              style: Provider.of<FontProvider>(context)
-                                          .selectedFont !=
-                                      null
-                                  ? _getFontStyle(
-                                          Provider.of<FontProvider>(context)
-                                              .selectedFont!)
-                                      .copyWith(fontSize: 14)
-                                  : const TextStyle(fontSize: 14),
-                              decoration: InputDecoration(
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(10.r),
-                                  borderSide: BorderSide(color: colorPrimary),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  horizontal: 12.w,
-                                  vertical: 12.h,
-                                ),
-                                prefixIcon: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      isPrefixIconClicked =
-                                          !isPrefixIconClicked;
-                                    });
-                                  },
-                                  icon: const Icon(Icons.tag_faces_outlined),
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                  splashRadius: 24,
-                                ),
-                                suffixIcon: Container(
-                                  constraints: BoxConstraints(
-                                    maxWidth:
-                                        MediaQuery.of(context).size.width *
-                                            0.280,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.r),
+                            borderSide: BorderSide(color: colorPrimary),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 12.w,
+                            vertical: 12.h,
+                          ),
+                          prefixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isPrefixIconClicked = !isPrefixIconClicked;
+                              });
+                            },
+                            icon: const Icon(Icons.tag_faces_outlined),
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(),
+                            splashRadius: 24,
+                          ),
+                          suffixIcon: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: math.min(
+                                  MediaQuery.of(context).size.width * 0.280,
+                                  200.0),
+                            ),
+                            padding: EdgeInsets.only(left: 8.w, right: 8.w),
+                            child: Consumer<FontProvider>(
+                              builder: (context, fontProvider, _) {
+                                return MenuAnchor(
+                                  alignmentOffset: const Offset(0, 8),
+                                  style: MenuStyle(
+                                    alignment: AlignmentDirectional.bottomEnd,
+                                    minimumSize: const WidgetStatePropertyAll(
+                                        Size(180, 0)),
+                                    backgroundColor:
+                                        const WidgetStatePropertyAll(
+                                            Colors.white),
+                                    surfaceTintColor:
+                                        const WidgetStatePropertyAll(
+                                            Colors.white),
+                                    elevation: const WidgetStatePropertyAll(6),
+                                    padding: WidgetStatePropertyAll(
+                                      EdgeInsets.symmetric(vertical: 6.h),
+                                    ),
+                                    shape: WidgetStatePropertyAll(
+                                      RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(16.r),
+                                      ),
+                                    ),
                                   ),
-                                  padding:
-                                      EdgeInsets.only(left: 8.w, right: 8.w),
-                                  child: Consumer<FontProvider>(
-                                    builder: (context, fontProvider, _) {
-                                      return DropdownButtonHideUnderline(
-                                        child: DropdownButton<String>(
-                                          value: fontProvider.selectedFont,
-                                          icon: const SizedBox.shrink(),
-                                          iconEnabledColor: mdGrey400,
-                                          dropdownColor: Colors.white,
-                                          itemHeight: 48,
-                                          isExpanded: true,
-                                          style: TextStyle(
-                                            color: mdGrey400,
-                                            fontSize: 12.sp,
+                                  menuChildren: <String?>[
+                                    null,
+                                    ...fontProvider.availableFonts,
+                                  ].map((opt) {
+                                    final label = opt ?? 'Default';
+                                    final selected =
+                                        fontProvider.selectedFont == opt;
+                                    return MenuItemButton(
+                                      onPressed: () {
+                                        fontProvider.changeFont(opt);
+                                        animationProvider.badgeAnimation(
+                                          inlineimagecontroller.text,
+                                          _converters,
+                                          animationProvider.isEffectActive(
+                                              InvertLEDEffect()),
+                                        );
+                                      },
+                                      trailingIcon: selected
+                                          ? Icon(Icons.check,
+                                              size: 18, color: colorPrimary)
+                                          : const SizedBox(width: 18),
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 4.h),
+                                        child: Text(
+                                          label,
+                                          style: (opt == null
+                                                  ? const TextStyle()
+                                                  : _getFontStyle(opt))
+                                              .copyWith(
+                                            fontSize: 14,
+                                            color: selected
+                                                ? colorPrimary
+                                                : Colors.black87,
+                                            fontWeight: selected
+                                                ? FontWeight.w600
+                                                : FontWeight.normal,
                                           ),
-                                          hint: Text(
-                                            l10n.font,
-                                            style: TextStyle(
-                                              fontSize: 12.sp,
+                                        ),
+                                      ),
+                                    );
+                                  }).toList(),
+                                  builder: (context, controller, child) {
+                                    return InkWell(
+                                      borderRadius: BorderRadius.circular(8.r),
+                                      onTap: () {
+                                        FocusScope.of(context).unfocus();
+                                        controller.isOpen
+                                            ? controller.close()
+                                            : controller.open();
+                                      },
+                                      child: Padding(
+                                        padding:
+                                            EdgeInsets.symmetric(vertical: 6.h),
+                                        child: Row(
+                                          mainAxisSize: MainAxisSize.min,
+                                          children: [
+                                            Flexible(
+                                              child: Text(
+                                                fontProvider.selectedFont ??
+                                                    'Default',
+                                                textAlign: TextAlign.end,
+                                                style: TextStyle(
+                                                  color: mdGrey400,
+                                                  fontSize: 12.sp,
+                                                ),
+                                                overflow: TextOverflow.ellipsis,
+                                                maxLines: 1,
+                                              ),
+                                            ),
+                                            Icon(
+                                              Icons.arrow_drop_down,
+                                              size: 20,
                                               color: mdGrey400,
                                             ),
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                          alignment:
-                                              AlignmentDirectional.centerEnd,
-                                          padding: EdgeInsets.zero,
-                                          items: [
-                                            DropdownMenuItem(
-                                              value: null,
-                                              child: Container(
-                                                padding: EdgeInsets.symmetric(
-                                                    horizontal: 16.w,
-                                                    vertical: 8.h),
-                                                decoration: BoxDecoration(
-                                                  color: fontProvider
-                                                              .selectedFont ==
-                                                          null
-                                                      ? dividerColor
-                                                      : Colors.transparent,
-                                                  borderRadius:
-                                                      BorderRadius.circular(4),
-                                                ),
-                                                child: Text(
-                                                  l10n.defaultFont,
-                                                  style: TextStyle(
-                                                    fontSize: 12.sp,
-                                                    color: fontProvider
-                                                                .selectedFont ==
-                                                            null
-                                                        ? colorAccent
-                                                        : Colors.black,
-                                                    fontWeight: fontProvider
-                                                                .selectedFont ==
-                                                            null
-                                                        ? FontWeight.bold
-                                                        : FontWeight.normal,
-                                                  ),
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  maxLines: 1,
-                                                ),
-                                              ),
-                                            ),
-                                            ...fontProvider.availableFonts.map(
-                                              (font) => DropdownMenuItem(
-                                                value: font,
-                                                child: Container(
-                                                  padding: EdgeInsets.symmetric(
-                                                      horizontal: 16.w,
-                                                      vertical: 8.h),
-                                                  decoration: BoxDecoration(
-                                                    color: fontProvider
-                                                                .selectedFont ==
-                                                            font
-                                                        ? dividerColor
-                                                        : Colors.transparent,
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            4),
-                                                  ),
-                                                  child: Text(
-                                                    font,
-                                                    style: _getFontStyle(font)
-                                                        .copyWith(
-                                                      color: fontProvider
-                                                                  .selectedFont ==
-                                                              font
-                                                          ? colorAccent
-                                                          : Colors.black,
-                                                      fontWeight: fontProvider
-                                                                  .selectedFont ==
-                                                              font
-                                                          ? FontWeight.bold
-                                                          : FontWeight.normal,
-                                                    ),
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    maxLines: 1,
-                                                  ),
-                                                ),
-                                              ),
-                                            )
                                           ],
                                           selectedItemBuilder: (context) {
                                             final List<String?> options = [
@@ -532,85 +529,261 @@ class _HomeScreenState extends State<HomeScreen>
                                           isDense: true,
                                           menuMaxHeight: 300.h,
                                         ),
+                                      ),
+                                    );
+                                  },
+                                );
+                              },
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                  final clipartPicker = AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: Visibility(
+                      visible: isPrefixIconClicked,
+                      child: Container(
+                        height: isPrefixIconClicked ? 170.h : 0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.r),
+                          color: Colors.grey[200],
+                        ),
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 15.w, vertical: 8.h),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 10.h, horizontal: 10.w),
+                        child: Scrollbar(
+                          controller: _vectorScrollController,
+                          thumbVisibility: true,
+                          trackVisibility: true,
+                          thickness: 4.0,
+                          radius: const Radius.circular(10),
+                          child: VectorGridView(
+                              controller: _vectorScrollController),
+                        ),
+                      ),
+                    ),
+                  );
+                  final tabBar = Container(
+                    margin: EdgeInsets.fromLTRB(8.w, 8.h, 8.w, 4.h),
+                    padding: EdgeInsets.all(4.w),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(30.r),
+                    ),
+                    child: TabBar(
+                      isScrollable: false,
+                      indicatorSize: TabBarIndicatorSize.tab,
+                      dividerColor: Colors.transparent,
+                      indicator: BoxDecoration(
+                        color: colorPrimary,
+                        borderRadius: BorderRadius.circular(30.r),
+                      ),
+                      splashBorderRadius: BorderRadius.circular(30.r),
+                      labelStyle: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.3,
+                      ),
+                      unselectedLabelStyle: TextStyle(
+                        fontSize: 14.sp,
+                        fontWeight: FontWeight.w500,
+                      ),
+                      labelColor: Colors.white,
+                      unselectedLabelColor: mdGrey400,
+                      controller: _tabController,
+                      splashFactory: InkRipple.splashFactory,
+                      overlayColor: WidgetStateProperty.all(Colors.transparent),
+                      labelPadding: EdgeInsets.symmetric(
+                        horizontal: 4.w,
+                        vertical: layoutConstraints.maxWidth < 600 ? 1.h : 2.h,
+                      ),
+                      tabs: [
+                        Tab(
+                          key: const ValueKey('tab_speed'),
+                          text: l10n.speedTitle,
+                        ),
+                        Tab(
+                          key: const ValueKey('tab_transition'),
+                          text: l10n.transitionTitle,
+                        ),
+                        Tab(
+                          key: const ValueKey('tab_effects'),
+                          text: l10n.effectsTitle,
+                        ),
+                        Tab(
+                          key: const ValueKey('tab_animation'),
+                          text: l10n.animation,
+                        ),
+                      ],
+                    ),
+                  );
+                  final dialTabView = Padding(
+                    padding:
+                        EdgeInsets.symmetric(horizontal: 8.w, vertical: 6.h),
+                    child: TabBarView(
+                      physics: const NeverScrollableScrollPhysics(),
+                      controller: _tabController,
+                      children: [
+                        RadialDial(),
+                        const TransitionTab(),
+                        const EffectTab(),
+                        const AnimationTab(),
+                      ],
+                    ),
+                  );
+                  Widget actionButton({
+                    required String label,
+                    required bool primary,
+                    required Future<void> Function() onTap,
+                  }) {
+                    final double height = math.min(50.h, 54.0);
+                    return SizedBox(
+                      height: height,
+                      child: FilledButton.tonal(
+                        onPressed: onTap,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: Colors.grey[200],
+                          foregroundColor: Colors.black87,
+                          elevation: 0,
+                          textStyle: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.3,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14.r),
+                          ),
+                        ),
+                        child: Text(label),
+                      ),
+                    );
+                  }
+
+                  final actionButtons = Consumer<AnimationBadgeProvider>(
+                      builder: (context, animationProvider, _) {
+                    final isSpecial =
+                        animationProvider.isSpecialAnimationSelected();
+                    return Row(
+                      children: [
+                        if (!isSpecial) ...[
+                          Expanded(
+                            child: actionButton(
+                              label: l10n.saveButton,
+                              primary: false,
+                              onTap: () async {
+                                if (inlineimagecontroller.text.trim().isEmpty) {
+                                  ToastUtils()
+                                      .showToast("Please enter a message");
+                                  return;
+                                }
+
+                                if (widget.savedBadgeFilename != null) {
+                                  SavedBadgeProvider savedBadgeProvider =
+                                      SavedBadgeProvider();
+                                  String baseFilename =
+                                      widget.savedBadgeFilename!;
+                                  if (baseFilename.endsWith('.json')) {
+                                    baseFilename = baseFilename.substring(
+                                        0, baseFilename.length - 5);
+                                  }
+
+                                  await savedBadgeProvider.updateBadgeData(
+                                    baseFilename,
+                                    inlineimagecontroller.text,
+                                    animationProvider
+                                        .isEffectActive(FlashEffect()),
+                                    animationProvider
+                                        .isEffectActive(MarqueeEffect()),
+                                    animationProvider
+                                        .isEffectActive(InvertLEDEffect()),
+                                    speedDialProvider.getOuterValue(),
+                                    animationProvider.getAnimationIndex() ?? 1,
+                                  );
+
+                                  ToastUtils()
+                                      .showToast("Badge Updated Successfully");
+                                  if (!context.mounted) return;
+                                  Navigator.pushNamedAndRemoveUntil(
+                                    context,
+                                    '/savedBadge',
+                                    (route) => false,
+                                  );
+                                } else {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) {
+                                      return SaveBadgeDialog(
+                                        speed: speedDialProvider,
+                                        animationProvider: animationProvider,
+                                        textController: inlineimagecontroller,
+                                        isInverse: animationProvider
+                                            .isEffectActive(InvertLEDEffect()),
                                       );
                                     },
-                                  ),
-                                ),
-                              ),
+                                  );
+                                }
+                              },
                             ),
                           ),
-                        ),
-                        AnimatedSize(
-                          duration: const Duration(milliseconds: 300),
-                          curve: Curves.easeInOut,
-                          child: Visibility(
-                            visible: isPrefixIconClicked,
-                            child: Container(
-                              height: isPrefixIconClicked ? 170.h : 0,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10.r),
-                                color: Colors.grey[200],
-                              ),
-                              margin: EdgeInsets.symmetric(
-                                  horizontal: 15.w, vertical: 8.h),
-                              padding: EdgeInsets.symmetric(
-                                  vertical: 10.h, horizontal: 10.w),
-                              child: Scrollbar(
-                                controller: _vectorScrollController,
-                                thumbVisibility: true,
-                                trackVisibility: true,
-                                thickness: 4.0,
-                                radius: const Radius.circular(10),
-                                child: VectorGridView(
-                                    controller: _vectorScrollController),
-                              ),
-                            ),
+                          SizedBox(width: 24.w),
+                        ],
+                        Expanded(
+                          child: actionButton(
+                            label: l10n.transferButton,
+                            primary: true,
+                            onTap: () async {
+                              _showBleTransferDialog(
+                                  context, inlineImageProvider);
+                            },
                           ),
                         ),
-                        Padding(
-                          padding: EdgeInsets.only(top: 8.h),
-                          child: TabBar(
-                            isScrollable: false,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            labelStyle: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0.3,
+                      ],
+                    );
+                  });
+
+                  Widget cardWrap(Widget child) => Container(
+                        margin: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 12.h),
+                        clipBehavior: Clip.antiAlias,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20.r),
+                          border: Border.all(color: const Color(0xFFEDEDED)),
+                          boxShadow: const [
+                            BoxShadow(
+                              color: Color.fromRGBO(0, 0, 0, 0.05),
+                              blurRadius: 14,
+                              offset: Offset(0, 4),
                             ),
-                            unselectedLabelStyle: TextStyle(
-                              fontSize: 14.sp,
-                              fontWeight: FontWeight.w500,
+                          ],
+                        ),
+                        child: child,
+                      );
+
+                  final buttonBar = Padding(
+                    padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
+                    child: actionButtons,
+                  );
+
+                  final bool isPhone = layoutConstraints.maxWidth < 600;
+
+                  if (isPhone) {
+                    return Column(
+                      children: [
+                        badgePreview,
+                        textField,
+                        clipartPicker,
+                        Expanded(
+                          child: cardWrap(
+                            Column(
+                              children: [
+                                tabBar,
+                                Expanded(child: dialTabView),
+                              ],
                             ),
-                            labelColor: Colors.black,
-                            unselectedLabelColor: mdGrey400,
-                            indicatorColor: colorPrimary,
-                            controller: _tabController,
-                            splashFactory: InkRipple.splashFactory,
-                            overlayColor:
-                                WidgetStateProperty.resolveWith<Color?>(
-                              (states) => states.contains(WidgetState.pressed)
-                                  ? dividerColor
-                                  : null,
-                            ),
-                            labelPadding: EdgeInsets.symmetric(horizontal: 4.w),
-                            tabs: [
-                              Tab(
-                                key: const ValueKey('tab_speed'),
-                                text: l10n.speedTitle,
-                              ),
-                              Tab(
-                                key: const ValueKey('tab_transition'),
-                                text: l10n.transitionTitle,
-                              ),
-                              Tab(
-                                key: const ValueKey('tab_effects'),
-                                text: l10n.effectsTitle,
-                              ),
-                              Tab(
-                                key: const ValueKey('tab_animation'),
-                                text: l10n.animation,
-                              ),
-                            ],
                           ),
                         ),
                         LayoutBuilder(
