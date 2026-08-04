@@ -14,6 +14,7 @@
   "english": "English",
   "hindi": "Hindi",
   "italian": "Italian",
+  "russian": "Russian",
   "save": "Save",
   "cancel": "Cancel",
   "overwrite": "Overwrite",
@@ -274,4 +275,5 @@
     }
   },
   "saveFlashAndReboot": "Save and Reboot the badge"
+  "turnBLEOn": "Please turn on Bluetooth in your settings"
 }

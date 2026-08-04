@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
 import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
 import 'package:badgemagic/bademagic_module/utils/converters.dart';
@@ -13,6 +15,7 @@ import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/utils/custom_transfers/transfers.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -159,12 +162,29 @@ class BadgeMessageProvider {
       }
     }
 
+    if (Platform.isAndroid) {
+      PermissionStatus connectStatus = await Permission.bluetoothConnect.status;
+
+      if (!connectStatus.isGranted) {
+        connectStatus = await Permission.bluetoothConnect.request();
+
+        if (!connectStatus.isGranted) {
+          bleDialogController.update(BleDialogStatus.error, l10n.turnBLEOn);
+          return;
+        }
+      }
+    }
+
     AvailabilityState adapterState =
         await UniversalBle.getBluetoothAvailabilityState();
 
     if (adapterState != AvailabilityState.poweredOn) {
-      bleDialogController.update(
-          BleDialogStatus.error, l10n.turnOnBluetoothMessage);
+      try {
+        await UniversalBle.enableBluetooth();
+      } catch (e) {
+        bleDialogController.update(
+            BleDialogStatus.error, l10n.turnOnBluetoothMessage);
+      }
       logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
       return null;
     }
