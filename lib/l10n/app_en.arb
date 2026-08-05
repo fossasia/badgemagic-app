@@ -348,6 +348,6 @@
   "flashingFirmwareProgress": "Flashing firmware... {progress}%",
   "writingInProgress": "Writing in progress: {progress}%",
   "preparing": "Preparing...",
-  "addFrame": "Add Frame",
-  "frameHint": "Type text for this frame"
+  "addFrame": "Add Screen",
+  "frameHint": "Type text for this screen"
 }
