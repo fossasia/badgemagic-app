@@ -27,7 +27,6 @@ import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
 import 'package:badgemagic/view/widgets/speedial.dart';
 import 'package:badgemagic/view/widgets/transitiontab.dart';
 import 'package:badgemagic/view/widgets/vectorview.dart';
-import 'package:badgemagic/view/widgets/multi_frame_input_widget.dart';
 import 'package:badgemagic/virtualbadge/view/animated_badge.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
@@ -546,39 +545,19 @@ class _HomeScreenState extends State<HomeScreen>
                                 color: drawerHeaderTitle,
                                 borderRadius: BorderRadius.circular(10.r),
                                 elevation: 4,
-                                child: isAnimationMode
-                                    ? InputDecorator(
-                                        decoration: sharedDecoration.copyWith(
-                                          contentPadding: EdgeInsets.symmetric(
-                                            horizontal: 12.w,
-                                            vertical: 8.h,
-                                          ),
-                                        ),
-                                        child: MultiFrameInputWidget(
-                                          globalController: inlineimagecontroller,
-                                          onChanged: () {
-                                            animationProvider.badgeAnimation(
-                                              inlineimagecontroller.text,
-                                              _converters,
-                                              animationProvider
-                                                  .isEffectActive(InvertLEDEffect()),
-                                            );
-                                          },
-                                        ),
-                                      )
-                                    : ExtendedTextField(
-                                        controller: inlineimagecontroller,
-                                        specialTextSpanBuilder: ImageBuilder(),
-                                        style: Provider.of<FontProvider>(context)
-                                                    .selectedFont !=
-                                                null
-                                            ? _getFontStyle(
-                                                    Provider.of<FontProvider>(context)
-                                                        .selectedFont!)
-                                                .copyWith(fontSize: 14)
-                                            : const TextStyle(fontSize: 14),
-                                        decoration: sharedDecoration,
-                                      ),
+                                child: ExtendedTextField(
+                                  controller: inlineimagecontroller,
+                                  specialTextSpanBuilder: ImageBuilder(),
+                                  style: Provider.of<FontProvider>(context)
+                                              .selectedFont !=
+                                          null
+                                      ? _getFontStyle(
+                                              Provider.of<FontProvider>(context)
+                                                  .selectedFont!)
+                                          .copyWith(fontSize: 14)
+                                      : const TextStyle(fontSize: 14),
+                                  decoration: sharedDecoration,
+                                ),
                               ),
                             );
                           },

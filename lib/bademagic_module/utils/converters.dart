@@ -224,7 +224,7 @@ class Converters {
           segments.add(
               {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
           i += 6;
-        } else if (text[i] == '\f') {
+        } else if (text[i] == '|') {
           // Frame separator: flush current text then pad to next screen boundary.
           if (currentText.isNotEmpty) {
             segments.add({'type': 'text', 'content': currentText});
@@ -370,7 +370,7 @@ class Converters {
         segments.add(
             {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
         i += 6;
-      } else if (text[i] == '\f') {
+      } else if (text[i] == '|') {
         // Frame separator: flush current text segment then pad matrix to the
         // next 44-column screen boundary so the following frame starts fresh.
         if (currentText.isNotEmpty) {
