@@ -250,6 +250,7 @@
   "couldNotShareQrImage": "Could not share QR image.",
   "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
 <<<<<<< HEAD
+<<<<<<< HEAD
   "turnBLEOn": "Please turn on Bluetooth in your settings",
   "secureConnection": "Secure Connection (PIN)",
   "iUnderstand": "I understand",
