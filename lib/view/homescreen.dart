@@ -771,8 +771,8 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _showBleTransferDialog(
-      BuildContext context, InlineImageProvider inlineImageProvider) {
+  Future<void> _showBleTransferDialog(
+      BuildContext context, InlineImageProvider inlineImageProvider) async {
     final bleDialogController = GetIt.instance<BleDialogController>();
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
     bleDialogController.update(
@@ -805,25 +805,26 @@ class _HomeScreenState extends State<HomeScreen>
       },
     );
 
-    animationProvider
-        .handleAnimationTransfer(
-      badgeData: badgeData,
-      inlineImageProvider: inlineImageProvider,
-      speedDialProvider: speedDialProvider,
-      flash: animationProvider.isEffectActive(FlashEffect()),
-      marquee: animationProvider.isEffectActive(MarqueeEffect()),
-      invert: animationProvider.isEffectActive(InvertLEDEffect()),
-      context: context,
-    )
-        .catchError((error) {
+    try {
+      await animationProvider.handleAnimationTransfer(
+        badgeData: badgeData,
+        inlineImageProvider: inlineImageProvider,
+        speedDialProvider: speedDialProvider,
+        flash: animationProvider.isEffectActive(FlashEffect()),
+        marquee: animationProvider.isEffectActive(MarqueeEffect()),
+        invert: animationProvider.isEffectActive(InvertLEDEffect()),
+        context: context,
+      );
+    } catch (error) {
       bleDialogController.update(
         BleDialogStatus.error,
         "An unexpected error\noccurred.",
       );
-      Future.delayed(const Duration(milliseconds: 2000), () {
-        if (context.mounted) Navigator.of(context).pop();
-      });
-    });
+      await Future.delayed(const Duration(milliseconds: 2000));
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   void _debouncedSavePreferences() {
