@@ -3,7 +3,7 @@ import 'dart:io' show Platform;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:hid_tool/hid_tool.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 
 enum UsbConnectionType { none, hid }
 

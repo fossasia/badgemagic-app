@@ -8,7 +8,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/view/widgets/special_animation_dialog.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
 
 class AniContainer extends StatefulWidget {
   final String? animation;
@@ -68,7 +68,7 @@ class _AniContainerState extends State<AniContainer> {
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
-      height: 65.h,
+      height: MediaQuery.of(context).size.width < 600 ? 96.h : 58.h,
       child: GestureDetector(
         onTap: () async {
           // Only show dialog for special animations (index >= 9)

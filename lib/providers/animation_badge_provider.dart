@@ -2,8 +2,8 @@ import 'dart:async';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
 import 'package:badgemagic/badge_animation/ani_splitting.dart';
 import 'package:badgemagic/badge_animation/ani_down.dart';
 import 'package:badgemagic/badge_animation/ani_fixed.dart';
@@ -33,8 +33,8 @@ import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart'; // new import of EqualizerAnimation
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
-import 'package:badgemagic/bademagic_module/models/mode.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/badgemagic_module/models/mode.dart';
 
 Map<int, BadgeAnimation?> animationMap = {
   0: LeftAnimation(),

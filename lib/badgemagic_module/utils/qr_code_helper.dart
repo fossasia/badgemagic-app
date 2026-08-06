@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
 
 class QrCodeHelper {
   static const String _scheme = 'BMQR1:';

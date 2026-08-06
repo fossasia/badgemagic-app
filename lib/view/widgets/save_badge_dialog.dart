@@ -1,4 +1,4 @@
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -142,8 +142,7 @@ class SaveBadgeDialog extends StatelessWidget {
                         context: context,
                         builder: (context) => AlertDialog(
                           title: Text(l10n.badgeNameExists),
-                          content:
-                              Text(l10n.badgeExistsMessage(trimmedBadgeName)),
+                          content: Text(l10n.badgeExistsMessage),
                           actions: [
                             TextButton(
                               onPressed: () => Navigator.pop(context, 'rename'),

@@ -10,7 +10,7 @@
     "similarBadgeExistsMessage": "Уже существует бейдж с похожим названием: '{badgeName}'. Что вы хотите сделать?",
     "similarBadgeNameMessage": "Уже существует бейдж с похожим названием: '{badgeName}'. Хотите его перезаписать?",
     "badgeNameExistsMessage": "Уже существует бейдж с таким названием: '{badgeName}'. Хотите его перезаписать?",
-    "badgeExistsMessage": "Уже существует бейдж с таким названием. Что вы хотите сделать?",
+    "badgeExistsMessage": "Бейдж с таким названием уже существует. Что вы хотите сделать?",
     "about": "О приложении",
     "aboutApp": "О Badge Magic",
     "aboutUs": "О нас",

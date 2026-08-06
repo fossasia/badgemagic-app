@@ -40,12 +40,6 @@ runs:
       shell: bash
       run: flutter pub get
 
-    - name: Patch hid_tool Linux plugin
-      shell: bash
-      run: |
-        sed -i '/g_autoptr(FlMethodCall) method_call/,/fl_method_channel_get_codec(self->channel));/d' \
-          linux/flutter/ephemeral/.plugin_symlinks/hid_tool/linux/hid_tool_plugin.cc
-
     - name: Build Linux (Debian) App
       shell: bash
       env:
