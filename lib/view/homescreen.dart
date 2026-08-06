@@ -771,6 +771,7 @@ class _HomeScreenState extends State<HomeScreen>
     bleDialogController.update(
         BleDialogStatus.searching, l10n.searchingDeviceBLE);
 
+
     showDialog(
       context: context,
       barrierDismissible: false,
