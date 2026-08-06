@@ -1,14 +1,14 @@
 import 'dart:io';
 
-import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
-import 'package:badgemagic/bademagic_module/models/data.dart';
-import 'package:badgemagic/bademagic_module/models/messages.dart';
-import 'package:badgemagic/bademagic_module/models/mode.dart';
-import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/base_ble_state.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/scan_state.dart';
+import 'package:badgemagic/badgemagic_module/models/data.dart';
+import 'package:badgemagic/badgemagic_module/models/messages.dart';
+import 'package:badgemagic/badgemagic_module/models/mode.dart';
+import 'package:badgemagic/badgemagic_module/models/speed.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';

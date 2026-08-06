@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:badgemagic/bademagic_module/models/speed.dart';
-import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/models/speed.dart';
+import 'package:badgemagic/badgemagic_module/utils/badge_loader_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/image_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';

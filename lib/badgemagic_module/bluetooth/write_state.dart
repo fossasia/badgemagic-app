@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:typed_data';
-import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
 import 'package:get_it/get_it.dart';
 import '../../services/localization_service.dart';
 import '../../view/widgets/ble_progress_dialog.dart';
