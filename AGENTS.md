@@ -23,7 +23,7 @@ badgemagic-app/
 ├── windows/          # Windows-specific platform code
 ├── web/              # Web-specific platform code
 ├── lib/              # Code shared by all platforms
-│   ├── bademagic_module/  # Core badge logic, BLE transfer, data generators
+│   ├── badgemagic_module/ # Core badge logic, BLE transfer, data generators
 │   ├── badge_animation/   # Badge animation definitions
 │   ├── badge_effect/      # Badge effect definitions
 │   ├── globals/           # Global state and singletons
