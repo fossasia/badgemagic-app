@@ -1,7 +1,7 @@
-import 'package:badgemagic/bademagic_module/models/data.dart';
-import 'package:badgemagic/bademagic_module/models/messages.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/models/data.dart';
+import 'package:badgemagic/badgemagic_module/models/messages.dart';
+import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/view/qr_scan_screen.dart';

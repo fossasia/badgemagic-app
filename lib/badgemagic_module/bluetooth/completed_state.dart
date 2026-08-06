@@ -1,4 +1,4 @@
-import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/base_ble_state.dart';
 import 'package:get_it/get_it.dart';
 
 import '../../view/widgets/ble_progress_dialog.dart';

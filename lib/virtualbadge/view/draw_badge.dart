@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/virtualbadge/view/badge_paint.dart';
-import 'package:badgemagic/bademagic_module/utils/badge_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/badge_utils.dart';
 
 class BMBadge extends StatefulWidget {
   final void Function(DrawBadgeProvider provider)? providerInit;
