@@ -2,8 +2,8 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:badgemagic/bademagic_module/utils/qr_code_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/qr_code_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';

@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:badgemagic/bademagic_module/models/speed.dart';
-import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/models/speed.dart';
+import 'package:badgemagic/badgemagic_module/utils/badge_loader_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/image_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
@@ -487,15 +487,15 @@ class _HomeScreenState extends State<HomeScreen>
                     child: Visibility(
                       visible: isPrefixIconClicked,
                       child: Container(
-                        height: isPrefixIconClicked ? 170.h : 0,
+                        height: isPrefixIconClicked ? 200.h : 0,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.r),
                           color: Colors.grey[200],
                         ),
                         margin: EdgeInsets.symmetric(
                             horizontal: 15.w, vertical: 8.h),
-                        padding: EdgeInsets.symmetric(
-                            vertical: 10.h, horizontal: 10.w),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10.h, horizontal: 8),
                         child: Scrollbar(
                           controller: _vectorScrollController,
                           thumbVisibility: true,
