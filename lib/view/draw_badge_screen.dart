@@ -407,7 +407,7 @@ class _DrawBadgeState extends State<DrawBadge> {
               drawToggle.getDrawViewGrid(), customName);
         }
 
-        fileHelper.generateClipartCache();
+        await fileHelper.generateClipartCache();
         ToastUtils().showToast(GetIt.instance
             .get<LocalizationService>()
             .l10n
