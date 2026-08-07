@@ -47,6 +47,13 @@ class WriteState extends NormalBleState {
     final String deviceId = device.deviceId;
     final int totalChunks = dataChunks.length;
     int currentChunkIndex = 0;
+    bool verifiedNextGen = false;
+
+    List<BleService> discoveredServices =
+        await UniversalBle.discoverServices(deviceId);
+
+    verifiedNextGen = discoveredServices.any(
+        (service) => service.uuid.toLowerCase() == ngServiceUuid.toLowerCase());
 
     double displayedProgress = 0.0;
     double targetProgress = 0.0;
@@ -105,6 +112,7 @@ class WriteState extends NormalBleState {
       return CompletedState(
         isSuccess: true,
         message: l10n.transferSucceeded,
+        isNextGen: verifiedNextGen,
       );
     } catch (e) {
       logger.e("Transfer failed: $e");
@@ -116,8 +124,20 @@ class WriteState extends NormalBleState {
       }
       rethrow;
     } finally {
-      progressTimer.cancel();
-      await _safeDisconnect(deviceId);
+      if (!verifiedNextGen) {
+        try {
+          logger.d("Disconnecting from legacy device after write...");
+          await UniversalBle.disconnect(deviceId);
+          await Future.delayed(const Duration(milliseconds: 700));
+        } catch (e) {
+          logger.e("Error during disconnect: $e");
+        }
+      } else {
+        logger
+            .i("Keeping GATT connection alive for Next-Gen profile commands.");
+        progressTimer.cancel();
+        await _safeDisconnect(deviceId);
+      }
     }
   }
 
