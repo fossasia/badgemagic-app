@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+    <id>org.fossasia.BadgeMagic</id>
+    <metadata_license>CC0-1.0</metadata_license>
+    <project_license>Apache-2.0</project_license>
+    <name>BadgeMagic</name>
+    <summary>Badge Magic App</summary>
+    <developer id="org.fossasia">
+        <name>FOSSASIA</name>
+    </developer>
+    <project_group>FOSSASIA</project_group>
+    <description>
+        <p>The Badge Magic app is a comprehensive LED badge management system that lets you create, customize, save, and transfer dynamic text and graphics to LED name badges via Bluetooth. The app features an intuitive interface with multiple creation modes, extensive animation options, and powerful customization tools.</p>
+        <p>Key features include:</p>
+        <ul>
+            <li>22 Animation Effects</li>
+            <li>3 Visual Effects: Flash, Invert, and Marquee</li>
+            <li>Freehand drawing with shape tools</li>
+            <li>Save, edit, import, and export custom badges</li>
+            <li>Transferring badges via Bluetooth Low Energy or USB</li>
+            <li>Custom Bluetooth device alias management</li>
+        </ul>
+        <p>More feature on our personalized firmware!</p>
+    </description>
+    <launchable type="desktop-id">org.fossasia.BadgeMagic.desktop</launchable>
+
+    <branding>
+        <color type="primary" scheme_preference="light">#D32F2F</color>
+        <color type="primary" scheme_preference="dark">#D32F2F</color>
+    </branding>
+
+    <screenshots>
+        <screenshot type="default">
+            <caption>Home Screen</caption>
+            <image>https://github.com/fossasia/badgemagic-app/tree/development/linux/assets/screenshots/cine_0001.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Transfer</caption>
+            <image>https://github.com/fossasia/badgemagic-app/tree/development/linux/assets/screenshots/cine_0002.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Animations</caption>
+            <image>https://github.com/fossasia/badgemagic-app/tree/development/linux/assets/screenshots/cine_0003.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Clipart Drawer</caption>
+            <image>https://github.com/fossasia/badgemagic-app/tree/development/linux/assets/screenshots/cine_0004.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Menu</caption>
+            <image>https://github.com/fossasia/badgemagic-app/tree/development/linux/assets/screenshots/cine_0005.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Saved Badges</caption>
+            <image>https://github.com/fossasia/badgemagic-app/tree/development/linux/assets/screenshots/cine_0006.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Saved Cliparts</caption>
+            <image>https://github.com/fossasia/badgemagic-app/tree/development/linux/assets/screenshots/cine_0007.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>Settings</caption>
+            <image>https://github.com/fossasia/badgemagic-app/tree/development/linux/assets/screenshots/cine_0008.jpg</image>
+        </screenshot>
+        <screenshot>
+            <caption>About us</caption>
+            <image>https://github.com/fossasia/badgemagic-app/tree/development/linux/assets/screenshots/cine_0009.jpg</image>
+        </screenshot>
+    </screenshots>
+
+
+    <url type="homepage">https://badgemagic.fossasia.org/</url>
+    <url type="bugtracker">https://github.com/fossasia/badgemagic-app/issues</url>
+    <url type="vcs-browser">https://github.com/fossasia/badgemagic-app</url>
+    <url type="translate">https://hosted.weblate.org/projects/fossasia/badge-magic-app/</url>
+
+    <categories>
+        <category>Graphics</category>
+        <category>Utility</category>
+        <category>HardwareSettings</category>
+        <category>Electronics</category>
+    </categories>
+
+    <supports>
+        <control>keyboard</control>
+        <control>pointing</control>
+        <control>touch</control>
+    </supports>
+
+    <content_rating type="oars-1.1" />
+    <releases>
+        <release version="1.34.0" date="2026-07-30">
+            <description>
+                <p>First upload on Flathub!</p>
+            </description>
+        </release>
+    </releases>
+</component>

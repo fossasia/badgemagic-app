@@ -135,6 +135,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                       value: 'it',
                       child: Text(l10n.italian),
                     ),
+                    DropdownMenuItem(
+                      value: 'ru',
+                      child: Text(l10n.russian),
+                    ),
                   ],
                   onChanged: (value) {
                     if (value != null) {

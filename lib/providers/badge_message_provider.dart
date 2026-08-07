@@ -1,17 +1,20 @@
-import 'package:badgemagic/bademagic_module/bluetooth/base_ble_state.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/scan_state.dart';
-import 'package:badgemagic/bademagic_module/models/data.dart';
-import 'package:badgemagic/bademagic_module/models/messages.dart';
-import 'package:badgemagic/bademagic_module/models/mode.dart';
-import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'dart:io';
+
+import 'package:badgemagic/badgemagic_module/bluetooth/base_ble_state.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/scan_state.dart';
+import 'package:badgemagic/badgemagic_module/models/data.dart';
+import 'package:badgemagic/badgemagic_module/models/messages.dart';
+import 'package:badgemagic/badgemagic_module/models/mode.dart';
+import 'package:badgemagic/badgemagic_module/models/speed.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/utils/custom_transfers/transfers.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
@@ -147,12 +150,29 @@ class BadgeMessageProvider {
       }
     }
 
+    if (Platform.isAndroid) {
+      PermissionStatus connectStatus = await Permission.bluetoothConnect.status;
+
+      if (!connectStatus.isGranted) {
+        connectStatus = await Permission.bluetoothConnect.request();
+
+        if (!connectStatus.isGranted) {
+          bleDialogController.update(BleDialogStatus.error, l10n.turnBLEOn);
+          return;
+        }
+      }
+    }
+
     AvailabilityState adapterState =
         await UniversalBle.getBluetoothAvailabilityState();
 
     if (adapterState != AvailabilityState.poweredOn) {
-      bleDialogController.update(
-          BleDialogStatus.error, l10n.turnOnBluetoothMessage);
+      try {
+        await UniversalBle.enableBluetooth();
+      } catch (e) {
+        bleDialogController.update(
+            BleDialogStatus.error, l10n.turnOnBluetoothMessage);
+      }
       logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
       return;
     }

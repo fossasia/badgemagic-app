@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
@@ -72,8 +74,33 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) =>
+          _buildApp(context, constraints.biggest),
+    );
+  }
+
+  Widget _buildApp(BuildContext context, Size window) {
+    const double designPhoneWidth = 360.0;
+    const double phoneMaxWidth = 480.0;
+    const double phoneDiagonal = 859.0;
+    const double minDesktopScale = 1.0;
+    const double maxDesktopScale = 2.0;
+
+    final double w =
+        window.width.isFinite && window.width > 0 ? window.width : 360.0;
+    final double h =
+        window.height.isFinite && window.height > 0 ? window.height : 780.0;
+
+    final double scale = w <= phoneMaxWidth
+        ? w / designPhoneWidth
+        : (math.sqrt(w * w + h * h) / phoneDiagonal)
+            .clamp(minDesktopScale, maxDesktopScale);
+
+    final double designWidth = w / scale;
+    final double designHeight = h / scale;
     return ScreenUtilInit(
-      designSize: const Size(360, 690),
+      designSize: Size(designWidth, designHeight),
       builder: (context, child) {
         return ValueListenableBuilder<Locale?>(
           valueListenable: appLocale,

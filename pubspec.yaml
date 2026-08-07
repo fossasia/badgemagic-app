@@ -42,6 +42,7 @@ dependencies:
   cupertino_icons: ^1.0.9
   provider: ^6.1.5
   universal_ble: ^2.0.1
+  permission_handler: ^12.0.3
   logger: ^2.7.0
   flutter_svg: ^2.3.0
   get_it: ^9.2.1
@@ -51,10 +52,10 @@ dependencies:
       url: https://github.com/fluttercandies/extended_text_field.git
       ref: master
   path_provider: ^2.1.5
-  uuid: ^4.5.3
+  uuid: ^4.6.0
   go_router: ^17.3.0
   share_plus: ^12.0.2
-  file_picker: ^10.3.3
+  file_picker: ^11.0.3
   google_fonts: ^8.0.2
   url_launcher: ^6.3.2
   image: ^4.9.1

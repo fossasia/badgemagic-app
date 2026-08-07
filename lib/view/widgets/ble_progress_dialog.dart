@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../bademagic_module/bluetooth/connect_state.dart';
+import '../../badgemagic_module/bluetooth/connect_state.dart';
 import '../../constants.dart';
 
 enum BleDialogStatus { searching, connecting, transferring, success, error }

@@ -1,4 +1,4 @@
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
 import 'package:badgemagic/badge_effect/badgeeffectabstract.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/constants.dart';
@@ -56,8 +56,8 @@ class _EffectContainerState extends State<EffectContainer> {
         Provider.of<AnimationBadgeProvider>(context);
 
     return Container(
-      margin: EdgeInsets.all(5.w),
-      height: 90.h,
+      margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
+      height: MediaQuery.of(context).size.width < 600 ? 96.h : 58.h,
       child: GestureDetector(
         onTap: () {
           effectCardState.isEffectActive(badgeEffect)
