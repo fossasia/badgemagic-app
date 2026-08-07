@@ -1,3 +1,5 @@
+import 'dart:io' show Platform;
+
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -131,34 +133,56 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  child: SwitchListTile(
-                    title: const Text(
-                      "Enable USB Transfers",
-                      style: TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
+                if (Platform.isLinux)
+                  Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    child: const ListTile(
+                      title: Text(
+                        "Enable USB Transfers",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        "sending badge data via OTG USB cable will be soon available on Linux",
+                        style: TextStyle(fontSize: 12),
                       ),
                     ),
-                    subtitle: const Text(
-                      "Allows sending badge data via OTG USB cable in addition to Bluetooth.",
-                      style: TextStyle(fontSize: 12),
+                  )
+                else
+                  Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.grey.shade300),
                     ),
-                    activeColor: colorAccent,
-                    value: _isUsbTransferEnabled,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _isUsbTransferEnabled = value;
-                      });
-                      _saveUsbSetting(value);
-                    },
+                    child: SwitchListTile(
+                      title: const Text(
+                        "Enable USB Transfers",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: const Text(
+                        "Allows sending badge data via OTG USB cable in addition to Bluetooth.",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      activeColor: colorAccent,
+                      value: _isUsbTransferEnabled,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _isUsbTransferEnabled = value;
+                        });
+                        _saveUsbSetting(value);
+                      },
+                    ),
                   ),
-                ),
                 const SizedBox(height: 24),
                 Text(l10n.badgeScanMode,
                     style: const TextStyle(
