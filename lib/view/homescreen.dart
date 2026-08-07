@@ -871,7 +871,6 @@ class _HomeScreenState extends State<HomeScreen>
         _converters,
         animationProvider.isEffectActive(InvertLEDEffect()),
       );
-
       setState(() {});
     }
   }
