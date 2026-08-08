@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/badgemagic_module/utils/converters.dart';
@@ -25,7 +25,7 @@ import 'package:badgemagic/badge_animation/ani_emergency.dart';
 import 'package:badgemagic/badge_animation/ani_beating_hearts.dart';
 import 'package:badgemagic/badge_animation/ani_fireworks.dart';
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
-import 'package:badgemagic/badge_effect/badgeeffectabstract.dart';
+import 'package:badgemagic/badge_effect/badge_effect_abstract.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';

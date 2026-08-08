@@ -14,7 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/badge_animation/ani_splitting.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:get_it/get_it.dart';
 

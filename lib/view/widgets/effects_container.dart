@@ -1,11 +1,11 @@
 import 'package:badgemagic/badgemagic_module/utils/converters.dart';
-import 'package:badgemagic/badge_effect/badgeeffectabstract.dart';
+import 'package:badgemagic/badge_effect/badge_effect_abstract.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';

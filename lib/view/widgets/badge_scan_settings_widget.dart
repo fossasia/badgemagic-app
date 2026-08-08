@@ -1,4 +1,4 @@
-import 'package:badgemagic/providers/BadgeScanProvider.dart';
+import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

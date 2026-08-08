@@ -1,5 +1,5 @@
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';

@@ -1,6 +1,6 @@
 import 'package:badgemagic/providers/font_provider.dart';
-import 'package:badgemagic/providers/BadgeScanProvider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/badge_scan_provider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:get_it/get_it.dart';
 

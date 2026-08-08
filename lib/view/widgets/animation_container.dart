@@ -6,7 +6,7 @@ import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/view/widgets/special_animation_dialog.dart';
 import 'package:badgemagic/badgemagic_module/utils/converters.dart';
 
