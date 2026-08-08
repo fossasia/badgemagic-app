@@ -91,7 +91,7 @@ class _AniContainerState extends State<AniContainer> {
           animationCardState.setAnimationMode(badgeAnimation);
         },
         child: Card(
-          surfaceTintColor: Colors.white,
+          surfaceTintColor: colorSurface,
           color: animationCardState.isAnimationActive(badgeAnimation)
               ? colorPrimaryDark
               : drawerHeaderTitle,
@@ -106,7 +106,7 @@ class _AniContainerState extends State<AniContainer> {
                         size: 36,
                         color:
                             animationCardState.isAnimationActive(badgeAnimation)
-                                ? Colors.white
+                                ? colorOnPrimary
                                 : const Color.fromARGB(255, 117, 117, 117),
                       )
                     : (widget.animation != null
@@ -115,7 +115,7 @@ class _AniContainerState extends State<AniContainer> {
                             fit: BoxFit.fill,
                             color: animationCardState
                                     .isAnimationActive(badgeAnimation)
-                                ? Colors.white
+                                ? colorOnPrimary
                                 : null,
                             colorBlendMode: animationCardState
                                     .isAnimationActive(badgeAnimation)
@@ -131,8 +131,8 @@ class _AniContainerState extends State<AniContainer> {
                   style: TextStyle(
                     fontSize: 9.sp,
                     color: animationCardState.isAnimationActive(badgeAnimation)
-                        ? Colors.white
-                        : Colors.black,
+                        ? colorOnPrimary
+                        : colorOnSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,
