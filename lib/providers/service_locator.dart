@@ -1,7 +1,7 @@
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:get_it/get_it.dart';
 
 final GetIt getIt = GetIt.instance;

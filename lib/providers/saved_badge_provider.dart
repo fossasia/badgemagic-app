@@ -1,21 +1,21 @@
-import 'package:badgemagic/badgemagic_module/models/data.dart';
+import 'package:badgemagic/models/data.dart';
 import 'dart:convert';
 import 'dart:io';
-import 'package:badgemagic/badgemagic_module/models/messages.dart';
-import 'package:badgemagic/badgemagic_module/models/mode.dart';
-import 'package:badgemagic/badgemagic_module/models/speed.dart';
-import 'package:badgemagic/badgemagic_module/utils/badge_text_storage.dart';
-import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/badgemagic_module/utils/converters.dart';
-import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
-import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/models/messages.dart';
+import 'package:badgemagic/models/mode.dart';
+import 'package:badgemagic/models/speed.dart';
+import 'package:badgemagic/others/badge_text_storage.dart';
+import 'package:badgemagic/others/byte_array_utils.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/file_helper.dart';
+import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/badge_animation/ani_splitting.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:get_it/get_it.dart';
 
 Map<int, Speed> speedMap = {

@@ -1,8 +1,8 @@
-import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
+import 'package:badgemagic/others/byte_array_utils.dart';
+import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/view/widgets/clipart_list_view.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';

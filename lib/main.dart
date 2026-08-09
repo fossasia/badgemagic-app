@@ -19,8 +19,8 @@ import 'l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'globals/globals.dart' as globals;
-import 'services/localization_service.dart';
+import 'package:badgemagic/others/globals.dart' as globals;
+import 'package:badgemagic/others/localization_service.dart';
 
 Future<void> main() async {
   setupLocator();

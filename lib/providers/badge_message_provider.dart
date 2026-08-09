@@ -1,27 +1,27 @@
 import 'dart:io';
 
-import 'package:badgemagic/badgemagic_module/bluetooth/base_ble_state.dart';
-import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
-import 'package:badgemagic/badgemagic_module/utils/converters.dart';
-import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
-import 'package:badgemagic/badgemagic_module/bluetooth/scan_state.dart';
-import 'package:badgemagic/badgemagic_module/models/data.dart';
-import 'package:badgemagic/badgemagic_module/models/messages.dart';
-import 'package:badgemagic/badgemagic_module/models/mode.dart';
-import 'package:badgemagic/badgemagic_module/models/speed.dart';
+import 'package:badgemagic/communication/base_ble_state.dart';
+import 'package:badgemagic/communication/datagenerator.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/file_helper.dart';
+import 'package:badgemagic/communication/scan_state.dart';
+import 'package:badgemagic/models/data.dart';
+import 'package:badgemagic/models/messages.dart';
+import 'package:badgemagic/models/mode.dart';
+import 'package:badgemagic/models/speed.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:flutter/material.dart';
-import 'package:badgemagic/utils/custom_transfers/transfers.dart';
+import 'package:badgemagic/others/custom_transfers/transfers.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
-import '../../view/widgets/ble_progress_dialog.dart';
-import '../../view/widgets/ble_progress_dialog_controller.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,

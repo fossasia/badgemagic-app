@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
-import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
-import 'package:badgemagic/badgemagic_module/utils/image_utils.dart';
+import 'package:badgemagic/others/file_helper.dart';
+import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';

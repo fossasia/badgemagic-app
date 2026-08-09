@@ -1,6 +1,6 @@
 import 'dart:ui';
 
-import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/others/toast_utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 const homeScreenTitleKey = "bm_hm_title";
