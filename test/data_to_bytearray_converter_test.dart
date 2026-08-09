@@ -6,7 +6,7 @@ import 'package:badgemagic/badgemagic_module/models/speed.dart';
 import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
 import 'package:badgemagic/badgemagic_module/utils/converters.dart';
 import 'package:badgemagic/badgemagic_module/utils/data_to_bytearray_converter.dart';
-import 'package:badgemagic/providers/getitlocator.dart';
+import 'package:badgemagic/providers/service_locator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
