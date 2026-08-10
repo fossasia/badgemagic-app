@@ -172,7 +172,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                           onPressed: () => Navigator.pop(context, true),
                           child: Text(
                             l10n.delete,
-                            style: const TextStyle(color: Colors.red),
+                            style: const TextStyle(color: colorError),
                           ),
                         ),
                       ],
@@ -221,14 +221,14 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                     Text(
                       'No saved badges !',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: colorOnSurface,
                         fontSize: 20.sp,
                       ),
                     ),
                     Text(
                       'Looks like there are no saved badges yet.',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: colorOnSurface,
                         fontSize: 14.sp,
                       ),
                     ),
@@ -322,7 +322,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                               child: Text(
                                 l10n.transferButton,
                                 style: const TextStyle(
-                                  color: Colors.white,
+                                  color: colorOnPrimary,
                                   fontSize: 16.0,
                                   fontWeight: FontWeight.w500,
                                 ),

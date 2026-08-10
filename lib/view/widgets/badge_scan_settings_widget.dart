@@ -1,3 +1,4 @@
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -133,8 +134,8 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                             label: Text(
                                 'Remove (${provider.selectedIndices.length})'),
                             style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                              foregroundColor: Colors.white,
+                              backgroundColor: colorError,
+                              foregroundColor: colorOnPrimary,
                             ),
                           ),
                       ],
@@ -152,14 +153,13 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                             horizontal: 12.0, vertical: 4.0),
                         decoration: BoxDecoration(
                           border: Border.all(
-                            color:
-                                isSelected ? Colors.blue : Colors.grey.shade300,
+                            color: isSelected ? colorSelected : colorBorder,
                             width: isSelected ? 2 : 1,
                           ),
                           borderRadius: BorderRadius.circular(8),
                           color: isSelected
-                              ? Colors.blue.shade50
-                              : Colors.transparent,
+                              ? colorSelectedSurface
+                              : colorTransparent,
                         ),
                         child: Row(
                           children: [
@@ -167,7 +167,7 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                               value: isSelected,
                               onChanged: (value) =>
                                   provider.toggleSelection(index),
-                              activeColor: Colors.blue,
+                              activeColor: colorSelected,
                             ),
                             Expanded(
                               child: Padding(

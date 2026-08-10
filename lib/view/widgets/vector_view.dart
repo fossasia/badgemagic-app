@@ -176,8 +176,8 @@ class _VectorGridViewState extends State<VectorGridView> {
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(5),
                   ),
-                  surfaceTintColor: Colors.white,
-                  color: Colors.white,
+                  surfaceTintColor: colorSurface,
+                  color: colorSurface,
                   elevation: 2,
                   child: Center(
                     child: Icon(
@@ -208,11 +208,11 @@ class _VectorGridViewState extends State<VectorGridView> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(5),
                   side: isSelected
-                      ? BorderSide(color: Colors.grey.shade500, width: 2)
+                      ? BorderSide(color: colorTextSecondary, width: 2)
                       : BorderSide.none,
                 ),
-                surfaceTintColor: Colors.white,
-                color: isSelected ? Colors.grey.shade300 : Colors.white,
+                surfaceTintColor: colorSurface,
+                color: isSelected ? colorBorder : colorSurface,
                 elevation: isSelected ? 4 : 2,
                 child: Padding(
                   padding: const EdgeInsets.all(2.0),
