@@ -1,4 +1,4 @@
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
 import 'package:badgemagic/providers/getitlocator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
