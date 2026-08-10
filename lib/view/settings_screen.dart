@@ -214,8 +214,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                               label: Text(
                                   'Remove (${provider.selectedIndices.length})'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
+                                backgroundColor: colorError,
+                                foregroundColor: colorOnPrimary,
                               ),
                             ),
                         ],
@@ -231,14 +231,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color:
-                              isSelected ? Colors.blue : Colors.grey.shade300,
+                          color: isSelected ? colorSelected : colorBorder,
                           width: isSelected ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(8),
                         color: isSelected
-                            ? Colors.blue.shade50
-                            : Colors.transparent,
+                            ? colorSelectedSurface
+                            : colorTransparent,
                       ),
                       child: Row(
                         children: [
@@ -246,7 +245,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                             value: isSelected,
                             onChanged: (value) =>
                                 provider.toggleSelection(index),
-                            activeColor: Colors.blue,
+                            activeColor: colorSelected,
                           ),
                           Expanded(
                             child: Padding(
@@ -422,7 +421,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       child: Text(
                         l10n.saveSettings,
                         style: const TextStyle(
-                          color: Colors.black,
+                          color: colorOnSurface,
                         ),
                       ),
                     ),
