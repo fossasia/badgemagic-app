@@ -1,5 +1,5 @@
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:badgemagic/services/localization_service.dart';
@@ -73,14 +73,14 @@ class _SavedClipartState extends State<SavedClipart> {
                   Text(
                     l10n.noSavedClipart,
                     style: TextStyle(
-                      color: Colors.black,
+                      color: colorOnSurface,
                       fontSize: 20.sp,
                     ),
                   ),
                   Text(
                     l10n.noSavedClipartMessage,
                     style: TextStyle(
-                      color: Colors.black,
+                      color: colorOnSurface,
                       fontSize: 14.sp,
                     ),
                   ),

@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:flutter/foundation.dart';
@@ -308,7 +308,7 @@ class _DrawBadgeState extends State<DrawBadge> {
       double iconSize, double fontSize, double height,
       {String? iconAsset}) {
     final isSelected = drawToggle.isDrawing == isDraw;
-    final tint = isSelected ? colorPrimary : Colors.black;
+    final tint = isSelected ? colorPrimary : colorOnSurface;
 
     return TextButton(
       onPressed: () {
@@ -357,10 +357,10 @@ class _DrawBadgeState extends State<DrawBadge> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.refresh, color: Colors.black, size: iconSize),
+          Icon(Icons.refresh, color: colorOnSurface, size: iconSize),
           const SizedBox(height: 4),
           Text(GetIt.instance.get<LocalizationService>().l10n.reset,
-              style: TextStyle(color: Colors.black, fontSize: fontSize),
+              style: TextStyle(color: colorOnSurface, fontSize: fontSize),
               maxLines: 1,
               overflow: TextOverflow.ellipsis),
         ],
@@ -407,7 +407,7 @@ class _DrawBadgeState extends State<DrawBadge> {
               drawToggle.getDrawViewGrid(), customName);
         }
 
-        fileHelper.generateClipartCache();
+        await fileHelper.generateClipartCache();
         ToastUtils().showToast(GetIt.instance
             .get<LocalizationService>()
             .l10n
@@ -421,10 +421,10 @@ class _DrawBadgeState extends State<DrawBadge> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.save, color: Colors.black, size: iconSize),
+          Icon(Icons.save, color: colorOnSurface, size: iconSize),
           const SizedBox(height: 4),
           Text(GetIt.instance.get<LocalizationService>().l10n.save,
-              style: TextStyle(color: Colors.black, fontSize: fontSize),
+              style: TextStyle(color: colorOnSurface, fontSize: fontSize),
               maxLines: 1,
               overflow: TextOverflow.ellipsis),
         ],
@@ -454,12 +454,12 @@ class _DrawBadgeState extends State<DrawBadge> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.category,
-              color: _showShapeOptions ? colorPrimary : Colors.black,
+              color: _showShapeOptions ? colorPrimary : colorOnSurface,
               size: iconSize),
           const SizedBox(height: 4),
           Text('Shapes',
               style: TextStyle(
-                  color: _showShapeOptions ? colorPrimary : Colors.black,
+                  color: _showShapeOptions ? colorPrimary : colorOnSurface,
                   fontSize: fontSize),
               maxLines: 1,
               overflow: TextOverflow.ellipsis),
@@ -473,7 +473,7 @@ class _DrawBadgeState extends State<DrawBadge> {
       animation: drawToggle,
       builder: (context, _) {
         final bool canUndo = drawToggle.canUndo;
-        final Color buttonColor = canUndo ? Colors.black : Colors.grey;
+        final Color buttonColor = canUndo ? colorOnSurface : colorDisabled;
 
         return TextButton(
           onPressed: canUndo ? () => drawToggle.undo() : null,
@@ -503,7 +503,7 @@ class _DrawBadgeState extends State<DrawBadge> {
       animation: drawToggle,
       builder: (context, _) {
         final bool canRedo = drawToggle.canRedo;
-        final Color buttonColor = canRedo ? Colors.black : Colors.grey;
+        final Color buttonColor = canRedo ? colorOnSurface : colorDisabled;
 
         return TextButton(
           onPressed: canRedo ? drawToggle.redo : null,
@@ -545,11 +545,10 @@ class _DrawBadgeState extends State<DrawBadge> {
         });
       },
       style: ElevatedButton.styleFrom(
-        foregroundColor: isSelected ? Colors.white : Colors.black,
-        backgroundColor: isSelected ? colorPrimary : Colors.white,
+        foregroundColor: isSelected ? colorOnPrimary : colorOnSurface,
+        backgroundColor: isSelected ? colorPrimary : colorSurface,
         elevation: isSelected ? 2 : 1,
-        side:
-            BorderSide(color: isSelected ? colorPrimary : Colors.grey.shade300),
+        side: BorderSide(color: isSelected ? colorPrimary : colorBorder),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         minimumSize: const Size(55, 40),

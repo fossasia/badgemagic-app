@@ -1,8 +1,8 @@
 import 'dart:io';
 
-import 'package:badgemagic/bademagic_module/models/data.dart';
-import 'package:badgemagic/bademagic_module/utils/data_to_bytearray_converter.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
+import 'package:badgemagic/badgemagic_module/models/data.dart';
+import 'package:badgemagic/badgemagic_module/utils/data_to_bytearray_converter.dart';
+import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
 import 'package:badgemagic/providers/imageprovider.dart';
 import 'package:permission_handler/permission_handler.dart';

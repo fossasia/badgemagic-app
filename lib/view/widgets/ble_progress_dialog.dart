@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
-import '../../bademagic_module/bluetooth/connect_state.dart';
+import '../../badgemagic_module/bluetooth/connect_state.dart';
 import '../../constants.dart';
 
 enum BleDialogStatus { searching, connecting, transferring, success, error }
@@ -26,8 +26,8 @@ class BleProgressDialog extends StatelessWidget {
     return PopScope(
         canPop: false,
         child: AlertDialog(
-            backgroundColor: Colors.white,
-            surfaceTintColor: Colors.transparent,
+            backgroundColor: colorSurface,
+            surfaceTintColor: colorTransparent,
             shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(16.r)),
             contentPadding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
@@ -47,7 +47,7 @@ class BleProgressDialog extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 13.sp,
                       fontWeight: FontWeight.w600,
-                      color: Colors.black87,
+                      color: colorTextStrong,
                     ),
                   ),
                   if (status == BleDialogStatus.transferring) ...[
@@ -56,7 +56,7 @@ class BleProgressDialog extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4.r),
                       child: LinearProgressIndicator(
                         value: progress,
-                        backgroundColor: Colors.grey.shade200,
+                        backgroundColor: colorSurfaceMuted,
                         color: indicatorColor,
                         minHeight: 6.h,
                       ),
@@ -70,7 +70,7 @@ class BleProgressDialog extends StatelessWidget {
               if (isFinished)
                 TextButton(
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
+                    foregroundColor: colorOnSurface,
                     textStyle:
                         TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
                   ),
@@ -82,7 +82,7 @@ class BleProgressDialog extends StatelessWidget {
               if (!isFinished)
                 TextButton(
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.black,
+                    foregroundColor: colorOnSurface,
                     textStyle:
                         TextStyle(fontSize: 14.sp, fontWeight: FontWeight.bold),
                   ),
@@ -113,7 +113,7 @@ class BleProgressDialog extends StatelessWidget {
             size: 44, color: colorPrimary);
       case BleDialogStatus.error:
         return const Icon(Icons.error_outline_rounded,
-            size: 44, color: Colors.red);
+            size: 44, color: colorError);
     }
   }
 }

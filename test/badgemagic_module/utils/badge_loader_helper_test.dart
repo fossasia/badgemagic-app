@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/badge_text_storage.dart';
+import 'package:badgemagic/badgemagic_module/utils/badge_loader_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/badge_text_storage.dart';
 import 'package:path_provider_platform_interface/path_provider_platform_interface.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/imageprovider.dart';

@@ -1,5 +1,6 @@
-import 'package:badgemagic/bademagic_module/utils/qr_code_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/qr_code_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:file_picker/file_picker.dart';
@@ -101,7 +102,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
             width: 240,
             height: 240,
             decoration: BoxDecoration(
-              border: Border.all(color: Colors.white, width: 3),
+              border: Border.all(color: colorOnPrimary, width: 3),
               borderRadius: BorderRadius.circular(12),
             ),
           ),
@@ -115,7 +116,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
                 Text(
                   l10n.scanQrInstruction,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(color: colorOnPrimary, fontSize: 14),
                 ),
                 const SizedBox(height: 16),
                 ElevatedButton.icon(

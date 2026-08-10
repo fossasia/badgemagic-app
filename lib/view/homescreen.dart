@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:badgemagic/bademagic_module/models/speed.dart';
-import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/models/speed.dart';
+import 'package:badgemagic/badgemagic_module/utils/badge_loader_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/image_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
@@ -378,10 +378,10 @@ class _HomeScreenState extends State<HomeScreen>
                                         Size(180, 0)),
                                     backgroundColor:
                                         const WidgetStatePropertyAll(
-                                            Colors.white),
+                                            colorSurface),
                                     surfaceTintColor:
                                         const WidgetStatePropertyAll(
-                                            Colors.white),
+                                            colorSurface),
                                     elevation: const WidgetStatePropertyAll(6),
                                     padding: WidgetStatePropertyAll(
                                       EdgeInsets.symmetric(vertical: 6.h),
@@ -426,7 +426,7 @@ class _HomeScreenState extends State<HomeScreen>
                                             fontSize: 14,
                                             color: selected
                                                 ? colorPrimary
-                                                : Colors.black87,
+                                                : colorTextStrong,
                                             fontWeight: selected
                                                 ? FontWeight.w600
                                                 : FontWeight.normal,
@@ -487,15 +487,15 @@ class _HomeScreenState extends State<HomeScreen>
                     child: Visibility(
                       visible: isPrefixIconClicked,
                       child: Container(
-                        height: isPrefixIconClicked ? 170.h : 0,
+                        height: isPrefixIconClicked ? 200.h : 0,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.r),
-                          color: Colors.grey[200],
+                          color: colorSurfaceMuted,
                         ),
                         margin: EdgeInsets.symmetric(
                             horizontal: 15.w, vertical: 8.h),
-                        padding: EdgeInsets.symmetric(
-                            vertical: 10.h, horizontal: 10.w),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10.h, horizontal: 8),
                         child: Scrollbar(
                           controller: _vectorScrollController,
                           thumbVisibility: true,
@@ -512,13 +512,13 @@ class _HomeScreenState extends State<HomeScreen>
                     margin: EdgeInsets.fromLTRB(8.w, 8.h, 8.w, 4.h),
                     padding: EdgeInsets.all(4.w),
                     decoration: BoxDecoration(
-                      color: Colors.grey[100],
+                      color: colorSurfaceSubtle,
                       borderRadius: BorderRadius.circular(30.r),
                     ),
                     child: TabBar(
                       isScrollable: false,
                       indicatorSize: TabBarIndicatorSize.tab,
-                      dividerColor: Colors.transparent,
+                      dividerColor: colorTransparent,
                       indicator: BoxDecoration(
                         color: colorPrimary,
                         borderRadius: BorderRadius.circular(30.r),
@@ -533,11 +533,11 @@ class _HomeScreenState extends State<HomeScreen>
                         fontSize: 14.sp,
                         fontWeight: FontWeight.w500,
                       ),
-                      labelColor: Colors.white,
+                      labelColor: colorOnPrimary,
                       unselectedLabelColor: mdGrey400,
                       controller: _tabController,
                       splashFactory: InkRipple.splashFactory,
-                      overlayColor: WidgetStateProperty.all(Colors.transparent),
+                      overlayColor: WidgetStateProperty.all(colorTransparent),
                       labelPadding: EdgeInsets.symmetric(
                         horizontal: 4.w,
                         vertical: layoutConstraints.maxWidth < 600 ? 1.h : 2.h,
@@ -587,8 +587,8 @@ class _HomeScreenState extends State<HomeScreen>
                       child: FilledButton.tonal(
                         onPressed: onTap,
                         style: FilledButton.styleFrom(
-                          backgroundColor: Colors.grey[200],
-                          foregroundColor: Colors.black87,
+                          backgroundColor: colorSurfaceMuted,
+                          foregroundColor: colorTextStrong,
                           elevation: 0,
                           textStyle: TextStyle(
                             fontSize: 14.sp,
@@ -690,7 +690,7 @@ class _HomeScreenState extends State<HomeScreen>
                         margin: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 12.h),
                         clipBehavior: Clip.antiAlias,
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: colorSurface,
                           borderRadius: BorderRadius.circular(20.r),
                           border: Border.all(color: const Color(0xFFEDEDED)),
                           boxShadow: const [
@@ -771,8 +771,8 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _showBleTransferDialog(
-      BuildContext context, InlineImageProvider inlineImageProvider) {
+  Future<void> _showBleTransferDialog(
+      BuildContext context, InlineImageProvider inlineImageProvider) async {
     final bleDialogController = GetIt.instance<BleDialogController>();
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
     bleDialogController.update(
@@ -805,25 +805,26 @@ class _HomeScreenState extends State<HomeScreen>
       },
     );
 
-    animationProvider
-        .handleAnimationTransfer(
-      badgeData: badgeData,
-      inlineImageProvider: inlineImageProvider,
-      speedDialProvider: speedDialProvider,
-      flash: animationProvider.isEffectActive(FlashEffect()),
-      marquee: animationProvider.isEffectActive(MarqueeEffect()),
-      invert: animationProvider.isEffectActive(InvertLEDEffect()),
-      context: context,
-    )
-        .catchError((error) {
+    try {
+      await animationProvider.handleAnimationTransfer(
+        badgeData: badgeData,
+        inlineImageProvider: inlineImageProvider,
+        speedDialProvider: speedDialProvider,
+        flash: animationProvider.isEffectActive(FlashEffect()),
+        marquee: animationProvider.isEffectActive(MarqueeEffect()),
+        invert: animationProvider.isEffectActive(InvertLEDEffect()),
+        context: context,
+      );
+    } catch (error) {
       bleDialogController.update(
         BleDialogStatus.error,
         "An unexpected error\noccurred.",
       );
-      Future.delayed(const Duration(milliseconds: 2000), () {
-        if (context.mounted) Navigator.of(context).pop();
-      });
-    });
+      await Future.delayed(const Duration(milliseconds: 2000));
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   void _debouncedSavePreferences() {
