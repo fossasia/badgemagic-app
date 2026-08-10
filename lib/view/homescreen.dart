@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:badgemagic/bademagic_module/models/speed.dart';
-import 'package:badgemagic/bademagic_module/utils/badge_loader_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/image_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/models/speed.dart';
+import 'package:badgemagic/badgemagic_module/utils/badge_loader_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/converters.dart';
+import 'package:badgemagic/badgemagic_module/utils/image_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
@@ -487,15 +487,15 @@ class _HomeScreenState extends State<HomeScreen>
                     child: Visibility(
                       visible: isPrefixIconClicked,
                       child: Container(
-                        height: isPrefixIconClicked ? 170.h : 0,
+                        height: isPrefixIconClicked ? 200.h : 0,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.r),
                           color: Colors.grey[200],
                         ),
                         margin: EdgeInsets.symmetric(
                             horizontal: 15.w, vertical: 8.h),
-                        padding: EdgeInsets.symmetric(
-                            vertical: 10.h, horizontal: 10.w),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10.h, horizontal: 8),
                         child: Scrollbar(
                           controller: _vectorScrollController,
                           thumbVisibility: true,
@@ -771,8 +771,8 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  void _showBleTransferDialog(
-      BuildContext context, InlineImageProvider inlineImageProvider) {
+  Future<void> _showBleTransferDialog(
+      BuildContext context, InlineImageProvider inlineImageProvider) async {
     final bleDialogController = GetIt.instance<BleDialogController>();
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
     bleDialogController.update(
@@ -805,25 +805,26 @@ class _HomeScreenState extends State<HomeScreen>
       },
     );
 
-    animationProvider
-        .handleAnimationTransfer(
-      badgeData: badgeData,
-      inlineImageProvider: inlineImageProvider,
-      speedDialProvider: speedDialProvider,
-      flash: animationProvider.isEffectActive(FlashEffect()),
-      marquee: animationProvider.isEffectActive(MarqueeEffect()),
-      invert: animationProvider.isEffectActive(InvertLEDEffect()),
-      context: context,
-    )
-        .catchError((error) {
+    try {
+      await animationProvider.handleAnimationTransfer(
+        badgeData: badgeData,
+        inlineImageProvider: inlineImageProvider,
+        speedDialProvider: speedDialProvider,
+        flash: animationProvider.isEffectActive(FlashEffect()),
+        marquee: animationProvider.isEffectActive(MarqueeEffect()),
+        invert: animationProvider.isEffectActive(InvertLEDEffect()),
+        context: context,
+      );
+    } catch (error) {
       bleDialogController.update(
         BleDialogStatus.error,
         "An unexpected error\noccurred.",
       );
-      Future.delayed(const Duration(milliseconds: 2000), () {
-        if (context.mounted) Navigator.of(context).pop();
-      });
-    });
+      await Future.delayed(const Duration(milliseconds: 2000));
+      if (context.mounted) {
+        Navigator.of(context).pop();
+      }
+    }
   }
 
   void _debouncedSavePreferences() {
