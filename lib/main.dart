@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
@@ -113,11 +114,11 @@ class MyApp extends StatelessWidget {
               scaffoldMessengerKey: globals.scaffoldMessengerKey,
               debugShowCheckedModeBanner: false,
               theme: ThemeData(
-                colorSchemeSeed: Colors.white,
+                colorSchemeSeed: colorSurface,
                 useMaterial3: true,
                 dialogTheme: DialogThemeData(
-                  backgroundColor: Colors.white,
-                  surfaceTintColor: Colors.transparent,
+                  backgroundColor: colorSurface,
+                  surfaceTintColor: colorTransparent,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(28.0),
@@ -127,12 +128,12 @@ class MyApp extends StatelessWidget {
                   titleTextStyle: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
-                    color: Colors.black,
+                    color: colorOnSurface,
                   ),
                 ),
                 textButtonTheme: TextButtonThemeData(
                   style: TextButton.styleFrom(
-                    foregroundColor: Colors.red,
+                    foregroundColor: colorError,
                     textStyle: const TextStyle(fontWeight: FontWeight.bold),
                     padding: const EdgeInsets.all(15),
                   ),

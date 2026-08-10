@@ -48,11 +48,11 @@ class SaveBadgeCard extends StatelessWidget {
       padding: EdgeInsets.all(6.dg),
       margin: EdgeInsets.all(10.dg),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: colorSurface,
         borderRadius: BorderRadius.circular(6.dg),
         boxShadow: [
           BoxShadow(
-            color: Colors.grey.withValues(alpha: 0.5),
+            color: colorShadow.withValues(alpha: 0.5),
             spreadRadius: 2,
             blurRadius: 5,
             offset: const Offset(0, 3),
@@ -93,7 +93,7 @@ class SaveBadgeCard extends StatelessWidget {
                       icon: Image.asset(
                         "assets/icons/t_play.png",
                         height: 20,
-                        color: Colors.black,
+                        color: colorOnSurface,
                       ),
                       onPressed: () {
                         provider.savedBadgeAnimation(
@@ -105,7 +105,7 @@ class SaveBadgeCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(
                         Icons.edit,
-                        color: Colors.black,
+                        color: colorOnSurface,
                       ),
                       onPressed: () async {
                         final navigator = Navigator.of(context);
@@ -128,7 +128,7 @@ class SaveBadgeCard extends StatelessWidget {
                       icon: Image.asset(
                         "assets/icons/t_updown.png",
                         height: 24.h,
-                        color: Colors.black,
+                        color: colorOnSurface,
                       ),
                       onPressed: () {
                         logger.d("BadgeData: ${badgeData.value}");
@@ -141,7 +141,7 @@ class SaveBadgeCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(
                         Icons.share,
-                        color: Colors.black,
+                        color: colorOnSurface,
                       ),
                       onPressed: () {
                         _showShareOptions(context);
@@ -150,7 +150,7 @@ class SaveBadgeCard extends StatelessWidget {
                     IconButton(
                       icon: const Icon(
                         Icons.delete,
-                        color: Colors.black,
+                        color: colorOnSurface,
                       ),
                       onPressed: () async {
                         //add a dialog for confirmation before deleting
@@ -202,7 +202,7 @@ class SaveBadgeCard extends StatelessWidget {
                         ),
                         child: Image.asset(
                           "assets/icons/flash.png",
-                          color: Colors.white,
+                          color: colorOnPrimary,
                           height: 14.h,
                         ),
                       ),
@@ -216,7 +216,7 @@ class SaveBadgeCard extends StatelessWidget {
                         ),
                         child: Image.asset(
                           "assets/icons/square.png",
-                          color: Colors.white,
+                          color: colorOnPrimary,
                           height: 14.h,
                         ),
                       ),
@@ -230,7 +230,7 @@ class SaveBadgeCard extends StatelessWidget {
                         ),
                         child: Image.asset(
                           "assets/icons/t_invert.png",
-                          color: Colors.white,
+                          color: colorOnPrimary,
                           height: 14.h,
                         ),
                       ),
@@ -246,7 +246,7 @@ class SaveBadgeCard extends StatelessWidget {
                         children: [
                           Image.asset(
                             "assets/icons/t_double.png",
-                            color: Colors.white,
+                            color: colorOnPrimary,
                             height: 14.h,
                           ),
                           const SizedBox(width: 4),
@@ -257,7 +257,7 @@ class SaveBadgeCard extends StatelessWidget {
                                   .messages[0]
                                   .speed,
                             ).toString(),
-                            style: const TextStyle(color: Colors.white),
+                            style: const TextStyle(color: colorOnPrimary),
                           )
                         ],
                       ),
@@ -278,7 +278,7 @@ class SaveBadgeCard extends StatelessWidget {
                             .split('.')
                             .last
                             .toUpperCase(),
-                        style: const TextStyle(color: Colors.white),
+                        style: const TextStyle(color: colorOnPrimary),
                       ),
                     ),
                   ],
