@@ -1,11 +1,17 @@
-import 'package:badgemagic/bademagic_module/bluetooth/datagenerator.dart';
-import 'package:badgemagic/bademagic_module/bluetooth/write_state.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
+import 'package:badgemagic/badgemagic_module/bluetooth/write_state.dart';
+import 'package:get_it/get_it.dart';
+import '../../services/localization_service.dart';
+import '../../view/widgets/ble_progress_dialog.dart';
+import '../../view/widgets/ble_progress_dialog_controller.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'base_ble_state.dart';
 
 class ConnectState extends RetryBleState {
   final BleDevice scanResult;
   final DataTransferManager manager;
+  final bleDialogController = GetIt.instance<BleDialogController>();
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   ConnectState({required this.manager, required this.scanResult});
 
@@ -28,7 +34,8 @@ class ConnectState extends RetryBleState {
 
       if (connectionState == BleConnectionState.connected) {
         logger.d("Device connected successfully");
-        toast.showToast('Device connected successfully.');
+        bleDialogController.update(
+            BleDialogStatus.connecting, l10n.connectionSucceeded);
 
         manager.connectedDevice = scanResult;
 
@@ -42,8 +49,15 @@ class ConnectState extends RetryBleState {
         throw Exception("Failed to connect to the device");
       }
     } catch (e) {
-      toast.showErrorToast('Failed to connect. Retrying...');
+      bleDialogController.update(BleDialogStatus.error, l10n.connexionFailed);
       rethrow;
     }
+  }
+
+  static Future<void> stopAllBleOperations() async {
+    WriteState.cancelTransfer();
+    try {
+      await UniversalBle.stopScan();
+    } catch (_) {}
   }
 }

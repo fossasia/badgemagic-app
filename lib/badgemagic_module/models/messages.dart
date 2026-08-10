@@ -1,5 +1,5 @@
-import 'package:badgemagic/bademagic_module/models/mode.dart';
-import 'package:badgemagic/bademagic_module/models/speed.dart';
+import 'package:badgemagic/badgemagic_module/models/mode.dart';
+import 'package:badgemagic/badgemagic_module/models/speed.dart';
 
 class Message {
   final List<String> text;

@@ -1,5 +1,5 @@
-import 'package:badgemagic/bademagic_module/utils/qr_code_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/badgemagic_module/utils/qr_code_helper.dart';
+import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:file_picker/file_picker.dart';
@@ -48,7 +48,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
   Future<void> _pickFromGallery() async {
     if (_handled) return;
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.image,
       );
       final String? path = result?.files.single.path;
