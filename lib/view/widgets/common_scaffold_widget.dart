@@ -24,7 +24,7 @@ class CommonScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       key: scaffoldKey,
-      backgroundColor: Colors.white,
+      backgroundColor: colorSurface,
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
         leading: Builder(builder: (context) {
@@ -34,14 +34,14 @@ class CommonScaffold extends StatelessWidget {
             },
             icon: const Icon(
               Icons.menu,
-              color: Colors.white,
+              color: colorOnPrimary,
             ),
           );
         }),
         backgroundColor: colorPrimary,
         title: Text(
           title,
-          style: const TextStyle(color: Colors.white),
+          style: const TextStyle(color: colorOnPrimary),
         ),
         actions: [
           if (actions != null) ...actions!,
