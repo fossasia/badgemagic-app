@@ -1,4 +1,5 @@
 import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -65,7 +66,7 @@ class SaveBadgeDialog extends StatelessWidget {
               l10n.badgeName,
               style: const TextStyle(
                 fontWeight: FontWeight.w400,
-                color: Colors.red,
+                color: colorError,
               ),
             ),
             const SizedBox(height: 10),
@@ -75,10 +76,10 @@ class SaveBadgeDialog extends StatelessWidget {
               maxLength: 200,
               decoration: const InputDecoration(
                 enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red),
+                  borderSide: BorderSide(color: colorError),
                 ),
                 focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(color: Colors.red, width: 2),
+                  borderSide: BorderSide(color: colorError, width: 2),
                 ),
               ),
               buildCounter: (context,
@@ -89,7 +90,7 @@ class SaveBadgeDialog extends StatelessWidget {
                     '$currentLength/${maxLength ?? 0}',
                     style: const TextStyle(
                       fontSize: 12,
-                      color: Colors.grey,
+                      color: colorTextSecondary,
                     ),
                   ),
                 );
@@ -104,7 +105,7 @@ class SaveBadgeDialog extends StatelessWidget {
                     },
                     child: Text(
                       l10n.cancel,
-                      style: const TextStyle(color: Colors.red),
+                      style: const TextStyle(color: colorError),
                     )),
                 TextButton(
                   onPressed: () async {
@@ -263,7 +264,7 @@ class SaveBadgeDialog extends StatelessWidget {
                   },
                   child: Text(
                     'Save',
-                    style: const TextStyle(color: Colors.red),
+                    style: const TextStyle(color: colorError),
                   ),
                 ),
               ],
