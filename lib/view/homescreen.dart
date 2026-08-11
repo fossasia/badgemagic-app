@@ -80,8 +80,9 @@ class _HomeScreenState extends State<HomeScreen>
 
   Timer? _debounceTimer;
 
-  static final RegExp _emojiBlockRegex = RegExp(
-      r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|\ud83e[\udc00-\udfff]|[\uFE00-\uFE0F])');
+  static final RegExp _emojiRegex = RegExp(
+    r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|\ud83e[\udc00-\udfff]|[\uFE00-\uFE0F])',
+  );
 
   @override
   void initState() {
@@ -333,18 +334,26 @@ class _HomeScreenState extends State<HomeScreen>
                       elevation: 4,
                       child: ExtendedTextField(
                         inputFormatters: [
-                          TextInputFormatter.withFunction(
-                            (oldValue, newValue) {
-                              if (_emojiBlockRegex.hasMatch(newValue.text)) {
-                                if (!_emojiBlockRegex.hasMatch(oldValue.text)) {
-                                  ToastUtils().showToast(
-                                      "System emojis are not supported");
-                                }
-                                return oldValue;
-                              }
-                              return newValue;
-                            },
-                          ),
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            if (_emojiRegex.hasMatch(newValue.text)) {
+                              final strippedText =
+                                  newValue.text.replaceAll(_emojiRegex, '');
+                              ToastUtils()
+                                  .showToast("System emojis are not supported");
+                              final newSelectionOffset = math.min(
+                                newValue.selection.baseOffset,
+                                strippedText.length,
+                              );
+
+                              return TextEditingValue(
+                                text: strippedText,
+                                selection: TextSelection.collapsed(
+                                  offset: math.max(0, newSelectionOffset),
+                                ),
+                              );
+                            }
+                            return newValue;
+                          }),
                         ],
                         controller: inlineimagecontroller,
                         specialTextSpanBuilder: ImageBuilder(),
