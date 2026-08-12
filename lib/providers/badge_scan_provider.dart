@@ -6,7 +6,7 @@ enum BadgeScanMode { any, specific }
 class BadgeScanProvider with ChangeNotifier {
   BadgeScanMode _mode = BadgeScanMode.any;
   List<String> _badgeNames = ['LSLED', 'VBLAB'];
-  Set<int> _selectedIndices = {}; // Track selected badge indices
+  Set<int> _selectedIndices = {};
   bool _isLoaded = false;
 
   BadgeScanMode get mode => _mode;
@@ -15,27 +15,24 @@ class BadgeScanProvider with ChangeNotifier {
   bool get isLoaded => _isLoaded;
 
   BadgeScanProvider() {
-    _loadFromPrefs(); // Load persisted values in background
+    _loadFromPrefs();
   }
 
-  // --- Persistence helpers ---
   Future<void> _loadFromPrefs() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // Load scan mode
     final modeIndex = prefs.getInt('badge_scan_mode');
     if (modeIndex != null) {
       _mode = BadgeScanMode.values[modeIndex];
     }
 
-    // Load badge names
     final storedNames = prefs.getStringList('badge_names');
     if (storedNames != null && storedNames.isNotEmpty) {
       _badgeNames = storedNames;
     }
 
     _isLoaded = true;
-    notifyListeners(); // Notify UI that values are loaded
+    notifyListeners();
   }
 
   Future<void> _saveToPrefs() async {
@@ -44,7 +41,6 @@ class BadgeScanProvider with ChangeNotifier {
     await prefs.setStringList('badge_names', _badgeNames);
   }
 
-  // --- Public methods to update values ---
   void setMode(BadgeScanMode mode) {
     _mode = mode;
     _saveToPrefs();
@@ -53,7 +49,7 @@ class BadgeScanProvider with ChangeNotifier {
 
   void setBadgeNames(List<String> names) {
     _badgeNames = names.where((name) => name.trim().isNotEmpty).toList();
-    _selectedIndices.clear(); // Clear selections when badge names change
+    _selectedIndices.clear();
     _saveToPrefs();
     notifyListeners();
   }
@@ -69,7 +65,6 @@ class BadgeScanProvider with ChangeNotifier {
     if (index < 0 || index >= _badgeNames.length) return;
     _badgeNames.removeAt(index);
 
-    // Update selected indices after removal
     _selectedIndices.removeWhere((i) => i == index);
     _selectedIndices =
         _selectedIndices.map((i) => i > index ? i - 1 : i).toSet();
@@ -85,7 +80,6 @@ class BadgeScanProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // --- Selection methods ---
   void toggleSelection(int index) {
     if (index < 0 || index >= _badgeNames.length) return;
 
@@ -115,7 +109,6 @@ class BadgeScanProvider with ChangeNotifier {
   void removeSelectedDevices() {
     if (_selectedIndices.isEmpty) return;
 
-    // Sort indices in descending order to remove from end first
     final sortedIndices = _selectedIndices.toList()
       ..sort((a, b) => b.compareTo(a));
 

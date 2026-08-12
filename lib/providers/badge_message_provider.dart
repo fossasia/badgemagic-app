@@ -33,12 +33,12 @@ Map<int, Mode> modeValueMap = {
   6: Mode.snowflake,
   7: Mode.picture,
   8: Mode.laser,
-  9: Mode.pacman, // Add this line for Pacman
-  10: Mode.chevronleft, // Chevron left mode (now defined in mode.dart)
-  11: Mode.diamond, // Diamond animation mode
-  12: Mode.brokenhearts, // Broken Hearts mode (use fixed or define if needed)
-  13: Mode.cupid, // Cupid mode (use fixed or define if needed)
-  14: Mode.feet, // Feet animation mode
+  9: Mode.pacman,
+  10: Mode.chevronleft,
+  11: Mode.diamond,
+  12: Mode.brokenhearts,
+  13: Mode.cupid,
+  14: Mode.feet,
 };
 
 Map<int, Speed> speedMap = {
@@ -49,7 +49,7 @@ Map<int, Speed> speedMap = {
   5: Speed.five,
   6: Speed.six,
   7: Speed.seven,
-  8: Speed.eight, // Add superfast for the highest speed
+  8: Speed.eight,
 };
 
 class BadgeMessageProvider {
@@ -281,4 +281,3 @@ Future<void> transferCycleAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
 
-// helper moved to utils/custom_transfers/common.dart

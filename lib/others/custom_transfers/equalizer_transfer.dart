@@ -15,7 +15,7 @@ Future<void> customTransferEqualizerAnimation(
 
   const int badgeHeight = 11;
   const int badgeWidth = 44;
-  const int hardwareFrameCount = 8; // The badge can store up to 8 frames
+  const int hardwareFrameCount = 8;
   final Speed selectedSpeed = Speed.eight;
   final logger = Logger();
 

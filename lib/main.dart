@@ -27,11 +27,8 @@ Future<void> main() async {
   setupLocator();
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Initialize global localization service for usage outside of widgets
   final localizationService = getIt<LocalizationService>();
   getIt.registerLazySingleton<BleDialogController>(() => BleDialogController());
-  // Keep initial UI in English for integration tests that tap by English text
-  // Apply saved locale on the next frame so visible strings change after first paint
   final saved = await localizationService.loadSavedLocale();
   appLocale.value = const Locale('en');
   await localizationService.init(appLocale.value ?? const Locale('en'));
@@ -67,7 +64,6 @@ Future<void> main() async {
   ));
 }
 
-// Locale notifier for dynamic switching
 final ValueNotifier<Locale?> appLocale = ValueNotifier<Locale?>(null);
 
 class MyApp extends StatelessWidget {
@@ -106,7 +102,6 @@ class MyApp extends StatelessWidget {
         return ValueListenableBuilder<Locale?>(
           valueListenable: appLocale,
           builder: (context, locale, _) {
-            // Keep LocalizationService in sync when locale changes
             if (locale != null) {
               getIt<LocalizationService>().updateLocale(locale);
             }

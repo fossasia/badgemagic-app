@@ -7,7 +7,7 @@ class Message {
   final bool marquee;
   final Speed speed;
   final Mode mode;
-  final int? animationIndex; // 👈 NEW
+  final int? animationIndex;
 
   Message({
     required this.text,
@@ -15,20 +15,18 @@ class Message {
     this.marquee = false,
     this.speed = Speed.one,
     this.mode = Mode.left,
-    this.animationIndex, // 👈 NEW
+    this.animationIndex,
   });
 
-  // Convert Message object to JSON
   Map<String, dynamic> toJson() => {
         'text': text,
         'flash': flash,
         'marquee': marquee,
         'speed': speed.hexValue,
         'mode': mode.hexValue,
-        if (animationIndex != null) 'animationIndex': animationIndex, // 👈 NEW
+        if (animationIndex != null) 'animationIndex': animationIndex,
       };
 
-  // Convert JSON to Message object
   factory Message.fromJson(Map<String, dynamic> json) {
     if (!json.containsKey('text')) {
       throw Exception('Invalid JSON: Message missing "text" key');
@@ -57,7 +55,7 @@ class Message {
       marquee: (json['marquee'] as bool?) ?? false,
       speed: Speed.fromHex(json['speed'] as String),
       mode: Mode.fromHex(json['mode'] as String),
-      animationIndex: json['animationIndex'] as int?, // 👈 NEW
+      animationIndex: json['animationIndex'] as int?,
     );
   }
 }

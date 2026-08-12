@@ -66,12 +66,11 @@ class SaveBadgeCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Wrapping the text with Flexible to ensure it doesn't overflow.
               Flexible(
                 child: Padding(
                   padding: EdgeInsets.only(
                       right: 8
-                          .w), // Adding some padding to separate text and buttons.
+                          .w),
                   child: Text(
                     badgeData.key.substring(0, badgeData.key.length - 5),
                     style: const TextStyle(
@@ -80,14 +79,14 @@ class SaveBadgeCard extends StatelessWidget {
                     ),
                     softWrap: true,
                     overflow: TextOverflow
-                        .ellipsis, // Use ellipsis to indicate overflowed text
-                    maxLines: 1, // Limit to 1 line for a cleaner look
+                        .ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ),
               Consumer<SavedBadgeProvider>(
                 builder: (context, provider, widget) => Row(
-                  mainAxisSize: MainAxisSize.min, // Keep the row compact
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
                       icon: Image.asset(
@@ -109,11 +108,9 @@ class SaveBadgeCard extends StatelessWidget {
                       ),
                       onPressed: () async {
                         final navigator = Navigator.of(context);
-                        // Show confirmation dialog before editing
                         final confirmed =
                             await provider.showEditBadgeConfirmation(context);
                         if (confirmed) {
-                          // Navigate to HomeScreen for editing the badge
                           navigator.push(
                             MaterialPageRoute(
                               builder: (context) => HomeScreen(
@@ -132,8 +129,6 @@ class SaveBadgeCard extends StatelessWidget {
                       ),
                       onPressed: () {
                         logger.d("BadgeData: ${badgeData.value}");
-                        //We can Acrtually call a method to generate the data just by transffering the JSON data
-                        //so we would not necessarily need the Providers.
                         badge.checkAndTransfer(null, null, null, null, null,
                             null, badgeData.value, true, context);
                       },
@@ -153,7 +148,6 @@ class SaveBadgeCard extends StatelessWidget {
                         color: colorOnSurface,
                       ),
                       onPressed: () async {
-                        //add a dialog for confirmation before deleting
                         final slotProvider = Provider.of<BadgeSlotProvider>(
                             context,
                             listen: false);

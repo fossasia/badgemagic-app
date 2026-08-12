@@ -15,14 +15,14 @@ import 'package:get_it/get_it.dart';
 class SaveBadgeDialog extends StatelessWidget {
   final SpeedDialProvider speed;
   final bool isInverse;
-  final AnimationBadgeProvider animationProvider; // Restore this field
+  final AnimationBadgeProvider animationProvider;
   final TextEditingController textController;
 
   const SaveBadgeDialog({
     super.key,
     required this.textController,
     required this.isInverse,
-    required this.animationProvider, // Restore this parameter
+    required this.animationProvider,
     required this.speed,
   });
 
@@ -33,7 +33,6 @@ class SaveBadgeDialog extends StatelessWidget {
     TextEditingController badgeNameController = TextEditingController();
     badgeNameController.text = '${l10n.badge} ${DateTime.now().toString()}';
 
-    // Set up the initial selection to select all text when the dialog opens
     badgeNameController.selection = TextSelection(
       baseOffset: 0,
       extentOffset: badgeNameController.text.length,
@@ -43,11 +42,11 @@ class SaveBadgeDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(5.r),
       ),
       child: Container(
-        height: 180.h, // Increase height for TextField + counter space
-        width: 300.w, // Increased width
+        height: 180.h,
+        width: 300.w,
         padding: EdgeInsets.symmetric(
             horizontal: 20.w,
-            vertical: 10.h), // Added padding for better layout
+            vertical: 10.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,

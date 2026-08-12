@@ -38,7 +38,6 @@ class FileHelper {
     return 'data_${timestamp}_$uniqueId.json';
   }
 
-  // Add a new image to the cache
   void addToCache(Uint8List imageData, String filename) {
     int key;
     if (imageCacheProvider.availableKeys.isNotEmpty) {
@@ -64,13 +63,10 @@ class FileHelper {
           file.path.endsWith('.json') &&
           file.path.contains('data_')) {
         try {
-          // Read the file as bytes
           Uint8List fileBytes = await file.readAsBytes();
-          // Decode the bytes to a string using utf-8 encoding
           String content = utf8.decode(fileBytes);
 
           if (content.isNotEmpty) {
-            // Ensure correct type casting
             final List<dynamic> decodedData = jsonDecode(content);
             final List<List<dynamic>> imageData =
                 decodedData.cast<List<dynamic>>();
@@ -86,19 +82,16 @@ class FileHelper {
     }
   }
 
-  // Remove an image from the cache
   void removeFromCache(int key) {
     if (imageCacheProvider.imageCache.containsKey(key)) {
       imageCacheProvider.imageCache.remove(key);
       imageCacheProvider.availableKeys
-          .add(key); // Add key to the pool of available keys
+          .add(key);
     }
   }
 
-  // Generate a Uint8List from a 2D list (image data) and add it to the cache
   Future<void> _addImageDataToCache(
       List<List<dynamic>> imageData, String filename) async {
-    // Convert List<List<dynamic>> to List<List<int>>
     List<List<int>> intImageData =
         imageData.map((list) => list.cast<int>()).toList();
     Uint8List imageBytes =
@@ -106,8 +99,6 @@ class FileHelper {
     addToCache(imageBytes, filename);
   }
 
-  // Trim empty left/right columns only. Row count is preserved because the
-  // LED-hex pipeline assumes exactly 11 rows.
   static List<List<int>> trimEmptyPadding(List<List<int>> image) {
     if (image.isEmpty || image[0].isEmpty) return const [];
 
@@ -132,7 +123,6 @@ class FileHelper {
     );
   }
 
-  // Pad/crop to 11 rows so legacy short-matrix files don't crash the renderer.
   static const int _badgeRows = 11;
   static List<List<int>> normalizeClipartHeight(List<List<int>> image) {
     if (image.isEmpty) return image;
@@ -168,10 +158,8 @@ class FileHelper {
     }
 
     logger.d('Updating clipart: $filename');
-    // Convert the 2D list of int to a JSON string
     String jsonData = jsonEncode(trimmed);
 
-    // Get the application's document directory
     final directory = await getApplicationDocumentsDirectory();
     final filePath = '${directory.path}/$filename';
 
@@ -179,14 +167,11 @@ class FileHelper {
 
     final file = File(filePath);
 
-    // Check if the file exists
     if (await file.exists()) {
       logger.d('File found: $filename');
-      // Overwrite the content of the existing file
       await file.writeAsString(jsonData);
       logger.d('File content updated: $filename');
     } else {
-      // Create a new file and write the content
       await file.create(recursive: true);
       await file.writeAsString(jsonData);
       logger.d('New file created and content written: $filename');
@@ -194,7 +179,6 @@ class FileHelper {
     return true;
   }
 
-  // Read all files, parse the 2D lists, and add to cache
   Future<void> loadImageCacheFromFiles() async {
     await generateClipartCache();
     await getBadgeDataFiles();
@@ -214,7 +198,6 @@ class FileHelper {
           file.path.contains('data_')) {
         final String content = await file.readAsString();
         if (content.isNotEmpty) {
-          // Ensure correct type casting
           final List<dynamic> decodedData = jsonDecode(content);
           final List<List<dynamic>> imageData =
               decodedData.cast<List<dynamic>>();
@@ -224,7 +207,6 @@ class FileHelper {
     }
   }
 
-  // Returns true if the clipart was persisted, false if rejected as empty.
   Future<bool> saveImage(List<List<bool>> imageData) async {
     List<List<int>> image = List.generate(
         imageData.length, (i) => List<int>.filled(imageData[i].length, 0));
@@ -276,34 +258,25 @@ class FileHelper {
 
   Future<void> updateBadgeText(String filename, List<String> newText) async {
     try {
-      // Get the document directory path
       final directory = await getApplicationDocumentsDirectory();
       final filePath = '${directory.path}/$filename';
 
-      // Check if the file exists
       File file = File(filePath);
       if (await file.exists()) {
-        // Read the file's current content
         String jsonString = await file.readAsString();
 
-        // Parse the JSON data
         Map<String, dynamic> jsonData = jsonDecode(jsonString);
 
-        // Check if 'messages' exists and is a list
         if (jsonData.containsKey('messages') && jsonData['messages'] is List) {
           List<dynamic> messages = jsonData['messages'];
 
-          // Assuming you want to update the first message's 'text'
           if (messages.isNotEmpty && messages[0] is Map<String, dynamic>) {
             Map<String, dynamic> message = messages[0];
 
-            // Update the 'text' field with the new text
             message['text'] = newText;
 
-            // Convert the updated data back to a JSON string
             String updatedJsonString = jsonEncode(jsonData);
 
-            // Write the updated JSON string back to the file
             await file.writeAsString(updatedJsonString, mode: FileMode.write);
             logger.i('Text field updated in $filePath');
             await getBadgeDataFiles();
@@ -326,18 +299,14 @@ class FileHelper {
       Map<String, dynamic> jsonData = data.toJson();
       jsonData['messages'][0]['invert'] = invert;
       logger.d('JSON data: $jsonData');
-      // Convert Data object to JSON string
       String jsonString = jsonEncode(jsonData);
 
-      // Get the document directory path
       final directory = await getApplicationDocumentsDirectory();
       final filePath = '${directory.path}/$filename.json';
 
-      // Save JSON string to the file
       File file = File(filePath);
       await file.writeAsString(jsonString);
 
-      // Update the cache using the new utility method
       _updateSavedBadgeCache(filename, jsonData);
 
       logger.i('Data saved to $filePath');
@@ -346,7 +315,6 @@ class FileHelper {
     }
   }
 
-  // Utility method to update savedBadgeCache
   void _updateSavedBadgeCache(String filename, Map<String, dynamic> jsonData) {
     final cacheKey = "$filename.json";
     final cache = imageCacheProvider.savedBadgeCache;
@@ -373,7 +341,6 @@ class FileHelper {
           String jsonString = await file.readAsString();
           Map<String, dynamic> jsonData = jsonDecode(jsonString);
 
-          // Defensive: Only add if valid structure
           if (jsonData.containsKey('messages') &&
               jsonData['messages'] is List) {
             badgeDataList.add(MapEntry(file.uri.pathSegments.last, jsonData));
@@ -388,18 +355,14 @@ class FileHelper {
     imageCacheProvider.savedBadgeCache = badgeDataList;
   }
 
-//function that takes JsonSData and returns the Data object
   Data jsonToData(Map<String, dynamic> jsonData) {
     try {
-      // Convert JSON data to Data object
       Data data = Data.fromJson(jsonData);
       return data;
     } catch (e) {
-      // If there's an error with the 'messages' key missing, add it with default values
       if (e.toString().contains("Missing \"messages\" key")) {
         logger.w('Fixing missing "messages" key in badge data');
 
-        // Create a default message structure if missing
         Map<String, dynamic> fixedJsonData =
             Map<String, dynamic>.from(jsonData);
         fixedJsonData['messages'] = [
@@ -407,15 +370,14 @@ class FileHelper {
             'text': jsonData['text'] ?? ['00'],
             'flash': jsonData['flash'] ?? false,
             'marquee': jsonData['marquee'] ?? false,
-            'speed': jsonData['speed'] ?? '0x70', // Default to Speed.one
-            'mode': jsonData['mode'] ?? '0x00', // Default to Mode.left
+            'speed': jsonData['speed'] ?? '0x70',
+            'mode': jsonData['mode'] ?? '0x00',
             'invert': jsonData['invert'] ?? false
           }
         ];
 
         return Data.fromJson(fixedJsonData);
       } else {
-        // For other errors, rethrow
         logger.e('Error parsing badge data: $e');
         rethrow;
       }
@@ -424,14 +386,11 @@ class FileHelper {
 
   Future<void> shareBadgeData(String filename) async {
     try {
-      // Get the document directory path
       final directory = await getApplicationDocumentsDirectory();
       final filePath = '${directory.path}/$filename';
 
-      // Check if the file exists
       File file = File(filePath);
       if (await file.exists()) {
-        // Use share_plus to share the file
         final result = await SharePlus.instance
             .share(ShareParams(files: [XFile(filePath)]));
         if (result.status == ShareResultStatus.success) {
@@ -524,7 +483,6 @@ class FileHelper {
 
   Future<bool> importBadgeData(context) async {
     try {
-      // Open file picker to select a JSON file
       FilePickerResult? result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json', 'gif'],

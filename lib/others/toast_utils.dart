@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class ToastUtils {
-  // Create a toast message
   void showToast(
     String message, {
     Duration duration = const Duration(seconds: 3),
@@ -41,7 +40,6 @@ class ToastUtils {
     );
   }
 
-  // Create a error toast
   void showErrorToast(String message) {
     showToast('Error: $message');
   }

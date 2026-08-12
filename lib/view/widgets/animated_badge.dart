@@ -31,46 +31,12 @@ class _AnimationBadgeState extends State<AnimationBadge> {
   }
 }
 
-// class AnimationBadgeROW extends LeafRenderObjectWidget {
-//   final AnimationBadgeProvider provider;
 
-//   const AnimationBadgeROW({super.key, required this.provider});
 
-//   @override
-//   RenderObject createRenderObject(BuildContext context) {
-//     final renderObject = BadgeRenderObject(provider: provider);
-//     provider.addListener(renderObject.onProviderUpdate);
-//     return renderObject;
-//   }
 
-//   @override
-//   void updateRenderObject(
-//       BuildContext context, covariant BadgeRenderObject renderObject) {
-//     renderObject.provider = provider;
-//   }
-// }
 
-// class BadgeRenderObject extends RenderBox with RenderObjectWithChildMixin {
-//   AnimationBadgeProvider provider;
 
-//   BadgeRenderObject({required this.provider});
 
-//   @override
-//   void performLayout() {
-//     var width = constraints.maxWidth;
-//     size = constraints.constrain(Size(width, width / 3.2));
-//   }
 
-//   @override
-//   void paint(PaintingContext context, Offset offset) {
-//     final Canvas canvas = context.canvas;
-//     BadgePaint(grid: provider.getPaintGrid()).paint(canvas, size);
-//   }
 
-//   @override
-//   bool get alwaysNeedsCompositing => true;
 
-//   void onProviderUpdate() {
-//     markNeedsPaint();
-//   }
-// }

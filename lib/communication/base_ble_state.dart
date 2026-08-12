@@ -53,7 +53,6 @@ abstract class RetryBleState extends BleState {
       }
     }
 
-    // After max retries, return a CompletedState indicating failure.
     return CompletedState(
         isSuccess: false,
         message: lastException?.toString() ?? l10n.unknownError);

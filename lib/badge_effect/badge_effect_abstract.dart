@@ -2,7 +2,6 @@ abstract class BadgeEffect {
   void processEffect(int animationIndex, List<List<bool>> canvas,
       int badgeHeight, int badgeWidth);
 
-  // Override equality to be implemented by subclasses
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;

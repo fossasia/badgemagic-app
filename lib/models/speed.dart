@@ -11,17 +11,14 @@ enum Speed {
   final String hexValue;
   const Speed(this.hexValue);
 
-  // Static method to get int value of speed from the Enum Speed
   static int getIntValue(Speed speed) {
-    // Map Speed.one (index 0) -> 1, Speed.two (index 1) -> 2, etc.
     return speed.index + 1;
   }
 
-  // Static method to get Speed from hex value
   static Speed fromHex(String hexValue) {
     return Speed.values.firstWhere(
       (speed) => speed.hexValue == hexValue,
-      orElse: () => Speed.one, // Default to Speed.one if no match
+      orElse: () => Speed.one,
     );
   }
 }

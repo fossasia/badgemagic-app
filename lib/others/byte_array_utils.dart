@@ -39,15 +39,12 @@ List<List<bool>> hexStringToBool(String hexString) {
   int rowIndex = 0;
 
   for (int i = 0; i < hexString.length; i += 2) {
-    // Convert the hex string into a byte (int)
     int byte = int.parse(hexString.substring(i, i + 2), radix: 16);
 
-    // Convert the byte into a binary representation and then into booleans
     for (int bit = 7; bit >= 0; bit--) {
       boolArray[rowIndex].add(((byte >> bit) & 1) == 1);
     }
 
-    // Move to the next row after filling current one
     rowIndex = (rowIndex + 1) % rows;
   }
 
@@ -70,15 +67,13 @@ List<List<int>> byteArrayToBinaryArray(List<int> byteArray) {
   }
 
   logger.d(
-      "binaryArray: $binaryArray"); // Use print instead of logger for standalone example
+      "binaryArray: $binaryArray");
   return binaryArray;
 }
 
 String hexToBin(String hex) {
-  // Convert hex to binary string
   String binaryString = BigInt.parse(hex, radix: 16).toRadixString(2);
 
-  // Pad the binary string with leading zeros if necessary to ensure it's a multiple of 8 bits
   int paddingLength = (8 - (binaryString.length % 8)) % 8;
   binaryString = binaryString.padLeft(binaryString.length + paddingLength, '0');
   logger.d("binaryString: $binaryString");

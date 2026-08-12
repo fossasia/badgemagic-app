@@ -439,7 +439,6 @@ class _DrawBadgeState extends State<DrawBadge> {
         setState(() {
           _showShapeOptions = !_showShapeOptions;
 
-          // Reset to Freehand when hiding shape options
           if (!_showShapeOptions) {
             drawToggle.setShape(DrawShape.freehand);
           }

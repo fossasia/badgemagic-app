@@ -71,7 +71,6 @@ class _AniContainerState extends State<AniContainer> {
       height: MediaQuery.of(context).size.width < 600 ? 96.h : 58.h,
       child: GestureDetector(
         onTap: () async {
-          // Only show dialog for special animations (index >= 9)
           if (widget.index >= 9) {
             final textController =
                 Provider.of<InlineImageProvider>(context, listen: false)
@@ -82,7 +81,6 @@ class _AniContainerState extends State<AniContainer> {
               if (shouldSwitch == true) {
                 textController.clear();
                 animationCardState.setAnimationMode(badgeAnimation);
-                // Force preview update for special animations
                 animationCardState.badgeAnimation('', Converters(), false);
               }
               return;

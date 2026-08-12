@@ -13,8 +13,6 @@ Future<void> customTransferCycleAnimation(
     int speedLevel) async {
   if (!await checkAdapterState()) return;
 
-  // Use the same speed logic as Diamond/Cupid: always use Speed.eight for seamless animation
-  // Cycle animation uses 8 selected frames from infinite back-and-forth movement
   final Speed selectedSpeed = Speed.eight;
   final logger = Logger();
 
@@ -22,7 +20,6 @@ Future<void> customTransferCycleAnimation(
 
   List<Message> cycleFrames = [];
 
-  // Get the 8 carefully selected frames from the transferFrames method
   List<List<List<bool>>> selectedFrames = CycleAnimation().transferFrames();
 
   for (int i = 0; i < selectedFrames.length; i++) {

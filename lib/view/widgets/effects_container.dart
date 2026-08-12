@@ -91,7 +91,7 @@ class _EffectContainerState extends State<EffectContainer> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(bottom: 6.h), // space after text
+                padding: EdgeInsets.only(bottom: 6.h),
                 child: Text(
                   _getLocalizedEffectName(widget.effectName, context),
                   style: TextStyle(

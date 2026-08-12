@@ -23,7 +23,6 @@ class BadgeUtils {
     {
       var cellSize = badgeWidth / 44;
 
-      // Calculate offsets to center the cells within the rectangle
       double totalCellsWidth = (cellSize * 0.92) * 44;
       double totalCellsHeight = cellSize * 11;
 

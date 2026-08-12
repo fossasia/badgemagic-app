@@ -38,9 +38,6 @@ class Converters {
     });
   }
 
-  // Tight-trim empty left/right cols of a rendered glyph and append exactly
-  // one empty col so concatenated chars always have a 1-px gap. Whitespace
-  // glyphs (no ink) keep a fixed 3-col width to preserve word spacing.
   List<List<bool>> _trimAndPadCharMatrix(List<List<bool>> matrix) {
     if (matrix.isEmpty || matrix[0].isEmpty) return matrix;
     final int height = matrix.length;
@@ -89,7 +86,6 @@ class Converters {
     int rows = 11,
     required bool hasDescender, // for characters like j, g, p, q, y
   }) async {
-    // Generate combined cache key using font properties and message
     final fontKey = getFontKey(
       textStyle.fontFamily ?? 'default',
       textStyle.fontSize ?? 14.0,
@@ -98,9 +94,7 @@ class Converters {
     );
     final cacheKey = '$fontKey-$message';
 
-    // Check character cache
     if (_characterCache.containsKey(cacheKey)) {
-      //print("Cache hit for $cacheKey");
       return {
         'matrix': _characterCache[cacheKey]!,
       };
@@ -108,7 +102,6 @@ class Converters {
 
     int cols = 1;
     int scale = 1;
-    // Calculate canvas size
     TextPainter widthCheckPainter = TextPainter(
       text: TextSpan(
         text: message,
@@ -119,29 +112,22 @@ class Converters {
     );
     widthCheckPainter.layout();
     final rawWidth = widthCheckPainter.width;
-    // Check if character needs more width
 
-    // Dynamic column calculation
     final actualCols = (rawWidth / scale).ceil().clamp(1, 16);
 
-    //print("Actual cols: $actualCols");
     cols = actualCols;
 
-    // Calculate final dimensions
     final int width = cols * scale;
     final int height = rows * scale;
 
-    // Create single PictureRecorder and Canvas
     final ui.PictureRecorder recorder = ui.PictureRecorder();
     final Canvas canvas = Canvas(
         recorder, Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()));
 
-    // Fill background
     final Paint bgPaint = Paint()..color = Colors.white;
     canvas.drawRect(
         Rect.fromLTWH(0, 0, width.toDouble(), height.toDouble()), bgPaint);
 
-    // Create text painter with final dimensions
     final TextPainter textPainter = TextPainter(
       text: TextSpan(
         text: message,
@@ -154,8 +140,7 @@ class Converters {
     textPainter.layout(maxWidth: width.toDouble());
     Offset offset;
     if (hasDescender) {
-      // For descender characters, align so descender can use bottom row
-      final baselinePosition = height - 2; // Leave 1 unit at bottom
+      final baselinePosition = height - 2;
       offset = Offset(
         0,
         baselinePosition -
@@ -163,16 +148,14 @@ class Converters {
                 .computeDistanceToActualBaseline(TextBaseline.alphabetic),
       );
     } else {
-      // For normal characters, ensure bottom padding of 1 unit
       offset = Offset(
         0,
-        (height - 1) - // Leave 1 unit at bottom
+        (height - 1) -
             textPainter
                 .computeDistanceToActualBaseline(TextBaseline.alphabetic),
       );
     }
 
-    //print("height: $height, offset: $offset");
 
     textPainter.paint(canvas, offset);
 
@@ -203,7 +186,6 @@ class Converters {
       }
     }
 
-    // Cache the result for future use
     _characterCache[cacheKey] = matrix;
     return {'matrix': matrix};
   }
@@ -212,7 +194,6 @@ class Converters {
       String text, TextStyle style) async {
     try {
       List<Map<String, dynamic>> segments = [];
-      // Parse text into segments
       String currentText = '';
       int i = 0;
       while (i < text.length) {
@@ -235,7 +216,6 @@ class Converters {
 
       List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
 
-      // Process each segment
       for (var segment in segments) {
         if (segment['type'] == 'text') {
           String text = segment['content'];
@@ -312,7 +292,6 @@ class Converters {
     final fontProvider = GetIt.instance<FontProvider>();
     final usingCustomFont = fontProvider.selectedFont != null;
 
-    // Process message in custom font mode or default mode
     List<String> hexStrings = usingCustomFont
         ? await _processCustomFontMessage(
             message, fontProvider.selectedTextStyle)
@@ -355,9 +334,6 @@ class Converters {
         String segmentText = segment['content'];
         for (final char in segmentText.split('')) {
           if (!converter.charCodes.containsKey(char)) continue;
-          // Trim narrow glyphs (e.g. i, l) and add a 1-col gutter so the
-          // default font matches the custom-font spacing (#1722), feeding the
-          // single combined matrix used for consistent clipart spacing (#1711).
           final charMatrix = _trimAndPadCharMatrix(
               _charCodeToBoolMatrix(converter.charCodes[char]!));
           for (int row = 0; row < 11; row++) {
@@ -412,86 +388,70 @@ class Converters {
     return padHexString(inverted);
   }
 
-  //function to convert the bitmap to the LED hex format
-  //it takes the 2D list of pixels and converts it to the LED hex format
   static List<String> convertBitmapToLEDHex(List<List<int>> image, bool trim) {
-    // Determine the height and width of the image
     int height = image.length;
     int width = image.isNotEmpty ? image[0].length : 0;
 
-    // Initialize variables to calculate padding and offsets
     int finalSum = 0;
 
-    // Calculate and adjust for right-side padding
     for (int j = 0; j < width; j++) {
       int sum = 0;
       for (int i = 0; i < height; i++) {
-        sum += image[i][j]; // Sum up pixel values in each column
+        sum += image[i][j];
       }
       if (sum == 0 && trim) {
-        // If column sum is zero, mark all pixels in that column as -1
         for (int i = 0; i < height; i++) {
           image[i][j] = -1;
         }
       } else {
-        // Otherwise, update finalSum and exit loop
         finalSum += j;
         break;
       }
     }
 
-    // Calculate and adjust for left-side padding
     for (int j = width - 1; j >= 0; j--) {
       int sum = 0;
       for (int i = 0; i < height; i++) {
         sum += image[i]
-            [j]; // Sum up pixel values in each column (from right to left)
+            [j];
       }
       if (sum == 0 && trim) {
-        // If column sum is zero, mark all pixels in that column as -1
         for (int i = 0; i < height; i++) {
           image[i][j] = -1;
         }
       } else {
-        // Otherwise, update finalSum and exit loop
         finalSum += (height - j - 1);
         break;
       }
     }
 
-    // Calculate padding difference to align height to a multiple of 8
     int diff = 0;
     if ((height - finalSum) % 8 > 0) {
       diff = 8 - (height - finalSum) % 8;
     }
 
-    // Calculate left and right offsets for padding
     int rOff = (diff / 2).floor();
     int lOff = (diff / 2).ceil();
 
-    // Initialize a new list to accommodate the padded image
     List<List<int>> list =
         List.generate(height, (i) => List.filled(width + rOff + lOff, 0));
 
-    // Fill the new list with the padded image data
     for (int i = 0; i < height; i++) {
       int k = 0;
       for (int j = 0; j < rOff; j++) {
-        list[i][k++] = 0; // Fill right-side padding
+        list[i][k++] = 0;
       }
       for (int j = 0; j < width; j++) {
         if (image[i][j] != -1) {
-          list[i][k++] = image[i][j]; // Copy non-padded pixels
+          list[i][k++] = image[i][j];
         }
       }
       for (int j = 0; j < lOff; j++) {
-        list[i][k++] = 0; // Fill left-side padding
+        list[i][k++] = 0;
       }
     }
 
-    //logger.d("Padded image: $list");
 
-    // Convert each 8-bit segment into hexadecimal strings
     List<String> allHexs = [];
     for (int i = 0; i < list[0].length ~/ 8; i++) {
       StringBuffer lineHex = StringBuffer();
@@ -499,21 +459,19 @@ class Converters {
       for (int k = 0; k < height; k++) {
         StringBuffer stBuilder = StringBuffer();
 
-        // Construct 8-bit segments for each row
         for (int j = i * 8; j < i * 8 + 8; j++) {
           stBuilder.write(list[k][j]);
         }
 
-        // Convert binary string to hexadecimal
         String hex = int.parse(stBuilder.toString(), radix: 2)
             .toRadixString(16)
             .padLeft(2, '0');
-        lineHex.write(hex); // Append hexadecimal to line
+        lineHex.write(hex);
       }
 
-      allHexs.add(lineHex.toString()); // Store completed hexadecimal line
+      allHexs.add(lineHex.toString());
     }
-    return allHexs; // Return list of hexadecimal strings
+    return allHexs;
   }
 
   static String invertHex(String hex) {

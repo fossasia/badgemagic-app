@@ -10,7 +10,6 @@ import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 
 class InlineImageProvider extends ChangeNotifier {
-  // Reloads the savedBadgeCache from disk and notifies listeners
   Future<void> reloadSavedBadgeCache() async {
     final directory = await getApplicationDocumentsDirectory();
     final files = directory.listSync();
@@ -32,12 +31,10 @@ class InlineImageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  //boolean variable to check for isCacheInitialized
   bool isCacheInitialized = false;
 
   List<MapEntry<String, Map<String, dynamic>>> savedBadgeCache = [];
 
-  //set of available keys
   Set<int> availableKeys = {};
 
   bool isBackSpacePressed = false;
@@ -51,10 +48,8 @@ class InlineImageProvider extends ChangeNotifier {
 
   bool isSavedBadgeData = false;
 
-  //list of vectors
   List<String> vectors = [];
 
-  //cache for storing cliparts
   Map<String, List<List<int>>?> clipartsCache = {};
 
   void setIsSavedBadgeData(bool value) {
@@ -64,7 +59,6 @@ class InlineImageProvider extends ChangeNotifier {
 
   bool getIsSavedBadgeData() => isSavedBadgeData;
 
-  //uses the AssetManifest class to load the list of assets
   Future<void> initVectors() async {
     vectors.clear();
     try {
@@ -81,22 +75,14 @@ class InlineImageProvider extends ChangeNotifier {
     }
   }
 
-  //to test the delete operation in TextField
-  //used for compairing the length of the current textfield and the prevous
-  //if the length of the current controller length is greater than the previous (add operation)
-  //else delte operation is performed.
   int controllerLength = 0;
 
-  //object of ImageUtils class to generate ImageCache
   ImageUtils imageUtils = ImageUtils();
 
-  //controller for the Textfield
   TextEditingController message = TextEditingController();
 
-  //getter for the textfield controller
   TextEditingController getController() => message;
 
-  //selected index of the vector from the list
   late int selectedVector;
 
   BuildContext? context;
@@ -107,9 +93,6 @@ class InlineImageProvider extends ChangeNotifier {
 
   BuildContext? get getContext => context;
 
-  //Map to store the cache of the images generated
-  //Image caches are generated at the splash screen
-  //The cache generation time acts as a delay in the splash screen
   Map<Object, Uint8List?> imageCache = {};
 
   void notify() {
@@ -124,8 +107,6 @@ class InlineImageProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  //function that generates the image cache
-  //it fills the map with the Unit8List(byte Array) of the images
   Future<void> generateImageCache() async {
     imageCache.clear();
     FileHelper fileHelper = FileHelper();

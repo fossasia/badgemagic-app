@@ -29,7 +29,7 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
       _controllers.add(TextEditingController());
     });
     final provider = Provider.of<BadgeScanProvider>(context, listen: false);
-    provider.addBadgeName(''); // Add empty badge name to provider
+    provider.addBadgeName('');
   }
 
   Future<void> _onSave() async {
@@ -61,7 +61,6 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
         }
 
         if (_controllers.isEmpty) {
-          // Initialize controllers only after provider is loaded
           for (var name in provider.badgeNames) {
             _controllers.add(TextEditingController(text: name));
           }
@@ -92,7 +91,6 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                 onChanged: (val) => setState(() => _mode = val!),
               ),
               if (_mode == BadgeScanMode.specific) ...[
-                // Selection controls
                 if (_controllers.isNotEmpty)
                   Padding(
                     padding: const EdgeInsets.symmetric(
@@ -115,7 +113,6 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                         if (provider.selectedIndices.isNotEmpty)
                           ElevatedButton.icon(
                             onPressed: () {
-                              // Remove selected controllers
                               final sortedIndices = provider.selectedIndices
                                   .toList()
                                 ..sort((a, b) => b.compareTo(a));
@@ -141,7 +138,6 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                       ],
                     ),
                   ),
-                // Badge list with checkboxes
                 Expanded(
                   child: ListView.builder(
                     itemCount: _controllers.length,
@@ -181,7 +177,6 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                                         EdgeInsets.symmetric(vertical: 12),
                                   ),
                                   onChanged: (value) {
-                                    // Update the provider when text changes
                                     provider.updateBadgeName(index, value);
                                   },
                                 ),
@@ -193,7 +188,6 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                     },
                   ),
                 ),
-                // Add more button
                 Padding(
                   padding: const EdgeInsets.all(12.0),
                   child: ElevatedButton.icon(

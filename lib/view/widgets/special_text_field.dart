@@ -53,8 +53,6 @@ class InlineImage extends SpecialText {
   }
 }
 
-// Sentinel start index for InlineImage runs.
-// Must stay larger than normal text indexes for web compatibility.
 const int kInlineImageSentinelStart = 0x7fffffff;
 
 class ImageBuilder extends SpecialTextSpanBuilder {

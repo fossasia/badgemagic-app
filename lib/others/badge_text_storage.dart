@@ -12,13 +12,10 @@ class BadgeTextStorage {
   static Future<void> saveOriginalText(
       String badgeFilename, String originalText) async {
     try {
-      // Get the existing text storage or create a new one
       Map<String, String> textStorage = await _getTextStorage();
 
-      // Store the original text with the badge filename as the key
       textStorage[badgeFilename] = originalText;
 
-      // Save the updated storage
       await _saveTextStorage(textStorage);
 
       logger.d('Saved original text for badge: $badgeFilename');
@@ -30,10 +27,8 @@ class BadgeTextStorage {
   /// Get the original text for a badge
   static Future<String> getOriginalText(String badgeFilename) async {
     try {
-      // Get the existing text storage
       Map<String, String> textStorage = await _getTextStorage();
 
-      // Return the original text if it exists, otherwise return empty string
       return textStorage[badgeFilename] ?? '';
     } catch (e) {
       logger.e('Error getting original text: $e');
@@ -60,13 +55,10 @@ class BadgeTextStorage {
   /// Delete the original text for a badge
   static Future<void> deleteOriginalText(String badgeFilename) async {
     try {
-      // Get the existing text storage
       Map<String, String> textStorage = await _getTextStorage();
 
-      // Remove the entry for the badge
       textStorage.remove(badgeFilename);
 
-      // Save the updated storage
       await _saveTextStorage(textStorage);
 
       logger.d('Deleted original text for badge: $badgeFilename');
@@ -81,14 +73,12 @@ class BadgeTextStorage {
       final directory = await getApplicationDocumentsDirectory();
       final file = File('${directory.path}/$TEXT_STORAGE_FILENAME');
 
-      // Create the file if it doesn't exist
       if (!await file.exists()) {
         await file.create();
         await file.writeAsString('{}');
         return {};
       }
 
-      // Read the file and parse the JSON
       final jsonString = await file.readAsString();
       if (jsonString.isEmpty) {
         return {};
@@ -96,7 +86,6 @@ class BadgeTextStorage {
 
       final Map<String, dynamic> jsonData = jsonDecode(jsonString);
 
-      // Convert dynamic values to String
       final Map<String, String> textStorage = {};
       jsonData.forEach((key, value) {
         textStorage[key] = value.toString();
@@ -115,7 +104,6 @@ class BadgeTextStorage {
       final directory = await getApplicationDocumentsDirectory();
       final file = File('${directory.path}/$TEXT_STORAGE_FILENAME');
 
-      // Convert the map to JSON and save it
       final jsonString = jsonEncode(textStorage);
       await file.writeAsString(jsonString);
     } catch (e) {

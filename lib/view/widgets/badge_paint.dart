@@ -11,19 +11,16 @@ class BadgePaint extends CustomPainter {
 
   @override
   void paint(Canvas canvas, Size size) {
-    // Padding for the rectangle
     MapEntry<double, double> badgeOffsetBackground =
         badgeUtils.getBadgeOffsetBackground(size);
     double offsetHeightBadgeBackground = badgeOffsetBackground.key;
     double offsetWidthBadgeBackground = badgeOffsetBackground.value;
 
-    // Size of the rectangle
     MapEntry<double, double> badgeSize = badgeUtils.getBadgeSize(
         offsetHeightBadgeBackground, offsetWidthBadgeBackground, size);
     double badgeHeight = badgeSize.key;
     double badgeWidth = badgeSize.value;
 
-    // Draw the outer rectangle
     final Paint rectPaint = Paint()
       ..style = PaintingStyle.fill
       ..color = Colors.black
@@ -46,7 +43,6 @@ class BadgePaint extends CustomPainter {
             offsetHeightBadgeBackground, badgeWidth, badgeHeight);
     double cellStartX = cellStartCoordinate.key;
     double cellStartY = cellStartCoordinate.value;
-    // Draw the cells
     for (int row = 0; row < grid.length; row++) {
       for (int col = 0; col < grid[row].length; col++) {
         var cellStartRow = cellStartY + row * cellSize;
@@ -63,7 +59,6 @@ class BadgePaint extends CustomPainter {
           cellSize,
         );
 
-        // Apply 45-degree rotation
         canvas.save();
         canvas.translate(
           cellRect.left + (cellRect.width / 2),

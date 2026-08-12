@@ -4,12 +4,10 @@ class Data {
   final List<Message> messages;
   Data({required this.messages});
 
-  // Convert Data object to JSON
   Map<String, dynamic> toJson() => {
         'messages': messages.map((message) => message.toJson()).toList(),
       };
 
-  // Convert JSON to Data object
   factory Data.fromJson(Map<String, dynamic> json) {
     if (!json.containsKey('messages')) {
       throw Exception('Invalid JSON: Missing "messages" key');

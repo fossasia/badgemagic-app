@@ -19,7 +19,6 @@ class _BMBadgeState extends State<BMBadge> {
   final badgeUtils = BadgeUtils();
   Offset? dragStart;
 
-  // Badge dimensions
   static const int gridWidth = 44;
   static const int gridHeight = 11;
 
@@ -32,7 +31,6 @@ class _BMBadgeState extends State<BMBadge> {
     }
   }
 
-  // Get the actual rendering dimensions
   Size _getBadgeRenderSize() {
     final renderBox = context.findRenderObject() as RenderBox?;
     if (renderBox == null) return Size.zero;
@@ -45,12 +43,10 @@ class _BMBadgeState extends State<BMBadge> {
     return renderBox.globalToLocal(globalPosition);
   }
 
-  // Convert local position to grid coordinates accounting for badge rendering
   ({int x, int y}) _localToGrid(Offset localPosition) {
     final size = _getBadgeRenderSize();
     if (size == Size.zero) return (x: 0, y: 0);
 
-    // Get badge offsets and dimensions (same as BadgePaint)
     MapEntry<double, double> badgeOffsetBackground =
         badgeUtils.getBadgeOffsetBackground(size);
     double offsetHeightBadgeBackground = badgeOffsetBackground.key;
@@ -61,18 +57,14 @@ class _BMBadgeState extends State<BMBadge> {
     double badgeHeight = badgeSize.key;
     double badgeWidth = badgeSize.value;
 
-    // Calculate cell size (matching BadgePaint)
     var cellSize = badgeWidth / gridWidth;
 
-    // Get cell start coordinates (matching BadgePaint)
     MapEntry<double, double> cellStartCoordinate =
         badgeUtils.getCellStartCoordinate(offsetWidthBadgeBackground,
             offsetHeightBadgeBackground, badgeWidth, badgeHeight);
     double cellStartX = cellStartCoordinate.key;
     double cellStartY = cellStartCoordinate.value;
 
-    // Convert touch position to grid coordinates
-    // Accounting for the 0.93 horizontal compression factor used in rendering
     double relativeX = localPosition.dx - cellStartX;
     double relativeY = localPosition.dy - cellStartY;
 
@@ -84,9 +76,8 @@ class _BMBadgeState extends State<BMBadge> {
 
   void _handlePanStart(DragStartDetails details) {
     dragStart = _getLocalPosition(details.globalPosition);
-    drawProvider.pushToUndoStack(); // Save state for undo
+    drawProvider.pushToUndoStack();
 
-    // Ensure the initial touch point is rendered immediately for freehand
     if (drawProvider.selectedShape == DrawShape.freehand && dragStart != null) {
       final gridPos = _localToGrid(dragStart!);
       drawProvider.setCell(gridPos.x, gridPos.y, drawProvider.getIsDrawing(),
@@ -108,7 +99,7 @@ class _BMBadgeState extends State<BMBadge> {
     switch (shape) {
       case DrawShape.freehand:
         _drawLine(start.x, start.y, end.x, end.y, preview: false);
-        dragStart = localPosition; // update for next stroke segment
+        dragStart = localPosition;
         break;
       case DrawShape.square:
         int size = ((end.x - start.x).abs() + (end.y - start.y).abs()) ~/ 2;

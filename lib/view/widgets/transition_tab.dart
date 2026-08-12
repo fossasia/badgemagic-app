@@ -4,7 +4,6 @@ import 'package:badgemagic/view/widgets/animation_container.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 
-// Transition tab to show basic animations
 class TransitionTab extends StatefulWidget {
   const TransitionTab({super.key});
 

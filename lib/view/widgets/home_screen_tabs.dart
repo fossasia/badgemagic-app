@@ -5,7 +5,6 @@ import 'package:badgemagic/view/widgets/animation_container.dart';
 import 'package:badgemagic/view/widgets/effects_container.dart';
 import 'package:flutter/material.dart';
 
-//effects tab to show effects that the user can select
 class EffectTab extends StatefulWidget {
   const EffectTab({
     super.key,
@@ -53,7 +52,6 @@ class _EffectsTabState extends State<EffectTab> {
   }
 }
 
-// Animation tab to show special animations
 class AnimationTab extends StatefulWidget {
   const AnimationTab({super.key});
 
@@ -75,7 +73,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.sports_esports, // Pacman icon
+                  icon: Icons.sports_esports,
                   animationName: l10n.pacman,
                   index: 9,
                 ),
@@ -83,7 +81,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.chevron_left, // Chevron icon
+                  icon: Icons.chevron_left,
                   animationName: l10n.chevron,
                   index: 10,
                 ),
@@ -91,7 +89,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.diamond, // Diamond icon
+                  icon: Icons.diamond,
                   animationName: l10n.diamond,
                   index: 11,
                 ),
@@ -103,7 +101,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.heart_broken, // Broken Hearts icon
+                  icon: Icons.heart_broken,
                   animationName: l10n.brokenHearts,
                   index: 12,
                 ),
@@ -111,7 +109,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.favorite_border, // Cupid icon
+                  icon: Icons.favorite_border,
                   animationName: l10n.cupid,
                   index: 13,
                 ),
@@ -119,7 +117,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.directions_walk, // Feet animation icon
+                  icon: Icons.directions_walk,
                   animationName: l10n.feet,
                   index: 14,
                 ),
@@ -131,7 +129,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.set_meal, // Fish icon
+                  icon: Icons.set_meal,
                   animationName: l10n.fishKiss,
                   index: 15,
                 ),
@@ -139,7 +137,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.change_history, // V shape icon
+                  icon: Icons.change_history,
                   animationName: l10n.diagonal,
                   index: 16,
                 ),
@@ -147,7 +145,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.warning, // Emergency/alert icon
+                  icon: Icons.warning,
                   animationName: l10n.emergency,
                   index: 17,
                 ),
@@ -159,7 +157,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.favorite, // Heart icon
+                  icon: Icons.favorite,
                   animationName: l10n.beatingHearts,
                   index: 18,
                 ),
@@ -167,7 +165,7 @@ class _AnimationTabState extends State<AnimationTab> {
               Expanded(
                 child: AniContainer(
                   animation: null,
-                  icon: Icons.celebration, // Fireworks icon
+                  icon: Icons.celebration,
                   animationName: l10n.fireworks,
                   index: 19,
                 ),

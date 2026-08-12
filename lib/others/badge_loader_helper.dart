@@ -21,7 +21,6 @@ class BadgeLoaderHelper {
     String badgeText = "";
     Data? badgeData;
     try {
-      // Load badge JSON from disk. This contains all badge settings and state.
       final directory = await getApplicationDocumentsDirectory();
       final filePath = '${directory.path}/$badgeFilename';
       final file = File(filePath);
@@ -29,24 +28,18 @@ class BadgeLoaderHelper {
         final jsonString = await file.readAsString();
         savedData = jsonDecode(jsonString) as Map<String, dynamic>;
       } else {
-        // If the badge file doesn't exist, editing cannot proceed.
         throw Exception("Badge file not found: $filePath");
       }
-      // Load the original badge text (the user's typed message) using BadgeTextStorage.
-      // Always use .json extension for consistency with how text was saved.
       final textFilename = badgeFilename.endsWith('.json')
           ? badgeFilename
           : '$badgeFilename.json';
       badgeText = await BadgeTextStorage.getOriginalText(textFilename);
       if (badgeText.isEmpty) {
-        // Fallback to default text if original is missing (should rarely happen).
         badgeText = "Hello";
       }
-      // Parse the JSON map into a strongly-typed Data object for downstream use.
       badgeData = FileHelper().jsonToData(savedData);
       return (badgeText, badgeData, savedData);
     } catch (e) {
-      // Rethrow so UI can handle error and show a message.
       rethrow;
     }
   }

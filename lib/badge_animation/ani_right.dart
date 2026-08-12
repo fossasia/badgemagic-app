@@ -10,10 +10,8 @@ class RightAnimation extends BadgeAnimation {
       for (int j = 0; j < badgeWidth; j++) {
         int scrollOffset = animationIndex % (newWidth + badgeWidth);
 
-        // Get the corresponding column in the new grid based on the reversed scroll position
         int sourceCol = newWidth - scrollOffset + j;
 
-        // If sourceCol is within bounds of the new grid, display it, else blank space
         if (sourceCol >= 0 && sourceCol < newWidth) {
           canvas[i][j] = processGrid[i % newHeight][sourceCol];
         }
