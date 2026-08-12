@@ -1,5 +1,9 @@
+import 'dart:async';
+
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/BadgeScanProvider.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +12,12 @@ import 'package:get_it/get_it.dart';
 import 'package:badgemagic/services/localization_service.dart';
 import 'package:badgemagic/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_ble/universal_ble.dart';
+import '../badgemagic_module/bluetooth/connect_state.dart';
+import '../badgemagic_module/bluetooth/datagenerator.dart';
+import '../badgemagic_module/bluetooth/scan_state.dart';
+import '../badgemagic_module/utils/byte_array_utils.dart';
+import '../badgemagic_module/utils/toast_utils.dart';
 import '../globals/globals.dart';
 import '../services/firmware_update.dart';
 
@@ -30,8 +40,11 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   final FirmwareUpdateService _updateService = FirmwareUpdateService();
   bool _isCheckingUpdate = false;
-  Map<String, String>? _availableUpdate;
+  Map<String, dynamic>? _availableUpdate;
   String? _updateStatusMessage;
+
+  bool _isFlashingFirmware = false;
+  double _flashProgress = 0.0;
 
   @override
   void initState() {
@@ -351,35 +364,46 @@ class SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text("• Version: ${_availableUpdate!['version']}",
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
+                            style: const TextStyle(fontWeight: FontWeight.w600)),
                         Text("• Released: ${_availableUpdate!['date']}",
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            TextButton(
-                              onPressed: () =>
-                                  setState(() => _availableUpdate = null),
-                              child: Text(l10n.dismissButton,
-                                  style: const TextStyle(color: Colors.black)),
-                            ),
-                            const SizedBox(width: 8),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
+                            style: const TextStyle(fontWeight: FontWeight.w600)),
+
+                        if (_isFlashingFirmware) ...[
+                          const SizedBox(height: 12),
+                          LinearProgressIndicator(
+                            value: _flashProgress,
+                            color: Colors.red,
+                            backgroundColor: Colors.red.shade100,
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            "Flashing firmware... ${(_flashProgress * 100).toStringAsFixed(0)}%",
+                            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                          ),
+                        ] else ...[
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () => setState(() => _availableUpdate = null),
+                                child: Text(
+                                  l10n.dismissButton,
+                                  style: const TextStyle(color: Colors.black),
+                                ),
                               ),
-                              onPressed: () async {
-                                await _updateService.executeFirmwareUpdate(
-                                    _availableUpdate!['version']!);
-                              },
-                              child: Text(l10n.updateButton),
-                            ),
-                          ],
-                        )
+                              const SizedBox(width: 8),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                ),
+                                onPressed: _handleStartFirmwareUpdate, // CALL QUI
+                                child: Text(l10n.updateButton),
+                              ),
+                            ],
+                          )
+                        ],
                       ],
                     ),
                   ),
@@ -433,5 +457,100 @@ class SettingsScreenState extends State<SettingsScreen> {
         );
       },
     );
+  }
+
+  Future<void> _handleStartFirmwareUpdate() async {
+    if (_availableUpdate == null) return;
+
+    final bleDialogController = GetIt.instance<BleDialogController>();
+
+    setState(() {
+      _isFlashingFirmware = true;
+      _flashProgress = 0.0;
+    });
+
+    try {
+      // 1. Scansione diretta
+      bleDialogController.update(BleDialogStatus.searching, "Cerca targhetta...");
+
+      final device = await _updateService.scanForBadge(
+        mode: _scanMode,
+        allowedNames: _controllers.map((c) => c.text.trim()).toList(),
+      );
+
+      if (device == null) {
+        throw Exception("Nessuna targhetta trovata nelle vicinanze");
+      }
+
+      // 2. Connessione diretta
+      bleDialogController.update(BleDialogStatus.connecting, "Connessione in corso...");
+      await UniversalBle.connect(device.deviceId);
+
+      // 3. Flash diretto
+      bleDialogController.update(BleDialogStatus.transferring, "Aggiornamento firmware...");
+
+      await _updateService.executeFirmwareUpdate(
+        deviceId: device.deviceId,
+        releaseAssets: _availableUpdate!['assets'] ?? [],
+        hardwareVariant: 'usbc_4key',
+        onProgress: (progress) {
+          if (mounted) {
+            setState(() => _flashProgress = progress);
+          }
+        },
+      );
+
+      ToastUtils().showToast("Firmware aggiornato! La targhetta si riavvierà.");
+      setState(() => _availableUpdate = null);
+
+    } catch (e) {
+      ToastUtils().showToast("Errore: $e");
+    } finally {
+      if (mounted) {
+        setState(() => _isFlashingFirmware = false);
+      }
+    }
+  }
+
+  Future<BleDevice?> scanForBadge({
+    required BadgeScanMode mode,
+    required List<String> allowedNames,
+  }) async {
+    final completer = Completer<BleDevice?>();
+    StreamSubscription<BleDevice>? subscription;
+
+    final normalizedNames = allowedNames
+        .map((e) => e.trim().toLowerCase())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    subscription = UniversalBle.scanStream.listen((device) async {
+      final matchesUuid = device.services.contains(serviceUuid);
+      final deviceName = (device.name ?? "").trim().toLowerCase();
+      final matchesName = mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
+
+      if (matchesUuid && matchesName) {
+        subscription?.cancel();
+        await UniversalBle.stopScan();
+        if (!completer.isCompleted) {
+          completer.complete(device);
+        }
+      }
+    });
+
+    await UniversalBle.startScan(
+      scanFilter: ScanFilter(withServices: [serviceUuid]),
+    );
+
+    // Timeout di 10 secondi
+    Timer(const Duration(seconds: 10), () async {
+      await UniversalBle.stopScan();
+      subscription?.cancel();
+      if (!completer.isCompleted) {
+        completer.complete(null);
+      }
+    });
+
+    return completer.future;
   }
 }

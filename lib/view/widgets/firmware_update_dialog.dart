@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
+import 'package:universal_ble/universal_ble.dart';
+import '../../badgemagic_module/utils/toast_utils.dart';
+import '../../providers/BadgeScanProvider.dart';
 import '../../services/firmware_update.dart';
 import '../../services/localization_service.dart';
 
 class FirmwareUpdateDialog extends StatefulWidget {
   final String version;
   final String date;
+  final List<dynamic> releaseAssets;
   final FirmwareUpdateService service;
 
   const FirmwareUpdateDialog({
     super.key,
     required this.version,
     required this.date,
+    required this.releaseAssets,
     required this.service,
   });
 
@@ -88,9 +93,33 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
             if (_dontRemindAgain) {
               await widget.service.skipVersionPermanently(widget.version);
             }
-            if (context.mounted) Navigator.pop(context);
-            // Calls the empty placeholder update method
-            await widget.service.executeFirmwareUpdate(widget.version);
+
+            final nav = Navigator.of(context);
+            nav.pop(); // Chiude la dialog iniziale
+
+            // 1. Scansione per cercare la targhetta nelle vicinanze
+            final device = await widget.service.scanForBadge(
+              mode: BadgeScanMode.any, // Oppure la modalità preferita
+              allowedNames: [],
+            );
+
+            if (device == null) {
+              ToastUtils().showToast("Nessuna targhetta trovata nelle vicinanze.");
+              return;
+            }
+
+            // 2. Connessione al dispositivo
+            await UniversalBle.connect(device.deviceId);
+
+            // 3. Esecuzione dell'aggiornamento con i parametri nominali richiesti
+            await widget.service.executeFirmwareUpdate(
+              deviceId: device.deviceId,
+              releaseAssets: widget.releaseAssets,
+              hardwareVariant: 'usbc_4key', // O variante dinamica
+              onProgress: (progress) {
+                // Opzionale: aggiorna una barra di caricamento
+              },
+            );
           },
           child: Text(l10n.updateButton),
         ),

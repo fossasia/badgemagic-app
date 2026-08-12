@@ -141,6 +141,7 @@ class _HomeScreenState extends State<HomeScreen>
           return FirmwareUpdateDialog(
             version: updateInfo['version']!,
             date: updateInfo['date']!,
+            releaseAssets: updateInfo['assets'] ?? [],
             service: updateService,
           );
         },
