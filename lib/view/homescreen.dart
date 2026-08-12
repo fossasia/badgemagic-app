@@ -337,7 +337,7 @@ class _HomeScreenState extends State<HomeScreen>
                           TextInputFormatter.withFunction((oldValue, newValue) {
                             if (_emojiRegex.hasMatch(newValue.text)) {
                               final strippedText =
-                                  newValue.text.replaceAll(_emojiRegex, '');
+                                  newValue.text.replaceAll(_emojiRegex, ' ');
                               ToastUtils()
                                   .showToast("System emojis are not supported");
                               final newSelectionOffset = math.min(
