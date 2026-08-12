@@ -87,14 +87,14 @@ class _SavedClipartState extends State<SavedClipart> {
                   Text(
                     l10n.noSavedClipart,
                     style: TextStyle(
-                      color: Colors.black,
+                      color: colorOnSurface,
                       fontSize: 20.sp,
                     ),
                   ),
                   Text(
                     l10n.noSavedClipartMessage,
                     style: TextStyle(
-                      color: Colors.black,
+                      color: colorOnSurface,
                       fontSize: 14.sp,
                     ),
                   ),

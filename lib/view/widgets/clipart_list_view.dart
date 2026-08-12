@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
 import 'package:badgemagic/badgemagic_module/utils/image_utils.dart';
+import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';
@@ -41,11 +42,11 @@ class SavedClipartListView extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
           height: 90.h,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: colorSurface,
             borderRadius: BorderRadius.circular(15.dg),
             boxShadow: [
               BoxShadow(
-                color: Colors.grey.withOpacity(0.5),
+                color: colorShadow.withOpacity(0.5),
                 spreadRadius: 2,
                 blurRadius: 5,
                 offset: const Offset(0, 3),
@@ -84,8 +85,8 @@ class SavedClipartListView extends StatelessWidget {
               const Spacer(),
               IconButton(
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.grey.shade100,
-                  foregroundColor: Colors.grey.shade700,
+                  backgroundColor: colorSurfaceSubtle,
+                  foregroundColor: colorNeutralDark,
                   padding: EdgeInsets.all(8.dg),
                 ),
                 onPressed: () {
@@ -103,7 +104,7 @@ class SavedClipartListView extends StatelessWidget {
               ),
               SizedBox(width: 10.w),
               IconButton(
-                icon: const Icon(Icons.share, color: Colors.black),
+                icon: const Icon(Icons.share, color: colorOnSurface),
                 onPressed: () async {
                   await FileHelper().exportClipart(fileName);
                 },
@@ -111,8 +112,8 @@ class SavedClipartListView extends StatelessWidget {
               SizedBox(width: 10.w),
               IconButton(
                 style: IconButton.styleFrom(
-                  backgroundColor: Colors.red,
-                  foregroundColor: Colors.white,
+                  backgroundColor: colorError,
+                  foregroundColor: colorOnPrimary,
                   padding: EdgeInsets.all(8.dg),
                 ),
                 icon: const Icon(Icons.delete_outline_rounded),
