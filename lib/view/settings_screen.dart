@@ -44,7 +44,8 @@ class SettingsScreenState extends State<SettingsScreen> {
   Future<void> _loadUsbSetting() async {
     final prefs = await SharedPreferences.getInstance();
     setState(() {
-      _isUsbTransferEnabled = prefs.getBool('usb_transfer_enabled') ?? false;
+      _isUsbTransferEnabled =
+          prefs.getBool('usb_transfer_enabled') ?? !Platform.isLinux;
     });
   }
 
