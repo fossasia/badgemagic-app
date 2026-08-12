@@ -1,11 +1,11 @@
 import 'dart:convert';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:intl/intl.dart';
 
-import '../bademagic_module/utils/toast_utils.dart';
+import '../badgemagic_module/utils/byte_array_utils.dart';
+import '../badgemagic_module/utils/toast_utils.dart';
 import 'localization_service.dart';
 
 class FirmwareUpdateService {
