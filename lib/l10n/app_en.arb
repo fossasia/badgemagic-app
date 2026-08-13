@@ -1,5 +1,6 @@
 {
   "appTitle": "Badge Magic",
+  "create": "Create",
   "checkApacheLicense": "Check Apache License 2.0 terms used on",
   "saveButton": "Save",
   "save": "Save",
@@ -248,5 +249,13 @@
   "couldNotGenerateQrImage": "Could not generate QR image.",
   "couldNotShareQrImage": "Could not share QR image.",
   "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
-  "turnBLEOn": "Please turn on Bluetooth in your settings"
+  "turnBLEOn": "Please turn on Bluetooth in your settings",
+  "clipartCategoryPersonalized": "Personalized",
+  "clipartCategoryFaces": "Faces & Hands",
+  "clipartCategoryHeartsStars": "Hearts & Stars",
+  "clipartCategoryArrows": "Arrows",
+  "clipartCategoryMediaTime": "Media & Time",
+  "clipartCategoryNatureWeather": "Nature & Weather",
+  "clipartCategorySymbolsShapes": "Symbols & Shapes",
+  "clipartCategoryObjectsRetro": "Objects & Retro"
 }
