@@ -65,9 +65,7 @@ class _AnimationTabState extends State<AnimationTab> {
   @override
   Widget build(BuildContext context) {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
-    final bool isDesktop = MediaQuery.of(context).size.width >= 600;
     return SingleChildScrollView(
-      padding: isDesktop ? const EdgeInsets.only(right: 10) : EdgeInsets.zero,
       child: Column(
         children: [
           Row(
