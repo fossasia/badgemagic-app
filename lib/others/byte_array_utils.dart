@@ -66,8 +66,7 @@ List<List<int>> byteArrayToBinaryArray(List<int> byteArray) {
     rowIndex = (rowIndex + 1) % 11;
   }
 
-  logger.d(
-      "binaryArray: $binaryArray");
+  logger.d("binaryArray: $binaryArray");
   return binaryArray;
 }
 

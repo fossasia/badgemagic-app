@@ -30,13 +30,3 @@ class _AnimationBadgeState extends State<AnimationBadge> {
     );
   }
 }
-
-
-
-
-
-
-
-
-
-

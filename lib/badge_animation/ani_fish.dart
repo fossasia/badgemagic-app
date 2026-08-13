@@ -106,10 +106,8 @@ class FishAnimation extends BadgeAnimation {
         _draw2x2Block(canvas, upwardKissY, kissX);
         _draw2x2Block(canvas, downwardKissY, kissX);
       } else {
-        _drawSparkleEffect(
-            canvas, upwardKissY, kissX, animationIndex);
-        _drawSparkleEffect(canvas, downwardKissY, kissX,
-            animationIndex);
+        _drawSparkleEffect(canvas, upwardKissY, kissX, animationIndex);
+        _drawSparkleEffect(canvas, downwardKissY, kissX, animationIndex);
       }
     }
   }

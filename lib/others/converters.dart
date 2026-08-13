@@ -156,7 +156,6 @@ class Converters {
       );
     }
 
-
     textPainter.paint(canvas, offset);
 
     final ui.Picture picture = recorder.endRecording();
@@ -412,8 +411,7 @@ class Converters {
     for (int j = width - 1; j >= 0; j--) {
       int sum = 0;
       for (int i = 0; i < height; i++) {
-        sum += image[i]
-            [j];
+        sum += image[i][j];
       }
       if (sum == 0 && trim) {
         for (int i = 0; i < height; i++) {
@@ -450,7 +448,6 @@ class Converters {
         list[i][k++] = 0;
       }
     }
-
 
     List<String> allHexs = [];
     for (int i = 0; i < list[0].length ~/ 8; i++) {

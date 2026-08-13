@@ -85,8 +85,7 @@ class FileHelper {
   void removeFromCache(int key) {
     if (imageCacheProvider.imageCache.containsKey(key)) {
       imageCacheProvider.imageCache.remove(key);
-      imageCacheProvider.availableKeys
-          .add(key);
+      imageCacheProvider.availableKeys.add(key);
     }
   }
 

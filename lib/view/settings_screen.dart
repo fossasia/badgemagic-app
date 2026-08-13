@@ -265,5 +265,4 @@ class SettingsScreenState extends State<SettingsScreen> {
       },
     );
   }
-
 }

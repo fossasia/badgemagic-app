@@ -32,7 +32,6 @@ class FireworksAnimation extends BadgeAnimation {
         {"x": 15, "y": 8, "start": 1},
         {"x": 28, "y": 4, "start": 3},
       ],
-
       [
         {"x": 7, "y": 5, "start": 0},
         {"x": 14, "y": 3, "start": 1},
@@ -40,7 +39,6 @@ class FireworksAnimation extends BadgeAnimation {
         {"x": 28, "y": 4, "start": 3},
         {"x": 35, "y": 6, "start": 4},
       ],
-
       [
         {"x": 22, "y": 5, "start": 0},
         {"x": 8, "y": 2, "start": 2},

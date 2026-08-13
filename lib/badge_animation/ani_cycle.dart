@@ -6,189 +6,19 @@ class CycleAnimation extends BadgeAnimation {
   static const int badgeWidth = 44;
   static const int cycleHeight = 11;
   static const int cycleWidth = 20;
-  static const int framesPerCycle =
-      8;
-  static const int previewFramesPerCycle =
-      64;
+  static const int framesPerCycle = 8;
+  static const int previewFramesPerCycle = 64;
 
   static final List<List<int>> cycleMatrix = [
     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      1,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      0,
-      1,
-      1,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1,
-      1,
-      1,
-      0,
-      0
-    ],
-    [
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      0,
-      1,
-      0
-    ],
-    [
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1
-    ],
-    [
-      0,
-      1,
-      0,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      1,
-      0,
-      0,
-      1,
-      1,
-      1,
-      0,
-      1
-    ],
-    [
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      1,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1,
-      0,
-      0,
-      1
-    ],
+    [0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
+    [0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0],
+    [0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1],
+    [0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 0, 1],
+    [0, 1, 0, 0, 1, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 0, 1, 0, 0, 1],
     [0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0],
     [0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0]
   ];
@@ -205,8 +35,7 @@ class CycleAnimation extends BadgeAnimation {
           List.generate(badgeHeight, (_) => List.filled(badgeWidth, false));
 
       int cycleX = _calculateCycleX(animationIndex);
-      int cycleY =
-          0 + _calculateWheelBounce(animationIndex);
+      int cycleY = 0 + _calculateWheelBounce(animationIndex);
 
       _drawCycle(canvas, cycleY, cycleX,
           flip: _shouldFlipCycle(animationIndex));
@@ -231,8 +60,7 @@ class CycleAnimation extends BadgeAnimation {
     }
 
     int cycleX = _calculateCycleX(animationIndex);
-    int cycleY =
-        0 + _calculateWheelBounce(animationIndex);
+    int cycleY = 0 + _calculateWheelBounce(animationIndex);
 
     _drawCycle(canvas, cycleY, cycleX, flip: _shouldFlipCycle(animationIndex));
   }
@@ -248,8 +76,8 @@ class CycleAnimation extends BadgeAnimation {
       int cycleX = startX + (easedProgress * (endX - startX)).round();
       return cycleX;
     } else {
-      double progress = (frame - previewFramesPerCycle / 2) /
-          (previewFramesPerCycle / 2 - 1);
+      double progress =
+          (frame - previewFramesPerCycle / 2) / (previewFramesPerCycle / 2 - 1);
       double easedProgress = _easeInOut(progress);
       int startX = badgeWidth;
       int endX = -cycleWidth;

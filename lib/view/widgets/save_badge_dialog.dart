@@ -44,9 +44,7 @@ class SaveBadgeDialog extends StatelessWidget {
       child: Container(
         height: 180.h,
         width: 300.w,
-        padding: EdgeInsets.symmetric(
-            horizontal: 20.w,
-            vertical: 10.h),
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,

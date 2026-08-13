@@ -68,9 +68,7 @@ class SaveBadgeCard extends StatelessWidget {
             children: [
               Flexible(
                 child: Padding(
-                  padding: EdgeInsets.only(
-                      right: 8
-                          .w),
+                  padding: EdgeInsets.only(right: 8.w),
                   child: Text(
                     badgeData.key.substring(0, badgeData.key.length - 5),
                     style: const TextStyle(
@@ -78,8 +76,7 @@ class SaveBadgeCard extends StatelessWidget {
                       fontSize: 16,
                     ),
                     softWrap: true,
-                    overflow: TextOverflow
-                        .ellipsis,
+                    overflow: TextOverflow.ellipsis,
                     maxLines: 1,
                   ),
                 ),

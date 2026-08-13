@@ -16,8 +16,7 @@ class ImageUtils {
     int height = twoDList.length;
     int width = twoDList[0].length;
 
-    Uint8List pixels =
-        Uint8List(width * height * 4);
+    Uint8List pixels = Uint8List(width * height * 4);
 
     for (int y = 0; y < height; y++) {
       for (int x = 0; x < width; x++) {

@@ -12,17 +12,7 @@ class BrokenHeartsAnimation extends BadgeAnimation {
     [0, 0, 1, 1, 1, 1, 1, 0, 0],
     [0, 0, 0, 1, 1, 1, 0, 0, 0],
     [0, 0, 0, 0, 1, 0, 0, 0, 0],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ],
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ];
 
   final List<List<Point<int>>> _clustersLeft = [];

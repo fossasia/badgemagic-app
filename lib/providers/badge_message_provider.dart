@@ -280,4 +280,3 @@ Future<void> transferCycleAnimation(
   return customTransferCycleAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
-
