@@ -249,13 +249,5 @@
   "couldNotGenerateQrImage": "Could not generate QR image.",
   "couldNotShareQrImage": "Could not share QR image.",
   "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
-  "turnBLEOn": "Please turn on Bluetooth in your settings",
-  "clipartCategoryPersonalized": "Personalized",
-  "clipartCategoryFaces": "Faces & Hands",
-  "clipartCategoryHeartsStars": "Hearts & Stars",
-  "clipartCategoryArrows": "Arrows",
-  "clipartCategoryMediaTime": "Media & Time",
-  "clipartCategoryNatureWeather": "Nature & Weather",
-  "clipartCategorySymbolsShapes": "Symbols & Shapes",
-  "clipartCategoryObjectsRetro": "Objects & Retro"
+  "turnBLEOn": "Please turn on Bluetooth in your settings"
 }
