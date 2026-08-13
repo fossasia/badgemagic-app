@@ -174,5 +174,13 @@
     "saveSettings": "सेटिंग्स सेव करें",
     "connectToAnyBadge": "किसी भी बैज से कनेक्ट करें",
     "badgeNameHint": "बैज का नाम",
-    "pleaseSelectClipart": "सेव करने से पहले कृपया तस्वीर बनाएं या चुनें"
+    "pleaseSelectClipart": "सेव करने से पहले कृपया तस्वीर बनाएं या चुनें",
+    "clipartCategoryPersonalized": "निजी",
+    "clipartCategoryFaces": "चेहरे और हाथ",
+    "clipartCategoryHeartsStars": "दिल और सितारे",
+    "clipartCategoryArrows": "तीर",
+    "clipartCategoryMediaTime": "मीडिया और समय",
+    "clipartCategoryNatureWeather": "प्रकृति और मौसम",
+    "clipartCategorySymbolsShapes": "प्रतीक और आकार",
+    "clipartCategoryObjectsRetro": "वस्तुएं और रेट्रो"
 }
