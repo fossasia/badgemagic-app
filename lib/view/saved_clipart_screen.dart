@@ -11,14 +11,14 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get_it/get_it.dart';
 
-class SavedClipart extends StatefulWidget {
-  const SavedClipart({super.key});
+class SavedClipartScreen extends StatefulWidget {
+  const SavedClipartScreen({super.key});
 
   @override
-  State<SavedClipart> createState() => _SavedClipartState();
+  State<SavedClipartScreen> createState() => _SavedClipartScreenState();
 }
 
-class _SavedClipartState extends State<SavedClipart> {
+class _SavedClipartScreenState extends State<SavedClipartScreen> {
   InlineImageProvider imageprovider = GetIt.instance<InlineImageProvider>();
   FileHelper file = FileHelper();
 
