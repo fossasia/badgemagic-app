@@ -149,10 +149,7 @@ class _HomeScreenState extends State<HomeScreen>
   Future<void> savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString(_textKey, inlineimagecontroller.text);
-    await prefs.setInt(
-      _speedKey,
-      speedDialProvider.getOuterValue(),
-    );
+    await prefs.setInt(_speedKey, speedDialProvider.getOuterValue());
     await prefs.setInt(
       _transitionKey,
       animationProvider.getAnimationIndex() ?? 0,
@@ -206,7 +203,8 @@ class _HomeScreenState extends State<HomeScreen>
       }
 
       ToastUtils().showToast(
-          "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
+        "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}",
+      );
     } catch (e, st) {
       debugPrint("Failed to load badge data: $e\n$st");
       ToastUtils().showToast("Failed to load badge data");
@@ -234,25 +232,32 @@ class _HomeScreenState extends State<HomeScreen>
     switch (fontName) {
       case 'Roboto':
         return GoogleFonts.roboto(
-            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+          textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700),
+        );
       case 'Open Sans':
         return GoogleFonts.openSans(
-            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+          textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700),
+        );
       case 'Lato':
         return GoogleFonts.lato(
-            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+          textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700),
+        );
       case 'Poppins':
         return GoogleFonts.poppins(
-            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+          textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700),
+        );
       case 'Montserrat':
         return GoogleFonts.montserrat(
-            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+          textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700),
+        );
       case 'Orbitron':
         return GoogleFonts.orbitron(
-            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+          textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700),
+        );
       case 'Lexend':
         return GoogleFonts.lexend(
-            textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700));
+          textStyle: baseStyle.copyWith(fontWeight: FontWeight.w700),
+        );
       default:
         return baseStyle;
     }
@@ -296,8 +301,9 @@ class _HomeScreenState extends State<HomeScreen>
   @override
   Widget build(BuildContext context) {
     super.build(context);
-    InlineImageProvider inlineImageProvider =
-        Provider.of<InlineImageProvider>(context);
+    InlineImageProvider inlineImageProvider = Provider.of<InlineImageProvider>(
+      context,
+    );
 
     return ValueListenableBuilder<Locale?>(
       valueListenable: appLocale,
@@ -322,7 +328,9 @@ class _HomeScreenState extends State<HomeScreen>
                         AnimationBadge(),
                         Padding(
                           padding: EdgeInsets.symmetric(
-                              horizontal: 15.w, vertical: 12.h),
+                            horizontal: 15.w,
+                            vertical: 12.h,
+                          ),
                           child: Material(
                             color: drawerHeaderTitle,
                             borderRadius: BorderRadius.circular(10.r),
@@ -330,13 +338,15 @@ class _HomeScreenState extends State<HomeScreen>
                             child: ExtendedTextField(
                               controller: inlineimagecontroller,
                               specialTextSpanBuilder: ImageBuilder(),
-                              style: Provider.of<FontProvider>(context)
-                                          .selectedFont !=
+                              style: Provider.of<FontProvider>(
+                                        context,
+                                      ).selectedFont !=
                                       null
                                   ? _getFontStyle(
-                                          Provider.of<FontProvider>(context)
-                                              .selectedFont!)
-                                      .copyWith(fontSize: 14)
+                                      Provider.of<FontProvider>(
+                                        context,
+                                      ).selectedFont!,
+                                    ).copyWith(fontSize: 14)
                                   : const TextStyle(fontSize: 14),
                               decoration: InputDecoration(
                                 border: OutlineInputBorder(
@@ -368,8 +378,10 @@ class _HomeScreenState extends State<HomeScreen>
                                         MediaQuery.of(context).size.width *
                                             0.280,
                                   ),
-                                  padding:
-                                      EdgeInsets.only(left: 8.w, right: 8.w),
+                                  padding: EdgeInsets.only(
+                                    left: 8.w,
+                                    right: 8.w,
+                                  ),
                                   child: Consumer<FontProvider>(
                                     builder: (context, fontProvider, _) {
                                       return DropdownButtonHideUnderline(
@@ -400,8 +412,9 @@ class _HomeScreenState extends State<HomeScreen>
                                               value: null,
                                               child: Container(
                                                 padding: EdgeInsets.symmetric(
-                                                    horizontal: 16.w,
-                                                    vertical: 8.h),
+                                                  horizontal: 16.w,
+                                                  vertical: 8.h,
+                                                ),
                                                 decoration: BoxDecoration(
                                                   color: fontProvider
                                                               .selectedFont ==
@@ -437,8 +450,9 @@ class _HomeScreenState extends State<HomeScreen>
                                                 value: font,
                                                 child: Container(
                                                   padding: EdgeInsets.symmetric(
-                                                      horizontal: 16.w,
-                                                      vertical: 8.h),
+                                                    horizontal: 16.w,
+                                                    vertical: 8.h,
+                                                  ),
                                                   decoration: BoxDecoration(
                                                     color: fontProvider
                                                                 .selectedFont ==
@@ -447,7 +461,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                         : Colors.transparent,
                                                     borderRadius:
                                                         BorderRadius.circular(
-                                                            4),
+                                                      4,
+                                                    ),
                                                   ),
                                                   child: Text(
                                                     font,
@@ -470,7 +485,7 @@ class _HomeScreenState extends State<HomeScreen>
                                                   ),
                                                 ),
                                               ),
-                                            )
+                                            ),
                                           ],
                                           selectedItemBuilder: (context) {
                                             final List<String?> options = [
@@ -518,11 +533,13 @@ class _HomeScreenState extends State<HomeScreen>
                                               inlineimagecontroller.text,
                                               _converters,
                                               animationProvider.isEffectActive(
-                                                  InvertLEDEffect()),
+                                                InvertLEDEffect(),
+                                              ),
                                             );
                                           },
-                                          borderRadius:
-                                              BorderRadius.circular(8.r),
+                                          borderRadius: BorderRadius.circular(
+                                            8.r,
+                                          ),
                                           elevation: 2,
                                           isDense: true,
                                           menuMaxHeight: 300.h,
@@ -547,11 +564,16 @@ class _HomeScreenState extends State<HomeScreen>
                                 color: colorSurfaceMuted,
                               ),
                               margin: EdgeInsets.symmetric(
-                                  horizontal: 15.w, vertical: 8.h),
+                                horizontal: 15.w,
+                                vertical: 8.h,
+                              ),
                               padding: EdgeInsets.symmetric(
-                                  vertical: 10.h, horizontal: 10.w),
-                              child:
-                                  VectorGridView(controller: _vectorScrollController),
+                                vertical: 10.h,
+                                horizontal: 10.w,
+                              ),
+                              child: VectorGridView(
+                                controller: _vectorScrollController,
+                              ),
                             ),
                           ),
                         ),
@@ -613,18 +635,23 @@ class _HomeScreenState extends State<HomeScreen>
                               ),
                               child: Padding(
                                 padding: EdgeInsets.symmetric(
-                                    horizontal: 8.w, vertical: 12.h),
+                                  horizontal: 8.w,
+                                  vertical: 12.h,
+                                ),
                                 child: TabBarView(
                                   physics: const NeverScrollableScrollPhysics(),
                                   controller: _tabController,
                                   children: [
                                     GestureDetector(
                                       onPanDown: (_) => setState(
-                                          () => isDialInteracting = true),
+                                        () => isDialInteracting = true,
+                                      ),
                                       onPanCancel: () => setState(
-                                          () => isDialInteracting = false),
+                                        () => isDialInteracting = false,
+                                      ),
                                       onPanEnd: (_) => setState(
-                                          () => isDialInteracting = false),
+                                        () => isDialInteracting = false,
+                                      ),
                                       child: RadialDial(),
                                     ),
                                     const TransitionTab(),
@@ -644,108 +671,127 @@ class _HomeScreenState extends State<HomeScreen>
                     child: Align(
                       alignment: Alignment.bottomCenter,
                       child: Consumer<AnimationBadgeProvider>(
-                          builder: (context, animationProvider, _) {
-                        final isSpecial =
-                            animationProvider.isSpecialAnimationSelected();
-                        return Row(
-                          children: [
-                            if (!isSpecial) ...[
-                              Expanded(
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    if (inlineimagecontroller.text
-                                        .trim()
-                                        .isEmpty) {
-                                      ToastUtils()
-                                          .showToast("Please enter a message");
-                                      return;
-                                    }
-
-                                    if (widget.savedBadgeFilename != null) {
-                                      SavedBadgeProvider savedBadgeProvider =
-                                          SavedBadgeProvider();
-                                      String baseFilename =
-                                          widget.savedBadgeFilename!;
-                                      if (baseFilename.endsWith('.json')) {
-                                        baseFilename = baseFilename.substring(
-                                            0, baseFilename.length - 5);
+                        builder: (context, animationProvider, _) {
+                          final isSpecial =
+                              animationProvider.isSpecialAnimationSelected();
+                          return Row(
+                            children: [
+                              if (!isSpecial) ...[
+                                Expanded(
+                                  child: GestureDetector(
+                                    onTap: () async {
+                                      if (inlineimagecontroller.text
+                                          .trim()
+                                          .isEmpty) {
+                                        ToastUtils().showToast(
+                                          "Please enter a message",
+                                        );
+                                        return;
                                       }
 
-                                      await savedBadgeProvider.updateBadgeData(
-                                        baseFilename,
-                                        inlineimagecontroller.text,
-                                        animationProvider
-                                            .isEffectActive(FlashEffect()),
-                                        animationProvider
-                                            .isEffectActive(MarqueeEffect()),
-                                        animationProvider
-                                            .isEffectActive(InvertLEDEffect()),
-                                        speedDialProvider.getOuterValue(),
-                                        animationProvider.getAnimationIndex() ??
-                                            1,
-                                      );
-
-                                      ToastUtils().showToast(
-                                          "Badge Updated Successfully");
-                                      if (!context.mounted) return;
-                                      Navigator.pushNamedAndRemoveUntil(
-                                        context,
-                                        '/savedBadge',
-                                        (route) => false,
-                                      );
-                                    } else {
-                                      showDialog(
-                                        context: context,
-                                        builder: (context) {
-                                          return SaveBadgeDialog(
-                                            speed: speedDialProvider,
-                                            animationProvider:
-                                                animationProvider,
-                                            textController:
-                                                inlineimagecontroller,
-                                            isInverse: animationProvider
-                                                .isEffectActive(
-                                                    InvertLEDEffect()),
+                                      if (widget.savedBadgeFilename != null) {
+                                        SavedBadgeProvider savedBadgeProvider =
+                                            SavedBadgeProvider();
+                                        String baseFilename =
+                                            widget.savedBadgeFilename!;
+                                        if (baseFilename.endsWith('.json')) {
+                                          baseFilename = baseFilename.substring(
+                                            0,
+                                            baseFilename.length - 5,
                                           );
-                                        },
-                                      );
-                                    }
-                                  },
+                                        }
+
+                                        await savedBadgeProvider
+                                            .updateBadgeData(
+                                          baseFilename,
+                                          inlineimagecontroller.text,
+                                          animationProvider.isEffectActive(
+                                            FlashEffect(),
+                                          ),
+                                          animationProvider.isEffectActive(
+                                            MarqueeEffect(),
+                                          ),
+                                          animationProvider.isEffectActive(
+                                            InvertLEDEffect(),
+                                          ),
+                                          speedDialProvider.getOuterValue(),
+                                          animationProvider
+                                                  .getAnimationIndex() ??
+                                              1,
+                                        );
+
+                                        ToastUtils().showToast(
+                                          "Badge Updated Successfully",
+                                        );
+                                        if (!context.mounted) return;
+                                        Navigator.pushNamedAndRemoveUntil(
+                                          context,
+                                          '/savedBadge',
+                                          (route) => false,
+                                        );
+                                      } else {
+                                        showDialog(
+                                          context: context,
+                                          builder: (context) {
+                                            return SaveBadgeDialog(
+                                              speed: speedDialProvider,
+                                              animationProvider:
+                                                  animationProvider,
+                                              textController:
+                                                  inlineimagecontroller,
+                                              isInverse: animationProvider
+                                                  .isEffectActive(
+                                                InvertLEDEffect(),
+                                              ),
+                                            );
+                                          },
+                                        );
+                                      }
+                                    },
+                                    child: Container(
+                                      height: 32.h,
+                                      alignment: Alignment.center,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 16.w,
+                                        vertical: 8.h,
+                                      ),
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(
+                                          8.r,
+                                        ),
+                                        color: mdGrey400,
+                                      ),
+                                      child: Text(l10n.saveButton),
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 24.w),
+                              ],
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => _showBleTransferDialog(
+                                    context,
+                                    inlineImageProvider,
+                                  ),
                                   child: Container(
                                     height: 32.h,
                                     alignment: Alignment.center,
                                     padding: EdgeInsets.symmetric(
-                                        horizontal: 16.w, vertical: 8.h),
+                                      horizontal: 16.w,
+                                      vertical: 8.h,
+                                    ),
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(8.r),
                                       color: mdGrey400,
                                     ),
-                                    child: Text(l10n.saveButton),
+                                    child: Text(l10n.transferButton),
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 24.w),
                             ],
-                            Expanded(
-                              child: GestureDetector(
-                                onTap: () => _showBleTransferDialog(
-                                    context, inlineImageProvider),
-                                child: Container(
-                                  height: 32.h,
-                                  alignment: Alignment.center,
-                                  padding: EdgeInsets.symmetric(
-                                      horizontal: 16.w, vertical: 8.h),
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(8.r),
-                                    color: mdGrey400,
-                                  ),
-                                  child: Text(l10n.transferButton),
-                                ),
-                              ),
-                            ),
-                          ],
-                        );
-                      }),
+                          );
+                        },
+                      ),
                     ),
                   ),
                 ],
@@ -758,11 +804,15 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _showBleTransferDialog(
-      BuildContext context, InlineImageProvider inlineImageProvider) async {
+    BuildContext context,
+    InlineImageProvider inlineImageProvider,
+  ) async {
     final bleDialogController = GetIt.instance<BleDialogController>();
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
     bleDialogController.update(
-        BleDialogStatus.searching, l10n.searchingDeviceBLE);
+      BleDialogStatus.searching,
+      l10n.searchingDeviceBLE,
+    );
 
     showDialog(
       context: context,
@@ -838,10 +888,14 @@ class _HomeScreenState extends State<HomeScreen>
         bool placeholderDeleted = false;
         for (final match in matches) {
           if (deletionIndex > match.start && deletionIndex < match.end) {
-            inlineimagecontroller.text =
-                previousText.replaceRange(match.start, match.end, '');
-            inlineimagecontroller.selection =
-                TextSelection.collapsed(offset: match.start);
+            inlineimagecontroller.text = previousText.replaceRange(
+              match.start,
+              match.end,
+              '',
+            );
+            inlineimagecontroller.selection = TextSelection.collapsed(
+              offset: match.start,
+            );
             placeholderDeleted = true;
             break;
           }
