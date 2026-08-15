@@ -246,27 +246,28 @@ class BadgeMessageProvider {
           await Future.delayed(const Duration(milliseconds: 1500));
         }
       }
-    } else {
-      Data data;
-      if (jsonData != null) {
-        data = fileHelper.jsonToData(jsonData);
-        if (isSavedBadge && data.messages.isNotEmpty) {
-          final old = data.messages[0];
-          final combinedBadges =
-              data.messages.where((m) => m.text.isNotEmpty).length > 1;
-          final newMessage = Message(
-            text: old.text,
-            flash: old.flash,
-            marquee: old.marquee,
-            speed: old.speed,
-            mode: combinedBadges ? Mode.animation : old.mode,
-          );
-          data = Data(messages: [newMessage, ...data.messages.skip(1)]);
-        }
-      } else {
-        data = await generateData(
-            text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
+      return;
+    }
+
+    Data data;
+    if (jsonData != null) {
+      data = fileHelper.jsonToData(jsonData);
+      if (isSavedBadge && data.messages.isNotEmpty) {
+        final old = data.messages[0];
+        final combinedBadges =
+            data.messages.where((m) => m.text.isNotEmpty).length > 1;
+        final newMessage = Message(
+          text: old.text,
+          flash: old.flash,
+          marquee: old.marquee,
+          speed: old.speed,
+          mode: combinedBadges ? Mode.animation : old.mode,
+        );
+        data = Data(messages: [newMessage, ...data.messages.skip(1)]);
       }
+    } else {
+      data = await generateData(
+          text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
     }
 
     DataTransferManager manager = DataTransferManager(data);
