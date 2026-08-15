@@ -21,8 +21,6 @@ class WriteState extends NormalBleState {
   static const Duration _retryDelay = Duration(milliseconds: 200);
   static const Duration _chunkDelay = Duration(milliseconds: 120);
   static const Duration _initialDelay = Duration(milliseconds: 300);
-  static const Duration _disconnectTimeout = Duration(seconds: 2);
-  static const Duration _postDisconnectDelay = Duration(milliseconds: 500);
 
   bool verifiedNextGen = false;
 
