@@ -1,14 +1,14 @@
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/view/widgets/special_animation_dialog.dart';
-import 'package:badgemagic/badgemagic_module/utils/converters.dart';
+import 'package:badgemagic/others/converters.dart';
 
 class AniContainer extends StatefulWidget {
   final String? animation;
@@ -71,7 +71,6 @@ class _AniContainerState extends State<AniContainer> {
       height: MediaQuery.of(context).size.width < 600 ? 96.h : 58.h,
       child: GestureDetector(
         onTap: () async {
-          // Only show dialog for special animations (index >= 9)
           if (widget.index >= 9) {
             final textController =
                 Provider.of<InlineImageProvider>(context, listen: false)
@@ -82,7 +81,6 @@ class _AniContainerState extends State<AniContainer> {
               if (shouldSwitch == true) {
                 textController.clear();
                 animationCardState.setAnimationMode(badgeAnimation);
-                // Force preview update for special animations
                 animationCardState.badgeAnimation('', Converters(), false);
               }
               return;

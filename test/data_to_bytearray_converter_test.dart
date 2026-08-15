@@ -1,12 +1,12 @@
 import 'dart:core';
-import 'package:badgemagic/badgemagic_module/models/data.dart';
-import 'package:badgemagic/badgemagic_module/models/messages.dart';
-import 'package:badgemagic/badgemagic_module/models/mode.dart';
-import 'package:badgemagic/badgemagic_module/models/speed.dart';
-import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/badgemagic_module/utils/converters.dart';
-import 'package:badgemagic/badgemagic_module/utils/data_to_bytearray_converter.dart';
-import 'package:badgemagic/providers/getitlocator.dart';
+import 'package:badgemagic/models/data.dart';
+import 'package:badgemagic/models/messages.dart';
+import 'package:badgemagic/models/mode.dart';
+import 'package:badgemagic/models/speed.dart';
+import 'package:badgemagic/others/byte_array_utils.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/data_to_bytearray_converter.dart';
+import 'package:badgemagic/providers/service_locator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
