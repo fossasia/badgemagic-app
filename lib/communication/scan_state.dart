@@ -55,6 +55,8 @@ class ScanState extends NormalBleState {
             if (matchesUuid && matchesName) {
               isCompleted = true;
               timeoutTimer?.cancel();
+              timeoutTimer = null;
+              await subscription?.cancel();
               await UniversalBle.stopScan();
               bleDialogController.update(
                   BleDialogStatus.connecting, l10n.deviceFound);

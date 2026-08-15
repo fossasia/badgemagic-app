@@ -64,3 +64,27 @@ class DataTransferManager {
     connectedDevice = null;
   }
 }
+
+class RawDataTransferManager extends DataTransferManager {
+  final String pin;
+  final Data textData;
+
+  RawDataTransferManager({required this.pin, required this.textData})
+      : super(textData);
+
+  @override
+  Future<List<List<int>>> generateDataChunk() async {
+    List<List<int>> textChunks = await converter.convert(textData);
+
+    List<String> pinHex = pin.codeUnits
+        .map((char) => char.toRadixString(16).padLeft(2, '0'))
+        .toList();
+
+    while (pinHex.length < 16) {
+      pinHex.add("00");
+    }
+    List<int> parsedPinBytes =
+        pinHex.map((h) => int.parse(h, radix: 16)).toList();
+    return [parsedPinBytes, ...textChunks];
+  }
+}
