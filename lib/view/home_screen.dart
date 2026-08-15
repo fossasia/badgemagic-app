@@ -4,6 +4,7 @@ import 'dart:math' as math;
 import 'package:badgemagic/models/speed.dart';
 import 'package:badgemagic/others/badge_loader_helper.dart';
 import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/globals.dart';
 import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
@@ -14,11 +15,13 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
+import 'package:badgemagic/providers/firmware_update.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
+import 'package:badgemagic/view/widgets/firmware_update_dialog.dart';
 import 'package:badgemagic/view/widgets/special_text_field.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
@@ -76,6 +79,7 @@ class _HomeScreenState extends State<HomeScreen>
   static const _speedKey = 'badge_speed';
   static const _transitionKey = 'badge_transition';
   static const _effectsKey = 'badge_effects';
+bool _hasCheckedThisSession = false;
 
   Timer? _debounceTimer;
 
@@ -104,6 +108,39 @@ class _HomeScreenState extends State<HomeScreen>
       speedDialProvider.addListener(_debouncedSavePreferences);
     });
     _tabController = TabController(length: 4, vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _initiateFirmwareCheck();
+    });
+  }
+
+  Future<void> _initiateFirmwareCheck() async {
+    final updateService = FirmwareUpdateService();
+    final updateInfo = await updateService.checkForUpdates();
+    final prefs = await SharedPreferences.getInstance();
+    var version = updateInfo?['version'];
+    final bool shouldSkip =
+        prefs.getBool('skip_firmware_version_$version') ?? false;
+    bool autoCheck = await autocheckFirmwareUpdates();
+
+    if (autoCheck &&
+        updateInfo != null &&
+        mounted &&
+        !shouldSkip &&
+        !_hasCheckedThisSession) {
+      _hasCheckedThisSession = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return FirmwareUpdateDialog(
+            version: updateInfo['version']!,
+            date: updateInfo['date']!,
+            service: updateService,
+          );
+        },
+      );
+    }
   }
 
   Future<void> loadPreferences() async {

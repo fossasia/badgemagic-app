@@ -1,5 +1,7 @@
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/others/globals.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
+import 'package:badgemagic/providers/firmware_update.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,6 +9,7 @@ import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/main.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -21,12 +24,30 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   late BadgeScanMode _scanMode;
   late List<TextEditingController> _controllers;
+  late SharedPreferences prefs;
+  bool autoCheck = false;
   bool _initialized = false;
+
+  final FirmwareUpdateService _updateService = FirmwareUpdateService();
+  bool _isCheckingUpdate = false;
+  Map<String, String>? _availableUpdate;
+  String? _updateStatusMessage;
 
   @override
   void initState() {
     super.initState();
     _setOrientation();
+    initAutocheckFirmwareUpdate();
+  }
+
+  void initAutocheckFirmwareUpdate() async {
+    prefs = await SharedPreferences.getInstance();
+    bool checkResult = await autocheckFirmwareUpdates();
+    if (mounted) {
+      setState(() {
+        autoCheck = checkResult;
+      });
+    }
   }
 
   void _setOrientation() {
@@ -34,6 +55,28 @@ class SettingsScreenState extends State<SettingsScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+  }
+
+   Future<void> _handleManualUpdateCheck() async {
+    setState(() {
+      _isCheckingUpdate = true;
+      _updateStatusMessage = null;
+      _availableUpdate = null;
+    });
+
+    final updateInfo = await _updateService.checkForUpdates();
+
+    if (mounted) {
+      setState(() {
+        _isCheckingUpdate = false;
+        if (updateInfo != null) {
+          _availableUpdate = updateInfo;
+        } else {
+          final l10n = GetIt.instance.get<LocalizationService>().l10n;
+          _updateStatusMessage = l10n.alreadyUpdatedStatusMessage;
+        }
+      });
+    }
   }
 
   @override
@@ -115,6 +158,126 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+                 const Divider(),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.firmwareUpdate,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed:
+                          _isCheckingUpdate ? null : _handleManualUpdateCheck,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: indicatorColor,
+                        elevation: 0,
+                      ).copyWith(
+                        backgroundColor:
+                            WidgetStateProperty.resolveWith<Color?>(
+                          (states) => states.contains(WidgetState.disabled)
+                              ? Colors.grey.shade100
+                              : Colors.white,
+                        ),
+                      ),
+                      icon: _isCheckingUpdate
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.red),
+                            )
+                          : const Icon(Icons.refresh),
+                      label: Text(l10n.checkFirmwareUpdateButton),
+                    ),
+                  ],
+                ),
+                if (_updateStatusMessage != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    _updateStatusMessage!,
+                    style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                  ),
+                ],
+                if (_availableUpdate != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      border: Border.all(color: Colors.red.shade200),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.new_releases, color: Colors.red),
+                            const SizedBox(width: 8),
+                            Text(
+                              l10n.newFirmwareVersionFound,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                  fontSize: 15),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text("• Version: ${_availableUpdate!['version']}",
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        Text("• Released: ${_availableUpdate!['date']}",
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            TextButton(
+                              onPressed: () =>
+                                  setState(() => _availableUpdate = null),
+                              child: Text(l10n.dismissButton,
+                                  style: const TextStyle(color: Colors.black)),
+                            ),
+                            const SizedBox(width: 8),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: Colors.red,
+                                foregroundColor: Colors.white,
+                              ),
+                              onPressed: () async {
+                                await _updateService.executeFirmwareUpdate(
+                                    _availableUpdate!['version']!);
+                              },
+                              child: Text(l10n.updateButton),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ],
+                Row(
+                  children: [
+                    SizedBox(width: 16),
+                    Text(l10n.checkUpdateStartup),
+                    Checkbox(
+                        activeColor: colorPrimary,
+                        value: autoCheck,
+                        onChanged: (value) async {
+                          setState(() {
+                            autoCheck = value!;
+                          });
+                          await prefs.setBool('auto_check_updates', value!);
+                        }),
+                  ],
+                ),
+                const SizedBox(height: 32),
                 Text(l10n.badgeScanMode,
                     style: const TextStyle(
                         fontSize: 16, fontWeight: FontWeight.bold)),
