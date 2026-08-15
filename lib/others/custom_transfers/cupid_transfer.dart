@@ -1,0 +1,50 @@
+import 'package:badgemagic/communication/datagenerator.dart';
+import 'package:badgemagic/models/data.dart';
+import 'package:badgemagic/models/messages.dart';
+import 'package:badgemagic/models/mode.dart';
+import 'package:badgemagic/models/speed.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/badge_animation/ani_cupid.dart';
+import 'package:badgemagic/others/custom_transfers/common.dart';
+import 'package:logger/logger.dart';
+
+Future<void> customTransferCupidAnimation(
+    Future<void> Function(DataTransferManager) transferData,
+    int speedLevel) async {
+  if (!await checkAdapterState()) return;
+
+  const int badgeHeight = 11;
+  const int badgeWidth = 44;
+  final int hardwareFrameCount = 8;
+  final int logicalFrameCount =
+      CupidAnimation.frameCount(badgeWidth, badgeHeight);
+  final Speed selectedSpeed = Speed.eight;
+  final logger = Logger();
+  logger.i('Starting Cupid animation transfer...');
+  List<Message> cupidFrames = [];
+  for (int i = 0; i < hardwareFrameCount; i++) {
+    int logicalIdx = ((i * logicalFrameCount) / hardwareFrameCount).floor();
+    List<List<bool>> frameBitmap = List.generate(
+        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
+    CupidAnimation().processAnimation(
+        badgeHeight, badgeWidth, logicalIdx, frameBitmap, frameBitmap);
+    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
+    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
+    logger.i(
+        '💘 Cupid Frame $i (logic $logicalIdx) hex: ${hexList.join(",")} speed: ${selectedSpeed.toString()} (hex: ${selectedSpeed.hexValue})');
+    cupidFrames.add(Message(
+      text: hexList,
+      mode: Mode.fixed,
+      speed: selectedSpeed,
+      flash: false,
+      marquee: false,
+    ));
+  }
+  Data data = Data(messages: cupidFrames);
+  logger.i('💘 Cupid Data object created. Starting transfer...');
+  try {
+    await transferData(DataTransferManager(data));
+  } catch (e, st) {
+    logger.e('⛔ Cupid animation transfer failed: $e\n$st');
+  }
+}

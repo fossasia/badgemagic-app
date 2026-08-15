@@ -3,7 +3,7 @@ import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:get_it/get_it.dart';
 
 class AboutUsScreen extends StatefulWidget {
@@ -17,7 +17,6 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
   @override
   void initState() {
     _setOrientation();
-    // TODO: implement initState
     super.initState();
   }
 
@@ -42,11 +41,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
             children: [
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorSurface,
                   borderRadius: BorderRadius.circular(10),
                   boxShadow: const [
                     BoxShadow(
-                      color: Colors.grey,
+                      color: colorShadow,
                       offset: Offset(0, 1),
                       blurRadius: 2.0,
                     ),
@@ -73,7 +72,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           wordSpacing: 3,
                           fontWeight: FontWeight.w400,
-                          color: Colors.black,
+                          color: colorOnSurface,
                           fontSize: 12,
                         ),
                         softWrap: true,
@@ -87,7 +86,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                               l10n.developedBy,
                               style: GoogleFonts.sora(
                                 fontWeight: FontWeight.w500,
-                                color: Colors.grey,
+                                color: colorTextSecondary,
                               ),
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -101,7 +100,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                                 l10n.fossasiaContributors,
                                 style: GoogleFonts.sora(
                                   fontWeight: FontWeight.w500,
-                                  color: Colors.red,
+                                  color: colorPrimary,
                                   decoration: TextDecoration.underline,
                                 ),
                                 overflow: TextOverflow.ellipsis,
@@ -117,11 +116,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorSurface,
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 1,
-                      color: Colors.grey,
+                      color: colorShadow,
                       offset: Offset(0, 1),
                     )
                   ],
@@ -137,7 +136,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: colorTextSecondary,
                         ),
                       ),
                     ),
@@ -152,7 +151,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                          color: colorOnSurface,
                         ),
                       ),
                       subtitle: Text(
@@ -160,7 +159,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: colorTextSecondary,
                         ),
                         softWrap: true,
                       ),
@@ -173,11 +172,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               SizedBox(height: 10),
               Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: colorSurface,
                   boxShadow: [
                     BoxShadow(
                       blurRadius: 1,
-                      color: Colors.grey,
+                      color: colorShadow,
                       offset: Offset(0, 1),
                     )
                   ],
@@ -193,7 +192,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 18,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: colorTextSecondary,
                         ),
                       ),
                     ),
@@ -204,11 +203,11 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         fit: BoxFit.contain,
                       ),
                       title: Text(
-                        l10n.license,
+                        l10n.appLicense,
                         style: GoogleFonts.sora(
                           fontSize: 16,
                           fontWeight: FontWeight.w500,
-                          color: Colors.black,
+                          color: colorOnSurface,
                         ),
                       ),
                       subtitle: Text(
@@ -216,31 +215,49 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                         style: GoogleFonts.sora(
                           fontSize: 12,
                           fontWeight: FontWeight.w500,
-                          color: Colors.grey,
+                          color: colorTextSecondary,
                         ),
                         softWrap: true,
                       ),
                       onTap: () => openUrl(
                           'https://github.com/fossasia/badgemagic-app/blob/development/LICENSE'),
                     ),
-                    // ListTile(
-                    //   leading: Image.asset('assets/icons/book.png', height: 40),
-                    //   title: Text(
-                    //     'Library Licenses',
-                    //     style: GoogleFonts.sora(
-                    //         fontSize: 16,
-                    //         fontWeight: FontWeight.w500,
-                    //         color: Colors.black),
-                    //   ),
-                    //   subtitle: Text(
-                    //     'Check third-party libs used on Badge Magic.',
-                    //     style: GoogleFonts.sora(
-                    //         fontSize: 12,
-                    //         fontWeight: FontWeight.w500,
-                    //         color: Colors.grey),
-                    //   ),
-                    //   onTap: () => showLicenseDialog(context),
-                    // ),
+                    ListTile(
+                      leading: const Icon(
+                        Icons.description_outlined,
+                        size: 38,
+                        color: colorOnSurface,
+                      ),
+                      title: Text(
+                        l10n.openSourceLicenses,
+                        style: GoogleFonts.sora(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: colorOnSurface,
+                        ),
+                      ),
+                      subtitle: Text(
+                        l10n.openSourceLicensesDescription,
+                        style: GoogleFonts.sora(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
+                          color: colorTextSecondary,
+                        ),
+                        softWrap: true,
+                      ),
+                      onTap: () => showLicensePage(
+                        context: context,
+                        applicationName: l10n.appTitle,
+                        applicationIcon: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Image.asset(
+                            'assets/icons/icon.png',
+                            height: 48,
+                            fit: BoxFit.contain,
+                          ),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),

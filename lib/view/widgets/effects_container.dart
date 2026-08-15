@@ -1,11 +1,11 @@
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/badge_effect/badgeeffectabstract.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/badge_effect/badge_effect_abstract.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
@@ -56,8 +56,8 @@ class _EffectContainerState extends State<EffectContainer> {
         Provider.of<AnimationBadgeProvider>(context);
 
     return Container(
-      margin: EdgeInsets.all(5.w),
-      height: 90.h,
+      margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
+      height: MediaQuery.of(context).size.width < 600 ? 96.h : 58.h,
       child: GestureDetector(
         onTap: () {
           effectCardState.isEffectActive(badgeEffect)
@@ -70,7 +70,7 @@ class _EffectContainerState extends State<EffectContainer> {
           );
         },
         child: Card(
-          surfaceTintColor: Colors.white,
+          surfaceTintColor: colorSurface,
           color: effectCardState.isEffectActive(badgeEffect)
               ? colorAccent
               : drawerHeaderTitle,
@@ -83,7 +83,7 @@ class _EffectContainerState extends State<EffectContainer> {
                   widget.effect,
                   fit: BoxFit.contain,
                   color: effectCardState.isEffectActive(badgeEffect)
-                      ? Colors.white
+                      ? colorOnPrimary
                       : null,
                   colorBlendMode: effectCardState.isEffectActive(badgeEffect)
                       ? BlendMode.srcIn
@@ -91,14 +91,14 @@ class _EffectContainerState extends State<EffectContainer> {
                 ),
               ),
               Padding(
-                padding: EdgeInsets.only(bottom: 6.h), // space after text
+                padding: EdgeInsets.only(bottom: 6.h),
                 child: Text(
                   _getLocalizedEffectName(widget.effectName, context),
                   style: TextStyle(
                     fontSize: 10.sp,
                     color: effectCardState.isEffectActive(badgeEffect)
-                        ? Colors.white
-                        : Colors.black,
+                        ? colorOnPrimary
+                        : colorOnSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,

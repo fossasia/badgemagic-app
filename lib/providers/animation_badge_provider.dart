@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/others/byte_array_utils.dart';
+import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/badge_animation/ani_splitting.dart';
 import 'package:badgemagic/badge_animation/ani_down.dart';
 import 'package:badgemagic/badge_animation/ani_fixed.dart';
@@ -25,13 +25,13 @@ import 'package:badgemagic/badge_animation/ani_emergency.dart';
 import 'package:badgemagic/badge_animation/ani_beating_hearts.dart';
 import 'package:badgemagic/badge_animation/ani_fireworks.dart';
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
-import 'package:badgemagic/badge_effect/badgeeffectabstract.dart';
+import 'package:badgemagic/badge_effect/badge_effect_abstract.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
-import 'package:badgemagic/badge_animation/ani_equalizer.dart'; // new import of EqualizerAnimation
+import 'package:badgemagic/badge_animation/ani_equalizer.dart';
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
 
 Map<int, BadgeAnimation?> animationMap = {
@@ -44,19 +44,19 @@ Map<int, BadgeAnimation?> animationMap = {
   6: SnowFlakeAnimation(),
   7: PictureAnimation(),
   8: LaserAnimation(),
-  9: PacmanClassicAnimation(), // Pacman
-  10: LeftChevronAnimation(), // Chevron left
-  11: DiamondAnimation(), // Diamond
-  12: BrokenHeartsAnimation(), // Broken Hearts
-  13: CupidAnimation(), // Cupid
-  14: FeetAnimation(), // Feet
-  15: FishAnimation(), // Fish
-  16: DiagonalAnimation(), // Diagonal
-  17: EmergencyAnimation(), // Emergency
-  18: BeatingHeartsAnimation(), // Beating Hearts
-  19: FireworksAnimation(), // Fireworks
-  20: EqualizerAnimation(), // Digital Rain
-  21: CycleAnimation(), // Cycle
+  9: PacmanClassicAnimation(),
+  10: LeftChevronAnimation(),
+  11: DiamondAnimation(),
+  12: BrokenHeartsAnimation(),
+  13: CupidAnimation(),
+  14: FeetAnimation(),
+  15: FishAnimation(),
+  16: DiagonalAnimation(),
+  17: EmergencyAnimation(),
+  18: BeatingHeartsAnimation(),
+  19: FireworksAnimation(),
+  20: EqualizerAnimation(),
+  21: CycleAnimation(),
 };
 
 Map<int, BadgeEffect> effectMap = {
@@ -72,7 +72,6 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int _animationSpeed = aniSpeedStrategy(0);
   Timer? _timer;
 
-  //List that contains the state of each cell of the badge for home view
   List<List<bool>> _paintGrid =
       List.generate(11, (i) => List.generate(44, (j) => false));
 
@@ -80,22 +79,17 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   final Set<BadgeEffect?> _currentEffect = {};
 
-  //function to get the state of the cell
   List<List<bool>> getPaintGrid() => _paintGrid;
 
-  // Helper: returns true if a special animation (custom) is selected
   bool isSpecialAnimationSelected() {
     int idx = getAnimationIndex() ?? 0;
-    // Add all special animation indices here (including Equalizer at 20 and Cycle at 20):
     return [9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21].contains(idx);
   }
 
-  // Call this to reset to text animation (LeftAnimation)
   void resetToTextAnimation() {
     setAnimationMode(LeftAnimation());
   }
 
-  //function to calculate duration for the animation
   void calculateDuration(int speed) {
     int idx = getAnimationIndex() ?? 0;
     int newSpeed;
@@ -105,13 +99,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
         idx == 12 ||
         idx == 20 ||
         idx == 21) {
-      //added EqualizerAnimation
-      // Use slower mapping for custom animations
-      // (aniSpeedStrategy already uses the slower mapping if you want, or you can hardcode)
-      newSpeed = aniSpeedStrategy(speed - 1); // keep as is, or adjust if needed
+      newSpeed = aniSpeedStrategy(speed - 1);
     } else {
-      // Use original (faster) mapping for text/standard animations
-      // For original: aniBaseSpeed = 200000us, minSpeed = 25000us (example)
       const int originalBase = 200000;
       const int minSpeed = 25000;
       newSpeed = originalBase - ((speed - 1) * (originalBase - minSpeed) ~/ 8);
@@ -126,10 +115,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
   List<List<bool>> _newGrid =
       List.generate(11, (i) => List.generate(44, (j) => false));
 
-  //getter for newGrid
   List<List<bool>> getNewGrid() => _newGrid;
 
-  //setter for newGrid
   void setNewGrid(List<List<bool>> grid) {
     _newGrid = grid;
     _animationIndex = 0;
@@ -165,7 +152,6 @@ class AnimationBadgeProvider extends ChangeNotifier {
     }
   }
 
-  //function to stop timer and reset the animationIndex
   void stopAnimation() {
     logger.d("Timer stopped  ${_timer?.tick.toString()}");
     _timer?.cancel();
@@ -174,10 +160,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   void stopAllAnimations() {
-    // Stop any ongoing timer and reset the animation index
     stopAnimation();
     _currentAnimation = LeftAnimation();
-    // Reset the grids to all false values
     _paintGrid = List.generate(11, (i) => List.generate(44, (j) => false));
     _newGrid = List.generate(11, (i) => List.generate(44, (j) => false));
     logger.d("All animations stopped");
@@ -204,12 +188,9 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   void setAnimationMode(BadgeAnimation? animation) {
-    // Always reset the animation index and set the new animation
     _animationIndex = 0;
     _currentAnimation = animation ?? LeftAnimation();
-    // Stop the timer if running
     _timer?.cancel();
-    // Start the timer for the new animation
     startTimer();
     notifyListeners();
     logger.i("Animation Mode set to: $_currentAnimation and timer restarted");
@@ -218,7 +199,6 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int? getAnimationIndex() {
     for (var animation in animationMap.entries) {
       if (animation.value != null && animation.value == _currentAnimation) {
-        logger.i("Animation Index: ${animation.key}");
         return animation.key;
       }
     }
@@ -281,7 +261,6 @@ class AnimationBadgeProvider extends ChangeNotifier {
     final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();
     if (aniIndex == 9) {
-      // Pacman
       await transferPacmanAnimation(badgeData, selectedSpeed);
     } else if (aniIndex == 10) {
       await transferChevronAnimation(badgeData, selectedSpeed);

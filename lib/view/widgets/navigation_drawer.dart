@@ -1,5 +1,5 @@
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
@@ -41,7 +41,7 @@ class _BMDrawerState extends State<BMDrawer> {
             aspectRatio: 16 / 9,
             child: DrawerHeader(
               decoration: BoxDecoration(
-                color: Colors.red,
+                color: colorPrimary,
               ),
               child: Center(
                 child: Text(
@@ -102,7 +102,7 @@ class _BMDrawerState extends State<BMDrawer> {
             child: Text(
               l10n.other,
               style: const TextStyle(
-                color: Colors.black54,
+                color: colorTextMuted,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),
@@ -164,18 +164,18 @@ class _BMDrawerState extends State<BMDrawer> {
       leading: icon != null
           ? Icon(
               icon,
-              color: currentIndex == index ? colorAccent : Colors.black,
+              color: currentIndex == index ? colorAccent : colorOnSurface,
             )
           : Image.asset(
               assetIcon!,
               height: 18,
-              color: currentIndex == index ? colorAccent : Colors.black,
+              color: currentIndex == index ? colorAccent : colorOnSurface,
             ),
       title: title is String
           ? Text(
               title,
               style: TextStyle(
-                color: currentIndex == index ? colorAccent : Colors.black,
+                color: currentIndex == index ? colorAccent : colorOnSurface,
                 fontWeight: FontWeight.bold,
                 fontSize: 14,
               ),

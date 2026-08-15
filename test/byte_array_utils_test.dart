@@ -1,4 +1,4 @@
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
+import 'package:badgemagic/others/byte_array_utils.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
