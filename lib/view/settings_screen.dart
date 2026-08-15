@@ -57,7 +57,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     ]);
   }
 
-   Future<void> _handleManualUpdateCheck() async {
+  Future<void> _handleManualUpdateCheck() async {
     setState(() {
       _isCheckingUpdate = true;
       _updateStatusMessage = null;
@@ -158,7 +158,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                 const Divider(),
+                const Divider(),
                 const SizedBox(height: 12),
                 Text(
                   l10n.firmwareUpdate,

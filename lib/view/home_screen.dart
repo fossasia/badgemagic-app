@@ -79,7 +79,7 @@ class _HomeScreenState extends State<HomeScreen>
   static const _speedKey = 'badge_speed';
   static const _transitionKey = 'badge_transition';
   static const _effectsKey = 'badge_effects';
-bool _hasCheckedThisSession = false;
+  bool _hasCheckedThisSession = false;
 
   Timer? _debounceTimer;
 
