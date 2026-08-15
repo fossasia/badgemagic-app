@@ -77,6 +77,10 @@ class _HomeScreenState extends State<HomeScreen>
   static const _transitionKey = 'badge_transition';
   static const _effectsKey = 'badge_effects';
 
+  static final RegExp _emojiRegex = RegExp(
+    r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|\ud83e[\udc00-\udfff]|[\uFE00-\uFE0F])',
+  );
+
   Timer? _debounceTimer;
 
   @override
@@ -328,6 +332,28 @@ class _HomeScreenState extends State<HomeScreen>
                       borderRadius: BorderRadius.circular(10.r),
                       elevation: 4,
                       child: ExtendedTextField(
+                        inputFormatters: [
+                          TextInputFormatter.withFunction((oldValue, newValue) {
+                            if (_emojiRegex.hasMatch(newValue.text)) {
+                              final strippedText =
+                                  newValue.text.replaceAll(_emojiRegex, ' ');
+                              ToastUtils()
+                                  .showToast("System emojis are not supported");
+                              final newSelectionOffset = math.min(
+                                newValue.selection.baseOffset,
+                                strippedText.length,
+                              );
+
+                              return TextEditingValue(
+                                text: strippedText,
+                                selection: TextSelection.collapsed(
+                                  offset: math.max(0, newSelectionOffset),
+                                ),
+                              );
+                            }
+                            return newValue;
+                          }),
+                        ],
                         controller: inlineImageController,
                         specialTextSpanBuilder: ImageBuilder(),
                         style: Provider.of<FontProvider>(context)
