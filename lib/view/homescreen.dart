@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:math' as math;
 
-import 'package:badgemagic/badgemagic_module/models/speed.dart';
-import 'package:badgemagic/badgemagic_module/utils/badge_loader_helper.dart';
-import 'package:badgemagic/badgemagic_module/utils/converters.dart';
-import 'package:badgemagic/badgemagic_module/utils/image_utils.dart';
-import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/models/speed.dart';
+import 'package:badgemagic/others/badge_loader_helper.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/image_utils.dart';
+import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
@@ -15,20 +15,20 @@ import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
 import 'package:badgemagic/providers/font_provider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
-import 'package:badgemagic/services/localization_service.dart';
-import 'package:badgemagic/view/special_text_field.dart';
+import 'package:badgemagic/others/localization_service.dart';
+import 'package:badgemagic/view/widgets/special_text_field.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
-import 'package:badgemagic/view/widgets/homescreentabs.dart';
+import 'package:badgemagic/view/widgets/home_screen_tabs.dart';
 import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
-import 'package:badgemagic/view/widgets/speedial.dart';
-import 'package:badgemagic/view/widgets/transitiontab.dart';
-import 'package:badgemagic/view/widgets/vectorview.dart';
-import 'package:badgemagic/virtualbadge/view/animated_badge.dart';
+import 'package:badgemagic/view/widgets/speed_dial.dart';
+import 'package:badgemagic/view/widgets/transition_tab.dart';
+import 'package:badgemagic/view/widgets/vector_view.dart';
+import 'package:badgemagic/view/widgets/animated_badge.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen>
   final ImageUtils imageUtils = ImageUtils();
   final InlineImageProvider inlineImageProvider =
       GetIt.instance<InlineImageProvider>();
-  final TextEditingController inlineimagecontroller =
+  final TextEditingController inlineImageController =
       GetIt.instance.get<InlineImageProvider>().getController();
 
   final Converters _converters = Converters();
@@ -72,24 +72,22 @@ class _HomeScreenState extends State<HomeScreen>
   String errorVal = "";
   late final ScrollController _vectorScrollController;
 
-  //Shared preferences keys
   static const _textKey = 'badge_text';
   static const _speedKey = 'badge_speed';
   static const _transitionKey = 'badge_transition';
   static const _effectsKey = 'badge_effects';
-
-  Timer? _debounceTimer;
-
   static final RegExp _emojiRegex = RegExp(
     r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|\ud83e[\udc00-\udfff]|[\uFE00-\uFE0F])',
   );
+
+  Timer? _debounceTimer;
 
   @override
   void initState() {
     super.initState();
     _vectorScrollController = ScrollController();
     WidgetsBinding.instance.addObserver(this);
-    inlineimagecontroller.addListener(handleTextChange);
+    inlineImageController.addListener(handleTextChange);
     _setPortraitOrientation();
     animationProvider = context.read<AnimationBadgeProvider>();
     speedDialProvider = context.read<SpeedDialProvider>();
@@ -104,7 +102,7 @@ class _HomeScreenState extends State<HomeScreen>
         await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
       }
 
-      inlineimagecontroller.addListener(_debouncedSavePreferences);
+      inlineImageController.addListener(_debouncedSavePreferences);
       animationProvider.addListener(_debouncedSavePreferences);
       speedDialProvider.addListener(_debouncedSavePreferences);
     });
@@ -119,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen>
     final transition = prefs.getInt(_transitionKey);
     final effects = prefs.getStringList(_effectsKey);
     if (text != null) {
-      inlineimagecontroller.text = text;
+      inlineImageController.text = text;
     }
     if (speed != null) {
       speedDialProvider.setDialValue(speed);
@@ -146,7 +144,7 @@ class _HomeScreenState extends State<HomeScreen>
       }
     }
     animationProvider.badgeAnimation(
-      inlineimagecontroller.text,
+      inlineImageController.text,
       _converters,
       animationProvider.isEffectActive(InvertLEDEffect()),
     );
@@ -154,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_textKey, inlineimagecontroller.text);
+    await prefs.setString(_textKey, inlineImageController.text);
     await prefs.setInt(
       _speedKey,
       speedDialProvider.getOuterValue(),
@@ -181,7 +179,7 @@ class _HomeScreenState extends State<HomeScreen>
       final (badgeText, badgeData, savedData) =
           await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
 
-      inlineimagecontroller.text = badgeText;
+      inlineImageController.text = badgeText;
 
       animationProvider.removeEffect(effectMap[0]);
       animationProvider.removeEffect(effectMap[1]);
@@ -269,8 +267,8 @@ class _HomeScreenState extends State<HomeScreen>
     _debounceTimer?.cancel();
     _vectorScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
-    inlineimagecontroller.removeListener(handleTextChange);
-    inlineimagecontroller.removeListener(_debouncedSavePreferences);
+    inlineImageController.removeListener(handleTextChange);
+    inlineImageController.removeListener(_debouncedSavePreferences);
     animationProvider.removeListener(_debouncedSavePreferences);
     speedDialProvider.removeListener(_debouncedSavePreferences);
     _tabController.dispose();
@@ -281,18 +279,18 @@ class _HomeScreenState extends State<HomeScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      if (inlineimagecontroller.text.trim().isEmpty &&
+      if (inlineImageController.text.trim().isEmpty &&
           _cachedText.trim().isNotEmpty) {
-        inlineimagecontroller.text = _cachedText;
+        inlineImageController.text = _cachedText;
       }
       animationProvider.badgeAnimation(
-        inlineimagecontroller.text,
+        inlineImageController.text,
         _converters,
         animationProvider.isEffectActive(InvertLEDEffect()),
       );
       if (mounted) setState(() {});
     } else if (state == AppLifecycleState.paused) {
-      _cachedText = inlineimagecontroller.text;
+      _cachedText = inlineImageController.text;
       animationProvider.stopAnimation();
     } else if (state == AppLifecycleState.inactive) {
       animationProvider.stopAnimation();
@@ -355,7 +353,7 @@ class _HomeScreenState extends State<HomeScreen>
                             return newValue;
                           }),
                         ],
-                        controller: inlineimagecontroller,
+                        controller: inlineImageController,
                         specialTextSpanBuilder: ImageBuilder(),
                         style: Provider.of<FontProvider>(context)
                                     .selectedFont !=
@@ -430,7 +428,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       onPressed: () {
                                         fontProvider.changeFont(opt);
                                         animationProvider.badgeAnimation(
-                                          inlineimagecontroller.text,
+                                          inlineImageController.text,
                                           _converters,
                                           animationProvider.isEffectActive(
                                               InvertLEDEffect()),
@@ -642,7 +640,7 @@ class _HomeScreenState extends State<HomeScreen>
                               label: l10n.saveButton,
                               primary: false,
                               onTap: () async {
-                                if (inlineimagecontroller.text.trim().isEmpty) {
+                                if (inlineImageController.text.trim().isEmpty) {
                                   ToastUtils()
                                       .showToast("Please enter a message");
                                   return;
@@ -660,7 +658,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                                   await savedBadgeProvider.updateBadgeData(
                                     baseFilename,
-                                    inlineimagecontroller.text,
+                                    inlineImageController.text,
                                     animationProvider
                                         .isEffectActive(FlashEffect()),
                                     animationProvider
@@ -686,7 +684,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       return SaveBadgeDialog(
                                         speed: speedDialProvider,
                                         animationProvider: animationProvider,
-                                        textController: inlineimagecontroller,
+                                        textController: inlineImageController,
                                         isInverse: animationProvider
                                             .isEffectActive(InvertLEDEffect()),
                                       );
@@ -861,7 +859,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void handleTextChange() {
-    final currentText = inlineimagecontroller.text;
+    final currentText = inlineImageController.text;
 
     if (currentText != previousText) {
       if (animationProvider.isSpecialAnimationSelected() &&
@@ -869,7 +867,7 @@ class _HomeScreenState extends State<HomeScreen>
         animationProvider.resetToTextAnimation();
       }
 
-      final selection = inlineimagecontroller.selection;
+      final selection = inlineImageController.selection;
       if (previousText.length > currentText.length) {
         final deletionIndex = selection.baseOffset;
         final regex = RegExp(r'<<\d+>>');
@@ -878,23 +876,23 @@ class _HomeScreenState extends State<HomeScreen>
         bool placeholderDeleted = false;
         for (final match in matches) {
           if (deletionIndex > match.start && deletionIndex < match.end) {
-            inlineimagecontroller.text =
+            inlineImageController.text =
                 previousText.replaceRange(match.start, match.end, '');
-            inlineimagecontroller.selection =
+            inlineImageController.selection =
                 TextSelection.collapsed(offset: match.start);
             placeholderDeleted = true;
             break;
           }
         }
         if (!placeholderDeleted) {
-          previousText = inlineimagecontroller.text;
+          previousText = inlineImageController.text;
         }
       } else {
         previousText = currentText;
       }
 
       animationProvider.badgeAnimation(
-        inlineimagecontroller.text,
+        inlineImageController.text,
         _converters,
         animationProvider.isEffectActive(InvertLEDEffect()),
       );
