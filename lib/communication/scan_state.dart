@@ -13,7 +13,7 @@ import 'package:badgemagic/others/globals.dart';
 import 'base_ble_state.dart';
 
 class ScanState extends NormalBleState {
-   final BuildContext context;
+  final BuildContext context;
   final DataTransferManager manager;
   final BadgeScanMode mode;
   final List<String> allowedNames;
@@ -31,7 +31,7 @@ class ScanState extends NormalBleState {
 
   @override
   Future<BleState?> processState() async {
-     final badgeScanProvider =
+    final badgeScanProvider =
         Provider.of<BadgeScanProvider>(context, listen: false);
     manager.clearConnectedDevice();
     await UniversalBle.stopScan();

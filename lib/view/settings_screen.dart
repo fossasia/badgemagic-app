@@ -21,7 +21,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   late BadgeScanMode _scanMode;
   late List<TextEditingController> _controllers;
-   bool _isStreamingEnabled = false;
+  bool _isStreamingEnabled = false;
   bool _initialized = false;
 
   @override

@@ -260,7 +260,6 @@ class AnimationBadgeProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-
   void badgeAnimation(
       String message, Converters converters, bool isInverted) async {
     bool isSpecial = isSpecialAnimationSelected();

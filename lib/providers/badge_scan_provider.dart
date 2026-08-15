@@ -8,7 +8,7 @@ class BadgeScanProvider with ChangeNotifier {
   List<String> _badgeNames = ['LSLED', 'VBLAB'];
   Set<int> _selectedIndices = {};
   bool _isLoaded = false;
-   bool _isStreamingEnabled = false;
+  bool _isStreamingEnabled = false;
 
   BadgeScanMode get mode => _mode;
   List<String> get badgeNames => List.unmodifiable(_badgeNames);
@@ -53,7 +53,7 @@ class BadgeScanProvider with ChangeNotifier {
   }
 
   void setBadgeNames(List<String> names) {
-     final seen = <String>{};
+    final seen = <String>{};
     _badgeNames = names.map((name) => name.trim()).where((name) {
       if (name.isEmpty) return false;
       final lower = name.toLowerCase();
@@ -66,14 +66,14 @@ class BadgeScanProvider with ChangeNotifier {
     notifyListeners();
   }
 
-   void setStreamingEnabled(bool enabled) {
+  void setStreamingEnabled(bool enabled) {
     _isStreamingEnabled = enabled;
     _saveToPrefs();
     notifyListeners();
   }
 
   void addBadgeName(String name) {
-   final cleanedName = name.trim();
+    final cleanedName = name.trim();
     if (cleanedName.isEmpty) return;
 
     bool alreadyExists = _badgeNames.any((existingName) =>
@@ -158,5 +158,5 @@ class BadgeScanProvider with ChangeNotifier {
 
   List<String> getSelectedBadgeNames() {
     return _badgeNames;
-}
+  }
 }

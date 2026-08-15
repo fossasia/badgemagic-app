@@ -60,8 +60,7 @@ class BadgeMessageProvider {
       GetIt.instance.get<InlineImageProvider>();
   FileHelper fileHelper = FileHelper();
   Converters converters = Converters();
-   DataTransferManager? deviceManager;
-
+  DataTransferManager? deviceManager;
 
   Future<Data> getBadgeData(String text, bool flash, bool marq, Speed speed,
       Mode mode, bool isInverted) async {
@@ -98,16 +97,16 @@ class BadgeMessageProvider {
     DataTransferManager manager, {
     BuildContext? context,
   }) async {
-        deviceManager = manager;
+    deviceManager = manager;
     final scanProvider = context != null
         ? Provider.of<BadgeScanProvider>(context, listen: false)
         : null;
 
     final BleState initialState = ScanState(
-      manager: manager,
-      mode: scanProvider?.mode ?? BadgeScanMode.any,
-      allowedNames: scanProvider?.getSelectedBadgeNames() ?? <String>[],
-       context: context!);
+        manager: manager,
+        mode: scanProvider?.mode ?? BadgeScanMode.any,
+        allowedNames: scanProvider?.getSelectedBadgeNames() ?? <String>[],
+        context: context!);
 
     BleState? state = initialState;
     BleState? lastValidState;
