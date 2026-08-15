@@ -486,17 +486,24 @@ class _HomeScreenState extends State<HomeScreen>
                     child: Visibility(
                       visible: isPrefixIconClicked,
                       child: Container(
-                        height: isPrefixIconClicked ? 170.h : 0,
+                        height: isPrefixIconClicked ? 200.h : 0,
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(10.r),
                           color: colorSurfaceMuted,
                         ),
                         margin: EdgeInsets.symmetric(
                             horizontal: 15.w, vertical: 8.h),
-                        padding: EdgeInsets.symmetric(
-                            vertical: 10.h, horizontal: 10.w),
-                        child:
-                            VectorGridView(controller: _vectorScrollController),
+                        padding:
+                            EdgeInsets.symmetric(vertical: 10.h, horizontal: 8),
+                        child: Scrollbar(
+                          controller: _vectorScrollController,
+                          thumbVisibility: true,
+                          trackVisibility: true,
+                          thickness: 4.0,
+                          radius: const Radius.circular(10),
+                          child: VectorGridView(
+                              controller: _vectorScrollController),
+                        ),
                       ),
                     ),
                   );
