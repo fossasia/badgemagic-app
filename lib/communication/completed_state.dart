@@ -7,9 +7,11 @@ import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 class CompletedState extends NormalBleState {
   final bool isSuccess;
   final String message;
+  final bool isNextGen;
   final bleDialogController = GetIt.instance<BleDialogController>();
 
-  CompletedState({required this.isSuccess, required this.message});
+  CompletedState(
+      {required this.isSuccess, required this.message, this.isNextGen = false});
 
   @override
   Future<BleState?> processState() async {

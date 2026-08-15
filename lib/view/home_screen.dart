@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:badgemagic/communication/completed_state.dart';
+import 'package:badgemagic/communication/ng_command_state.dart';
 import 'package:badgemagic/models/speed.dart';
 import 'package:badgemagic/others/badge_loader_helper.dart';
 import 'package:badgemagic/others/converters.dart';
@@ -14,8 +16,10 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
+import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
+import 'package:badgemagic/providers/next_gen_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
@@ -37,6 +41,7 @@ import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_ble/universal_ble.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
@@ -65,6 +70,8 @@ class _HomeScreenState extends State<HomeScreen>
       GetIt.instance.get<InlineImageProvider>().getController();
 
   final Converters _converters = Converters();
+
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   bool isPrefixIconClicked = false;
   String previousText = '';
@@ -607,6 +614,259 @@ class _HomeScreenState extends State<HomeScreen>
                       builder: (context, animationProvider, _) {
                     final isSpecial =
                         animationProvider.isSpecialAnimationSelected();
+                        final device = animationProvider.ngDevice;
+
+                        final scanProvider = context.watch<BadgeScanProvider>();
+                        final isStreamingFeatureEnabled =
+                            scanProvider.isStreamingEnabled;
+
+                        Future<void> sendNgCmd(
+                            List<int> cmd, String msg) async {
+                          if (device == null) return;
+                          try {
+                            final state =
+                                NgCommandState(device: device, command: cmd);
+                            final res = await state.process();
+                            if (res != null) debugPrint(msg);
+                          } catch (e) {
+                            ToastUtils().showErrorToast(
+                                e.toString().replaceAll("Exception: ", ""));
+                          }
+                        }
+
+                        if (animationProvider.isNgConnected && device != null) {
+                          return Card(
+                              elevation: 8,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(14.r)),
+                              color: Colors.white,
+                              child: Padding(
+                                padding: EdgeInsets.all(12.w),
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    if (isStreamingFeatureEnabled)
+                                      Card(
+                                        color: animationProvider.isStreaming
+                                            ? colorPrimary.withOpacity(0.05)
+                                            : Colors.grey[100],
+                                        elevation: 0,
+                                        shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(10.r)),
+                                        child: SwitchListTile(
+                                          secondary: Icon(
+                                            animationProvider.isStreaming
+                                                ? Icons.live_tv
+                                                : Icons.tv_off,
+                                            color: animationProvider.isStreaming
+                                                ? colorPrimary
+                                                : mdGrey400,
+                                          ),
+                                          title: Text(
+                                            l10n.liveMirroring,
+                                            style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 13),
+                                          ),
+                                          subtitle: Text(
+                                            l10n.liveMirroringSubtitle,
+                                            style:
+                                                const TextStyle(fontSize: 10),
+                                          ),
+                                          value: animationProvider.isStreaming,
+                                          activeColor: colorPrimary,
+                                          onChanged: (bool value) async {
+                                            if (value) {
+                                              await animationProvider
+                                                  .startLiveStreaming();
+                                            } else {
+                                              await animationProvider
+                                                  .stopLiveStreaming();
+                                            }
+                                          },
+                                        ),
+                                      ),
+                                    SizedBox(height: 8.h),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                style: IconButton.styleFrom(
+                                                  backgroundColor:
+                                                      Colors.red[400],
+                                                  foregroundColor: Colors.white,
+                                                  padding: EdgeInsets.all(12.w),
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12.r)),
+                                                ),
+                                                onPressed: () async {
+                                                  await animationProvider
+                                                      .stopLiveStreaming(); 
+                                                      await sendNgCmd(
+                                                                                                             NgCommand.powerOff(),
+                                                      "Power Off sent");
+                                                  await UniversalBle.disconnect(
+                                                      device.deviceId);
+                                                  animationProvider
+                                                      .setNgConnected(false);
+                                                },
+                                                icon: const Icon(
+                                                    Icons.power_settings_new),
+                                              ),
+                                              SizedBox(height: 4.h),
+                                              Text(
+                                                textAlign: TextAlign.center,
+                                                l10n.powerOff,
+                                                style: TextStyle(
+                                                    fontSize: 11.sp,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.red[400]),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                style: IconButton.styleFrom(
+                                                  backgroundColor: mdGrey400,
+                                                  foregroundColor: Colors.black,
+                                                  padding: EdgeInsets.all(12.w),
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12.r)),
+                                                ),
+                                                onPressed: () async {
+                                                  await animationProvider
+                                                      .stopLiveStreaming();
+                                                  await UniversalBle.disconnect(
+                                                      device.deviceId);
+                                                  animationProvider
+                                                      .setNgConnected(false);
+                                                  ToastUtils().showToast(
+                                                      l10n.disconnected);
+                                                },
+                                                icon: const Icon(
+                                                    Icons.bluetooth_disabled),
+                                              ),
+                                              SizedBox(height: 4.h),
+                                              Text(
+                                                textAlign: TextAlign.center,
+                                                l10n.disconnect,
+                                                style: TextStyle(
+                                                    fontSize: 11.sp,
+                                                    fontWeight: FontWeight.w500,
+                                                    color: Colors.black87),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(width: 8.w),
+                                        Expanded(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              IconButton(
+                                                style: IconButton.styleFrom(
+                                                  foregroundColor:
+                                                      animationProvider
+                                                              .isStreaming
+                                                          ? Colors.red
+                                                          : colorAccent,
+                                                  padding: EdgeInsets.all(12.w),
+                                                  side: BorderSide(
+                                                    color: animationProvider
+                                                            .isStreaming
+                                                        ? Colors.red
+                                                        : colorAccent,
+                                                    width: 1.5.w,
+                                                  ),
+                                                  shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                              12.r)),
+                                                ),
+                                                onPressed: () =>
+                                                    _showMoreOptionsBottomSheet(
+                                                        context,
+                                                        device,
+                                                        sendNgCmd),
+                                                icon: const Icon(Icons
+                                                    .drive_file_rename_outline),
+                                              ),
+                                              SizedBox(height: 4.h),
+                                              Text(
+                                                textAlign: TextAlign.center,
+                                                l10n.renameBadge,
+                                                style: TextStyle(
+                                                  fontSize: 11.sp,
+                                                  fontWeight: FontWeight.w500,
+                                                  color: animationProvider
+                                                          .isStreaming
+                                                      ? Colors.red
+                                                      : colorAccent,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    SizedBox(height: 8.h),
+                                    StatefulBuilder(
+                                      builder: (context, setSliderState) {
+                                        return Row(
+                                          children: [
+                                            SizedBox(width: 8.w),
+                                            Icon(Icons.wb_sunny,
+                                                color: colorPrimary,
+                                                size: 18.sp),
+                                            SizedBox(width: 8.w),
+                                            Expanded(
+                                              child: Slider(
+                                                value: animationProvider
+                                                    .ngBrightness
+                                                    .toDouble(),
+                                                min: 0,
+                                                max: 3,
+                                                divisions: 3,
+                                                activeColor: colorPrimary,
+                                                onChanged: (double newValue) {
+                                                  setSliderState(() {
+                                                    animationProvider
+                                                        .setNgBrightness(
+                                                            newValue.toInt());
+                                                  });
+                                                },
+                                                onChangeEnd: (double
+                                                        finalValue) =>
+                                                    sendNgCmd(
+                                                        NgCommand.setBrightness(
+                                                            finalValue.toInt()),
+                                                        "Brightness updated"),
+                                              ),
+                                            ),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ));
+                        }
+
                     return Row(
                       children: [
                         if (!isSpecial) ...[
@@ -676,8 +936,16 @@ class _HomeScreenState extends State<HomeScreen>
                             label: l10n.transferButton,
                             primary: true,
                             onTap: () async {
-                              _showBleTransferDialog(
+                              final finalState =await _showBleTransferDialog(
                                   context, inlineImageProvider);
+                              if(finalState != null &&
+                                      finalState.isSuccess &&
+                                      finalState.isNextGen) {
+                                    animationProvider.setNgConnected(true,
+                                        manager: badgeData.deviceManager,
+                                        device: badgeData
+                                            .deviceManager?.connectedDevice);
+                                  }
                             },
                           ),
                         ),
@@ -770,7 +1038,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
   }
 
-  Future<void> _showBleTransferDialog(
+  Future<CompletedState?> _showBleTransferDialog(
       BuildContext context, InlineImageProvider inlineImageProvider) async {
     final bleDialogController = GetIt.instance<BleDialogController>();
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
@@ -805,7 +1073,7 @@ class _HomeScreenState extends State<HomeScreen>
     );
 
     try {
-      await animationProvider.handleAnimationTransfer(
+      return await animationProvider.handleAnimationTransfer(
         badgeData: badgeData,
         inlineImageProvider: inlineImageProvider,
         speedDialProvider: speedDialProvider,
@@ -824,6 +1092,7 @@ class _HomeScreenState extends State<HomeScreen>
         Navigator.of(context).pop();
       }
     }
+    return null;
   }
 
   void _debouncedSavePreferences() {
@@ -833,7 +1102,173 @@ class _HomeScreenState extends State<HomeScreen>
     });
   }
 
+  void _showMoreOptionsBottomSheet(BuildContext context, BleDevice device,
+      Function(List<int>, String) sendCmd) {
+    final animProvider =
+        Provider.of<AnimationBadgeProvider>(context, listen: false);
+    final badgeScanProvider =
+        Provider.of<BadgeScanProvider>(context, listen: false);
+    final TextEditingController nameController =
+        TextEditingController(text: animProvider.ngDeviceName);
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16.r))),
+      builder: (context) {
+        return Padding(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+              left: 16.w,
+              right: 16.w,
+              top: 16.h),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.renameBadge,
+                  style:
+                      TextStyle(fontSize: 16.sp, fontWeight: FontWeight.bold)),
+              SizedBox(height: 16.h),
+              Text.rich(
+                TextSpan(
+                  text: l10n.currentName,
+                  style: TextStyle(fontSize: 11.sp, color: Colors.black),
+                  children: [
+                    TextSpan(
+                      text: animProvider.ngDeviceName,
+                      style: TextStyle(
+                          fontSize: 11.sp,
+                          color: Colors.red,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 16.h),
+              TextField(
+                controller: nameController,
+                maxLength: 20,
+                decoration: InputDecoration(
+                  labelText: l10n.renameBadge,
+                ),
+              ),
+              SizedBox(height: 24.h),
+              Center(
+                child: SizedBox(
+                  width: MediaQuery.of(context).size.width * 0.7,
+                  child: ElevatedButton.icon(
+                    style: ElevatedButton.styleFrom(
+                        backgroundColor: colorPrimary,
+                        foregroundColor: Colors.white,
+                        padding: EdgeInsets.symmetric(vertical: 10.h),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8.r))),
+                    onPressed: () async {
+                      final newName = nameController.text.trim();
+                      FocusScope.of(context).unfocus();
+
+                      showDialog(
+                        context: context,
+                        barrierDismissible: false,
+                        builder: (BuildContext dialogContext) {
+                          return PopScope(
+                            canPop: false,
+                            child: AlertDialog(
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10.r)),
+                              content: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    padding: EdgeInsets.all(4.w),
+                                    child: SizedBox(
+                                      width: 40.w,
+                                      height: 40.w,
+                                      child: CircularProgressIndicator(
+                                        color: colorPrimary,
+                                        strokeWidth: 3.5.w,
+                                      ),
+                                    ),
+                                  ),
+                                  SizedBox(height: 20.h),
+                                  Text(
+                                    l10n.savingAndRebooting,
+                                    style: TextStyle(
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w500),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      );
+
+                      try {
+                        if (newName.isNotEmpty &&
+                            newName != animProvider.ngDeviceName) {
+                          await sendCmd(
+                              NgCommand.setBleName(newName), l10n.nameApplied);
+                          animProvider.setNgDeviceName(newName);
+
+                          await sendCmd(NgCommand.saveCfg(), l10n.savedToFlash);
+                          await sendCmd(NgCommand.powerOff(), l10n.turnOff);
+                          await UniversalBle.disconnect(device.deviceId);
+
+                          badgeScanProvider.addBadgeName(newName);
+
+                          animProvider.setNgConnected(false);
+                        }
+                      } catch (e) {
+                        debugPrint("Error during save sequence: $e");
+                      } finally {
+                        if (context.mounted) {
+                          Navigator.of(context, rootNavigator: true).pop();
+                          Navigator.pop(context);
+                        }
+                      }
+                    },
+                    icon: const Icon(Icons.save),
+                    label: Text(l10n.saveFlashAndReboot),
+                  ),
+                ),
+              ),
+              SizedBox(height: 24.h),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void handleTextChange() {
+     if (animationProvider.isStreaming) {
+      animationProvider.badgeAnimation(
+        inlineImageController.text,
+        _converters,
+        animationProvider.isEffectActive(InvertLEDEffect()),
+      );
+      setState(() {});
+      return;
+    }
+
+    if (animationProvider.isNgConnected) {
+      _debounceTimer?.cancel();
+      _debounceTimer = Timer(const Duration(milliseconds: 500), () async {
+        await animationProvider.sendDirectLegacyUpdate(
+          text: inlineImageController.text,
+          badgeData: badgeData,
+          flash: animationProvider.isEffectActive(FlashEffect()),
+          marquee: animationProvider.isEffectActive(MarqueeEffect()),
+          invert: animationProvider.isEffectActive(InvertLEDEffect()),
+          speed: speedDialProvider.getOuterValue(),
+        );
+      });
+    }
+
     final currentText = inlineImageController.text;
 
     if (currentText != previousText) {

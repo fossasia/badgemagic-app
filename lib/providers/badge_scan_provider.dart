@@ -8,11 +8,13 @@ class BadgeScanProvider with ChangeNotifier {
   List<String> _badgeNames = ['LSLED', 'VBLAB'];
   Set<int> _selectedIndices = {};
   bool _isLoaded = false;
+   bool _isStreamingEnabled = false;
 
   BadgeScanMode get mode => _mode;
   List<String> get badgeNames => List.unmodifiable(_badgeNames);
   Set<int> get selectedIndices => Set.unmodifiable(_selectedIndices);
   bool get isLoaded => _isLoaded;
+  bool get isStreamingEnabled => _isStreamingEnabled;
 
   BadgeScanProvider() {
     _loadFromPrefs();
@@ -25,6 +27,8 @@ class BadgeScanProvider with ChangeNotifier {
     if (modeIndex != null) {
       _mode = BadgeScanMode.values[modeIndex];
     }
+
+    _isStreamingEnabled = prefs.getBool('badge_streaming_mode') ?? false;
 
     final storedNames = prefs.getStringList('badge_names');
     if (storedNames != null && storedNames.isNotEmpty) {
@@ -39,6 +43,7 @@ class BadgeScanProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('badge_scan_mode', _mode.index);
     await prefs.setStringList('badge_names', _badgeNames);
+    await prefs.setBool('badge_streaming_mode', _isStreamingEnabled);
   }
 
   void setMode(BadgeScanMode mode) {
@@ -48,14 +53,32 @@ class BadgeScanProvider with ChangeNotifier {
   }
 
   void setBadgeNames(List<String> names) {
-    _badgeNames = names.where((name) => name.trim().isNotEmpty).toList();
+     final seen = <String>{};
+    _badgeNames = names.map((name) => name.trim()).where((name) {
+      if (name.isEmpty) return false;
+      final lower = name.toLowerCase();
+      if (seen.contains(lower)) return false;
+      seen.add(lower);
+      return true;
+    }).toList();
     _selectedIndices.clear();
     _saveToPrefs();
     notifyListeners();
   }
 
+   void setStreamingEnabled(bool enabled) {
+    _isStreamingEnabled = enabled;
+    _saveToPrefs();
+    notifyListeners();
+  }
+
   void addBadgeName(String name) {
-    if (name.trim().isEmpty) return;
+   final cleanedName = name.trim();
+    if (cleanedName.isEmpty) return;
+
+    bool alreadyExists = _badgeNames.any((existingName) =>
+        existingName.toLowerCase() == cleanedName.toLowerCase());
+    if (alreadyExists) return;
     _badgeNames.add(name.trim());
     _saveToPrefs();
     notifyListeners();
@@ -75,6 +98,16 @@ class BadgeScanProvider with ChangeNotifier {
 
   void updateBadgeName(int index, String newName) {
     if (index < 0 || index >= _badgeNames.length) return;
+
+    final cleanedName = newName.trim();
+    if (cleanedName.isEmpty) return;
+
+    bool alreadyExists = _badgeNames.asMap().entries.any((entry) =>
+        entry.key != index &&
+        entry.value.toLowerCase() == cleanedName.toLowerCase());
+
+    if (alreadyExists) return;
+
     _badgeNames[index] = newName.trim();
     _saveToPrefs();
     notifyListeners();
@@ -124,9 +157,6 @@ class BadgeScanProvider with ChangeNotifier {
   }
 
   List<String> getSelectedBadgeNames() {
-    return _selectedIndices
-        .where((index) => index < _badgeNames.length)
-        .map((index) => _badgeNames[index])
-        .toList();
-  }
+    return _badgeNames;
+}
 }
