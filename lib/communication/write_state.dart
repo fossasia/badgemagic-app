@@ -55,7 +55,7 @@ class WriteState extends NormalBleState {
     const double smoothingStep = 0.01;
     const Duration tickInterval = Duration(milliseconds: 16);
 
-    final Timer progressTimer = Timer.periodic(tickInterval, (_) {
+    Timer.periodic(tickInterval, (_) {
       if (displayedProgress < targetProgress) {
         displayedProgress =
             (displayedProgress + smoothingStep).clamp(0.0, targetProgress);
@@ -190,18 +190,5 @@ class WriteState extends NormalBleState {
       }
     }
     throw Exception(l10n.transferFailed);
-  }
-
-  Future<void> _safeDisconnect(String deviceId) async {
-    try {
-      logger.d("Disconnecting from device...");
-
-      await UniversalBle.disconnect(deviceId).timeout(_disconnectTimeout);
-
-      await Future.delayed(_postDisconnectDelay);
-      logger.d("Device disconnected successfully.");
-    } catch (e) {
-      logger.w("Disconnect warning (non-critical): $e");
-    }
   }
 }
