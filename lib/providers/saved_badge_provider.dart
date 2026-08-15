@@ -55,7 +55,7 @@ class SavedBadgeProvider extends ChangeNotifier {
     required String? savedBadgeFilename,
     required AnimationBadgeProvider animationProvider,
     required SpeedDialProvider speedDialProvider,
-    required TextEditingController inlineimagecontroller,
+    required TextEditingController inlineImageController,
     required BuildContext context,
   }) async {
     final fileHelper = FileHelper();
@@ -78,7 +78,7 @@ class SavedBadgeProvider extends ChangeNotifier {
       logger.e("Failed to retrieve original badge text: $e");
       badgeText = "Hello";
     }
-    inlineimagecontroller.text = badgeText;
+    inlineImageController.text = badgeText;
 
     if (message.flash) {
       animationProvider.addEffect(effectMap[1]);

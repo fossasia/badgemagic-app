@@ -160,7 +160,7 @@ class MyApp extends StatelessWidget {
                 '/': (context) => const HomeScreen(),
                 '/drawBadge': (context) => const DrawBadge(),
                 '/savedBadge': (context) => const SaveBadgeScreen(),
-                '/savedClipart': (context) => const SavedClipart(),
+                '/savedClipart': (context) => const SavedClipartScreen(),
                 '/aboutUs': (context) => const AboutUsScreen(),
                 '/settings': (context) => const SettingsScreen(),
               },

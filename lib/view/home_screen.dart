@@ -61,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen>
   final ImageUtils imageUtils = ImageUtils();
   final InlineImageProvider inlineImageProvider =
       GetIt.instance<InlineImageProvider>();
-  final TextEditingController inlineimagecontroller =
+  final TextEditingController inlineImageController =
       GetIt.instance.get<InlineImageProvider>().getController();
 
   final Converters _converters = Converters();
@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen>
     super.initState();
     _vectorScrollController = ScrollController();
     WidgetsBinding.instance.addObserver(this);
-    inlineimagecontroller.addListener(handleTextChange);
+    inlineImageController.addListener(handleTextChange);
     _setPortraitOrientation();
     animationProvider = context.read<AnimationBadgeProvider>();
     speedDialProvider = context.read<SpeedDialProvider>();
@@ -99,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen>
         await _loadBadgeDataFromDisk(widget.savedBadgeFilename!);
       }
 
-      inlineimagecontroller.addListener(_debouncedSavePreferences);
+      inlineImageController.addListener(_debouncedSavePreferences);
       animationProvider.addListener(_debouncedSavePreferences);
       speedDialProvider.addListener(_debouncedSavePreferences);
     });
@@ -114,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen>
     final transition = prefs.getInt(_transitionKey);
     final effects = prefs.getStringList(_effectsKey);
     if (text != null) {
-      inlineimagecontroller.text = text;
+      inlineImageController.text = text;
     }
     if (speed != null) {
       speedDialProvider.setDialValue(speed);
@@ -141,7 +141,7 @@ class _HomeScreenState extends State<HomeScreen>
       }
     }
     animationProvider.badgeAnimation(
-      inlineimagecontroller.text,
+      inlineImageController.text,
       _converters,
       animationProvider.isEffectActive(InvertLEDEffect()),
     );
@@ -149,7 +149,7 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> savePreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_textKey, inlineimagecontroller.text);
+    await prefs.setString(_textKey, inlineImageController.text);
     await prefs.setInt(
       _speedKey,
       speedDialProvider.getOuterValue(),
@@ -176,7 +176,7 @@ class _HomeScreenState extends State<HomeScreen>
       final (badgeText, badgeData, savedData) =
           await BadgeLoaderHelper.loadBadgeDataAndText(badgeFilename);
 
-      inlineimagecontroller.text = badgeText;
+      inlineImageController.text = badgeText;
 
       animationProvider.removeEffect(effectMap[0]);
       animationProvider.removeEffect(effectMap[1]);
@@ -264,8 +264,8 @@ class _HomeScreenState extends State<HomeScreen>
     _debounceTimer?.cancel();
     _vectorScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
-    inlineimagecontroller.removeListener(handleTextChange);
-    inlineimagecontroller.removeListener(_debouncedSavePreferences);
+    inlineImageController.removeListener(handleTextChange);
+    inlineImageController.removeListener(_debouncedSavePreferences);
     animationProvider.removeListener(_debouncedSavePreferences);
     speedDialProvider.removeListener(_debouncedSavePreferences);
     _tabController.dispose();
@@ -276,18 +276,18 @@ class _HomeScreenState extends State<HomeScreen>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     super.didChangeAppLifecycleState(state);
     if (state == AppLifecycleState.resumed) {
-      if (inlineimagecontroller.text.trim().isEmpty &&
+      if (inlineImageController.text.trim().isEmpty &&
           _cachedText.trim().isNotEmpty) {
-        inlineimagecontroller.text = _cachedText;
+        inlineImageController.text = _cachedText;
       }
       animationProvider.badgeAnimation(
-        inlineimagecontroller.text,
+        inlineImageController.text,
         _converters,
         animationProvider.isEffectActive(InvertLEDEffect()),
       );
       if (mounted) setState(() {});
     } else if (state == AppLifecycleState.paused) {
-      _cachedText = inlineimagecontroller.text;
+      _cachedText = inlineImageController.text;
       animationProvider.stopAnimation();
     } else if (state == AppLifecycleState.inactive) {
       animationProvider.stopAnimation();
@@ -328,7 +328,7 @@ class _HomeScreenState extends State<HomeScreen>
                       borderRadius: BorderRadius.circular(10.r),
                       elevation: 4,
                       child: ExtendedTextField(
-                        controller: inlineimagecontroller,
+                        controller: inlineImageController,
                         specialTextSpanBuilder: ImageBuilder(),
                         style: Provider.of<FontProvider>(context)
                                     .selectedFont !=
@@ -403,7 +403,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       onPressed: () {
                                         fontProvider.changeFont(opt);
                                         animationProvider.badgeAnimation(
-                                          inlineimagecontroller.text,
+                                          inlineImageController.text,
                                           _converters,
                                           animationProvider.isEffectActive(
                                               InvertLEDEffect()),
@@ -615,7 +615,7 @@ class _HomeScreenState extends State<HomeScreen>
                               label: l10n.saveButton,
                               primary: false,
                               onTap: () async {
-                                if (inlineimagecontroller.text.trim().isEmpty) {
+                                if (inlineImageController.text.trim().isEmpty) {
                                   ToastUtils()
                                       .showToast("Please enter a message");
                                   return;
@@ -633,7 +633,7 @@ class _HomeScreenState extends State<HomeScreen>
 
                                   await savedBadgeProvider.updateBadgeData(
                                     baseFilename,
-                                    inlineimagecontroller.text,
+                                    inlineImageController.text,
                                     animationProvider
                                         .isEffectActive(FlashEffect()),
                                     animationProvider
@@ -659,7 +659,7 @@ class _HomeScreenState extends State<HomeScreen>
                                       return SaveBadgeDialog(
                                         speed: speedDialProvider,
                                         animationProvider: animationProvider,
-                                        textController: inlineimagecontroller,
+                                        textController: inlineImageController,
                                         isInverse: animationProvider
                                             .isEffectActive(InvertLEDEffect()),
                                       );
@@ -834,7 +834,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   void handleTextChange() {
-    final currentText = inlineimagecontroller.text;
+    final currentText = inlineImageController.text;
 
     if (currentText != previousText) {
       if (animationProvider.isSpecialAnimationSelected() &&
@@ -842,7 +842,7 @@ class _HomeScreenState extends State<HomeScreen>
         animationProvider.resetToTextAnimation();
       }
 
-      final selection = inlineimagecontroller.selection;
+      final selection = inlineImageController.selection;
       if (previousText.length > currentText.length) {
         final deletionIndex = selection.baseOffset;
         final regex = RegExp(r'<<\d+>>');
@@ -851,23 +851,23 @@ class _HomeScreenState extends State<HomeScreen>
         bool placeholderDeleted = false;
         for (final match in matches) {
           if (deletionIndex > match.start && deletionIndex < match.end) {
-            inlineimagecontroller.text =
+            inlineImageController.text =
                 previousText.replaceRange(match.start, match.end, '');
-            inlineimagecontroller.selection =
+            inlineImageController.selection =
                 TextSelection.collapsed(offset: match.start);
             placeholderDeleted = true;
             break;
           }
         }
         if (!placeholderDeleted) {
-          previousText = inlineimagecontroller.text;
+          previousText = inlineImageController.text;
         }
       } else {
         previousText = currentText;
       }
 
       animationProvider.badgeAnimation(
-        inlineimagecontroller.text,
+        inlineImageController.text,
         _converters,
         animationProvider.isEffectActive(InvertLEDEffect()),
       );
