@@ -96,6 +96,7 @@ class BadgeMessageProvider {
     DataTransferManager manager, {
     BuildContext? context,
   }) async {
+    deviceManager = manager;
     final scanProvider = context != null
         ? Provider.of<BadgeScanProvider>(context, listen: false)
         : null;
