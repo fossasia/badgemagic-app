@@ -1,5 +1,5 @@
-import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -9,20 +9,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:get_it/get_it.dart';
 
 class SaveBadgeDialog extends StatelessWidget {
   final SpeedDialProvider speed;
   final bool isInverse;
-  final AnimationBadgeProvider animationProvider; // Restore this field
+  final AnimationBadgeProvider animationProvider;
   final TextEditingController textController;
 
   const SaveBadgeDialog({
     super.key,
     required this.textController,
     required this.isInverse,
-    required this.animationProvider, // Restore this parameter
+    required this.animationProvider,
     required this.speed,
   });
 
@@ -33,7 +33,6 @@ class SaveBadgeDialog extends StatelessWidget {
     TextEditingController badgeNameController = TextEditingController();
     badgeNameController.text = '${l10n.badge} ${DateTime.now().toString()}';
 
-    // Set up the initial selection to select all text when the dialog opens
     badgeNameController.selection = TextSelection(
       baseOffset: 0,
       extentOffset: badgeNameController.text.length,
@@ -43,11 +42,9 @@ class SaveBadgeDialog extends StatelessWidget {
         borderRadius: BorderRadius.circular(5.r),
       ),
       child: Container(
-        height: 180.h, // Increase height for TextField + counter space
-        width: 300.w, // Increased width
-        padding: EdgeInsets.symmetric(
-            horizontal: 20.w,
-            vertical: 10.h), // Added padding for better layout
+        height: 180.h,
+        width: 300.w,
+        padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 10.h),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.start,

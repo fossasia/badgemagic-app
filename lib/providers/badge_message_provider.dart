@@ -1,27 +1,27 @@
 import 'dart:io';
 
-import 'package:badgemagic/badgemagic_module/bluetooth/base_ble_state.dart';
-import 'package:badgemagic/badgemagic_module/bluetooth/datagenerator.dart';
-import 'package:badgemagic/badgemagic_module/utils/converters.dart';
-import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
-import 'package:badgemagic/badgemagic_module/bluetooth/scan_state.dart';
-import 'package:badgemagic/badgemagic_module/models/data.dart';
-import 'package:badgemagic/badgemagic_module/models/messages.dart';
-import 'package:badgemagic/badgemagic_module/models/mode.dart';
-import 'package:badgemagic/badgemagic_module/models/speed.dart';
-import 'package:badgemagic/providers/BadgeScanProvider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/communication/base_ble_state.dart';
+import 'package:badgemagic/communication/datagenerator.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/file_helper.dart';
+import 'package:badgemagic/communication/scan_state.dart';
+import 'package:badgemagic/models/data.dart';
+import 'package:badgemagic/models/messages.dart';
+import 'package:badgemagic/models/mode.dart';
+import 'package:badgemagic/models/speed.dart';
+import 'package:badgemagic/providers/badge_scan_provider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:flutter/material.dart';
-import 'package:badgemagic/utils/custom_transfers/transfers.dart';
+import 'package:badgemagic/others/custom_transfers/transfers.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:logger/logger.dart';
 import 'package:provider/provider.dart';
 
-import '../../view/widgets/ble_progress_dialog.dart';
-import '../../view/widgets/ble_progress_dialog_controller.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 
 Map<int, Mode> modeValueMap = {
   0: Mode.left,
@@ -33,12 +33,12 @@ Map<int, Mode> modeValueMap = {
   6: Mode.snowflake,
   7: Mode.picture,
   8: Mode.laser,
-  9: Mode.pacman, // Add this line for Pacman
-  10: Mode.chevronleft, // Chevron left mode (now defined in mode.dart)
-  11: Mode.diamond, // Diamond animation mode
-  12: Mode.brokenhearts, // Broken Hearts mode (use fixed or define if needed)
-  13: Mode.cupid, // Cupid mode (use fixed or define if needed)
-  14: Mode.feet, // Feet animation mode
+  9: Mode.pacman,
+  10: Mode.chevronleft,
+  11: Mode.diamond,
+  12: Mode.brokenhearts,
+  13: Mode.cupid,
+  14: Mode.feet,
 };
 
 Map<int, Speed> speedMap = {
@@ -49,7 +49,7 @@ Map<int, Speed> speedMap = {
   5: Speed.five,
   6: Speed.six,
   7: Speed.seven,
-  8: Speed.eight, // Add superfast for the highest speed
+  8: Speed.eight,
 };
 
 class BadgeMessageProvider {
@@ -280,5 +280,3 @@ Future<void> transferCycleAnimation(
   return customTransferCycleAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
 }
-
-// helper moved to utils/custom_transfers/common.dart

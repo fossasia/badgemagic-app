@@ -1,17 +1,17 @@
-import 'package:badgemagic/badgemagic_module/models/speed.dart';
-import 'package:badgemagic/badgemagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/badgemagic_module/utils/converters.dart';
-import 'package:badgemagic/badgemagic_module/utils/file_helper.dart';
-import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/models/speed.dart';
+import 'package:badgemagic/others/byte_array_utils.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/file_helper.dart';
+import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/badge_slot_provider..dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/badge_slot_provider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
-import 'package:badgemagic/services/localization_service.dart';
-import 'package:badgemagic/view/homescreen.dart';
+import 'package:badgemagic/others/localization_service.dart';
+import 'package:badgemagic/view/home_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:badgemagic/view/widgets/qr_share_dialog.dart';
 import 'package:flutter/material.dart';
@@ -66,12 +66,9 @@ class SaveBadgeCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Wrapping the text with Flexible to ensure it doesn't overflow.
               Flexible(
                 child: Padding(
-                  padding: EdgeInsets.only(
-                      right: 8
-                          .w), // Adding some padding to separate text and buttons.
+                  padding: EdgeInsets.only(right: 8.w),
                   child: Text(
                     badgeData.key.substring(0, badgeData.key.length - 5),
                     style: const TextStyle(
@@ -79,15 +76,14 @@ class SaveBadgeCard extends StatelessWidget {
                       fontSize: 16,
                     ),
                     softWrap: true,
-                    overflow: TextOverflow
-                        .ellipsis, // Use ellipsis to indicate overflowed text
-                    maxLines: 1, // Limit to 1 line for a cleaner look
+                    overflow: TextOverflow.ellipsis,
+                    maxLines: 1,
                   ),
                 ),
               ),
               Consumer<SavedBadgeProvider>(
                 builder: (context, provider, widget) => Row(
-                  mainAxisSize: MainAxisSize.min, // Keep the row compact
+                  mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
                       icon: Image.asset(
@@ -109,11 +105,9 @@ class SaveBadgeCard extends StatelessWidget {
                       ),
                       onPressed: () async {
                         final navigator = Navigator.of(context);
-                        // Show confirmation dialog before editing
                         final confirmed =
                             await provider.showEditBadgeConfirmation(context);
                         if (confirmed) {
-                          // Navigate to HomeScreen for editing the badge
                           navigator.push(
                             MaterialPageRoute(
                               builder: (context) => HomeScreen(
@@ -132,8 +126,6 @@ class SaveBadgeCard extends StatelessWidget {
                       ),
                       onPressed: () {
                         logger.d("BadgeData: ${badgeData.value}");
-                        //We can Acrtually call a method to generate the data just by transffering the JSON data
-                        //so we would not necessarily need the Providers.
                         badge.checkAndTransfer(null, null, null, null, null,
                             null, badgeData.value, true, context);
                       },
@@ -153,7 +145,6 @@ class SaveBadgeCard extends StatelessWidget {
                         color: colorOnSurface,
                       ),
                       onPressed: () async {
-                        //add a dialog for confirmation before deleting
                         final slotProvider = Provider.of<BadgeSlotProvider>(
                             context,
                             listen: false);

@@ -1,7 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:get_it/get_it.dart';
 
-import '../../services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'ble_progress_dialog.dart';
 
 class BleDialogController {
