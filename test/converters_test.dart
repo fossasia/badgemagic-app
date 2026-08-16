@@ -1,5 +1,5 @@
-import 'package:badgemagic/badgemagic_module/utils/converters.dart';
-import 'package:badgemagic/providers/getitlocator.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/providers/service_locator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {

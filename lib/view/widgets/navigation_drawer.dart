@@ -1,5 +1,5 @@
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';

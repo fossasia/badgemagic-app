@@ -1,8 +1,8 @@
-import 'package:badgemagic/badgemagic_module/utils/qr_code_helper.dart';
-import 'package:badgemagic/badgemagic_module/utils/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/others/qr_code_helper.dart';
+import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';

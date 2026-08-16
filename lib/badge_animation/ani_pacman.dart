@@ -14,7 +14,6 @@ class PacmanClassicAnimation extends BadgeAnimation {
   @override
   void processAnimation(int badgeHeight, int badgeWidth, int animationIndex,
       List<List<bool>> processGrid, List<List<bool>> canvas) {
-    // Always reset state if starting from the beginning (animationIndex == 0)
     if (animationIndex == 0) {
       _eatenBlocks = List.filled(numBlocks, false);
       _destroyFrames = List.filled(numBlocks, -1);
