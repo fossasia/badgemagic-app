@@ -310,7 +310,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }) async {
     final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();
-    dynamic transferResult;
+    CompletedState? transferResult;
     if (aniIndex == 9) {
       await transferPacmanAnimation(badgeData, selectedSpeed, context);
     } else if (aniIndex == 10) {
@@ -353,10 +353,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         context,
       );
     }
-    if (transferResult is CompletedState) {
-      return transferResult;
-    }
-    return null;
+    return transferResult;
   }
 
   Future<void> sendDirectLegacyUpdate({

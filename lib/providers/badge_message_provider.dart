@@ -96,31 +96,33 @@ class BadgeMessageProvider {
     DataTransferManager manager, {
     BuildContext? context,
   }) async {
-    deviceManager = manager;
     final scanProvider = context != null
         ? Provider.of<BadgeScanProvider>(context, listen: false)
         : null;
 
     final BleState initialState = ScanState(
-        manager: manager,
-        mode: scanProvider?.mode ?? BadgeScanMode.any,
-        allowedNames: scanProvider?.getSelectedBadgeNames() ?? <String>[],
-        context: context!);
+      manager: manager,
+      mode: scanProvider?.mode ?? BadgeScanMode.any,
+      allowedNames: scanProvider?.getSelectedBadgeNames() ?? <String>[],
+      context: context!,
+    );
 
     BleState? state = initialState;
-    BleState? lastValidState;
     DateTime now = DateTime.now();
+    dynamic lastState;
 
     while (state != null) {
+      lastState = state;
       state = await state.process();
     }
 
     logger.d("Time to transfer data: ${DateTime.now().difference(now)}");
     logger.d(".......Data transfer completed.......");
 
-    if (lastValidState is CompletedState) {
-      return lastValidState;
+    if (lastState is CompletedState) {
+      return lastState;
     }
+
     return null;
   }
 
