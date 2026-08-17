@@ -51,7 +51,7 @@ jobs:
           mkdir -p ./pr
           echo ${{ github.event.number }} > ./pr/NR
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: needs.changes.outputs.is_code == 'true'
         with:
           name: pr
