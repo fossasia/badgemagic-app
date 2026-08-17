@@ -6,8 +6,13 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BadgeControlTabView extends StatelessWidget {
   final TabController controller;
+  final ValueChanged<bool>? onDialInteracting;
 
-  const BadgeControlTabView({super.key, required this.controller});
+  const BadgeControlTabView({
+    super.key,
+    required this.controller,
+    this.onDialInteracting,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +22,12 @@ class BadgeControlTabView extends StatelessWidget {
         physics: const NeverScrollableScrollPhysics(),
         controller: controller,
         children: [
-          RadialDial(),
+          GestureDetector(
+            onPanDown: (_) => onDialInteracting?.call(true),
+            onPanCancel: () => onDialInteracting?.call(false),
+            onPanEnd: (_) => onDialInteracting?.call(false),
+            child: RadialDial(),
+          ),
           const TransitionTab(),
           const EffectTab(),
           const AnimationTab(),

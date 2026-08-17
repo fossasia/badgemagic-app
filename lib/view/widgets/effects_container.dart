@@ -56,8 +56,8 @@ class _EffectContainerState extends State<EffectContainer> {
         Provider.of<AnimationBadgeProvider>(context);
 
     return Container(
-      margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
-      height: MediaQuery.of(context).size.width < 600 ? 96.h : 58.h,
+      margin: EdgeInsets.all(5.w),
+      height: 90.h,
       child: GestureDetector(
         onTap: () {
           effectCardState.isEffectActive(badgeEffect)

@@ -63,6 +63,7 @@ class _HomeScreenState extends State<HomeScreen>
   final Converters _converters = Converters();
 
   bool isPrefixIconClicked = false;
+  bool isDialInteracting = false;
   String previousText = '';
   String _cachedText = '';
   String errorVal = "";
@@ -312,8 +313,14 @@ class _HomeScreenState extends State<HomeScreen>
                     controller: _tabController,
                     isNarrow: isPhone,
                   );
-                  final dialTabView =
-                      BadgeControlTabView(controller: _tabController);
+                  final dialTabView = BadgeControlTabView(
+                    controller: _tabController,
+                    onDialInteracting: (interacting) {
+                      setState(() {
+                        isDialInteracting = interacting;
+                      });
+                    },
+                  );
                   final actionButtons = BadgeActionButtons(
                     onSave: _handleSave,
                     onTransfer: () =>
@@ -368,6 +375,9 @@ class _HomeScreenState extends State<HomeScreen>
                     children: [
                       Expanded(
                         child: SingleChildScrollView(
+                          physics: isDialInteracting
+                              ? const NeverScrollableScrollPhysics()
+                              : const AlwaysScrollableScrollPhysics(),
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
                             children: [
