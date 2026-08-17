@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:badgemagic/models/data.dart';
 import 'package:badgemagic/others/byte_array_utils.dart';
+import 'package:badgemagic/others/clipart_image_processor.dart';
+import 'package:badgemagic/others/file_storage.dart';
 import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
@@ -13,30 +15,11 @@ import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:uuid/uuid.dart';
 
 class FileHelper {
   final InlineImageProvider imageCacheProvider =
       GetIt.instance<InlineImageProvider>();
   ImageUtils imageUtils = ImageUtils();
-  static const Uuid uuid = Uuid();
-
-  static Future<String> _getFilePath(String filename) async {
-    final directory = await getApplicationDocumentsDirectory();
-    return '${directory.path}/$filename';
-  }
-
-  static Future<File> _writeToFile(String filename, String data) async {
-    final path = await _getFilePath(filename);
-    logger.d('Writing to file: $path');
-    return File(path).writeAsString(data);
-  }
-
-  static String _generateUniqueFilename() {
-    final String uniqueId = uuid.v4();
-    final String timestamp = DateTime.now().millisecondsSinceEpoch.toString();
-    return 'data_${timestamp}_$uniqueId.json';
-  }
 
   void addToCache(Uint8List imageData, String filename) {
     int key;
@@ -98,59 +81,9 @@ class FileHelper {
     addToCache(imageBytes, filename);
   }
 
-  static List<List<int>> trimEmptyPadding(List<List<int>> image) {
-    if (image.isEmpty || image[0].isEmpty) return const [];
-
-    final int rows = image.length;
-    final int cols = image[0].length;
-    int left = cols, right = -1;
-
-    for (int r = 0; r < rows; r++) {
-      for (int c = 0; c < cols; c++) {
-        if (image[r][c] != 0) {
-          if (c < left) left = c;
-          if (c > right) right = c;
-        }
-      }
-    }
-
-    if (right < 0) return const [];
-
-    return List.generate(
-      rows,
-      (i) => image[i].sublist(left, right + 1),
-    );
-  }
-
-  static const int _badgeRows = 11;
-  static List<List<int>> normalizeClipartHeight(List<List<int>> image) {
-    if (image.isEmpty) return image;
-    final int cols = image[0].length;
-    if (image.length == _badgeRows) return image;
-
-    if (image.length < _badgeRows) {
-      final int missing = _badgeRows - image.length;
-      final int top = missing ~/ 2;
-      final int bottom = missing - top;
-      return [
-        for (int i = 0; i < top; i++) List<int>.filled(cols, 0),
-        ...image,
-        for (int i = 0; i < bottom; i++) List<int>.filled(cols, 0),
-      ];
-    }
-
-    return image.sublist(0, _badgeRows);
-  }
-
-  static List<List<int>> addClipartSideMargins(List<List<int>> image) {
-    if (image.isEmpty) return image;
-    return [
-      for (final row in image) <int>[0, ...row, 0],
-    ];
-  }
-
   Future<bool> updateClipart(String filename, List<List<int>> image) async {
-    final List<List<int>> trimmed = trimEmptyPadding(image);
+    final List<List<int>> trimmed =
+        ClipartImageProcessor.trimEmptyPadding(image);
     if (trimmed.isEmpty) {
       logger.i('Skipping save: clipart is empty after trimming');
       return false;
@@ -216,13 +149,14 @@ class FileHelper {
       }
     }
 
-    final List<List<int>> trimmed = trimEmptyPadding(image);
+    final List<List<int>> trimmed =
+        ClipartImageProcessor.trimEmptyPadding(image);
     if (trimmed.isEmpty) {
       logger.i('Skipping save: clipart is empty');
       return false;
     }
 
-    String filename = _generateUniqueFilename();
+    String filename = FileStorage.generateUniqueFilename();
 
     logger.d('Saving image to file: $filename');
 
@@ -230,7 +164,7 @@ class FileHelper {
 
     logger.d('JSON data: $jsonData');
 
-    await _writeToFile(filename, jsonData);
+    await FileStorage.write(filename, jsonData);
 
     logger.d('Image saved to file: $filename');
 
@@ -240,7 +174,7 @@ class FileHelper {
 
   Future<dynamic> readFromFile(String filename) async {
     try {
-      final path = await _getFilePath(filename);
+      final path = await FileStorage.filePath(filename);
       final file = File(path);
       if (await file.exists()) {
         final content = await file.readAsString();
@@ -440,7 +374,7 @@ class FileHelper {
     logger.d('Saving named clipart to file: $filename');
 
     String jsonData = jsonEncode(image);
-    await _writeToFile(filename, jsonData);
+    await FileStorage.write(filename, jsonData);
     await _addImageDataToCache(image, filename);
   }
 
@@ -460,7 +394,7 @@ class FileHelper {
       }
       Data data = Data.fromJson(badgeJson);
       String filename = await _uniqueBadgeFilename(baseName);
-      await _writeToFile('$filename.json', jsonEncode(data.toJson()));
+      await FileStorage.write('$filename.json', jsonEncode(data.toJson()));
       logger.d('Imported badge from QR: $filename');
       return true;
     } catch (e) {
@@ -512,7 +446,7 @@ class FileHelper {
           ],
         });
 
-        await _writeToFile(fileName, jsonEncode(data.toJson()));
+        await FileStorage.write(fileName, jsonEncode(data.toJson()));
 
         logger.d('Imported badge: $fileName, data: $data');
 
@@ -520,7 +454,8 @@ class FileHelper {
       } else if (file.path.toLowerCase().endsWith('.json')) {
         Data data = Data.fromJson(jsonDecode(await file.readAsString()));
 
-        await _writeToFile(result.files.single.name, jsonEncode(data.toJson()));
+        await FileStorage.write(
+            result.files.single.name, jsonEncode(data.toJson()));
 
         logger.d('Imported badge to: ${result.files.single.name}, data: $data');
 
@@ -568,7 +503,7 @@ class FileHelper {
       final List<dynamic> decodedData = jsonDecode(content);
 
       if (decodedData.isNotEmpty && decodedData[0] is List) {
-        await _writeToFile(newFilename, content);
+        await FileStorage.write(newFilename, content);
 
         final List<List<dynamic>> imageData = decodedData.cast<List<dynamic>>();
         List<List<int>> intImageData =
