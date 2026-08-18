@@ -6,14 +6,15 @@ import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/draw_badge.dart';
+import 'package:badgemagic/view/widgets/draw_shape_options_bar.dart';
+import 'package:badgemagic/view/widgets/draw_tool_button.dart';
+import 'package:badgemagic/view/widgets/save_clipart_name_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
 class DrawBadge extends StatefulWidget {
   final String? filename;
@@ -66,62 +67,42 @@ class _DrawBadgeState extends State<DrawBadge> {
     ]);
   }
 
-  Future<String?> _showNameDialog() async {
-    TextEditingController controller = TextEditingController();
-    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+  bool _isBadgeGridEmpty(List<List<int>> grid) {
+    return grid.every((row) => row.every((cell) => cell == 0));
+  }
 
-    return showDialog<String>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          scrollable: true,
-          insetPadding:
-              const EdgeInsets.symmetric(horizontal: 24, vertical: 10),
-          titlePadding:
-              const EdgeInsets.only(left: 16, top: 12, right: 16, bottom: 4),
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-          actionsPadding: const EdgeInsets.only(right: 8, bottom: 4, top: 0),
-          title: Text(
-            l10n.save,
-            style: const TextStyle(fontSize: 16),
-          ),
-          content: SizedBox(
-            width: 300,
-            child: TextField(
-              controller: controller,
-              decoration: const InputDecoration(
-                hintText: 'Enter clipart name',
-                isDense: true,
-                contentPadding:
-                    EdgeInsets.symmetric(horizontal: 8, vertical: 10),
-              ),
-              autofocus: true,
-            ),
-          ),
-          actions: [
-            TextButton(
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                minimumSize: Size.zero,
-              ),
-              child: Text(l10n.cancel),
-              onPressed: () => Navigator.of(context).pop(),
-            ),
-            TextButton(
-              style: TextButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                minimumSize: Size.zero,
-              ),
-              child: Text(l10n.save),
-              onPressed: () {
-                Navigator.of(context).pop(controller.text.trim());
-              },
-            ),
-          ],
-        );
-      },
-    );
+  Future<void> _saveBadge(FileHelper fileHelper) async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    List<List<int>> badgeGrid = drawToggle
+        .getDrawViewGrid()
+        .map((e) => e.map((e) => e ? 1 : 0).toList())
+        .toList();
+
+    if (_isBadgeGridEmpty(badgeGrid)) {
+      ToastUtils().showToast(l10n.pleaseSelectClipart);
+      return;
+    }
+
+    List<String> hexString = Converters.convertBitmapToLEDHex(badgeGrid, false);
+
+    if (widget.isSavedCard!) {
+      await fileHelper.updateBadgeText(widget.filename!, hexString);
+    } else if (widget.isSavedClipart!) {
+      await fileHelper.updateClipart(widget.filename!, badgeGrid);
+    } else {
+      if (!mounted) return;
+      String? customName = await showSaveClipartNameDialog(context);
+
+      if (customName == null || customName.isEmpty) {
+        return;
+      }
+
+      await fileHelper.saveImageWithName(
+          drawToggle.getDrawViewGrid(), customName);
+    }
+
+    await fileHelper.generateClipartCache();
+    ToastUtils().showToast(l10n.clipartSavedSuccessfully);
   }
 
   @override
@@ -138,7 +119,6 @@ class _DrawBadgeState extends State<DrawBadge> {
 
           double buttonTextSize = (width * 0.012).clamp(9.0, 14.0);
           double iconSize = (width * 0.025).clamp(18.0, 26.0);
-          double buttonHeight = (width * 0.06).clamp(45.0, 65.0);
 
           return Column(
             key: const Key(drawBadgeScreen),
@@ -186,383 +166,125 @@ class _DrawBadgeState extends State<DrawBadge> {
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     Expanded(
-                        child: _buildCompactButton(true, Icons.edit, l10n.draw,
-                            iconSize, buttonTextSize, buttonHeight)),
+                      child: DrawToolButton(
+                        icon: Icons.edit,
+                        label: l10n.draw,
+                        tint: drawToggle.isDrawing
+                            ? colorPrimary
+                            : colorOnSurface,
+                        iconSize: iconSize,
+                        fontSize: buttonTextSize,
+                        onPressed: () => setState(() {
+                          drawToggle.toggleIsDrawing(true);
+                        }),
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
-                        child: _buildCompactButton(false, Icons.delete,
-                            l10n.erase, iconSize, buttonTextSize, buttonHeight,
-                            iconAsset: 'assets/icons/eraser.svg')),
+                      child: DrawToolButton(
+                        iconAsset: 'assets/icons/eraser.svg',
+                        label: l10n.erase,
+                        tint: !drawToggle.isDrawing
+                            ? colorPrimary
+                            : colorOnSurface,
+                        iconSize: iconSize,
+                        fontSize: buttonTextSize,
+                        onPressed: () => setState(() {
+                          drawToggle.toggleIsDrawing(false);
+                        }),
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
-                        child: _buildResetButton(
-                            iconSize, buttonTextSize, buttonHeight)),
+                      child: DrawToolButton(
+                        icon: Icons.refresh,
+                        label: l10n.reset,
+                        tint: colorOnSurface,
+                        iconSize: iconSize,
+                        fontSize: buttonTextSize,
+                        onPressed: () => setState(() {
+                          drawToggle.resetDrawViewGrid();
+                        }),
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
-                        child: _buildSaveButton(fileHelper, iconSize,
-                            buttonTextSize, buttonHeight)),
+                      child: DrawToolButton(
+                        icon: Icons.save,
+                        label: l10n.save,
+                        tint: colorOnSurface,
+                        iconSize: iconSize,
+                        fontSize: buttonTextSize,
+                        onPressed: () => _saveBadge(fileHelper),
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
-                        child: _buildShapesToggleButton(
-                            iconSize, buttonTextSize, buttonHeight)),
+                      child: DrawToolButton(
+                        icon: Icons.category,
+                        label: 'Shapes',
+                        tint: _showShapeOptions ? colorPrimary : colorOnSurface,
+                        iconSize: iconSize,
+                        fontSize: buttonTextSize,
+                        onPressed: () => setState(() {
+                          _showShapeOptions = !_showShapeOptions;
+                          if (!_showShapeOptions) {
+                            drawToggle.setShape(DrawShape.freehand);
+                          }
+                        }),
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
-                        child: _buildUndoButton(
-                            iconSize, buttonTextSize, buttonHeight)),
+                      child: AnimatedBuilder(
+                        animation: drawToggle,
+                        builder: (context, _) {
+                          final bool canUndo = drawToggle.canUndo;
+                          return DrawToolButton(
+                            icon: Icons.undo,
+                            label: 'Undo',
+                            tint: canUndo ? colorOnSurface : colorDisabled,
+                            iconSize: iconSize,
+                            fontSize: buttonTextSize,
+                            onPressed: canUndo ? () => drawToggle.undo() : null,
+                          );
+                        },
+                      ),
+                    ),
                     const SizedBox(width: 4),
                     Expanded(
-                        child: _buildRedoButton(
-                            iconSize, buttonTextSize, buttonHeight)),
+                      child: AnimatedBuilder(
+                        animation: drawToggle,
+                        builder: (context, _) {
+                          final bool canRedo = drawToggle.canRedo;
+                          return DrawToolButton(
+                            icon: Icons.redo,
+                            label: 'Redo',
+                            tint: canRedo ? colorOnSurface : colorDisabled,
+                            iconSize: iconSize,
+                            fontSize: buttonTextSize,
+                            onPressed: canRedo ? drawToggle.redo : null,
+                          );
+                        },
+                      ),
+                    ),
                   ],
                 ),
               ),
               const SizedBox(height: 12),
               if (_showShapeOptions)
-                Container(
-                  padding:
-                      EdgeInsets.symmetric(horizontal: 40.w, vertical: 4.h),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Expanded(
-                        child: Semantics(
-                          label: 'Free',
-                          child: _buildCompactShapeCard(
-                              context,
-                              DrawShape.freehand,
-                              Icons.gesture,
-                              l10n.free,
-                              iconSize * 0.9,
-                              buttonTextSize * 0.9,
-                              buttonHeight * 0.9),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Semantics(
-                          label: 'Square',
-                          child: _buildCompactShapeCard(
-                              context,
-                              DrawShape.square,
-                              Icons.crop_square,
-                              l10n.square,
-                              iconSize * 0.9,
-                              buttonTextSize * 0.9,
-                              buttonHeight * 0.9),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Semantics(
-                          label: 'Rect',
-                          child: _buildCompactShapeCard(
-                              context,
-                              DrawShape.rectangle,
-                              Icons.rectangle_outlined,
-                              l10n.rectangle,
-                              iconSize * 0.9,
-                              buttonTextSize * 0.9,
-                              buttonHeight * 0.9),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Semantics(
-                          label: 'Circle',
-                          child: _buildCompactShapeCard(
-                              context,
-                              DrawShape.circle,
-                              Icons.circle_outlined,
-                              l10n.circle,
-                              iconSize * 0.9,
-                              buttonTextSize * 0.9,
-                              buttonHeight * 0.9),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Semantics(
-                          label: 'Triangle',
-                          child: _buildCompactShapeCard(
-                              context,
-                              DrawShape.triangle,
-                              Icons.change_history,
-                              l10n.triangle,
-                              iconSize * 0.9,
-                              buttonTextSize * 0.9,
-                              buttonHeight * 0.9),
-                        ),
-                      ),
-                    ],
-                  ),
+                DrawShapeOptionsBar(
+                  selectedShape: drawToggle.selectedShape,
+                  onSelect: (shape) => setState(() {
+                    drawToggle.setShape(shape);
+                  }),
+                  iconSize: iconSize,
+                  fontSize: buttonTextSize,
                 ),
               const SizedBox(height: 8),
             ],
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildCompactButton(bool isDraw, IconData icon, String label,
-      double iconSize, double fontSize, double height,
-      {String? iconAsset}) {
-    final isSelected = drawToggle.isDrawing == isDraw;
-    final tint = isSelected ? colorPrimary : colorOnSurface;
-
-    return TextButton(
-      onPressed: () {
-        setState(() {
-          drawToggle.toggleIsDrawing(isDraw);
-        });
-      },
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-        minimumSize: const Size(60, 40),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          iconAsset != null
-              ? SvgPicture.asset(
-                  iconAsset,
-                  width: iconSize,
-                  height: iconSize,
-                  colorFilter: ColorFilter.mode(tint, BlendMode.srcIn),
-                )
-              : Icon(icon, color: tint, size: iconSize),
-          const SizedBox(height: 4),
-          Text(label,
-              style: TextStyle(color: tint, fontSize: fontSize),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildResetButton(double iconSize, double fontSize, double height) {
-    return TextButton(
-      onPressed: () {
-        setState(() {
-          drawToggle.resetDrawViewGrid();
-        });
-      },
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-        minimumSize: const Size(60, 40),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.refresh, color: colorOnSurface, size: iconSize),
-          const SizedBox(height: 4),
-          Text(GetIt.instance.get<LocalizationService>().l10n.reset,
-              style: TextStyle(color: colorOnSurface, fontSize: fontSize),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-        ],
-      ),
-    );
-  }
-
-  bool _isBadgeGridEmpty(List<List<int>> grid) {
-    return grid.every((row) => row.every((cell) => cell == 0));
-  }
-
-  Widget _buildSaveButton(
-      FileHelper fileHelper, double iconSize, double fontSize, double height) {
-    return TextButton(
-      onPressed: () async {
-        List<List<int>> badgeGrid = drawToggle
-            .getDrawViewGrid()
-            .map((e) => e.map((e) => e ? 1 : 0).toList())
-            .toList();
-
-        if (_isBadgeGridEmpty(badgeGrid)) {
-          ToastUtils().showToast(GetIt.instance
-              .get<LocalizationService>()
-              .l10n
-              .pleaseSelectClipart);
-          return;
-        }
-
-        List<String> hexString =
-            Converters.convertBitmapToLEDHex(badgeGrid, false);
-
-        if (widget.isSavedCard!) {
-          await fileHelper.updateBadgeText(widget.filename!, hexString);
-        } else if (widget.isSavedClipart!) {
-          await fileHelper.updateClipart(widget.filename!, badgeGrid);
-        } else {
-          String? customName = await _showNameDialog();
-
-          if (customName == null || customName.isEmpty) {
-            return;
-          }
-
-          await fileHelper.saveImageWithName(
-              drawToggle.getDrawViewGrid(), customName);
-        }
-
-        await fileHelper.generateClipartCache();
-        ToastUtils().showToast(GetIt.instance
-            .get<LocalizationService>()
-            .l10n
-            .clipartSavedSuccessfully);
-      },
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-        minimumSize: const Size(60, 40),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.save, color: colorOnSurface, size: iconSize),
-          const SizedBox(height: 4),
-          Text(GetIt.instance.get<LocalizationService>().l10n.save,
-              style: TextStyle(color: colorOnSurface, fontSize: fontSize),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildShapesToggleButton(
-      double iconSize, double fontSize, double height) {
-    return TextButton(
-      onPressed: () {
-        setState(() {
-          _showShapeOptions = !_showShapeOptions;
-
-          if (!_showShapeOptions) {
-            drawToggle.setShape(DrawShape.freehand);
-          }
-        });
-      },
-      style: TextButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-        minimumSize: const Size(60, 40),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(Icons.category,
-              color: _showShapeOptions ? colorPrimary : colorOnSurface,
-              size: iconSize),
-          const SizedBox(height: 4),
-          Text('Shapes',
-              style: TextStyle(
-                  color: _showShapeOptions ? colorPrimary : colorOnSurface,
-                  fontSize: fontSize),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildUndoButton(double iconSize, double fontSize, double height) {
-    return AnimatedBuilder(
-      animation: drawToggle,
-      builder: (context, _) {
-        final bool canUndo = drawToggle.canUndo;
-        final Color buttonColor = canUndo ? colorOnSurface : colorDisabled;
-
-        return TextButton(
-          onPressed: canUndo ? () => drawToggle.undo() : null,
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-            minimumSize: const Size(60, 40),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.undo, color: buttonColor, size: iconSize),
-              const SizedBox(height: 4),
-              Text('Undo',
-                  style: TextStyle(color: buttonColor, fontSize: fontSize),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildRedoButton(double iconSize, double fontSize, double height) {
-    return AnimatedBuilder(
-      animation: drawToggle,
-      builder: (context, _) {
-        final bool canRedo = drawToggle.canRedo;
-        final Color buttonColor = canRedo ? colorOnSurface : colorDisabled;
-
-        return TextButton(
-          onPressed: canRedo ? drawToggle.redo : null,
-          style: TextButton.styleFrom(
-            padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 12),
-            minimumSize: const Size(60, 40),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(Icons.redo, color: buttonColor, size: iconSize),
-              const SizedBox(height: 4),
-              Text('Redo',
-                  style: TextStyle(color: buttonColor, fontSize: fontSize),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildCompactShapeCard(
-      BuildContext context,
-      DrawShape shape,
-      IconData icon,
-      String label,
-      double iconSize,
-      double fontSize,
-      double height) {
-    final isSelected = drawToggle.selectedShape == shape;
-
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          drawToggle.setShape(shape);
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        foregroundColor: isSelected ? colorOnPrimary : colorOnSurface,
-        backgroundColor: isSelected ? colorPrimary : colorSurface,
-        elevation: isSelected ? 2 : 1,
-        side: BorderSide(color: isSelected ? colorPrimary : colorBorder),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-        padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
-        minimumSize: const Size(55, 40),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(icon, size: iconSize),
-          const SizedBox(height: 4),
-          Text(label,
-              style: TextStyle(fontSize: fontSize),
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis),
-        ],
       ),
     );
   }
