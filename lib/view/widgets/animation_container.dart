@@ -68,7 +68,7 @@ class _AniContainerState extends State<AniContainer> {
 
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 5.w, vertical: 4.h),
-      height: MediaQuery.of(context).size.width < 600 ? 96.h : 58.h,
+      height: 65.h,
       child: GestureDetector(
         onTap: () async {
           if (widget.index >= 9) {

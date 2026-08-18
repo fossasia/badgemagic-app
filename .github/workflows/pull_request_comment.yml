@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Download artifacts
         id: download-artifacts
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             var artifacts = await github.rest.actions.listWorkflowRunArtifacts({
@@ -82,7 +82,7 @@ jobs:
         
       - name: Fetch PR Number
         id: fetch-pr-number
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             var fs = require('fs')
@@ -127,7 +127,7 @@ jobs:
           
       - name: Build success
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             var issue_number = ${{ steps.fetch-pr-number.outputs.pr_number }};
@@ -250,7 +250,7 @@ jobs:
 
       - name: Build failed
         if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             var issue_number = ${{ steps.fetch-pr-number.outputs.pr_number }};
