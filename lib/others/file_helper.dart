@@ -414,19 +414,19 @@ class FileHelper {
     return candidate;
   }
 
-  Future<bool> importBadgeData(context) async {
+  Future<bool> importBadgeData(dynamic context) async {
     try {
-      FilePickerResult? result = await FilePicker.pickFiles(
+      final result = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json', 'gif'],
       );
 
-      if (result == null || result.files.isEmpty) {
+      if (result == null) {
         ToastUtils().showToast('No file selected');
         return false;
       }
 
-      File file = File(result.files.single.path!);
+      File file = File(result.path!);
 
       if (file.path.toLowerCase().endsWith('.gif')) {
         final fileName = file.uri.pathSegments.last.replaceAll('.gif', '.json');
@@ -454,10 +454,9 @@ class FileHelper {
       } else if (file.path.toLowerCase().endsWith('.json')) {
         Data data = Data.fromJson(jsonDecode(await file.readAsString()));
 
-        await FileStorage.write(
-            result.files.single.name, jsonEncode(data.toJson()));
+        await FileStorage.write(result.name, jsonEncode(data.toJson()));
 
-        logger.d('Imported badge to: ${result.files.single.name}, data: $data');
+        logger.d('Imported badge to: ${result.name}, data: $data');
 
         return true;
       } else {
@@ -473,19 +472,19 @@ class FileHelper {
 
   Future<bool> importClipart(BuildContext context) async {
     try {
-      FilePickerResult? result = await FilePicker.pickFiles(
+      final result = await FilePicker.pickFile(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
 
-      if (result == null || result.files.isEmpty) {
+      if (result == null) {
         ToastUtils().showToast('No file selected');
         return false;
       }
 
-      File file = File(result.files.single.path!);
+      File file = File(result.path!);
 
-      String originalName = result.files.single.name;
+      String originalName = result.name;
 
       String baseName =
           originalName.replaceAll(RegExp(r'\.json$', caseSensitive: false), '');
