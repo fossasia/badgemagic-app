@@ -41,7 +41,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.9
   provider: ^6.1.5
-  universal_ble: ^2.0.1
+  universal_ble: ^2.1.1
   permission_handler: ^12.0.3
   logger: ^2.7.0
   flutter_svg: ^2.3.0
