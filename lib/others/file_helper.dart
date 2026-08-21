@@ -442,7 +442,8 @@ class FileHelper {
         return false;
       }
       if (await File(newPath).exists()) {
-        logger.w('renameBadge: a badge with that name already exists: $newPath');
+        logger
+            .w('renameBadge: a badge with that name already exists: $newPath');
         return false;
       }
 

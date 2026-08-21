@@ -74,7 +74,9 @@ class SaveBadgeCard extends StatelessWidget {
                 // Wrapping the text with Flexible to ensure it doesn't overflow.
                 Flexible(
                   child: Padding(
-                    padding: EdgeInsets.only(right: 8.w), // Adding some padding to separate text and buttons.
+                    padding: EdgeInsets.only(
+                        right: 8
+                            .w), // Adding some padding to separate text and buttons.
                     child: InkWell(
                       onTap: () {
                         showDialog<void>(
@@ -195,9 +197,9 @@ class SaveBadgeCard extends StatelessWidget {
                           final imgProvider = Provider.of<InlineImageProvider>(
                               context,
                               listen: false);
-                          final aniProvider = Provider.of<AnimationBadgeProvider>(
-                              context,
-                              listen: false);
+                          final aniProvider =
+                              Provider.of<AnimationBadgeProvider>(context,
+                                  listen: false);
                           final confirmed = await _showDeleteDialog(context);
                           if (confirmed == true) {
                             file.deleteFile(badgeData.key);

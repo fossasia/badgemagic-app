@@ -46,8 +46,7 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
     super.initState();
     // Pre-fill with the current name, stripping the `.json` extension
     final currentName = widget.currentFilename.endsWith('.json')
-        ? widget.currentFilename.substring(
-            0, widget.currentFilename.length - 5)
+        ? widget.currentFilename.substring(0, widget.currentFilename.length - 5)
         : widget.currentFilename;
     _nameController = TextEditingController(text: currentName);
     // Select all text so the user can immediately type a new name
@@ -71,8 +70,7 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
     }
 
     final currentName = widget.currentFilename.endsWith('.json')
-        ? widget.currentFilename.substring(
-            0, widget.currentFilename.length - 5)
+        ? widget.currentFilename.substring(0, widget.currentFilename.length - 5)
         : widget.currentFilename;
     if (newName == currentName) {
       Navigator.of(context).pop();
@@ -85,10 +83,9 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
         .whereType<File>()
         .where((f) => f.path.endsWith('.json'))
         .map((f) {
-          final base = f.path.split(Platform.pathSeparator).last;
-          return base.substring(0, base.length - 5);
-        })
-        .toList();
+      final base = f.path.split(Platform.pathSeparator).last;
+      return base.substring(0, base.length - 5);
+    }).toList();
 
     final isDuplicate = existingNames.any(
       (name) =>
@@ -119,7 +116,10 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            GetIt.instance.get<LocalizationService>().l10n.badgeRenamedSuccessfully,
+            GetIt.instance
+                .get<LocalizationService>()
+                .l10n
+                .badgeRenamedSuccessfully,
           ),
         ),
       );
@@ -127,10 +127,8 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
     } else {
       if (!mounted) return;
       setState(
-        () => _errorText = GetIt.instance
-            .get<LocalizationService>()
-            .l10n
-            .couldNotRenameBadge,
+        () => _errorText =
+            GetIt.instance.get<LocalizationService>().l10n.couldNotRenameBadge,
       );
     }
   }
