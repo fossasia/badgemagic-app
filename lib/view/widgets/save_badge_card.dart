@@ -171,7 +171,6 @@ class SaveBadgeCard extends StatelessWidget {
                           color: colorOnSurface,
                         ),
                         onPressed: () {
-                          logger.d("BadgeData: ${badgeData.value}");
                           badge.checkAndTransfer(null, null, null, null, null,
                               null, badgeData.value, true, context);
                         },
