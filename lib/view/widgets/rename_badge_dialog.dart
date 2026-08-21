@@ -1,4 +1,4 @@
-﻿import 'dart:io';
+import 'dart:io';
 
 import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
 import 'package:badgemagic/constants.dart';
@@ -65,13 +65,11 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
     final newName = _nameController.text.trim();
 
-    // --- Validation ---
     if (newName.isEmpty) {
       setState(() => _errorText = l10n.badgeNameEmpty);
       return;
     }
 
-    // No-op if the name has not changed
     final currentName = widget.currentFilename.endsWith('.json')
         ? widget.currentFilename.substring(
             0, widget.currentFilename.length - 5)
@@ -81,7 +79,6 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
       return;
     }
 
-    // Case-insensitive duplicate check: list all .json files in the directory
     final directory = await getApplicationDocumentsDirectory();
     final dirList = Directory(directory.path).listSync();
     final existingNames = dirList
@@ -93,7 +90,6 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
         })
         .toList();
 
-    // Block any case-insensitive collision unless it is the current badge itself
     final isDuplicate = existingNames.any(
       (name) =>
           name.toLowerCase() == newName.toLowerCase() &&

@@ -1,17 +1,17 @@
-import 'package:badgemagic/bademagic_module/models/speed.dart';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/file_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/models/speed.dart';
+import 'package:badgemagic/others/byte_array_utils.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/file_helper.dart';
+import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart';
-import 'package:badgemagic/providers/badge_slot_provider..dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/badge_slot_provider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
-import 'package:badgemagic/services/localization_service.dart';
-import 'package:badgemagic/view/homescreen.dart';
+import 'package:badgemagic/others/localization_service.dart';
+import 'package:badgemagic/view/home_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:badgemagic/view/widgets/qr_share_dialog.dart';
 import 'package:badgemagic/view/widgets/rename_badge_dialog.dart';
@@ -53,11 +53,11 @@ class SaveBadgeCard extends StatelessWidget {
         padding: EdgeInsets.all(6.dg),
         margin: EdgeInsets.all(10.dg),
         decoration: BoxDecoration(
-          color: isSelected ? Colors.grey.shade300 : Colors.white,
+          color: isSelected ? Colors.grey.shade300 : colorSurface,
           borderRadius: BorderRadius.circular(6.dg),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.withValues(alpha: 0.5),
+              color: colorShadow.withOpacity(0.5),
               spreadRadius: 2,
               blurRadius: 5,
               offset: const Offset(0, 3),
@@ -74,9 +74,7 @@ class SaveBadgeCard extends StatelessWidget {
                 // Wrapping the text with Flexible to ensure it doesn't overflow.
                 Flexible(
                   child: Padding(
-                    padding: EdgeInsets.only(
-                        right: 8
-                            .w), // Adding some padding to separate text and buttons.
+                    padding: EdgeInsets.only(right: 8.w), // Adding some padding to separate text and buttons.
                     child: InkWell(
                       onTap: () {
                         showDialog<void>(
@@ -135,7 +133,7 @@ class SaveBadgeCard extends StatelessWidget {
                         icon: Image.asset(
                           "assets/icons/t_play.png",
                           height: 20,
-                          color: Colors.black,
+                          color: colorOnSurface,
                         ),
                         onPressed: () {
                           provider.savedBadgeAnimation(
@@ -147,15 +145,13 @@ class SaveBadgeCard extends StatelessWidget {
                       IconButton(
                         icon: const Icon(
                           Icons.edit,
-                          color: Colors.black,
+                          color: colorOnSurface,
                         ),
                         onPressed: () async {
                           final navigator = Navigator.of(context);
-                          // Show confirmation dialog before editing
                           final confirmed =
                               await provider.showEditBadgeConfirmation(context);
                           if (confirmed) {
-                            // Navigate to HomeScreen for editing the badge
                             navigator.push(
                               MaterialPageRoute(
                                 builder: (context) => HomeScreen(
@@ -170,12 +166,10 @@ class SaveBadgeCard extends StatelessWidget {
                         icon: Image.asset(
                           "assets/icons/t_updown.png",
                           height: 24.h,
-                          color: Colors.black,
+                          color: colorOnSurface,
                         ),
                         onPressed: () {
                           logger.d("BadgeData: ${badgeData.value}");
-                          //We can Acrtually call a method to generate the data just by transffering the JSON data
-                          //so we would not necessarily need the Providers.
                           badge.checkAndTransfer(null, null, null, null, null,
                               null, badgeData.value, true, context);
                         },
@@ -183,7 +177,7 @@ class SaveBadgeCard extends StatelessWidget {
                       IconButton(
                         icon: const Icon(
                           Icons.share,
-                          color: Colors.black,
+                          color: colorOnSurface,
                         ),
                         onPressed: () {
                           _showShareOptions(context);
@@ -192,19 +186,18 @@ class SaveBadgeCard extends StatelessWidget {
                       IconButton(
                         icon: const Icon(
                           Icons.delete,
-                          color: Colors.black,
+                          color: colorOnSurface,
                         ),
                         onPressed: () async {
-                          //add a dialog for confirmation before deleting
                           final slotProvider = Provider.of<BadgeSlotProvider>(
                               context,
                               listen: false);
                           final imgProvider = Provider.of<InlineImageProvider>(
                               context,
                               listen: false);
-                          final aniProvider =
-                              Provider.of<AnimationBadgeProvider>(context,
-                                  listen: false);
+                          final aniProvider = Provider.of<AnimationBadgeProvider>(
+                              context,
+                              listen: false);
                           final confirmed = await _showDeleteDialog(context);
                           if (confirmed == true) {
                             file.deleteFile(badgeData.key);
@@ -244,7 +237,7 @@ class SaveBadgeCard extends StatelessWidget {
                           ),
                           child: Image.asset(
                             "assets/icons/flash.png",
-                            color: Colors.white,
+                            color: colorOnPrimary,
                             height: 14.h,
                           ),
                         ),
@@ -258,7 +251,7 @@ class SaveBadgeCard extends StatelessWidget {
                           ),
                           child: Image.asset(
                             "assets/icons/square.png",
-                            color: Colors.white,
+                            color: colorOnPrimary,
                             height: 14.h,
                           ),
                         ),
@@ -272,7 +265,7 @@ class SaveBadgeCard extends StatelessWidget {
                           ),
                           child: Image.asset(
                             "assets/icons/t_invert.png",
-                            color: Colors.white,
+                            color: colorOnPrimary,
                             height: 14.h,
                           ),
                         ),
@@ -288,7 +281,7 @@ class SaveBadgeCard extends StatelessWidget {
                           children: [
                             Image.asset(
                               "assets/icons/t_double.png",
-                              color: Colors.white,
+                              color: colorOnPrimary,
                               height: 14.h,
                             ),
                             const SizedBox(width: 4),
@@ -299,7 +292,7 @@ class SaveBadgeCard extends StatelessWidget {
                                     .messages[0]
                                     .speed,
                               ).toString(),
-                              style: const TextStyle(color: Colors.white),
+                              style: const TextStyle(color: colorOnPrimary),
                             )
                           ],
                         ),
@@ -320,7 +313,7 @@ class SaveBadgeCard extends StatelessWidget {
                               .split('.')
                               .last
                               .toUpperCase(),
-                          style: const TextStyle(color: Colors.white),
+                          style: const TextStyle(color: colorOnPrimary),
                         ),
                       ),
                     ],

@@ -11,8 +11,8 @@ concurrency:
 env:
   ANDROID_EMULATOR_API: 34
   ANDROID_EMULATOR_ARCH: x86_64
-  IPHONE_DEVICE_MODEL: iPhone 16 Pro Max
-  IPAD_DEVICE_MODEL: iPad Pro 13-inch (M4)
+  IPHONE_DEVICE_MODEL: iPhone 17 Pro Max
+  IPAD_DEVICE_MODEL: iPad Pro 13-inch (M5)
 
 jobs:
   changes:
@@ -21,7 +21,7 @@ jobs:
     outputs:
       is_code: ${{ steps.check.outputs.is_code }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         with:
           fetch-depth: 0
 
@@ -38,7 +38,7 @@ jobs:
     needs: changes
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: needs.changes.outputs.is_code == 'true'
 
       - name: Common Workflow
@@ -51,7 +51,7 @@ jobs:
           mkdir -p ./pr
           echo ${{ github.event.number }} > ./pr/NR
 
-      - uses: actions/upload-artifact@v6
+      - uses: actions/upload-artifact@v7
         if: needs.changes.outputs.is_code == 'true'
         with:
           name: pr
@@ -66,7 +66,7 @@ jobs:
     needs: [changes, common]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: needs.changes.outputs.is_code == 'true'
 
       - name: Android Workflow
@@ -88,7 +88,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: needs.changes.outputs.is_code == 'true'
 
       - name: iOS Workflow
@@ -105,7 +105,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: needs.changes.outputs.is_code == 'true'
 
       - name: Android Screenshot Workflow
@@ -131,7 +131,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: needs.changes.outputs.is_code == 'true'
 
       - name: iPhone Screenshot Workflow
@@ -156,7 +156,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: needs.changes.outputs.is_code == 'true'
 
       - name: iPad Screenshot Workflow
@@ -174,7 +174,7 @@ jobs:
     needs: [changes, common]
     runs-on: ${{ needs.changes.outputs.is_code == 'true' && 'macos-latest' || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: needs.changes.outputs.is_code == 'true'
 
       - name: macOS Workflow
@@ -190,7 +190,7 @@ jobs:
     needs: [changes, common]
     runs-on: ${{ needs.changes.outputs.is_code == 'true' && 'windows-latest' || 'ubuntu-latest' }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: needs.changes.outputs.is_code == 'true'
 
       - name: Windows Workflow
@@ -206,7 +206,7 @@ jobs:
     needs: [changes, common]
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
         if: needs.changes.outputs.is_code == 'true'
 
       - name: Debian Workflow

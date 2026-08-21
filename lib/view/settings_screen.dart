@@ -1,11 +1,11 @@
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/providers/BadgeScanProvider.dart';
+import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/main.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -57,7 +57,6 @@ class SettingsScreenState extends State<SettingsScreen> {
           );
         }
 
-        // Initialize controllers once after provider is loaded
         if (!_initialized) {
           _scanMode = provider.mode;
           _controllers = provider.badgeNames
@@ -91,6 +90,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                     DropdownMenuItem(
                       value: 'it',
                       child: Text(l10n.italian),
+                    ),
+                    DropdownMenuItem(
+                      value: 'ru',
+                      child: Text(l10n.russian),
                     ),
                   ],
                   onChanged: (value) {
@@ -129,7 +132,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                   onChanged: (value) => setState(() => _scanMode = value!),
                 ),
                 if (_scanMode == BadgeScanMode.specific) ...[
-                  // Selection controls row
                   if (_controllers.isNotEmpty)
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 8.0),
@@ -152,7 +154,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                             ElevatedButton.icon(
                               onPressed: () {
                                 provider.removeSelectedDevices();
-                                // Update controllers after removal
                                 setState(() {
                                   for (final controller in _controllers) {
                                     controller.dispose();
@@ -167,14 +168,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                               label: Text(
                                   'Remove (${provider.selectedIndices.length})'),
                               style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.red,
-                                foregroundColor: Colors.white,
+                                backgroundColor: colorError,
+                                foregroundColor: colorOnPrimary,
                               ),
                             ),
                         ],
                       ),
                     ),
-                  // Badge name list with checkboxes
                   ..._controllers.asMap().entries.map((entry) {
                     final index = entry.key;
                     final controller = entry.value;
@@ -184,14 +184,13 @@ class SettingsScreenState extends State<SettingsScreen> {
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color:
-                              isSelected ? Colors.blue : Colors.grey.shade300,
+                          color: isSelected ? colorSelected : colorBorder,
                           width: isSelected ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(8),
                         color: isSelected
-                            ? Colors.blue.shade50
-                            : Colors.transparent,
+                            ? colorSelectedSurface
+                            : colorTransparent,
                       ),
                       child: Row(
                         children: [
@@ -199,7 +198,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                             value: isSelected,
                             onChanged: (value) =>
                                 provider.toggleSelection(index),
-                            activeColor: Colors.blue,
+                            activeColor: colorSelected,
                           ),
                           Expanded(
                             child: Padding(
@@ -213,7 +212,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                                       EdgeInsets.symmetric(vertical: 12),
                                 ),
                                 onChanged: (value) {
-                                  // Update the provider when text changes
                                   provider.updateBadgeName(index, value);
                                 },
                               ),
@@ -223,11 +221,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                       ),
                     );
                   }),
-                  // Add more button
                   TextButton.icon(
                     onPressed: () => setState(() {
                       _controllers.add(TextEditingController());
-                      provider.addBadgeName(''); // Add empty badge name
+                      provider.addBadgeName('');
                     }),
                     icon: const Icon(Icons.add),
                     label: Text(l10n.addMore),
@@ -255,7 +252,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       child: Text(
                         l10n.saveSettings,
                         style: const TextStyle(
-                          color: Colors.black,
+                          color: colorOnSurface,
                         ),
                       ),
                     ),
@@ -268,35 +265,4 @@ class SettingsScreenState extends State<SettingsScreen> {
       },
     );
   }
-
-//   Widget _buildDropdown({
-//     required String selectedValue,
-//     required List<String> values,
-//     required Function(String) onChanged,
-//   }) {
-//     return Container(
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(8),
-//       ),
-//       padding: const EdgeInsets.symmetric(horizontal: 12),
-//       child: DropdownButtonHideUnderline(
-//         child: DropdownButton<String>(
-//           value: selectedValue,
-//           isExpanded: true,
-//           icon: const Icon(Icons.arrow_drop_down, color: Colors.grey),
-//           onChanged: (String? newValue) {
-//             if (newValue != null) onChanged(newValue);
-//           },
-//           items: values.map<DropdownMenuItem<String>>((String value) {
-//             return DropdownMenuItem<String>(
-//               value: value,
-//               child: Text(value, style: const TextStyle(color: Colors.black)),
-//             );
-//           }).toList(),
-//         ),
-//       ),
-//     );
-//   }
-// }
 }

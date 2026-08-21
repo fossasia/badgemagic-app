@@ -14,7 +14,7 @@ jobs:
     steps:
       - name: Download artifacts
         id: download-artifacts
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             var artifacts = await github.rest.actions.listWorkflowRunArtifacts({
@@ -82,7 +82,7 @@ jobs:
         
       - name: Fetch PR Number
         id: fetch-pr-number
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             var fs = require('fs')
@@ -101,7 +101,19 @@ jobs:
           for file in ../screenshots/*; do
             if [[ -f "$file" ]]; then
               filename=$(basename "$file")
-              cp -f "$file" "./${{ steps.fetch-pr-number.outputs.pr_number }}_${filename}"
+              if [[ "$filename" =~ -([0-9]+_.*\.png)$ ]]; then
+                screenshot_part="${BASH_REMATCH[1]}"
+                if [[ "$filename" == *"iPhone"* ]]; then
+                  generic_name="iPhone-${screenshot_part}"
+                elif [[ "$filename" == *"iPad"* ]]; then
+                  generic_name="iPad-${screenshot_part}"
+                else
+                  generic_name="Android-${screenshot_part}"
+                fi
+              else
+                generic_name="$filename"
+              fi
+              cp -f "$file" "./${{ steps.fetch-pr-number.outputs.pr_number }}_${generic_name}"
             fi
           done
           
@@ -115,7 +127,7 @@ jobs:
           
       - name: Build success
         if: ${{ github.event.workflow_run.conclusion == 'success' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             var issue_number = ${{ steps.fetch-pr-number.outputs.pr_number }};
@@ -152,16 +164,16 @@ jobs:
             <summary>Android Screenshots</summary>
             <table>
               <tr>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Pixel_6-1_home_screen.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Pixel_6-2_text_badge.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Pixel_6-3_emoji_badge.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Pixel_6-4_inverted_emoji_badge.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Android-1_home_screen.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Android-2_text_badge.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Android-3_emoji_badge.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Android-4_inverted_emoji_badge.png?raw=true" width="1080"/></td>
               </tr>
               <tr>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Pixel_6-5_saved_badges.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Pixel_6-6_saved_badges_clicked.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Android-5_saved_badges.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Android-6_saved_badges_clicked.png?raw=true" width="1080"/></td>
                 <td colspan="2">
-                  <img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Pixel_6-7_draw_badge.png?raw=true" width="2146"/>
+                  <img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_Android-7_draw_badge.png?raw=true" width="2146"/>
                 </td>
               </tr>
             </table>
@@ -173,16 +185,16 @@ jobs:
             <summary>iPhone Screenshots</summary>
             <table>
               <tr>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone_16_Pro_Max-1_home_screen.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone_16_Pro_Max-2_text_badge.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone_16_Pro_Max-3_emoji_badge.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone_16_Pro_Max-4_inverted_emoji_badge.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone-1_home_screen.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone-2_text_badge.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone-3_emoji_badge.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone-4_inverted_emoji_badge.png?raw=true" width="1080"/></td>
               </tr>
               <tr>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone_16_Pro_Max-5_saved_badges.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone_16_Pro_Max-6_saved_badges_clicked.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone-5_saved_badges.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone-6_saved_badges_clicked.png?raw=true" width="1080"/></td>
                 <td colspan="2">
-                  <img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone_16_Pro_Max-7_draw_badge.png?raw=true" width="2146"/>
+                  <img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPhone-7_draw_badge.png?raw=true" width="2146"/>
                 </td>
               </tr>
             </table>
@@ -194,16 +206,16 @@ jobs:
             <summary>iPad Screenshots</summary>
             <table>
               <tr>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad_Pro_13-inch_(M4)-1_home_screen.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad_Pro_13-inch_(M4)-2_text_badge.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad_Pro_13-inch_(M4)-3_emoji_badge.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad_Pro_13-inch_(M4)-4_inverted_emoji_badge.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad-1_home_screen.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad-2_text_badge.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad-3_emoji_badge.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad-4_inverted_emoji_badge.png?raw=true" width="1080"/></td>
               </tr>
               <tr>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad_Pro_13-inch_(M4)-5_saved_badges.png?raw=true" width="1080"/></td>
-                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad_Pro_13-inch_(M4)-6_saved_badges_clicked.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad-5_saved_badges.png?raw=true" width="1080"/></td>
+                <td><img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad-6_saved_badges_clicked.png?raw=true" width="1080"/></td>
                 <td colspan="2">
-                  <img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad_Pro_13-inch_(M4)-7_draw_badge.png?raw=true" width="2146"/>
+                  <img src="https://github.com/fossasia/badgemagic-app/blob/pr-screenshots/${issue_number}_iPad-7_draw_badge.png?raw=true" width="2146"/>
                 </td>
               </tr>
             </table>
@@ -238,7 +250,7 @@ jobs:
 
       - name: Build failed
         if: ${{ github.event.workflow_run.conclusion == 'failure' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             var issue_number = ${{ steps.fetch-pr-number.outputs.pr_number }};

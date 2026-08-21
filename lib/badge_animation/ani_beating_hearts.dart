@@ -5,13 +5,9 @@ class BeatingHeartsAnimation extends BadgeAnimation {
   static const int badgeWidth = 44;
   static const int hardwareFrameCount = 8;
 
-  // Define heart patterns for different sizes (bigger, more visible hearts)
   static const List<List<String>> heartPatterns = [
-    // Size 1 (small heart - 5x4)
     ["## ##", "#####", " ### ", "  #  "],
-    // Size 2 (medium heart - 7x6)
     ["### ###", "#######", "#######", " ##### ", "  ###  ", "   #   "],
-    // Size 3 (large heart - 9x7) - refined shape
     [
       " ### ### ",
       "#########",
@@ -21,7 +17,6 @@ class BeatingHeartsAnimation extends BadgeAnimation {
       "   ###  ",
       "    #   "
     ],
-    // Size 4 (extra large heart - 11x8) - refined shape
     [
       " #### #### ",
       "###########",
@@ -42,18 +37,15 @@ class BeatingHeartsAnimation extends BadgeAnimation {
     List<List<bool>> processGrid,
     List<List<bool>> canvas,
   ) {
-    // Clear the canvas
     for (int y = 0; y < badgeHeight; y++) {
       for (int x = 0; x < badgeWidth; x++) {
         canvas[y][x] = false;
       }
     }
 
-    // More dramatic heart scale values for better beating animation
     const List<double> heartScales = [0.1, 0.3, 0.5, 0.7, 1.0, 0.7, 0.5, 0.3];
     double scale = heartScales[animationIndex % hardwareFrameCount];
 
-    // Position hearts with better spacing for larger hearts
     int leftHeartCenterX = 11;
     int rightHeartCenterX = 33;
     int centerY = badgeHeight ~/ 2;
@@ -63,7 +55,6 @@ class BeatingHeartsAnimation extends BadgeAnimation {
   }
 
   void _drawHeart(List<List<bool>> canvas, int cx, int cy, double scale) {
-    // Determine which heart pattern to use based on scale
     int patternIndex;
     if (scale <= 0.2) {
       patternIndex = 0;

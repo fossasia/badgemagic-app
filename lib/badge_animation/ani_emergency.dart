@@ -14,7 +14,6 @@ class EmergencyAnimation extends BadgeAnimation {
     List<List<bool>> processGrid,
     List<List<bool>> canvas,
   ) {
-    // Clear the canvas
     for (int y = 0; y < badgeHeight; y++) {
       for (int x = 0; x < badgeWidth; x++) {
         canvas[y][x] = false;
@@ -28,26 +27,26 @@ class EmergencyAnimation extends BadgeAnimation {
     int y = (badgeHeight - squareSize) ~/ 2;
 
     switch (frame) {
-      case 0: // Left ON
+      case 0:
         _drawSquare(canvas, leftX, y);
         break;
-      case 1: // Right ON
+      case 1:
         _drawSquare(canvas, rightX, y);
         break;
-      case 2: // Left ON
+      case 2:
         _drawSquare(canvas, leftX, y);
         break;
-      case 3: // Left OFF (blink)
+      case 3:
         break;
-      case 4: // Left ON
+      case 4:
         _drawSquare(canvas, leftX, y);
         break;
-      case 5: // Right ON
+      case 5:
         _drawSquare(canvas, rightX, y);
         break;
-      case 6: // Right OFF (blink)
+      case 6:
         break;
-      case 7: // Right ON
+      case 7:
         _drawSquare(canvas, rightX, y);
         break;
     }

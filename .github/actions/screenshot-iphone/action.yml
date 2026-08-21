@@ -4,7 +4,7 @@ inputs:
   IPHONE_DEVICE_MODEL:
     description: 'Model of the iPhone device to be used when running tests'
     required: false
-    default: iPhone 16 Pro Max
+    default: iPhone 17 Pro Max
 
 runs:
   using: "composite"
@@ -24,7 +24,7 @@ runs:
 
     - name: Create iPhone Simulator
       id: iphone_sim
-      uses: futureware-tech/simulator-action@v4
+      uses: futureware-tech/simulator-action@v5
       with:
         model: ${{ inputs.IPHONE_DEVICE_MODEL }}
         wait_for_boot: true
@@ -57,7 +57,7 @@ runs:
         git push --force origin fastlane-ios
 
     - name: Upload Screenshots
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: iPhone Screenshots
         path: screenshots/*

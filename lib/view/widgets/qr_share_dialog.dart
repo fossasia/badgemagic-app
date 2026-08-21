@@ -2,10 +2,11 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
-import 'package:badgemagic/bademagic_module/utils/qr_code_helper.dart';
-import 'package:badgemagic/bademagic_module/utils/toast_utils.dart';
+import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/others/qr_code_helper.dart';
+import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:get_it/get_it.dart';
@@ -79,7 +80,7 @@ class _QrShareScreenState extends State<QrShareScreen> {
   Widget build(BuildContext context) {
     final l10n = _l10n;
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: colorSurface,
       appBar: AppBar(
         title: Text(l10n.shareBadgeQrCode),
         actions: [
@@ -114,7 +115,7 @@ class _QrShareScreenState extends State<QrShareScreen> {
               child: Text(
                 l10n.qrShareInstruction,
                 textAlign: TextAlign.center,
-                style: const TextStyle(fontSize: 14, color: Colors.black54),
+                style: const TextStyle(fontSize: 14, color: colorTextMuted),
               ),
             ),
           ],

@@ -59,3 +59,8 @@ linux/flutter/generated_plugin_registrant.cc
 linux/flutter/generated_plugins.cmake
 macos/Flutter/GeneratedPluginRegistrant.swift
 untranslated.json
+
+# FVM Version Cache
+.fvm/
+#vscode folder
+.vscode/
