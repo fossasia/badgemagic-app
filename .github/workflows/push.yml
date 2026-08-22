@@ -19,7 +19,7 @@ jobs:
       VERSION_NAME: ${{ steps.flutter-version.outputs.VERSION_NAME }}
       VERSION_CODE: ${{ steps.flutter-version.outputs.VERSION_CODE }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Common Workflow
         uses: ./.github/actions/common
@@ -71,7 +71,7 @@ jobs:
     needs: common
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Prepare Build Keys
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -91,13 +91,13 @@ jobs:
           VERSION_CODE: ${{needs.common.outputs.VERSION_CODE}}
 
       - name: Upload APK
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: APK Generated
           path: build/app/outputs/flutter-apk
   
       - name: Upload AAB Release
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: AAB Generated
           path: build/app/outputs/bundle
@@ -163,7 +163,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Prepare Build Keys
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -207,7 +207,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Run Release Drafter
         id: run-release-drafter
@@ -228,7 +228,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Android Screenshot Workflow
         uses: ./.github/actions/screenshot-android
@@ -246,7 +246,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: iPhone Screenshot Workflow
         uses: ./.github/actions/screenshot-iphone
@@ -263,7 +263,7 @@ jobs:
         with:
           xcode-version: latest-stable
 
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: iPad Screenshot Workflow
         uses: ./.github/actions/screenshot-ipad
@@ -275,7 +275,7 @@ jobs:
     needs: common
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Debian Workflow
         uses: ./.github/actions/debian
@@ -284,7 +284,7 @@ jobs:
           VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
 
       - name: Upload Debian Build
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Debian Build
           path: build/linux/x64/release/bundle/
@@ -311,7 +311,7 @@ jobs:
     needs: common
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: macOS Workflow
         uses: ./.github/actions/macos
@@ -320,7 +320,7 @@ jobs:
           VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
 
       - name: Upload macOS Build
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: macOS Build
           path: build/macos/Build/Products/Release/
@@ -351,7 +351,7 @@ jobs:
     needs: common
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Windows Workflow
         uses: ./.github/actions/windows
@@ -360,7 +360,7 @@ jobs:
           VERSION_CODE: ${{ needs.common.outputs.VERSION_CODE }}
 
       - name: Upload Windows Build
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: Windows Build
           path: build/windows/x64/runner/Release/
