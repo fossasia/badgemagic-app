@@ -7,9 +7,11 @@ import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 
+import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
 
 class BadgeTextInputField extends StatelessWidget {
@@ -59,6 +61,8 @@ class BadgeTextInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
       child: Material(
@@ -70,7 +74,7 @@ class BadgeTextInputField extends StatelessWidget {
             TextInputFormatter.withFunction((oldValue, newValue) {
               if (_emojiRegex.hasMatch(newValue.text)) {
                 final strippedText = newValue.text.replaceAll(_emojiRegex, ' ');
-                ToastUtils().showToast("System emojis are not supported");
+                ToastUtils().showToast(l10n.notSupportedEmojis);
                 final newSelectionOffset = math.min(
                   newValue.selection.baseOffset,
                   strippedText.length,
