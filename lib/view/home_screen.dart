@@ -74,10 +74,6 @@ class _HomeScreenState extends State<HomeScreen>
   static const _transitionKey = 'badge_transition';
   static const _effectsKey = 'badge_effects';
 
-  static final RegExp _emojiRegex = RegExp(
-    r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|\ud83e[\udc00-\udfff]|[\uFE00-\uFE0F])',
-  );
-
   Timer? _debounceTimer;
 
   @override
