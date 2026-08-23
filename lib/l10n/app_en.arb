@@ -261,5 +261,6 @@
   "updateButton": "Update",
   "dismissButton": "Dismiss",
   "alreadyUpdatedStatusMessage": "No new firmware versions found",
-  "checkFirmwareFailed": "Firmware update check failed, please retry"
+  "checkFirmwareFailed": "Firmware update check failed, please retry",
+  "notSupportedEmojis": "System emojis are not supported"
 }
