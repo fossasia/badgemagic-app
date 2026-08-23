@@ -531,17 +531,18 @@ class FileHelper {
 
   Future<bool> importBadgeData(BuildContext context) async {
     try {
-      final result = await FilePicker.pickFile(
+      final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json', 'gif'],
       );
 
-      if (result == null) {
+      if (result == null || result.files.isEmpty) {
         ToastUtils().showToast('No file selected');
         return false;
       }
 
-      File file = File(result.path!);
+      final pickedFile = result.files.first;
+      File file = File(pickedFile.path!);
 
       if (file.path.toLowerCase().endsWith('.gif')) {
         final fileName = file.uri.pathSegments.last.replaceAll('.gif', '.json');
@@ -569,9 +570,9 @@ class FileHelper {
       } else if (file.path.toLowerCase().endsWith('.json')) {
         Data data = Data.fromJson(jsonDecode(await file.readAsString()));
 
-        await _writeToFile(result.name, jsonEncode(data.toJson()));
+        await _writeToFile(pickedFile.name, jsonEncode(data.toJson()));
 
-        logger.d('Imported badge to: ${result.name}, data: $data');
+        logger.d('Imported badge to: ${pickedFile.name}, data: $data');
 
         return true;
       } else {
@@ -589,19 +590,20 @@ class FileHelper {
 
   Future<bool> importClipart(BuildContext context) async {
     try {
-      final result = await FilePicker.pickFile(
+      final result = await FilePicker.platform.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
 
-      if (result == null) {
+      if (result == null || result.files.isEmpty) {
         ToastUtils().showToast('No file selected');
         return false;
       }
 
-      File file = File(result.path!);
+      final pickedFile = result.files.first;
+      File file = File(pickedFile.path!);
 
-      String originalName = result.name;
+      String originalName = pickedFile.name;
 
       String baseName =
           originalName.replaceAll(RegExp(r'\.json$', caseSensitive: false), '');

@@ -1,5 +1,4 @@
 import 'package:badgemagic/models/speed.dart';
-import 'package:badgemagic/others/byte_array_utils.dart';
 import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/others/toast_utils.dart';
@@ -57,7 +56,7 @@ class SaveBadgeCard extends StatelessWidget {
           borderRadius: BorderRadius.circular(6.dg),
           boxShadow: [
             BoxShadow(
-              color: colorShadow.withOpacity(0.5),
+              color: colorShadow.withValues(alpha: 0.5),
               spreadRadius: 2,
               blurRadius: 5,
               offset: const Offset(0, 3),
