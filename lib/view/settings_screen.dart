@@ -39,6 +39,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   bool _initialized = false;
 
   final FirmwareUpdateService _updateService = FirmwareUpdateService();
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
   bool _isCheckingUpdate = false;
   Map<String, dynamic>? _availableUpdate;
   String? _updateStatusMessage;
@@ -85,7 +86,6 @@ class SettingsScreenState extends State<SettingsScreen> {
         if (updateInfo != null) {
           _availableUpdate = updateInfo;
         } else {
-          final l10n = GetIt.instance.get<LocalizationService>().l10n;
           _updateStatusMessage = l10n.alreadyUpdatedStatusMessage;
         }
       });
@@ -364,10 +364,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                         ),
                         const SizedBox(height: 8),
                         Text("• Version: ${_availableUpdate!['version']}",
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
                         Text("• Released: ${_availableUpdate!['date']}",
-                            style: const TextStyle(fontWeight: FontWeight.w600)),
-
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
                         if (_isFlashingFirmware) ...[
                           const SizedBox(height: 12),
                           LinearProgressIndicator(
@@ -378,7 +379,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                           const SizedBox(height: 4),
                           Text(
                             "Flashing firmware... ${(_flashProgress * 100).toStringAsFixed(0)}%",
-                            style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.grey.shade700),
                           ),
                         ] else ...[
                           const SizedBox(height: 12),
@@ -386,7 +388,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
                               TextButton(
-                                onPressed: () => setState(() => _availableUpdate = null),
+                                onPressed: () =>
+                                    setState(() => _availableUpdate = null),
                                 child: Text(
                                   l10n.dismissButton,
                                   style: const TextStyle(color: Colors.black),
@@ -398,7 +401,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   backgroundColor: Colors.red,
                                   foregroundColor: Colors.white,
                                 ),
-                                onPressed: _handleStartFirmwareUpdate, // CALL QUI
+                                onPressed:
+                                    _handleStartFirmwareUpdate, // CALL QUI
                                 child: Text(l10n.updateButton),
                               ),
                             ],
@@ -470,24 +474,28 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
-      // 1. Scansione diretta
-      bleDialogController.update(BleDialogStatus.searching, "Cerca targhetta...");
+      bleDialogController.update(
+          BleDialogStatus.searching, l10n.searchingDeviceBLE);
 
-      final device = await _updateService.scanForBadge(
+      final device = await scanForBadge(
         mode: _scanMode,
         allowedNames: _controllers.map((c) => c.text.trim()).toList(),
       );
 
       if (device == null) {
-        throw Exception("Nessuna targhetta trovata nelle vicinanze");
+        throw Exception(l10n.noBadgesFound);
       }
 
-      // 2. Connessione diretta
-      bleDialogController.update(BleDialogStatus.connecting, "Connessione in corso...");
+      bleDialogController.update(BleDialogStatus.connecting, l10n.deviceFound);
       await UniversalBle.connect(device.deviceId);
 
-      // 3. Flash diretto
-      bleDialogController.update(BleDialogStatus.transferring, "Aggiornamento firmware...");
+      await UniversalBle.discoverServices(
+        device.deviceId,
+        timeout: const Duration(seconds: 10),
+      );
+
+      bleDialogController.update(
+          BleDialogStatus.transferring, "Firmware update...");
 
       await _updateService.executeFirmwareUpdate(
         deviceId: device.deviceId,
@@ -500,11 +508,10 @@ class SettingsScreenState extends State<SettingsScreen> {
         },
       );
 
-      ToastUtils().showToast("Firmware aggiornato! La targhetta si riavvierà.");
+      ToastUtils().showToast("Firmware updated! The badge will reboot");
       setState(() => _availableUpdate = null);
-
     } catch (e) {
-      ToastUtils().showToast("Errore: $e");
+      ToastUtils().showToast("Error: $e");
     } finally {
       if (mounted) {
         setState(() => _isFlashingFirmware = false);
@@ -527,7 +534,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     subscription = UniversalBle.scanStream.listen((device) async {
       final matchesUuid = device.services.contains(serviceUuid);
       final deviceName = (device.name ?? "").trim().toLowerCase();
-      final matchesName = mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
+      final matchesName =
+          mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
 
       if (matchesUuid && matchesName) {
         subscription?.cancel();
@@ -542,7 +550,6 @@ class SettingsScreenState extends State<SettingsScreen> {
       scanFilter: ScanFilter(withServices: [serviceUuid]),
     );
 
-    // Timeout di 10 secondi
     Timer(const Duration(seconds: 10), () async {
       await UniversalBle.stopScan();
       subscription?.cancel();

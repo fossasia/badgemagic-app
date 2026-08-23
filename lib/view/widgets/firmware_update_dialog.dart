@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:universal_ble/universal_ble.dart';
 import '../../badgemagic_module/utils/toast_utils.dart';
+import '../../globals/globals.dart';
 import '../../providers/BadgeScanProvider.dart';
 import '../../services/firmware_update.dart';
 import '../../services/localization_service.dart';
@@ -26,6 +29,48 @@ class FirmwareUpdateDialog extends StatefulWidget {
 
 class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
   bool _dontRemindAgain = false;
+
+  Future<BleDevice?> scanForBadge({
+    required BadgeScanMode mode,
+    required List<String> allowedNames,
+  }) async {
+    final completer = Completer<BleDevice?>();
+    StreamSubscription<BleDevice>? subscription;
+
+    final normalizedNames = allowedNames
+        .map((e) => e.trim().toLowerCase())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    subscription = UniversalBle.scanStream.listen((device) async {
+      final matchesUuid = device.services.contains(serviceUuid);
+      final deviceName = (device.name ?? "").trim().toLowerCase();
+      final matchesName =
+          mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
+
+      if (matchesUuid && matchesName) {
+        subscription?.cancel();
+        await UniversalBle.stopScan();
+        if (!completer.isCompleted) {
+          completer.complete(device);
+        }
+      }
+    });
+
+    await UniversalBle.startScan(
+      scanFilter: ScanFilter(withServices: [serviceUuid]),
+    );
+
+    Timer(const Duration(seconds: 10), () async {
+      await UniversalBle.stopScan();
+      subscription?.cancel();
+      if (!completer.isCompleted) {
+        completer.complete(null);
+      }
+    });
+
+    return completer.future;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -95,30 +140,25 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
             }
 
             final nav = Navigator.of(context);
-            nav.pop(); // Chiude la dialog iniziale
+            nav.pop();
 
-            // 1. Scansione per cercare la targhetta nelle vicinanze
-            final device = await widget.service.scanForBadge(
-              mode: BadgeScanMode.any, // Oppure la modalità preferita
+            final device = await scanForBadge(
+              mode: BadgeScanMode.any,
               allowedNames: [],
             );
 
             if (device == null) {
-              ToastUtils().showToast("Nessuna targhetta trovata nelle vicinanze.");
+              ToastUtils().showToast(l10n.noBadgesFound);
               return;
             }
 
-            // 2. Connessione al dispositivo
             await UniversalBle.connect(device.deviceId);
 
-            // 3. Esecuzione dell'aggiornamento con i parametri nominali richiesti
             await widget.service.executeFirmwareUpdate(
               deviceId: device.deviceId,
               releaseAssets: widget.releaseAssets,
-              hardwareVariant: 'usbc_4key', // O variante dinamica
-              onProgress: (progress) {
-                // Opzionale: aggiorna una barra di caricamento
-              },
+              hardwareVariant: 'usbc_4key',
+              onProgress: (progress) {},
             );
           },
           child: Text(l10n.updateButton),
