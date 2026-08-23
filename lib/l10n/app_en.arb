@@ -256,5 +256,6 @@
   "badgeAlreadyExists": "A badge with that name already exists.",
   "couldNotRenameBadge": "Could not rename the badge. Please try again.",
   "badgeRenamedSuccessfully": "Badge renamed successfully!",
-  "turnBLEOn": "Please turn on Bluetooth in your settings"
+  "turnBLEOn": "Please turn on Bluetooth in your settings",
+  "notSupportedEmojis": "System emojis are not supported"
 }
