@@ -531,17 +531,17 @@ class FileHelper {
 
   Future<bool> importBadgeData(BuildContext context) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json', 'gif'],
       );
 
-      if (result == null || result.files.isEmpty) {
+      if (result.isEmpty) {
         ToastUtils().showToast('No file selected');
         return false;
       }
 
-      final pickedFile = result.files.first;
+      final pickedFile = result.first;
       File file = File(pickedFile.path!);
 
       if (file.path.toLowerCase().endsWith('.gif')) {
@@ -590,17 +590,17 @@ class FileHelper {
 
   Future<bool> importClipart(BuildContext context) async {
     try {
-      final result = await FilePicker.platform.pickFiles(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
 
-      if (result == null || result.files.isEmpty) {
+      if (result.isEmpty) {
         ToastUtils().showToast('No file selected');
         return false;
       }
 
-      final pickedFile = result.files.first;
+      final pickedFile = result.first;
       File file = File(pickedFile.path!);
 
       String originalName = pickedFile.name;
