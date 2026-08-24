@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:badgemagic/others/badge_text_storage.dart';
+import 'package:badgemagic/storage/badge_text_storage.dart';
 import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/models/data.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
