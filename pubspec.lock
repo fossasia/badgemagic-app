@@ -5,18 +5,18 @@ packages:
     dependency: transitive
     description:
       name: _fe_analyzer_shared
-      sha256: "8d7ff3948166b8ec5da0fbb5962000926b8e02f2ed9b3e51d1738905fbd4c98d"
+      sha256: "9a3386eea899815698dd55995277cf7cb8572ee52b399a6edfb7ae2b50e5fc19"
       url: "https://pub.dev"
     source: hosted
-    version: "93.0.0"
+    version: "105.0.0"
   analyzer:
     dependency: transitive
     description:
       name: analyzer
-      sha256: de7148ed2fcec579b19f122c1800933dfa028f6d9fd38a152b04b1516cec120b
+      sha256: "62993bed6eadbe9596c5c20d5c167e7bc563c5fe266657a04ddeb93bdb84f4c9"
       url: "https://pub.dev"
     source: hosted
-    version: "10.0.1"
+    version: "14.1.0"
   android_file_picker:
     dependency: transitive
     description:
@@ -141,10 +141,10 @@ packages:
     dependency: "direct dev"
     description:
       name: dart_style
-      sha256: "29f7ecc274a86d32920b1d9cfc7502fa87220da41ec60b55f329559d5732e2b2"
+      sha256: "3f88fc9c96c568d631356507355a2d1e983ee000c9ac008bdcb39b5bf53ce777"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.7"
+    version: "3.1.12"
   dbus:
     dependency: transitive
     description:
@@ -156,11 +156,10 @@ packages:
   extended_text_field:
     dependency: "direct main"
     description:
-      path: "."
-      ref: master
-      resolved-ref: b2bc604f5c2c426287d4d252c351bc1bb20ab321
-      url: "https://github.com/fluttercandies/extended_text_field.git"
-    source: git
+      name: extended_text_field
+      sha256: "495b8cc6b4a66b5323d71afe1df1c5f08b716fdc925e4339aeaa14a2f0cf65a9"
+      url: "https://pub.dev"
+    source: hosted
     version: "17.0.0"
   extended_text_library:
     dependency: transitive
@@ -1011,5 +1010,5 @@ packages:
     source: hosted
     version: "3.1.3"
 sdks:
-  dart: ">=3.11.4 <4.0.0"
-  flutter: ">=3.41.9"
+  dart: ">=3.12.0 <4.0.0"
+  flutter: ">=3.47.0"
