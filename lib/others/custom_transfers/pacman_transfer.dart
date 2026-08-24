@@ -1,36 +1,18 @@
 import 'dart:math';
 import 'package:badgemagic/communication/datagenerator.dart';
-import 'package:badgemagic/models/data.dart';
-import 'package:badgemagic/models/messages.dart';
-import 'package:badgemagic/models/mode.dart';
-import 'package:badgemagic/models/speed.dart';
-import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/custom_transfers/common.dart';
-import 'package:logger/logger.dart';
 
 Future<void> customTransferPacmanAnimation(
-    Future<void> Function(DataTransferManager) transferData,
-    int speedLevel) async {
-  if (!await checkAdapterState()) return;
-
-  const int frameCount = 8;
-  const int badgeHeight = 11;
-  const int badgeWidth = 44;
+  Future<void> Function(DataTransferManager) transferData,
+  int speedLevel,
+) async {
   const int pacmanRadius = 4;
   const int foodRadius = 1;
   const int numBlocks = 3;
   const int destructionDuration = 3;
 
-  final logger = Logger();
-  logger.i('Starting Pacman animation transfer...');
-  final Speed selectedSpeed = Speed.eight;
-  logger.i(
-      'Pacman transfer: selectedSpeed =  ${selectedSpeed.toString()}, hex = ${selectedSpeed.hexValue}');
-
-  List<Message> pacmanFrames = [];
-
   int pathStart = pacmanRadius + 1;
-  int pathEnd = badgeWidth - pacmanRadius - 2;
+  int pathEnd = animationBadgeWidth - pacmanRadius - 2;
   int pathLength = pathEnd - pathStart + 1;
   int blockSpacing = (pathLength / (numBlocks + 1)).floor();
   List<int> blockCols =
@@ -38,35 +20,35 @@ Future<void> customTransferPacmanAnimation(
 
   List<int> destroyFrames = List.filled(numBlocks, -1);
   List<bool> eatenBlocks = List.filled(numBlocks, false);
-  int pacmanRow = badgeHeight ~/ 2;
+  int pacmanRow = animationBadgeHeight ~/ 2;
 
-  for (int frame = 0; frame < frameCount; frame++) {
-    logger.i('💡 Generating frame ${frame + 1}');
-    double t = frame / (frameCount - 1);
+  final List<List<List<bool>>> frames = [];
+
+  for (int frame = 0; frame < animationFrameCount; frame++) {
+    double t = frame / (animationFrameCount - 1);
     int pacmanCol = pathStart + (t * (pathEnd - pathStart)).round();
 
-    double mouthT = (frame * 1.8 + 0.3) / frameCount;
+    double mouthT = (frame * 1.8 + 0.3) / animationFrameCount;
     double minMouth = 3.14 / 10;
     double maxMouth = 3.14 / 1.8;
     double mouthAngle =
         minMouth + (maxMouth - minMouth) * (0.5 * (1 - cos(2 * 3.14 * mouthT)));
 
-    List<List<bool>> frameBitmap =
-        List.generate(badgeHeight, (_) => List.filled(badgeWidth, false));
+    final frameBitmap = blankFrame();
 
     for (int b = 0; b < numBlocks; b++) {
       if (!eatenBlocks[b] && (pacmanCol - blockCols[b]).abs() <= pacmanRadius) {
         eatenBlocks[b] = true;
         destroyFrames[b] = 0;
-        _drawDestroyEffect(
-            frameBitmap, blockCols[b], pacmanRow, 0, badgeWidth, badgeHeight);
+        _drawDestroyEffect(frameBitmap, blockCols[b], pacmanRow, 0,
+            animationBadgeWidth, animationBadgeHeight);
       }
     }
 
     for (int b = 0; b < numBlocks; b++) {
       if (destroyFrames[b] > 0 && destroyFrames[b] < destructionDuration) {
         _drawDestroyEffect(frameBitmap, blockCols[b], pacmanRow,
-            destroyFrames[b], badgeWidth, badgeHeight);
+            destroyFrames[b], animationBadgeWidth, animationBadgeHeight);
         destroyFrames[b] = destroyFrames[b] + 1;
       } else if (destroyFrames[b] == 0) {
         destroyFrames[b] = destroyFrames[b] + 1;
@@ -81,9 +63,9 @@ Future<void> customTransferPacmanAnimation(
               int drawRow = pacmanRow + y;
               int drawCol = blockCols[b] + x;
               if (drawRow >= 0 &&
-                  drawRow < badgeHeight &&
+                  drawRow < animationBadgeHeight &&
                   drawCol >= 0 &&
-                  drawCol < badgeWidth) {
+                  drawCol < animationBadgeWidth) {
                 frameBitmap[drawRow][drawCol] = true;
               }
             }
@@ -101,9 +83,9 @@ Future<void> customTransferPacmanAnimation(
             int drawRow = pacmanRow + y;
             int drawCol = pacmanCol + x;
             if (drawRow >= 0 &&
-                drawRow < badgeHeight &&
+                drawRow < animationBadgeHeight &&
                 drawCol >= 0 &&
-                drawCol < badgeWidth) {
+                drawCol < animationBadgeWidth) {
               frameBitmap[drawRow][drawCol] = true;
             }
           }
@@ -111,24 +93,13 @@ Future<void> customTransferPacmanAnimation(
       }
     }
 
-    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
-    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
-    logger.i(
-        '💡 Frame $frame hex: ${hexList.join(",")} speed: ${selectedSpeed.toString()} (hex: ${selectedSpeed.hexValue})');
-    pacmanFrames.add(Message(
-      text: hexList,
-      mode: Mode.fixed,
-      speed: selectedSpeed,
-      flash: false,
-      marquee: false,
-    ));
+    frames.add(frameBitmap);
   }
 
   {
-    List<List<bool>> frameBitmap =
-        List.generate(badgeHeight, (_) => List.filled(badgeWidth, false));
+    final frameBitmap = blankFrame();
     int pacmanCol = pathEnd;
-    int pacmanRow = badgeHeight ~/ 2;
+    int pacmanRow = animationBadgeHeight ~/ 2;
     double minMouth = 3.14 / 10;
     double mouthAngle = minMouth;
     for (int y = -pacmanRadius; y <= pacmanRadius; y++) {
@@ -140,35 +111,23 @@ Future<void> customTransferPacmanAnimation(
             int drawRow = pacmanRow + y;
             int drawCol = pacmanCol + x;
             if (drawRow >= 0 &&
-                drawRow < badgeHeight &&
+                drawRow < animationBadgeHeight &&
                 drawCol >= 0 &&
-                drawCol < badgeWidth) {
+                drawCol < animationBadgeWidth) {
               frameBitmap[drawRow][drawCol] = true;
             }
           }
         }
       }
     }
-    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
-    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
-    pacmanFrames[pacmanFrames.length - 1] = Message(
-      text: hexList,
-      mode: Mode.fixed,
-      speed: selectedSpeed,
-      flash: false,
-      marquee: false,
-    );
+    frames[frames.length - 1] = frameBitmap;
   }
 
-  logger.i('💡 Total frames generated: ${pacmanFrames.length}');
-
-  Data data = Data(messages: pacmanFrames);
-  logger.i('💡 Data object created. Starting transfer...');
-  try {
-    await transferData(DataTransferManager(data));
-  } catch (e, st) {
-    logger.e('⛔ Pacman animation transfer failed: $e\n$st');
-  }
+  await sendAnimationFrames(
+    label: 'Pacman',
+    frames: frames,
+    transferData: transferData,
+  );
 }
 
 void _drawDestroyEffect(
