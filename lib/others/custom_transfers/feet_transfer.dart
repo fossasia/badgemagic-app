@@ -1,63 +1,35 @@
-import 'package:badgemagic/communication/datagenerator.dart';
-import 'package:badgemagic/models/data.dart';
-import 'package:badgemagic/models/messages.dart';
-import 'package:badgemagic/models/mode.dart';
-import 'package:badgemagic/models/speed.dart';
-import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/badge_animation/ani_feet.dart';
+import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/others/custom_transfers/common.dart';
-import 'package:logger/logger.dart';
 
 Future<void> customTransferFeetAnimation(
-    Future<void> Function(DataTransferManager) transferData,
-    int speedLevel) async {
-  if (!await checkAdapterState()) return;
-
+  Future<void> Function(DataTransferManager) transferData,
+  int speedLevel,
+) async {
   const int badgeHeight = FeetAnimation.badgeHeight;
   const int badgeWidth = FeetAnimation.badgeWidth;
-  const int badgeMaxFrames = 8;
-  final Speed selectedSpeed = Speed.eight;
-  final logger = Logger();
-  logger.i('Starting Feet animation transfer...');
-
-  List<int> sampledFrames = List.generate(
-      badgeMaxFrames, (i) => FeetAnimation.frameCount - badgeMaxFrames + i);
-  logger.i('Sampled frame indices for badge: ${sampledFrames.toString()}');
-  if (sampledFrames.isNotEmpty) {
-    logger.i(
-        'Feet transfer: first frame index = ${sampledFrames.first}, last frame index = ${sampledFrames.last}');
-  }
-
-  List<Message> feetFrames = [];
   final feetAnimation = FeetAnimation();
 
-  for (final frame in sampledFrames) {
-    List<List<bool>> frameBitmap =
-        List.generate(badgeHeight, (_) => List.filled(badgeWidth, false));
+  final List<int> sampledFrames = List.generate(
+    animationFrameCount,
+    (i) => FeetAnimation.frameCount - animationFrameCount + i,
+  );
+
+  final frames = sampledFrames.map((frame) {
+    final frameBitmap = blankFrame(badgeHeight, badgeWidth);
     feetAnimation.processAnimation(
       badgeHeight,
       badgeWidth,
       frame,
-      List.generate(badgeHeight, (_) => List.filled(badgeWidth, false)),
+      blankFrame(badgeHeight, badgeWidth),
       frameBitmap,
     );
-    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
-    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
-    logger.i(
-        '🦶 Sampled Frame $frame hex: ${hexList.join(",")} speed: ${selectedSpeed.toString()} (hex: ${selectedSpeed.hexValue})');
-    feetFrames.add(Message(
-      text: hexList,
-      mode: Mode.fixed,
-      speed: selectedSpeed,
-      flash: false,
-      marquee: false,
-    ));
-  }
-  Data data = Data(messages: feetFrames);
-  logger.i('🦶 Feet Data object created. Starting transfer...');
-  try {
-    await transferData(DataTransferManager(data));
-  } catch (e, st) {
-    logger.e('⛔ Feet animation transfer failed: $e\n$st');
-  }
+    return frameBitmap;
+  }).toList();
+
+  await sendAnimationFrames(
+    label: 'Feet',
+    frames: frames,
+    transferData: transferData,
+  );
 }
