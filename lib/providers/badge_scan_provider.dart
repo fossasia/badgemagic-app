@@ -49,7 +49,7 @@ class BadgeScanProvider with ChangeNotifier {
 
   void setBadgeNames(List<String> names) {
     final seen = <String>{};
-    _badgeNames = names.map((name) => name.trim()).where((name) {
+    _badgeNames = names.map((name) => name.trim().toUpperCase()).where((name) {
       if (name.isEmpty) return false;
       final lower = name.toLowerCase();
       if (seen.contains(lower)) return false;
@@ -69,7 +69,7 @@ class BadgeScanProvider with ChangeNotifier {
     bool alreadyExists = _badgeNames.any((existingName) =>
         existingName.toLowerCase() == cleanedName.toLowerCase());
     if (alreadyExists) return;
-    _badgeNames.add(name.trim());
+    _badgeNames.add(name.trim().toUpperCase());
     _saveToPrefs();
     notifyListeners();
   }
@@ -97,7 +97,7 @@ class BadgeScanProvider with ChangeNotifier {
         entry.value.toLowerCase() == cleanedName.toLowerCase());
 
     if (alreadyExists) return;
-    _badgeNames[index] = newName.trim();
+    _badgeNames[index] = newName.trim().toUpperCase();
     _saveToPrefs();
     notifyListeners();
   }
