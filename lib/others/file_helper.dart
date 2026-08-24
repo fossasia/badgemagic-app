@@ -3,7 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:badgemagic/models/data.dart';
-import 'package:badgemagic/others/badge_text_storage.dart';
+import 'package:badgemagic/storage/badge_text_storage.dart';
 import 'package:badgemagic/others/byte_array_utils.dart';
 import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/others/toast_utils.dart';
