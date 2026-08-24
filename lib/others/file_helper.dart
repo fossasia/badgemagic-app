@@ -422,13 +422,6 @@ class FileHelper {
     }
   }
 
-  /// Renames a saved badge file.
-  ///
-  /// [oldFilename] must include the `.json` extension (e.g. `MyBadge.json`).
-  /// [newName] is the bare display name WITHOUT extension (e.g. `NewName`).
-  ///
-  /// Returns `true` on success.
-  /// Returns `false` if [newName] already exists on disk, or on any error.
   Future<bool> renameBadge(String oldFilename, String newName) async {
     try {
       final directory = await getApplicationDocumentsDirectory();
@@ -447,15 +440,11 @@ class FileHelper {
         return false;
       }
 
-      // Rename the physical file on disk
       await oldFile.rename(newPath);
       logger.i('Renamed badge on disk: $oldFilename → $newFilename');
 
-      // Migrate the original-text entry in BadgeTextStorage
       await BadgeTextStorage.moveOriginalText(oldFilename, newFilename);
 
-      // Update the in-memory savedBadgeCache so the UI reflects the new name
-      // immediately without requiring a full reload
       final cache = imageCacheProvider.savedBadgeCache;
       final idx = cache.indexWhere((e) => e.key == oldFilename);
       if (idx >= 0) {

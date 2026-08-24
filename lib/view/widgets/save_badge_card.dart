@@ -70,12 +70,9 @@ class SaveBadgeCard extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Wrapping the text with Flexible to ensure it doesn't overflow.
                 Flexible(
                   child: Padding(
-                    padding: EdgeInsets.only(
-                        right: 8
-                            .w), // Adding some padding to separate text and buttons.
+                    padding: EdgeInsets.only(right: 8.w),
                     child: InkWell(
                       onTap: () {
                         showDialog<void>(
@@ -128,7 +125,7 @@ class SaveBadgeCard extends StatelessWidget {
                 ),
                 Consumer<SavedBadgeProvider>(
                   builder: (context, provider, widget) => Row(
-                    mainAxisSize: MainAxisSize.min, // Keep the row compact
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       IconButton(
                         icon: Image.asset(

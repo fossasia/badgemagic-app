@@ -8,20 +8,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';
 
-/// A dialog that allows the user to rename an existing saved badge.
-///
-/// Pre-fills the text field with the current badge name (stripped of `.json`).
-/// Validates that the new name is not empty and does not already exist on disk
-/// (case-insensitively). On success, calls [refreshBadgesCallback] so the
-/// list updates immediately.
 class RenameBadgeDialog extends StatefulWidget {
-  /// The current filename including the `.json` extension, e.g. `MyBadge.json`.
   final String currentFilename;
-
-  /// The full badge data entry (needed to pass back to [refreshBadgesCallback])
   final MapEntry<String, Map<String, dynamic>> badgeData;
-
-  /// Called after a successful rename so the parent list view refreshes.
   final Future<void> Function(MapEntry<String, Map<String, dynamic>>)
       refreshBadgesCallback;
 
@@ -44,12 +33,10 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
   @override
   void initState() {
     super.initState();
-    // Pre-fill with the current name, stripping the `.json` extension
     final currentName = widget.currentFilename.endsWith('.json')
         ? widget.currentFilename.substring(0, widget.currentFilename.length - 5)
         : widget.currentFilename;
     _nameController = TextEditingController(text: currentName);
-    // Select all text so the user can immediately type a new name
     _nameController.selection =
         TextSelection(baseOffset: 0, extentOffset: currentName.length);
   }
@@ -182,7 +169,6 @@ class _RenameBadgeDialogState extends State<RenameBadgeDialog> {
                 ),
               ),
             ),
-            // Inline error message
             if (_errorText != null) ...[
               SizedBox(height: 4.h),
               Text(
