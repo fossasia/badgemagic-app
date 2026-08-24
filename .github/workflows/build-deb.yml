@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
 
       - name: Install Linux build dependencies
         run: |
@@ -47,7 +47,7 @@ jobs:
           flutter_build_debian
 
       - name: Upload .deb as artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: badgemagic-deb
           path: debian/packages/*.deb

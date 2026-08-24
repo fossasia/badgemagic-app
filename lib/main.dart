@@ -80,7 +80,6 @@ class MyApp extends StatelessWidget {
   }
 
   Widget _buildApp(BuildContext context, Size window) {
-    const double designPhoneWidth = 360.0;
     const double phoneMaxWidth = 480.0;
     const double phoneDiagonal = 859.0;
     const double minDesktopScale = 1.0;
@@ -89,17 +88,19 @@ class MyApp extends StatelessWidget {
     final double w =
         window.width.isFinite && window.width > 0 ? window.width : 360.0;
     final double h =
-        window.height.isFinite && window.height > 0 ? window.height : 780.0;
+        window.height.isFinite && window.height > 0 ? window.height : 690.0;
 
-    final double scale = w <= phoneMaxWidth
-        ? w / designPhoneWidth
-        : (math.sqrt(w * w + h * h) / phoneDiagonal)
-            .clamp(minDesktopScale, maxDesktopScale);
+    final Size designSize;
+    if (w <= phoneMaxWidth) {
+      designSize = const Size(360, 690);
+    } else {
+      final double scale = (math.sqrt(w * w + h * h) / phoneDiagonal)
+          .clamp(minDesktopScale, maxDesktopScale);
+      designSize = Size(w / scale, h / scale);
+    }
 
-    final double designWidth = w / scale;
-    final double designHeight = h / scale;
     return ScreenUtilInit(
-      designSize: Size(designWidth, designHeight),
+      designSize: designSize,
       builder: (context, child) {
         return ValueListenableBuilder<Locale?>(
           valueListenable: appLocale,

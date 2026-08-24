@@ -46,7 +46,7 @@ class SavedClipartListView extends StatelessWidget {
             borderRadius: BorderRadius.circular(15.dg),
             boxShadow: [
               BoxShadow(
-                color: colorShadow.withOpacity(0.5),
+                color: colorShadow.withValues(alpha: 0.5),
                 spreadRadius: 2,
                 blurRadius: 5,
                 offset: const Offset(0, 3),

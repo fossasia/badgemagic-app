@@ -1,27 +1,12 @@
 import 'dart:math';
 import 'package:badgemagic/communication/datagenerator.dart';
-import 'package:badgemagic/models/data.dart';
-import 'package:badgemagic/models/messages.dart';
-import 'package:badgemagic/models/mode.dart';
-import 'package:badgemagic/models/speed.dart';
-import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/custom_transfers/common.dart';
-import 'package:logger/logger.dart';
 
 Future<void> customTransferBrokenHeartsAnimation(
-    Future<void> Function(DataTransferManager) transferData, int speedLevel,
-    {bool skipAdapterCheck = false}) async {
-  if (!skipAdapterCheck && !await checkAdapterState()) return;
-
-  const int frameCount = 8;
-  const int badgeHeight = 11;
-  const int badgeWidth = 44;
-  final Speed selectedSpeed = Speed.eight;
-  final logger = Logger();
-  logger.i(
-      'Broken Hearts transfer (all pieces fall out): selectedSpeed = ${selectedSpeed.toString()}, hex = ${selectedSpeed.hexValue}');
-  List<Message> heartFrames = [];
-
+  Future<void> Function(DataTransferManager) transferData,
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   final List<List<int>> heartShape = [
     [0, 0, 1, 1, 0, 1, 1, 0, 0],
     [0, 1, 1, 1, 1, 1, 1, 1, 0],
@@ -35,9 +20,9 @@ Future<void> customTransferBrokenHeartsAnimation(
   ];
   final int heartW = heartShape[0].length;
   final int heartH = heartShape.length;
-  final int leftCx = badgeWidth ~/ 4 - heartW ~/ 2 - 2;
-  final int rightCx = 3 * badgeWidth ~/ 4 - heartW ~/ 2 - 2;
-  final int topY = badgeHeight ~/ 2 - heartH ~/ 2;
+  final int leftCx = animationBadgeWidth ~/ 4 - heartW ~/ 2 - 2;
+  final int rightCx = 3 * animationBadgeWidth ~/ 4 - heartW ~/ 2 - 2;
+  final int topY = animationBadgeHeight ~/ 2 - heartH ~/ 2;
   final Random rng = Random(12345);
 
   final pixelsL = <Point<int>>[];
@@ -83,42 +68,31 @@ Future<void> customTransferBrokenHeartsAnimation(
 
   final int N = clustersL.length;
 
-  for (int frame = 0; frame < frameCount; frame++) {
+  final frames = List.generate(animationFrameCount, (frame) {
     int logicFrame = frame;
     int fallStep = 3;
-    List<List<bool>> frameBitmap =
-        List.generate(badgeHeight, (_) => List.filled(badgeWidth, false));
-    if (frame < frameCount - 1) {
+    final frameBitmap = blankFrame();
+    if (frame < animationFrameCount - 1) {
       for (int i = 0; i < N; i++) {
         bool isFalling = logicFrame >= i;
         int dy = (logicFrame - i) * fallStep;
         for (var pt in clustersL[i]) {
           int y = isFalling ? pt.y + dy : pt.y;
-          if (y >= 0 && y < badgeHeight) frameBitmap[y][pt.x] = true;
+          if (y >= 0 && y < animationBadgeHeight) frameBitmap[y][pt.x] = true;
         }
         for (var pt in clustersR[i]) {
           int y = isFalling ? pt.y + dy : pt.y;
-          if (y >= 0 && y < badgeHeight) frameBitmap[y][pt.x] = true;
+          if (y >= 0 && y < animationBadgeHeight) frameBitmap[y][pt.x] = true;
         }
       }
     }
-    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
-    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
-    logger.i(
-        '💡 Frame $frame hex: ${hexList.join(",")} speed: ${selectedSpeed.toString()} (hex: ${selectedSpeed.hexValue})');
-    heartFrames.add(Message(
-      text: hexList,
-      mode: Mode.fixed,
-      speed: selectedSpeed,
-      flash: false,
-      marquee: false,
-    ));
-  }
-  Data data = Data(messages: heartFrames);
-  logger.i('💡 Data object created. Starting transfer...');
-  try {
-    await transferData(DataTransferManager(data));
-  } catch (e, st) {
-    logger.e('⛔ Broken Hearts animation transfer failed: $e\n$st');
-  }
+    return frameBitmap;
+  });
+
+  await sendAnimationFrames(
+    label: 'Broken Hearts',
+    frames: frames,
+    transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
+  );
 }
