@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:badgemagic/models/speed.dart';
-import 'package:badgemagic/others/badge_loader_helper.dart';
+import 'package:badgemagic/storage/badge_loader_helper.dart';
 import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/others/toast_utils.dart';

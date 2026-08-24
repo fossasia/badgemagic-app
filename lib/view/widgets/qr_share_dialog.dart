@@ -3,7 +3,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/others/qr_code_helper.dart';
+import 'package:badgemagic/utils/qr_code_helper.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/others/localization_service.dart';
