@@ -3,6 +3,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:badgemagic/models/data.dart';
+import 'package:badgemagic/others/badge_text_storage.dart';
 import 'package:badgemagic/others/byte_array_utils.dart';
 import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/others/toast_utils.dart';
@@ -421,6 +422,43 @@ class FileHelper {
     }
   }
 
+  Future<bool> renameBadge(String oldFilename, String newName) async {
+    try {
+      final directory = await getApplicationDocumentsDirectory();
+      final oldPath = '${directory.path}/$oldFilename';
+      final newFilename = '$newName.json';
+      final newPath = '${directory.path}/$newFilename';
+
+      final oldFile = File(oldPath);
+      if (!await oldFile.exists()) {
+        logger.w('renameBadge: source file not found: $oldPath');
+        return false;
+      }
+      if (await File(newPath).exists()) {
+        logger
+            .w('renameBadge: a badge with that name already exists: $newPath');
+        return false;
+      }
+
+      await oldFile.rename(newPath);
+      logger.i('Renamed badge on disk: $oldFilename → $newFilename');
+
+      await BadgeTextStorage.moveOriginalText(oldFilename, newFilename);
+
+      final cache = imageCacheProvider.savedBadgeCache;
+      final idx = cache.indexWhere((e) => e.key == oldFilename);
+      if (idx >= 0) {
+        cache[idx] = MapEntry(newFilename, cache[idx].value);
+      }
+      imageCacheProvider.notify();
+
+      return true;
+    } catch (e) {
+      logger.e('Error renaming badge: $e');
+      return false;
+    }
+  }
+
   Future<void> saveImageWithName(
       List<List<bool>> imageData, String customName) async {
     List<List<int>> image = List.generate(
@@ -480,19 +518,20 @@ class FileHelper {
     return candidate;
   }
 
-  Future<bool> importBadgeData(dynamic context) async {
+  Future<bool> importBadgeData(BuildContext context) async {
     try {
-      final result = await FilePicker.pickFile(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json', 'gif'],
       );
 
-      if (result == null) {
+      if (result.isEmpty) {
         ToastUtils().showToast('No file selected');
         return false;
       }
 
-      File file = File(result.path!);
+      final pickedFile = result.first;
+      File file = File(pickedFile.path!);
 
       if (file.path.toLowerCase().endsWith('.gif')) {
         final fileName = file.uri.pathSegments.last.replaceAll('.gif', '.json');
@@ -520,37 +559,40 @@ class FileHelper {
       } else if (file.path.toLowerCase().endsWith('.json')) {
         Data data = Data.fromJson(jsonDecode(await file.readAsString()));
 
-        await _writeToFile(result.name, jsonEncode(data.toJson()));
+        await _writeToFile(pickedFile.name, jsonEncode(data.toJson()));
 
-        logger.d('Imported badge to: ${result.name}, data: $data');
+        logger.d('Imported badge to: ${pickedFile.name}, data: $data');
 
         return true;
       } else {
         throw Exception('Only .gif and .json are supported!');
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error importing badge: $e')),
-      );
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error importing badge: $e')),
+        );
+      }
       return false;
     }
   }
 
   Future<bool> importClipart(BuildContext context) async {
     try {
-      final result = await FilePicker.pickFile(
+      final result = await FilePicker.pickFiles(
         type: FileType.custom,
         allowedExtensions: ['json'],
       );
 
-      if (result == null) {
+      if (result.isEmpty) {
         ToastUtils().showToast('No file selected');
         return false;
       }
 
-      File file = File(result.path!);
+      final pickedFile = result.first;
+      File file = File(pickedFile.path!);
 
-      String originalName = result.name;
+      String originalName = pickedFile.name;
 
       String baseName =
           originalName.replaceAll(RegExp(r'\.json$', caseSensitive: false), '');

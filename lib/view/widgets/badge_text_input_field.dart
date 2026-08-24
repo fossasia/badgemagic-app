@@ -5,9 +5,14 @@ import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/view/widgets/special_text_field.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+
+import '../../others/localization_service.dart';
+import '../../others/toast_utils.dart';
 
 class BadgeTextInputField extends StatelessWidget {
   final TextEditingController controller;
@@ -50,8 +55,14 @@ class BadgeTextInputField extends StatelessWidget {
     }
   }
 
+  static final RegExp _emojiRegex = RegExp(
+    r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|\ud83e[\udc00-\udfff]|[\uFE00-\uFE0F])',
+  );
+
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
       child: Material(
@@ -59,6 +70,26 @@ class BadgeTextInputField extends StatelessWidget {
         borderRadius: BorderRadius.circular(10.r),
         elevation: 4,
         child: ExtendedTextField(
+          inputFormatters: [
+            TextInputFormatter.withFunction((oldValue, newValue) {
+              if (_emojiRegex.hasMatch(newValue.text)) {
+                final strippedText = newValue.text.replaceAll(_emojiRegex, ' ');
+                ToastUtils().showToast(l10n.notSupportedEmojis);
+                final newSelectionOffset = math.min(
+                  newValue.selection.baseOffset,
+                  strippedText.length,
+                );
+
+                return TextEditingValue(
+                  text: strippedText,
+                  selection: TextSelection.collapsed(
+                    offset: math.max(0, newSelectionOffset),
+                  ),
+                );
+              }
+              return newValue;
+            }),
+          ],
           controller: controller,
           specialTextSpanBuilder: ImageBuilder(),
           style: Provider.of<FontProvider>(context).selectedFont != null

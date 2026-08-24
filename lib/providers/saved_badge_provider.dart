@@ -48,8 +48,6 @@ Map<int, Mode> modeValueMap = {
 };
 
 class SavedBadgeProvider extends ChangeNotifier {
-  /// Applies saved badge data to the UI providers and controllers.
-  /// Moves logic out of HomeScreen._applySavedBadgeData for better separation of concerns.
   Future<void> applySavedBadgeDataToUI({
     required Map<String, dynamic> savedData,
     required String? savedBadgeFilename,
@@ -143,7 +141,6 @@ class SavedBadgeProvider extends ChangeNotifier {
     logger.d('Saved badge with original text: $message');
   }
 
-  /// Updates an existing badge (identified by [filename]) with new data.
   Future<void> updateBadgeData(String filename, String message, bool isFlash,
       bool isMarquee, bool isInvert, int? speed, int animation) async {
     String cleanFilename = filename;
@@ -370,8 +367,6 @@ class SavedBadgeProvider extends ChangeNotifier {
 
   Map<String, dynamic> getSavedBadgeDataMap() => savedBadgeData;
 
-  /// Shows a confirmation dialog before editing a badge
-  /// Returns true if user confirms, false otherwise
   Future<bool> showEditBadgeConfirmation(BuildContext context) async {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
