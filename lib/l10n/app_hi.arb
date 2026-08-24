@@ -174,5 +174,12 @@
     "saveSettings": "सेटिंग्स सेव करें",
     "connectToAnyBadge": "किसी भी बैज से कनेक्ट करें",
     "badgeNameHint": "बैज का नाम",
-    "pleaseSelectClipart": "सेव करने से पहले कृपया तस्वीर बनाएं या चुनें"
+    "pleaseSelectClipart": "सेव करने से पहले कृपया तस्वीर बनाएं या चुनें",
+    "renameBadge": "बैज का नाम बदलें",
+    "newName": "नया नाम",
+    "rename": "नाम बदलें",
+    "badgeNameEmpty": "बैज का नाम खाली नहीं हो सकता।",
+    "badgeAlreadyExists": "इस नाम से बैज पहले से मौजूद है।",
+    "couldNotRenameBadge": "बैज का नाम नहीं बदला जा सका। कृपया फिर से कोशिश करें।",
+    "badgeRenamedSuccessfully": "बैज का नाम सफलतापूर्वक बदल दिया गया!"
 }
