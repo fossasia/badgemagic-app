@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:badgemagic/models/messages.dart';
 import 'package:badgemagic/models/mode.dart';
 import 'package:badgemagic/models/speed.dart';
-import 'package:badgemagic/others/badge_text_storage.dart';
+import 'package:badgemagic/storage/badge_text_storage.dart';
 import 'package:badgemagic/others/byte_array_utils.dart';
 import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/file_helper.dart';
