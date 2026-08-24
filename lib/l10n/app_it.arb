@@ -217,5 +217,12 @@
   "triangle": "Triangolo",
   "clipartSavedSuccessfully": "Clipart salvato con successo",
   "badgeScanMode": "Modalità Scansione Badge",
-  "pleaseSelectClipart": "Si prega di disegnare o selezionare un clipart prima di salvare"
+  "pleaseSelectClipart": "Si prega di disegnare o selezionare un clipart prima di salvare",
+  "renameBadge": "Rinomina Badge",
+  "newName": "Nuovo nome",
+  "rename": "Rinomina",
+  "badgeNameEmpty": "Il nome del badge non può essere vuoto.",
+  "badgeAlreadyExists": "Esiste già un badge con questo nome.",
+  "couldNotRenameBadge": "Impossibile rinominare il badge. Riprova.",
+  "badgeRenamedSuccessfully": "Badge rinominato con successo!"
 }
