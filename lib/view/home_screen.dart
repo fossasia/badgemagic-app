@@ -15,13 +15,16 @@ import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
 import 'package:badgemagic/providers/firmware_update.dart';
-import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
+import 'package:badgemagic/view/widgets/badge_action_buttons.dart';
+import 'package:badgemagic/view/widgets/badge_clipart_picker.dart';
+import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
+import 'package:badgemagic/view/widgets/badge_control_tab_view.dart';
+import 'package:badgemagic/view/widgets/badge_text_input_field.dart';
 import 'package:badgemagic/view/widgets/firmware_update_dialog.dart';
-import 'package:badgemagic/view/widgets/special_text_field.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -131,6 +134,7 @@ class _HomeScreenState extends State<HomeScreen>
             version: updateInfo['version']!,
             date: updateInfo['date']!,
             service: updateService,
+            releaseAssets: [],
           );
         },
       );
