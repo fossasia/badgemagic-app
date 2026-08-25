@@ -1,7 +1,7 @@
 import 'package:badgemagic/communication/completed_state.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
 
+import 'package:badgemagic/others/app_logger.dart';
 import 'package:badgemagic/others/localization_service.dart';
 
 abstract class BleState {
@@ -9,8 +9,6 @@ abstract class BleState {
 }
 
 abstract class NormalBleState extends BleState {
-  final logger = Logger();
-
   Future<BleState?> processState();
 
   @override
@@ -26,7 +24,6 @@ abstract class NormalBleState extends BleState {
 
 abstract class RetryBleState extends BleState {
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
-  final logger = Logger();
 
   final _maxRetries = 3;
 
