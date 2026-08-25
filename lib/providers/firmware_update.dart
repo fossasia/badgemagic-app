@@ -480,7 +480,7 @@ Future<Uint8List> downloadFirmwareBinary({
         otaServiceUuid,
         otaCharacteristicUuid,
         packet,
-        withoutResponse: true,
+        withoutResponse: false,
       );
 
       final written = offset + chunk.length;
