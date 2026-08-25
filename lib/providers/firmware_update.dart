@@ -457,11 +457,11 @@ Future<Uint8List> downloadFirmwareBinary({
   // ============================================================
 
   Future<void> _program(
-      String deviceId,
-      Uint8List firmware, {
-        required int chunkSize,
-        Function(double progress)? onProgress,
-      }) async {
+    String deviceId,
+    Uint8List firmware, {
+    required int chunkSize,
+    Function(double progress)? onProgress,
+  }) async {
     final total = firmware.length;
     logger.i('OTA: programming $total bytes with chunk size: $chunkSize');
 
