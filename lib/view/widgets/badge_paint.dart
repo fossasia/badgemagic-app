@@ -1,6 +1,6 @@
 import 'dart:math' as math;
 
-import 'package:badgemagic/others/badge_utils.dart';
+import 'package:badgemagic/utils/badge_utils.dart';
 import 'package:flutter/material.dart';
 
 class BadgePaint extends CustomPainter {
