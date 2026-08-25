@@ -17,7 +17,7 @@ import 'package:badgemagic/others/custom_transfers/transfers.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
-import 'package:logger/logger.dart';
+import 'package:badgemagic/others/app_logger.dart';
 import 'package:provider/provider.dart';
 
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
@@ -53,7 +53,6 @@ Map<int, Speed> speedMap = {
 };
 
 class BadgeMessageProvider {
-  static final Logger logger = Logger();
   InlineImageProvider controllerData =
       GetIt.instance.get<InlineImageProvider>();
   FileHelper fileHelper = FileHelper();
@@ -105,14 +104,10 @@ class BadgeMessageProvider {
         context: context!);
 
     BleState? state = initialState;
-    DateTime now = DateTime.now();
 
     while (state != null) {
       state = await state.process();
     }
-
-    logger.d("Time to transfer data: ${DateTime.now().difference(now)}");
-    logger.d(".......Data transfer completed.......");
   }
 
   Future<void> checkAndTransfer(
