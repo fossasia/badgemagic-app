@@ -457,13 +457,12 @@ Future<Uint8List> downloadFirmwareBinary({
   // ============================================================
 
   Future<void> _program(
-    String deviceId,
-    Uint8List firmware, {
-    required int chunkSize,
-    Function(double progress)? onProgress,
-  }) async {
+      String deviceId,
+      Uint8List firmware, {
+        required int chunkSize,
+        Function(double progress)? onProgress,
+      }) async {
     final total = firmware.length;
-
     logger.i('OTA: programming $total bytes with chunk size: $chunkSize');
 
     for (int offset = 0; offset < total; offset += chunkSize) {
@@ -492,10 +491,6 @@ Future<Uint8List> downloadFirmwareBinary({
         logger.i(
           'OTA progress: ${(progress * 100).toStringAsFixed(1)}% ($written/$total)',
         );
-      }
-
-      if (promDelayFast.inMilliseconds > 0) {
-        await Future.delayed(promDelayFast);
       }
     }
 
