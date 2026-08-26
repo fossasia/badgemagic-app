@@ -1,10 +1,7 @@
 import 'package:badgemagic/models/data.dart';
 import 'package:badgemagic/others/byte_array_utils.dart';
-import 'package:logger/logger.dart';
 
 class DataToByteArrayConverter {
-  final Logger logger = Logger();
-
   var maxMessages = 8;
   var packetStart = "77616E670000";
   var packetByteSize = 16;
@@ -186,7 +183,6 @@ class DataToByteArrayConverter {
         ("$packetStart${getFlash(data)}${getMarquee(data)}${getOptions(data)}${getSizes(data)}000000000000${getTime(DateTime.now())}0000000000000000000000000000000000000000${getMessage(data)}");
     int length = message.length;
     message += fillZeros(length);
-    logger.d("Final Message is = $message");
     List<String> chunks = [];
     int chunkSize = packetByteSize * 2;
     for (var i = 0; i < message.length; i += chunkSize) {
@@ -208,7 +204,6 @@ class DataToByteArrayConverter {
       int flashFlag = message.flash ? 1 : 0;
       flashByte[0] = flashByte[0] | (flashFlag << index) & 0xFF;
     });
-    logger.d("Get flash = ${toHex(flashByte)}");
     return toHex(flashByte);
   }
 
@@ -218,7 +213,6 @@ class DataToByteArrayConverter {
       int marqueeFlag = message.marquee ? 1 : 0;
       marqueeBytes[0] = marqueeBytes[0] | (marqueeFlag << index) & 0xFF;
     });
-    logger.d("Get Marquee = ${toHex(marqueeBytes)}");
     return toHex(marqueeBytes);
   }
 
@@ -231,7 +225,6 @@ class DataToByteArrayConverter {
             .map((value) => toHex(List<int>.filled(1, value)))
             .join() +
         '00' * (maxMessages - nbMessages);
-    logger.d("get options = $ans");
     return ans;
   }
 
@@ -248,7 +241,6 @@ class DataToByteArrayConverter {
             ]))
         .join()
         .padRight(32 - nbMessages * 4 + 4, '0');
-    logger.d("get sizes = $ans");
     return ans;
   }
 
@@ -261,7 +253,6 @@ class DataToByteArrayConverter {
       int.parse((now.minute & 0xFF).toString().padLeft(2, '0')),
       int.parse((now.second & 0xFF).toString().padLeft(2, '0'))
     ]);
-    logger.d("get time = $ans");
     return ans;
   }
 
@@ -270,14 +261,12 @@ class DataToByteArrayConverter {
         .map((message) =>
             message.text.join('').replaceAll(RegExp(r'^\[|\]$'), ''))
         .join('');
-    logger.d("Get message = $ans");
     return ans;
   }
 
   String fillZeros(int length) {
     String ans = "0" *
         ((((length / (16 * 2)) + 1).floor() * 16 * 2).floor() - length).toInt();
-    logger.d("Fill with zeroes = $ans no of zeroes = ${ans.length}");
     return ans;
   }
 }
