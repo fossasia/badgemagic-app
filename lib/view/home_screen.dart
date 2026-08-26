@@ -107,11 +107,11 @@ class _HomeScreenState extends State<HomeScreen>
     _tabController = TabController(length: 4, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      _initiateFirmwareCheck();
+      //_initiateFirmwareCheck();
     });
   }
 
-  Future<void> _initiateFirmwareCheck() async {
+  /*Future<void> _initiateFirmwareCheck() async {
     final updateService = FirmwareUpdateService();
     final updateInfo = await updateService.checkForUpdates();
     final prefs = await SharedPreferences.getInstance();
@@ -139,7 +139,7 @@ class _HomeScreenState extends State<HomeScreen>
         },
       );
     }
-  }
+  }*/
 
   Future<void> loadPreferences() async {
     final prefs = await SharedPreferences.getInstance();

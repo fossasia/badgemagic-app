@@ -1,26 +1,25 @@
-import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
-import 'package:universal_ble/universal_ble.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+import '../../others/byte_array_utils.dart';
 import '../../others/globals.dart';
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
-import '../../providers/badge_scan_provider.dart';
 import '../../providers/firmware_update.dart';
 
 class FirmwareUpdateDialog extends StatefulWidget {
   final String version;
   final String date;
   final List<dynamic> releaseAssets;
-  final FirmwareUpdateService service;
 
   const FirmwareUpdateDialog({
     super.key,
     required this.version,
     required this.date,
     required this.releaseAssets,
-    required this.service,
   });
 
   @override
@@ -29,56 +28,77 @@ class FirmwareUpdateDialog extends StatefulWidget {
 
 class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
   bool _dontRemindAgain = false;
+  bool _isFlashing = false;
+  double _flashProgress = 0.0;
+  String _statusText = '';
 
-  Future<BleDevice?> scanForBadge({
-    required BadgeScanMode mode,
-    required List<String> allowedNames,
-  }) async {
-    final completer = Completer<BleDevice?>();
-    StreamSubscription<BleDevice>? subscription;
+  final WchUsbIspFlasher _flasher = WchUsbIspFlasher();
 
-    final normalizedNames = allowedNames
-        .map((e) => e.trim().toLowerCase())
-        .where((e) => e.isNotEmpty)
-        .toList();
+  Future<void> _skipVersionPermanently(String version) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('skip_firmware_version_$version', true);
+  }
 
-    subscription = UniversalBle.scanStream.listen((device) async {
-      final matchesUuid = device.services.contains(serviceUuid);
-      final deviceName = (device.name ?? "").trim().toLowerCase();
-      final matchesName =
-          mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
-
-      if (matchesUuid && matchesName) {
-        subscription?.cancel();
-        await UniversalBle.stopScan();
-        if (!completer.isCompleted) {
-          completer.complete(device);
-        }
-      }
+  Future<void> _startUsbFlash() async {
+    setState(() {
+      _isFlashing = true;
+      _flashProgress = 0.0;
+      _statusText = 'Download del firmware in corso...';
     });
 
-    await UniversalBle.startScan(
-      scanFilter: ScanFilter(withServices: [serviceUuid]),
-    );
-
-    Timer(const Duration(seconds: 10), () async {
-      await UniversalBle.stopScan();
-      subscription?.cancel();
-      if (!completer.isCompleted) {
-        completer.complete(null);
+    try {
+      if (_dontRemindAgain) {
+        await _skipVersionPermanently(widget.version);
       }
-    });
 
-    return completer.future;
+      // 1. Download del file merged.bin da GitHub
+      final Uint8List firmwareData =
+          await _flasher.downloadFirmwareBinary(widget.releaseAssets);
+
+      if (mounted) {
+        setState(() {
+          _statusText = 'Connessione USB e scrittura Flash...';
+        });
+      }
+
+      // 2. Scrittura via cavo USB Bootloader
+      await _flasher.flashMergedBinary(
+        firmwareData: firmwareData,
+        onProgress: (progress) {
+          if (mounted) {
+            setState(() {
+              _flashProgress = progress;
+              _statusText =
+                  'Flash USB: ${(progress * 100).toStringAsFixed(0)}%';
+            });
+          }
+        },
+      );
+
+      ToastUtils().showToast('Firmware aggiornato con successo via USB!');
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      logger.e('Errore flash USB: $e');
+      ToastUtils().showToast('Errore: $e');
+      if (mounted) {
+        setState(() {
+          _isFlashing = false;
+          _statusText = '';
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
     return AlertDialog(
       title: Row(
         children: [
-          const Icon(Icons.system_update, color: Colors.red),
+          const Icon(Icons.usb, color: Colors.red),
           const SizedBox(width: 10),
           Text(l10n.newFirmwareVersionFound),
         ],
@@ -92,77 +112,76 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
               style: const TextStyle(fontWeight: FontWeight.bold)),
           Text('• Date: ${widget.date}',
               style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 20),
-          Row(
-            children: [
-              SizedBox(
-                width: 24,
-                height: 24,
-                child: Checkbox(
-                  activeColor: Colors.red,
-                  value: _dontRemindAgain,
-                  onChanged: (bool? value) {
-                    setState(() {
-                      _dontRemindAgain = value ?? false;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(width: 10),
-              Expanded(
-                child: Text(
-                  l10n.dontRememberFirmwareVersionUpdate,
-                  style: const TextStyle(fontSize: 14),
-                ),
-              ),
-            ],
+          const SizedBox(height: 12),
+          Text(
+            'Collega il badge con cavo OTG in modalità Bootloader (tieni premuto il pulsante mentre inserisci il cavo).',
+            style: TextStyle(
+              fontSize: 12,
+              color: Colors.grey.shade800,
+              fontStyle: FontStyle.italic,
+            ),
           ),
+          const SizedBox(height: 16),
+          if (_isFlashing) ...[
+            LinearProgressIndicator(
+              value: _flashProgress,
+              color: Colors.red,
+              backgroundColor: Colors.red.shade100,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _statusText,
+              style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
+            ),
+          ] else ...[
+            Row(
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: Checkbox(
+                    activeColor: Colors.red,
+                    value: _dontRemindAgain,
+                    onChanged: (bool? value) {
+                      setState(() {
+                        _dontRemindAgain = value ?? false;
+                      });
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    l10n.dontRememberFirmwareVersionUpdate,
+                    style: const TextStyle(fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ],
       ),
       actions: [
-        TextButton(
-          onPressed: () async {
-            if (_dontRemindAgain) {
-              await widget.service.skipVersionPermanently(widget.version);
-            }
-            if (context.mounted) Navigator.pop(context);
-          },
-          child: Text(l10n.laterButton),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white,
+        if (!_isFlashing) ...[
+          TextButton(
+            onPressed: () async {
+              if (_dontRemindAgain) {
+                await _skipVersionPermanently(widget.version);
+              }
+              if (context.mounted) Navigator.pop(context);
+            },
+            child: Text(l10n.laterButton),
           ),
-          onPressed: () async {
-            if (_dontRemindAgain) {
-              await widget.service.skipVersionPermanently(widget.version);
-            }
-
-            final nav = Navigator.of(context);
-            nav.pop();
-
-            final device = await scanForBadge(
-              mode: BadgeScanMode.any,
-              allowedNames: [],
-            );
-
-            if (device == null) {
-              ToastUtils().showToast(l10n.noBadgesFound);
-              return;
-            }
-
-            await UniversalBle.connect(device.deviceId);
-
-            await widget.service.executeFirmwareUpdate(
-              deviceId: device.deviceId,
-              releaseAssets: widget.releaseAssets,
-              hardwareVariant: 'usbc_4key',
-              onProgress: (progress) {},
-            );
-          },
-          child: Text(l10n.updateButton),
-        ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+            ),
+            icon: const Icon(Icons.flash_on, size: 18),
+            onPressed: _startUsbFlash,
+            label: const Text('Flash via USB'),
+          ),
+        ],
       ],
     );
   }
