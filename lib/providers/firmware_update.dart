@@ -462,7 +462,7 @@ Future<Uint8List> downloadFirmwareBinary({
     Function(double progress)? onProgress,
   }) async {
     final int total = firmware.length;
-    const int chunkSize = 240;
+    const int chunkSize = 720;
     const int startAddr = 0x0000;
 
     logger.i('OTA: Invio $total byte con chunk da $chunkSize...');
