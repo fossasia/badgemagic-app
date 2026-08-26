@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:typed_data';
 
 import 'package:badgemagic/constants.dart';
@@ -13,7 +14,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../others/byte_array_utils.dart';
 import '../others/globals.dart';
 import '../others/localization_service.dart';
-import '../others/toast_utils.dart';
 import '../providers/badge_scan_provider.dart';
 import '../providers/firmware_update.dart';
 
@@ -42,14 +42,15 @@ class SettingsScreenState extends State<SettingsScreen> {
   String? _updateStatusMessage;
 
   bool _isFlashingFirmware = false;
-  double _flashProgress = 0.0;
   String _flashStatusText = '';
 
   @override
   void initState() {
     super.initState();
     _setOrientation();
-    initAutocheckFirmwareUpdate();
+    if (Platform.isAndroid) {
+      initAutocheckFirmwareUpdate();
+    }
   }
 
   void initAutocheckFirmwareUpdate() async {
@@ -95,18 +96,17 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     setState(() {
       _isFlashingFirmware = true;
-      _flashProgress = 0.0;
-      _flashStatusText = 'Download firmware in corso...';
+      _flashStatusText = 'Firmware download in progress...';
     });
 
     try {
       final List<dynamic> assets = _availableUpdate!['assets'] ?? [];
       final Uint8List firmwareData =
-          await _flasher.downloadFirmwareBinary(assets);
+      await _flasher.downloadFirmwareBinary(assets);
 
       if (mounted) {
         setState(() {
-          _flashStatusText = 'Scrittura su USB ISP...';
+          _flashStatusText = 'writing on USB ISP...';
         });
       }
 
@@ -115,21 +115,18 @@ class SettingsScreenState extends State<SettingsScreen> {
         onProgress: (progress) {
           if (mounted) {
             setState(() {
-              _flashProgress = progress;
               _flashStatusText =
-                  'Flash USB: ${(progress * 100).toStringAsFixed(0)}%';
+              'Flash USB: ${(progress * 100).toStringAsFixed(0)}%';
             });
           }
         },
       );
 
-      ToastUtils().showToast('Firmware flashato con successo via USB!');
       if (mounted) {
         setState(() => _availableUpdate = null);
       }
     } catch (e) {
-      logger.e('Errore flash USB: $e');
-      ToastUtils().showToast('Errore flash USB: $e');
+      logger.e('Flash USB error: $e');
     } finally {
       if (mounted) {
         setState(() {
@@ -204,145 +201,149 @@ class SettingsScreenState extends State<SettingsScreen> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding:
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 ),
-                const SizedBox(height: 24),
-                const Divider(),
-                const SizedBox(height: 12),
-                Text(
-                  l10n.firmwareUpdate,
-                  style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed:
-                          _isCheckingUpdate ? null : _handleManualUpdateCheck,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: indicatorColor,
-                        elevation: 0,
-                      ),
-                      icon: _isCheckingUpdate
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.red),
-                            )
-                          : const Icon(Icons.refresh),
-                      label: Text(l10n.checkFirmwareUpdateButton),
-                    ),
-                  ],
-                ),
-                if (_updateStatusMessage != null) ...[
+
+                if (Platform.isAndroid) ...[
+                  const SizedBox(height: 24),
+                  const Divider(),
                   const SizedBox(height: 12),
                   Text(
-                    _updateStatusMessage!,
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                    l10n.firmwareUpdate,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold),
                   ),
-                ],
-                if (_availableUpdate != null) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      border: Border.all(color: Colors.red.shade200),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.usb, color: Colors.red),
-                            const SizedBox(width: 8),
-                            Text(
-                              l10n.newFirmwareVersionFound,
-                              style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.red,
-                                  fontSize: 15),
-                            ),
-                          ],
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      ElevatedButton.icon(
+                        onPressed:
+                        _isCheckingUpdate ? null : _handleManualUpdateCheck,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: indicatorColor,
+                          elevation: 0,
                         ),
-                        const SizedBox(height: 8),
-                        Text("• Version: ${_availableUpdate!['version']}",
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
-                        Text("• Released: ${_availableUpdate!['date']}",
-                            style:
-                                const TextStyle(fontWeight: FontWeight.w600)),
-                        const SizedBox(height: 8),
-                        Text(
-                          "Collega il badge via cavo OTG in modalità Bootloader (tasto premuto all'inserimento).",
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey.shade800,
-                              fontStyle: FontStyle.italic),
-                        ),
-                        if (_isFlashingFirmware) ...[
-                          const SizedBox(height: 12),
-                          LinearProgressIndicator(
-                            value: _flashProgress,
-                            color: Colors.red,
-                            backgroundColor: Colors.red.shade100,
-                          ),
-                          const SizedBox(height: 6),
-                          Text(
-                            _flashStatusText,
-                            style: TextStyle(
-                                fontSize: 12, color: Colors.grey.shade700),
-                          ),
-                        ] else ...[
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
-                            children: [
-                              TextButton(
-                                onPressed: () =>
-                                    setState(() => _availableUpdate = null),
-                                child: Text(
-                                  l10n.dismissButton,
-                                  style: const TextStyle(color: Colors.black),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                ),
-                                icon: const Icon(Icons.flash_on, size: 18),
-                                onPressed: _handleStartUsbFirmwareUpdate,
-                                label: const Text("Flash via USB"),
-                              ),
-                            ],
-                          )
-                        ],
-                      ],
-                    ),
+                        icon: _isCheckingUpdate
+                            ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(
+                              strokeWidth: 2, color: Colors.red),
+                        )
+                            : const Icon(Icons.refresh),
+                        label: Text(l10n.checkFirmwareUpdateButton),
+                      ),
+                    ],
                   ),
-                ],
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    const SizedBox(width: 8),
-                    Text(l10n.checkUpdateStartup),
-                    Checkbox(
-                      activeColor: colorPrimary,
-                      value: autoCheck,
-                      onChanged: (value) async {
-                        setState(() => autoCheck = value!);
-                        await prefs.setBool('auto_check_updates', value!);
-                      },
+                  if (_updateStatusMessage != null) ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      _updateStatusMessage!,
+                      style:
+                      TextStyle(color: Colors.grey.shade700, fontSize: 14),
                     ),
                   ],
-                ),
+                  if (_availableUpdate != null) ...[
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.red.shade50,
+                        border: Border.all(color: Colors.red.shade200),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              const Icon(Icons.usb, color: Colors.red),
+                              const SizedBox(width: 8),
+                              Text(
+                                l10n.newFirmwareVersionFound,
+                                style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red,
+                                    fontSize: 15),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          Text("• Version: ${_availableUpdate!['version']}",
+                              style:
+                              const TextStyle(fontWeight: FontWeight.w600)),
+                          Text("• Released: ${_availableUpdate!['date']}",
+                              style:
+                              const TextStyle(fontWeight: FontWeight.w600)),
+                          const SizedBox(height: 8),
+                          Text(
+                            "Connect the badge via OTG cable in Bootloader mode (button pressed upon insertion).",
+                            style: TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey.shade800,
+                                fontStyle: FontStyle.italic),
+                          ),
+                          if (_isFlashingFirmware) ...[
+                            const SizedBox(height: 12),
+                            CircularProgressIndicator(
+                              color: Colors.red,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              _flashStatusText,
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey.shade700),
+                            ),
+                          ] else ...[
+                            const SizedBox(height: 12),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                TextButton(
+                                  onPressed: () =>
+                                      setState(() => _availableUpdate = null),
+                                  child: Text(
+                                    l10n.dismissButton,
+                                    style: const TextStyle(color: Colors.black),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  icon: const Icon(Icons.flash_on, size: 18),
+                                  onPressed: _handleStartUsbFirmwareUpdate,
+                                  label: const Text("Flash via USB"),
+                                ),
+                              ],
+                            )
+                          ],
+                        ],
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      const SizedBox(width: 8),
+                      Text(l10n.checkUpdateStartup),
+                      Checkbox(
+                        activeColor: colorPrimary,
+                        value: autoCheck,
+                        onChanged: (value) async {
+                          if (value == null) return;
+                          setState(() => autoCheck = value);
+                          await prefs.setBool('auto_check_updates', value);
+                        },
+                      ),
+                    ],
+                  ),
+                ],
+
                 const SizedBox(height: 24),
                 const Divider(),
                 const SizedBox(height: 12),
@@ -393,7 +394,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   }
                                   _controllers = provider.badgeNames
                                       .map((name) =>
-                                          TextEditingController(text: name))
+                                      TextEditingController(text: name))
                                       .toList();
                                 });
                               },
@@ -442,7 +443,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   hintText: l10n.badgeNameHint,
                                   border: InputBorder.none,
                                   contentPadding:
-                                      const EdgeInsets.symmetric(vertical: 12),
+                                  const EdgeInsets.symmetric(vertical: 12),
                                 ),
                                 onChanged: (value) =>
                                     provider.updateBadgeName(index, value),
