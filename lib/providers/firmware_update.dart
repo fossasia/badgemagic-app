@@ -459,18 +459,30 @@ Future<Uint8List> downloadFirmwareBinary({
   Future<void> _program(
     String deviceId,
     Uint8List firmware, {
-    required int chunkSize,
     Function(double progress)? onProgress,
   }) async {
-    final total = firmware.length;
-    logger.i('OTA: programming $total bytes with chunk size: $chunkSize');
+    final int total = firmware.length;
+    const int chunkSize = 240;
+    const int startAddr = 0x0000;
+
+    logger.i('OTA: Invio $total byte con chunk da $chunkSize...');
 
     for (int offset = 0; offset < total; offset += chunkSize) {
       final int end = (offset + chunkSize < total) ? offset + chunkSize : total;
-      final chunk = firmware.sublist(offset, end);
+      final int currentSize = end - offset;
+      final Uint8List chunk = firmware.sublist(offset, end);
 
+      // Calcolo indirizzo diviso 16 (LSB, MSB)
+      final int addrCalc = (startAddr + offset) ~/ 16;
+      final int addrLsb = addrCalc & 0xFF;
+      final int addrMsb = (addrCalc >> 8) & 0xFF;
+
+      // Header a 4 byte come in ota.cpp: [Opcode, Size, Addr_LSB, Addr_MSB, ...Dati]
       final packet = Uint8List.fromList([
-        cmdIapProm,
+        cmdIapProm, // 0x82
+        currentSize, // Dimensione effettiva del chunk
+        addrLsb, // (Addr / 16) LSB
+        addrMsb, // (Addr / 16) MSB
         ...chunk,
       ]);
 
@@ -482,19 +494,11 @@ Future<Uint8List> downloadFirmwareBinary({
         withoutResponse: false,
       );
 
-      final written = offset + chunk.length;
-      final progress = written / total;
-
-      onProgress?.call(progress.clamp(0.0, 1.0));
-
-      if (offset % (chunkSize * 32) == 0 || written == total) {
-        logger.i(
-          'OTA progress: ${(progress * 100).toStringAsFixed(1)}% ($written/$total)',
-        );
-      }
+      final int written = offset + currentSize;
+      onProgress?.call((written / total).clamp(0.0, 1.0));
     }
 
-    logger.i('OTA: programming completed');
+    logger.i('OTA: Scrittura firmware terminata con successo.');
   }
 
   // ============================================================
@@ -605,7 +609,6 @@ Future<Uint8List> downloadFirmwareBinary({
     await _program(
       deviceId,
       firmware,
-      chunkSize: effectiveChunkSize,
       onProgress: onProgress,
     );
 
