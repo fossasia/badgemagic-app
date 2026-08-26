@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:hid_tool/hid_tool.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:quick_usb/quick_usb.dart';
 
 class WchUsbIspFlasher {
   static const String _apiLatestUrl =
@@ -21,14 +21,11 @@ class WchUsbIspFlasher {
 
   static const int ispChunkSize = 56;
 
-  /// Controlla la versione più recente rilasciata su GitHub
   Future<Map<String, dynamic>?> checkForUpdates() async {
     try {
       final response = await http.get(
         Uri.parse(_apiLatestUrl),
-        headers: {
-          'Accept': 'application/vnd.github+json',
-        },
+        headers: {'Accept': 'application/vnd.github+json'},
       );
 
       if (response.statusCode == 200) {
@@ -57,20 +54,17 @@ class WchUsbIspFlasher {
     return null;
   }
 
-  /// Scarica il file merged.bin dagli asset della release
   Future<Uint8List> downloadFirmwareBinary(List<dynamic> assets) async {
     final asset = assets.firstWhere(
       (a) {
         final name = (a['name'] as String? ?? '').toLowerCase();
         return name.contains('merged') && name.endsWith('.bin');
       },
-      orElse: () {
-        return assets.firstWhere(
-          (a) => (a['name'] as String? ?? '').toLowerCase().endsWith('.bin'),
-          orElse: () => throw Exception(
-              'Nessun file firmware .bin trovato nella release.'),
-        );
-      },
+      orElse: () => assets.firstWhere(
+        (a) => (a['name'] as String? ?? '').toLowerCase().endsWith('.bin'),
+        orElse: () =>
+            throw Exception('Nessun file .bin trovato nella release.'),
+      ),
     );
 
     final String downloadUrl = asset['browser_download_url'];
@@ -84,122 +78,83 @@ class WchUsbIspFlasher {
     return response.bodyBytes;
   }
 
-  /// Esegue la cancellazione e la scrittura del file binario via USB ISP
   Future<void> flashMergedBinary({
     required Uint8List firmwareData,
     Function(double progress)? onProgress,
   }) async {
-    await QuickUsb.init();
+    // 1. Cerca il dispositivo HID WCH Bootloader
+    final List<HidDevice> allDevices = await Hid.getDevices();
+    final target = allDevices.firstWhere(
+      (d) =>
+          (d.vendorId == wchVendorId && d.productId == wchProductId) ||
+          (d.vendorId == 0x1a86 && d.productId == 0xfe10),
+      orElse: () => throw Exception(
+        'Badge in modalità WCH ISP non trovato. Collega il cavo OTG tenendo premuto il pulsante di accensione.',
+      ),
+    );
+
+    // 2. Apri la connessione HID
+    await target.open();
 
     try {
-      final devices = await QuickUsb.getDeviceList();
-      final target = devices.firstWhere(
-        (d) =>
-            (d.vendorId == wchVendorId && d.productId == wchProductId) ||
-            (d.vendorId == 0x1a86 && d.productId == 0xfe10),
-        orElse: () => throw Exception(
-          'Dispositivo WCH ISP non trovato. Verifica il cavo OTG e che il badge sia in modalità bootloader (tasto premuto).',
-        ),
+      // 3. Handshake / Identify
+      await target.sendReport(
+        Uint8List.fromList([cmdIdentify, 0x12, 0x00]),
+        reportId: 0x00,
       );
+      await Future.delayed(const Duration(milliseconds: 50));
 
-      final hasPermission = await QuickUsb.hasPermission(target);
-      if (!hasPermission) {
-        final granted = await QuickUsb.requestPermission(target);
-        if (!granted) {
-          throw Exception('Permesso USB negato dall\'utente.');
-        }
-      }
+      // 4. Erase Flash
+      final erasePacket = Uint8List.fromList([
+        cmdErase,
+        0x04,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+        0x00,
+      ]);
+      await target.sendReport(erasePacket, reportId: 0x00);
+      await Future.delayed(const Duration(milliseconds: 500));
 
-      final opened = await QuickUsb.openDevice(target);
-      if (!opened) {
-        throw Exception('Impossibile aprire la connessione USB.');
-      }
+      // 5. Scrittura Firmware
+      final int total = firmwareData.length;
+      for (int offset = 0; offset < total; offset += ispChunkSize) {
+        final int end =
+            (offset + ispChunkSize < total) ? offset + ispChunkSize : total;
+        final chunk = firmwareData.sublist(offset, end);
 
-      const int usbDirectionOut = 0;
+        final int addrLsb = offset & 0xff;
+        final int addrMsb = (offset >> 8) & 0xff;
+        final int addrHsb = (offset >> 16) & 0xff;
 
-      final UsbConfiguration configuration = await QuickUsb.getConfiguration(0);
-      final UsbInterface interface = configuration.interfaces.first;
-
-      final UsbEndpoint endpoint = interface.endpoints.firstWhere(
-        (e) => e.direction == usbDirectionOut || (e.endpointNumber & 0x80) == 0,
-        orElse: () => interface.endpoints.first,
-      );
-
-      await QuickUsb.claimInterface(interface);
-
-      try {
-        // 1. Identify
-        await _sendIspPacket(
-            endpoint, Uint8List.fromList([cmdIdentify, 0x12, 0x00]));
-        await Future.delayed(const Duration(milliseconds: 50));
-
-        // 2. Erase All Code Flash (0xA4)
-        final erasePacket = Uint8List.fromList([
-          cmdErase,
-          0x04,
+        final packet = Uint8List.fromList([
+          cmdProgram,
+          chunk.length,
+          addrLsb,
+          addrMsb,
+          addrHsb,
           0x00,
-          0x00,
-          0x00,
-          0x00,
-          0x00,
+          ...chunk,
         ]);
-        await _sendIspPacket(endpoint, erasePacket);
-        await Future.delayed(const Duration(milliseconds: 500));
 
-        // 3. Program Flash (0xA5)
-        final int total = firmwareData.length;
-        for (int offset = 0; offset < total; offset += ispChunkSize) {
-          final int end =
-              (offset + ispChunkSize < total) ? offset + ispChunkSize : total;
-          final chunk = firmwareData.sublist(offset, end);
+        await target.sendReport(packet, reportId: 0x00);
 
-          final int addrLsb = offset & 0xff;
-          final int addrMsb = (offset >> 8) & 0xff;
-          final int addrHsb = (offset >> 16) & 0xff;
+        final progress = (end / total).clamp(0.0, 1.0);
+        onProgress?.call(progress);
 
-          final packet = Uint8List.fromList([
-            cmdProgram,
-            chunk.length,
-            addrLsb,
-            addrMsb,
-            addrHsb,
-            0x00,
-            ...chunk,
-          ]);
-
-          await _sendIspPacket(endpoint, packet);
-
-          final progress = (end / total).clamp(0.0, 1.0);
-          onProgress?.call(progress);
-
-          await Future.delayed(const Duration(milliseconds: 5));
-        }
-
-        // 4. Reset CPU (0xA2)
-        try {
-          await _sendIspPacket(
-              endpoint, Uint8List.fromList([cmdReset, 0x01, 0x01]));
-        } catch (_) {}
-      } finally {
-        await QuickUsb.releaseInterface(interface);
-        await QuickUsb.closeDevice();
+        await Future.delayed(const Duration(milliseconds: 4));
       }
-    } finally {
-      await QuickUsb.exit();
-    }
-  }
 
-  Future<void> _sendIspPacket(
-    UsbEndpoint endpoint,
-    Uint8List data,
-  ) async {
-    final result = await QuickUsb.bulkTransferOut(
-      endpoint,
-      data,
-      timeout: 2000,
-    );
-    if (result < 0) {
-      throw Exception('Errore di trasferimento USB ISP (codice: $result)');
+      // 6. Reset CPU
+      try {
+        await target.sendReport(
+          Uint8List.fromList([cmdReset, 0x01, 0x01]),
+          reportId: 0x00,
+        );
+      } catch (_) {}
+    } finally {
+      await target.close();
     }
   }
 }

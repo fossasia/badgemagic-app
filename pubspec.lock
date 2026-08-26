@@ -178,7 +178,7 @@ packages:
     source: hosted
     version: "1.3.3"
   ffi:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: ffi
       sha256: "6d7fd89431262d8f3125e81b50d3847a091d846eafcd4fdb88dd06f36d705a45"
@@ -351,8 +351,16 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "8.2.1"
-  http:
+  hid_tool:
     dependency: "direct main"
+    description:
+      name: hid_tool
+      sha256: "96d266ad9909122ab2d3c4cd37fe5dddf20d07afda8fe126c772200a79dd1959"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.1.3"
+  http:
+    dependency: transitive
     description:
       name: http
       sha256: "87721a4a50b19c7f1d49001e51409bddc46303966ce89a65af4f4e6004896412"
@@ -420,14 +428,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.2"
-  libusb:
-    dependency: transitive
-    description:
-      name: libusb
-      sha256: ca24c95f475eb53fac4dcdcd754b5a0b1b04d0bbf744f61163ae5d59197471c6
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.3.23+2"
   lints:
     dependency: transitive
     description:
@@ -692,14 +692,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.1.0"
-  quick_usb:
-    dependency: "direct main"
-    description:
-      name: quick_usb
-      sha256: "409367b9923fbf54259477df685d4a73b521490747b62d5241bd51ed47fbabec"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.4.0"
   share_plus:
     dependency: "direct main"
     description:
