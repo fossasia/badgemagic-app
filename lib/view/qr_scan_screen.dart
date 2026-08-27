@@ -1,5 +1,5 @@
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/others/qr_code_helper.dart';
+import 'package:badgemagic/utils/qr_code_helper.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/others/localization_service.dart';
@@ -49,10 +49,10 @@ class _QrScanScreenState extends State<QrScanScreen> {
   Future<void> _pickFromGallery() async {
     if (_handled) return;
     try {
-      final result = await FilePicker.pickFiles(
+      final result = await FilePicker.pickFile(
         type: FileType.image,
       );
-      final String? path = result?.files.single.path;
+      final String? path = result?.path;
       if (path == null) return;
 
       final BarcodeCapture? capture = await _controller.analyzeImage(path);

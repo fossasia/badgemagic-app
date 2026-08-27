@@ -2,6 +2,7 @@ import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:badgemagic/others/byte_array_utils.dart';
+import 'package:badgemagic/others/clipart_image_processor.dart';
 import 'package:badgemagic/others/data_to_bytearray_converter.dart';
 import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/others/image_utils.dart';
@@ -25,10 +26,10 @@ class Converters {
   static final Map<String, List<List<bool>>> _characterCache = {};
 
   List<List<int>> _buildClipartMatrix(List<List<int>> imageData) {
-    imageData = FileHelper.normalizeClipartHeight(imageData);
-    imageData = FileHelper.trimEmptyPadding(imageData);
+    imageData = ClipartImageProcessor.normalizeClipartHeight(imageData);
+    imageData = ClipartImageProcessor.trimEmptyPadding(imageData);
     if (imageData.isEmpty) return const [];
-    return FileHelper.addClipartSideMargins(imageData);
+    return ClipartImageProcessor.addClipartSideMargins(imageData);
   }
 
   List<List<bool>> _charCodeToBoolMatrix(String hex) {
