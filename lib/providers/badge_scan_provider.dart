@@ -5,7 +5,7 @@ enum BadgeScanMode { any, specific }
 
 class BadgeScanProvider with ChangeNotifier {
   BadgeScanMode _mode = BadgeScanMode.any;
-  List<String> _badgeNames = ['LSLED', 'VBLAB'];
+  List<String> _badgeNames = ['lsled', 'vblab'];
   Set<int> _selectedIndices = {};
   bool _isLoaded = false;
 
@@ -49,7 +49,7 @@ class BadgeScanProvider with ChangeNotifier {
 
   void setBadgeNames(List<String> names) {
     final seen = <String>{};
-    _badgeNames = names.map((name) => name.trim().toUpperCase()).where((name) {
+    _badgeNames = names.map((name) => name.trim()).where((name) {
       if (name.isEmpty) return false;
       final lower = name.toLowerCase();
       if (seen.contains(lower)) return false;
@@ -69,7 +69,7 @@ class BadgeScanProvider with ChangeNotifier {
     bool alreadyExists = _badgeNames.any((existingName) =>
         existingName.toLowerCase() == cleanedName.toLowerCase());
     if (alreadyExists) return;
-    _badgeNames.add(name.trim().toUpperCase());
+    _badgeNames.add(name.trim());
     _saveToPrefs();
     notifyListeners();
   }
@@ -97,7 +97,7 @@ class BadgeScanProvider with ChangeNotifier {
         entry.value.toLowerCase() == cleanedName.toLowerCase());
 
     if (alreadyExists) return;
-    _badgeNames[index] = newName.trim().toUpperCase();
+    _badgeNames[index] = newName.trim();
     _saveToPrefs();
     notifyListeners();
   }
