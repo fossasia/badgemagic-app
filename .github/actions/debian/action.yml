@@ -32,7 +32,8 @@ runs:
           pkg-config \
           libglib2.0-dev \
           libblkid-dev \
-          libgcrypt20-dev
+          libgcrypt20-dev \
+          libudev-dev
 
     - name: Build Linux (Debian) App
       shell: bash
