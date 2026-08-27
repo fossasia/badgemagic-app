@@ -349,7 +349,6 @@ class _HomeScreenState extends State<HomeScreen>
                   );
                   final tabBar = BadgeControlTabBar(
                     controller: _tabController,
-                    isNarrow: isPhone,
                   );
                   final dialTabView = BadgeControlTabView(
                     controller: _tabController,
@@ -365,24 +364,6 @@ class _HomeScreenState extends State<HomeScreen>
                         _showBleTransferDialog(context, inlineImageProvider),
                   );
 
-                  Widget cardWrap(Widget child) => Container(
-                        margin: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 12.h),
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          color: colorSurface,
-                          borderRadius: BorderRadius.circular(20.r),
-                          border: Border.all(color: const Color(0xFFEDEDED)),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.05),
-                              blurRadius: 14,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: child,
-                      );
-
                   final buttonBar = Padding(
                     padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
                     child: actionButtons,
@@ -394,16 +375,8 @@ class _HomeScreenState extends State<HomeScreen>
                         badgePreview,
                         textField,
                         clipartPicker,
-                        Expanded(
-                          child: cardWrap(
-                            Column(
-                              children: [
-                                tabBar,
-                                Expanded(child: dialTabView),
-                              ],
-                            ),
-                          ),
-                        ),
+                        tabBar,
+                        Expanded(child: dialTabView),
                         buttonBar,
                       ],
                     );
@@ -422,18 +395,11 @@ class _HomeScreenState extends State<HomeScreen>
                               badgePreview,
                               textField,
                               clipartPicker,
-                              cardWrap(
-                                Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    tabBar,
-                                    SizedBox(
-                                      height: (ScreenUtil().screenHeight * 0.33)
-                                          .clamp(240.0, 380.0),
-                                      child: dialTabView,
-                                    ),
-                                  ],
-                                ),
+                              tabBar,
+                              SizedBox(
+                                height: (ScreenUtil().screenHeight * 0.33)
+                                    .clamp(240.0, 380.0),
+                                child: dialTabView,
                               ),
                             ],
                           ),
