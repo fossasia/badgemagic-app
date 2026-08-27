@@ -3,9 +3,8 @@ import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
-import '../../others/byte_array_utils.dart';
-import '../../others/globals.dart';
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
 import '../../providers/firmware_update.dart';
@@ -29,7 +28,6 @@ class FirmwareUpdateDialog extends StatefulWidget {
 class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
   bool _dontRemindAgain = false;
   bool _isFlashing = false;
-  double _flashProgress = 0.0;
   String _statusText = '';
 
   final WchUsbIspFlasher _flasher = WchUsbIspFlasher();
@@ -40,10 +38,74 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
   }
 
   Future<void> _startUsbFlash() async {
+    await _showFlashInstructionsDialog();
+  }
+
+  Future<void> _showFlashInstructionsDialog() async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(
+            children: [
+              const Icon(Icons.integration_instructions_outlined,
+                  color: Colors.red),
+              const SizedBox(width: 8),
+              Text(l10n.flashUsbConfirmationTitle),
+            ],
+          ),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text(l10n.flashUsbInstructions),
+                const SizedBox(height: 16),
+                Text(
+                  l10n.batteryDesolderedWarning,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.red),
+                ),
+                const SizedBox(height: 8),
+                InkWell(
+                  onTap: () async {
+                    final url = Uri.parse(
+                        'https://github.com/fossasia/badgemagic-firmware');
+                    if (await canLaunchUrl(url)) {
+                      await launchUrl(url);
+                    }
+                  },
+                  child: Text(
+                    l10n.batteryDesolderedLink,
+                    style: const TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              child: Text(l10n.doneButton),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _performUsbFlash();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _performUsbFlash() async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     setState(() {
       _isFlashing = true;
-      _flashProgress = 0.0;
-      _statusText = 'Download del firmware in corso...';
+      _statusText = l10n.firmwareDownloadProgress;
     });
 
     try {
@@ -51,37 +113,33 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
         await _skipVersionPermanently(widget.version);
       }
 
-      // 1. Download del file merged.bin da GitHub
       final Uint8List firmwareData =
           await _flasher.downloadFirmwareBinary(widget.releaseAssets);
 
       if (mounted) {
         setState(() {
-          _statusText = 'Connessione USB e scrittura Flash...';
+          _statusText = l10n.writingOnUsbIsp;
         });
       }
 
-      // 2. Scrittura via cavo USB Bootloader
       await _flasher.flashMergedBinary(
         firmwareData: firmwareData,
         onProgress: (progress) {
           if (mounted) {
             setState(() {
-              _flashProgress = progress;
               _statusText =
-                  'Flash USB: ${(progress * 100).toStringAsFixed(0)}%';
+                  l10n.flashUsbProgress((progress * 100).toStringAsFixed(0));
             });
           }
         },
       );
 
-      ToastUtils().showToast('Firmware aggiornato con successo via USB!');
+      ToastUtils().showToast(l10n.firmwareUpdateSuccess);
       if (mounted) {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      logger.e('Errore flash USB: $e');
-      ToastUtils().showToast('Errore: $e');
+      ToastUtils().showToast('Error: $e');
       if (mounted) {
         setState(() {
           _isFlashing = false;
@@ -108,13 +166,13 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('${l10n.dialogNewFirmwareVersionFound}\n'),
-          Text('• Version: ${widget.version}',
+          Text(l10n.versionLabel(widget.version),
               style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text('• Date: ${widget.date}',
+          Text(l10n.releasedLabel(widget.date),
               style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 12),
           Text(
-            'Collega il badge con cavo OTG in modalità Bootloader (tieni premuto il pulsante mentre inserisci il cavo).',
+            l10n.firmwareUpdateInstruction,
             style: TextStyle(
               fontSize: 12,
               color: Colors.grey.shade800,
@@ -124,7 +182,6 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
           const SizedBox(height: 16),
           if (_isFlashing) ...[
             LinearProgressIndicator(
-              value: _flashProgress,
               color: Colors.red,
               backgroundColor: Colors.red.shade100,
             ),
@@ -177,9 +234,9 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            icon: const Icon(Icons.flash_on, size: 18),
+            icon: const Icon(Icons.usb, size: 18),
             onPressed: _startUsbFlash,
-            label: const Text('Flash via USB'),
+            label: Text(l10n.flashViaUsb),
           ),
         ],
       ],

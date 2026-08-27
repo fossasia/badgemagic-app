@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:get_it/get_it.dart';
+import '../others/localization_service.dart';
 import '../others/toast_utils.dart';
 
 class WchUsbIspFlasher {
@@ -11,6 +13,8 @@ class WchUsbIspFlasher {
       MethodChannel('org.fossasia.badgemagic/wch_isp');
   static const String _apiLatestUrl =
       'https://api.github.com/repos/fossasia/badgemagic-firmware/releases/latest';
+
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   Future<Map<String, dynamic>?> checkForUpdates() async {
     try {
@@ -53,8 +57,7 @@ class WchUsbIspFlasher {
       },
       orElse: () => assets.firstWhere(
         (a) => (a['name'] as String? ?? '').toLowerCase().endsWith('.bin'),
-        orElse: () =>
-            throw Exception('No .bin file found'),
+        orElse: () => throw Exception('No .bin file found'),
       ),
     );
 
@@ -75,8 +78,7 @@ class WchUsbIspFlasher {
   }) async {
     final dynamic device = await _channel.invokeMethod('getIspDevice');
     if (device == null) {
-      ToastUtils()
-          .showErrorToast("Badge ISP not found. Connect the ledtag with the boot button pressed.");
+      ToastUtils().showErrorToast(l10n.badgeIspNotFound);
       throw Exception("Badge WCH ISP not found");
     }
     final bool hasPermission = device['hasPermission'] ?? false;
@@ -84,7 +86,7 @@ class WchUsbIspFlasher {
       final bool granted =
           await _channel.invokeMethod('requestUsbPermission') ?? false;
       if (!granted) {
-        ToastUtils().showErrorToast("USB permission denied by user");
+        ToastUtils().showErrorToast(l10n.usbPermissionDenied);
         throw Exception("USB permission denied.");
       }
     }
@@ -94,6 +96,6 @@ class WchUsbIspFlasher {
     });
 
     onProgress?.call(1.0);
-    ToastUtils().showToast("Firmware updated successfully!");
+    ToastUtils().showToast(l10n.firmwareUpdateSuccessShort);
   }
 }
