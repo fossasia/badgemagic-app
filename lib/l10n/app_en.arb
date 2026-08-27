@@ -280,5 +280,14 @@
   "saveFlashAndReboot": "Save and Reboot the badge",
   "appFeaturesTitle": "App Features",
   "enableBadheStreaming": "Enable Badge Streaming",
-  "enableBadheStreamingWarning": "Only FOSSASIA firmware supports this feature"
+  "enableBadheStreamingWarning": "Only FOSSASIA firmware supports this feature",
+  "renameBadge": "Rename Badge",
+  "newName": "New name",
+  "rename": "Rename",
+  "badgeNameEmpty": "Badge name cannot be empty.",
+  "badgeAlreadyExists": "A badge with that name already exists.",
+  "couldNotRenameBadge": "Could not rename the badge. Please try again.",
+  "badgeRenamedSuccessfully": "Badge renamed successfully!",
+  "turnBLEOn": "Please turn on Bluetooth in your settings",
+  "notSupportedEmojis": "System emojis are not supported"
 }

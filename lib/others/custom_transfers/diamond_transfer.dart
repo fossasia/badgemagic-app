@@ -1,63 +1,36 @@
-import 'package:badgemagic/communication/datagenerator.dart';
-import 'package:badgemagic/models/data.dart';
-import 'package:badgemagic/models/messages.dart';
-import 'package:badgemagic/models/mode.dart';
-import 'package:badgemagic/models/speed.dart';
-import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/badge_animation/ani_diamond.dart';
+import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/others/custom_transfers/common.dart';
-import 'package:logger/logger.dart';
 
 Future<void> customTransferDiamondAnimation(
-    Future<void> Function(DataTransferManager) transferData,
-    int speedLevel) async {
-  if (!await checkAdapterState()) return;
-
-  const int frameCount = 8;
-  const int badgeHeight = 11;
-  const int badgeWidth = 44;
+  Future<void> Function(DataTransferManager) transferData,
+  int speedLevel,
+) async {
   const int spawnInterval = 4;
-  final Speed selectedSpeed = Speed.eight;
-  final logger = Logger();
-  logger.i(
-      'Diamond transfer (seamless, shifted): selectedSpeed = ${selectedSpeed.toString()}, hex = ${selectedSpeed.hexValue}');
-  List<Message> diamondFrames = [];
   final DiamondAnimation diamondAnimation = DiamondAnimation();
 
-  final int maxDy = (badgeHeight ~/ 2);
-  final int maxDx = (badgeWidth ~/ 4);
+  final int maxDy = animationBadgeHeight ~/ 2;
+  final int maxDx = animationBadgeWidth ~/ 4;
   final int maxRadius = maxDy > maxDx ? maxDy : maxDx;
   final int cycleLength = spawnInterval * 2 + maxRadius + 1;
-  final int startIndex = cycleLength - frameCount;
+  final int startIndex = cycleLength - animationFrameCount;
 
-  for (int frame = 0; frame < frameCount; frame++) {
-    int animationIndex = (startIndex + frame) % cycleLength;
-    List<List<bool>> frameBitmap =
-        List.generate(badgeHeight, (_) => List.filled(badgeWidth, false));
+  final frames = List.generate(animationFrameCount, (frame) {
+    final int animationIndex = (startIndex + frame) % cycleLength;
+    final frameBitmap = blankFrame();
     diamondAnimation.processAnimation(
-      badgeHeight,
-      badgeWidth,
+      animationBadgeHeight,
+      animationBadgeWidth,
       animationIndex,
-      List.generate(badgeHeight, (_) => List.filled(badgeWidth, false)),
+      blankFrame(),
       frameBitmap,
     );
-    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
-    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
-    logger.i(
-        '💡 Frame $frame (logic index $animationIndex) hex: ${hexList.join(",")} speed: ${selectedSpeed.toString()} (hex: ${selectedSpeed.hexValue})');
-    diamondFrames.add(Message(
-      text: hexList,
-      mode: Mode.fixed,
-      speed: selectedSpeed,
-      flash: false,
-      marquee: false,
-    ));
-  }
-  Data data = Data(messages: diamondFrames);
-  logger.i('💡 Data object created. Starting transfer...');
-  try {
-    await transferData(DataTransferManager(data));
-  } catch (e, st) {
-    logger.e('⛔ Diamond animation transfer failed: $e\n$st');
-  }
+    return frameBitmap;
+  });
+
+  await sendAnimationFrames(
+    label: 'Diamond',
+    frames: frames,
+    transferData: transferData,
+  );
 }

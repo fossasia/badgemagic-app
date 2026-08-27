@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:typed_data';
 import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:get_it/get_it.dart';
+import 'package:badgemagic/others/app_logger.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';

@@ -1,6 +1,4 @@
-import 'package:logger/logger.dart';
-
-final Logger logger = Logger();
+export 'package:badgemagic/others/app_logger.dart';
 
 String toHex(List<int> bytes) {
   StringBuffer buffer = StringBuffer();
@@ -66,7 +64,6 @@ List<List<int>> byteArrayToBinaryArray(List<int> byteArray) {
     rowIndex = (rowIndex + 1) % 11;
   }
 
-  logger.d("binaryArray: $binaryArray");
   return binaryArray;
 }
 
@@ -75,7 +72,6 @@ String hexToBin(String hex) {
 
   int paddingLength = (8 - (binaryString.length % 8)) % 8;
   binaryString = binaryString.padLeft(binaryString.length + paddingLength, '0');
-  logger.d("binaryString: $binaryString");
   return binaryString;
 }
 
@@ -97,6 +93,5 @@ List<List<int>> binaryStringTo2DList(String binaryString) {
       }
     }
   }
-  logger.d("binary2DList: $binary2DList");
   return binary2DList;
 }

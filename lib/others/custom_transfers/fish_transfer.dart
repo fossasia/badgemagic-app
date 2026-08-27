@@ -1,64 +1,30 @@
-import 'package:badgemagic/communication/datagenerator.dart';
-import 'package:badgemagic/models/data.dart';
-import 'package:badgemagic/models/messages.dart';
-import 'package:badgemagic/models/mode.dart';
-import 'package:badgemagic/models/speed.dart';
-import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/badge_animation/ani_fish.dart';
+import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/others/custom_transfers/common.dart';
-import 'package:logger/logger.dart';
 
 Future<void> customTransferFishAnimation(
-    Future<void> Function(DataTransferManager) transferData,
-    int speedLevel) async {
-  if (!await checkAdapterState()) return;
-
-  const int badgeHeight = 11;
-  const int badgeWidth = 44;
-  final int hardwareFrameCount = 8;
+  Future<void> Function(DataTransferManager) transferData,
+  int speedLevel,
+) async {
   final int logicalFrameCount = FishAnimation.framesPerCycle;
 
-  final Speed selectedSpeed = Speed.eight;
-  final logger = Logger();
-
-  logger.i('Starting Fish animation transfer...');
-
-  List<Message> fishFrames = [];
-
-  for (int i = 0; i < hardwareFrameCount; i++) {
-    int logicalIdx = ((i * logicalFrameCount) / hardwareFrameCount).floor();
-
-    List<List<bool>> frameBitmap = List.generate(
-        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
-
-    List<List<bool>> processGrid = List.generate(
-        badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
-
+  final frames = List.generate(animationFrameCount, (i) {
+    final int logicalIdx =
+        ((i * logicalFrameCount) / animationFrameCount).floor();
+    final frameBitmap = blankFrame();
     FishAnimation().processAnimation(
-        badgeHeight, badgeWidth, logicalIdx, processGrid, frameBitmap);
+      animationBadgeHeight,
+      animationBadgeWidth,
+      logicalIdx,
+      blankFrame(),
+      frameBitmap,
+    );
+    return frameBitmap;
+  });
 
-    List<List<int>> intBitmap = boolToIntBitmap(frameBitmap);
-    List<String> hexList = Converters.convertBitmapToLEDHex(intBitmap, false);
-
-    logger.i(
-        '🐟 Fish Frame $i (logic $logicalIdx) hex: ${hexList.join(",")} speed: ${selectedSpeed.toString()} (hex: ${selectedSpeed.hexValue})');
-
-    fishFrames.add(Message(
-      text: hexList,
-      mode: Mode.fixed,
-      speed: selectedSpeed,
-      flash: false,
-      marquee: false,
-    ));
-  }
-
-  Data data = Data(messages: fishFrames);
-  logger.i('🐟 Fish Data object created. Starting transfer...');
-
-  try {
-    await transferData(DataTransferManager(data));
-    logger.i('🐟 Fish animation transfer completed successfully!');
-  } catch (e, st) {
-    logger.e('⛔ Fish animation transfer failed: $e\n$st');
-  }
+  await sendAnimationFrames(
+    label: 'Fish',
+    frames: frames,
+    transferData: transferData,
+  );
 }
