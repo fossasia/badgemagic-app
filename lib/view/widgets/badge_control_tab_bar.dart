@@ -6,33 +6,20 @@ import 'package:get_it/get_it.dart';
 
 class BadgeControlTabBar extends StatelessWidget {
   final TabController controller;
-  final bool isNarrow;
 
   const BadgeControlTabBar({
     super.key,
     required this.controller,
-    required this.isNarrow,
   });
 
   @override
   Widget build(BuildContext context) {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
-    return Container(
-      margin: EdgeInsets.fromLTRB(8.w, 8.h, 8.w, 4.h),
-      padding: EdgeInsets.all(4.w),
-      decoration: BoxDecoration(
-        color: colorSurfaceSubtle,
-        borderRadius: BorderRadius.circular(30.r),
-      ),
+    return Padding(
+      padding: EdgeInsets.only(top: 8.h),
       child: TabBar(
         isScrollable: false,
         indicatorSize: TabBarIndicatorSize.tab,
-        dividerColor: colorTransparent,
-        indicator: BoxDecoration(
-          color: colorPrimary,
-          borderRadius: BorderRadius.circular(30.r),
-        ),
-        splashBorderRadius: BorderRadius.circular(30.r),
         labelStyle: TextStyle(
           fontSize: 14.sp,
           fontWeight: FontWeight.w600,
@@ -42,15 +29,16 @@ class BadgeControlTabBar extends StatelessWidget {
           fontSize: 14.sp,
           fontWeight: FontWeight.w500,
         ),
-        labelColor: colorOnPrimary,
+        labelColor: colorOnSurface,
         unselectedLabelColor: mdGrey400,
+        indicatorColor: colorPrimary,
         controller: controller,
         splashFactory: InkRipple.splashFactory,
-        overlayColor: WidgetStateProperty.all(colorTransparent),
-        labelPadding: EdgeInsets.symmetric(
-          horizontal: 4.w,
-          vertical: isNarrow ? 1.h : 2.h,
+        overlayColor: WidgetStateProperty.resolveWith<Color?>(
+          (states) =>
+              states.contains(WidgetState.pressed) ? dividerColor : null,
         ),
+        labelPadding: EdgeInsets.symmetric(horizontal: 4.w),
         tabs: [
           Tab(
             key: const ValueKey('tab_speed'),
