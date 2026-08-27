@@ -1,8 +1,6 @@
 import 'dart:async';
 
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
-import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -462,36 +460,28 @@ class SettingsScreenState extends State<SettingsScreen> {
   Future<void> _handleStartFirmwareUpdate() async {
     if (_availableUpdate == null) return;
 
-    final bleDialogController = GetIt.instance<BleDialogController>();
-
     setState(() {
       _isFlashingFirmware = true;
       _flashProgress = 0.0;
     });
 
     try {
-      bleDialogController.update(
-          BleDialogStatus.searching, l10n.searchingDeviceBLE);
-
+      // 2. Scansione BLE
       final device = await scanForBadge(
         mode: _scanMode,
         allowedNames: _controllers.map((c) => c.text.trim()).toList(),
       );
 
       if (device == null) {
-        throw Exception(l10n.noBadgesFound);
+        throw Exception("Nessun badge rilevato nelle vicinanze.");
       }
 
-      bleDialogController.update(BleDialogStatus.connecting, l10n.deviceFound);
       await UniversalBle.connect(device.deviceId);
 
       await UniversalBle.discoverServices(
         device.deviceId,
         timeout: const Duration(seconds: 10),
       );
-
-      bleDialogController.update(
-          BleDialogStatus.transferring, "Firmware update...");
 
       await _updateService.executeFirmwareUpdate(
         deviceId: device.deviceId,
@@ -504,10 +494,12 @@ class SettingsScreenState extends State<SettingsScreen> {
         },
       );
 
-      ToastUtils().showToast("Firmware updated! The badge will reboot");
-      setState(() => _availableUpdate = null);
+      ToastUtils().showToast("Firmware aggiornato con successo!");
+      if (mounted) {
+        setState(() => _availableUpdate = null);
+      }
     } catch (e) {
-      ToastUtils().showToast("Error: $e");
+      ToastUtils().showToast("Errore: $e");
     } finally {
       if (mounted) {
         setState(() => _isFlashingFirmware = false);
