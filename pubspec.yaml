@@ -94,6 +94,8 @@ flutter:
     - assets/animations/
     - assets/effects/
     - assets/vectors/
+    - assets/usb-c-4key/slotB/badgemagic-ch582-slotB.bin
+    - assets/usb-c-4key/slotA/badgemagic-ch582-slotA.bin
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

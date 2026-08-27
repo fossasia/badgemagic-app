@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -348,45 +349,33 @@ Future<Uint8List> downloadFirmwareBinary({
   }) async {
     if (activeSlot != ActiveSlot.slotA) {
       throw Exception(
-        'Firmware locale disponibile solo per '
-        'Slot B. '
+        'Firmware locale disponibile solo per Slot B. '
         'Slot attivo rilevato: $activeSlot',
       );
     }
 
-    const firmwarePath = '/home/riccardo/Scaricati/badgemagic-firmware/'
-        'usb-c-4key/slotB/'
-        'badgemagic-ch582-slotB.bin';
+    const String assetPath =
+        'assets/usb-c-4key/slotB/badgemagic-ch582-slotB.bin';
 
-    final file = File(firmwarePath);
+    try {
+      // Lettura universale compatibile con Android APK e bundle di sistema
+      final ByteData byteData = await rootBundle.load(assetPath);
+      final Uint8List firmware = byteData.buffer.asUint8List();
 
-    if (!await file.exists()) {
+      if (firmware.isEmpty) {
+        throw Exception('Il file binario dell\'asset è vuoto (0 byte).');
+      }
+
+      logger.i('Firmware asset caricato con successo da: $assetPath');
+      logger.i('Dimensione firmware: ${firmware.length} byte');
+
+      return firmware;
+    } catch (e) {
+      logger.e('Errore durante il caricamento dell\'asset $assetPath: $e');
       throw Exception(
-        'Firmware locale non trovato:\n'
-        '$firmwarePath',
+        'Firmware non trovato o non dichiarato in pubspec.yaml:\n$assetPath\n\nErrore: $e',
       );
     }
-
-    final firmware = await file.readAsBytes();
-
-    if (firmware.isEmpty) {
-      throw Exception(
-        'Il firmware locale è vuoto:\n'
-        '$firmwarePath',
-      );
-    }
-
-    logger.i(
-      'Firmware locale caricato: '
-      '$firmwarePath',
-    );
-
-    logger.i(
-      'Dimensione firmware: '
-      '${firmware.length} byte',
-    );
-
-    return firmware;
   }
   // ============================================================
   // BLE WRITE HELPER
@@ -462,7 +451,7 @@ Future<Uint8List> downloadFirmwareBinary({
     Function(double progress)? onProgress,
   }) async {
     final int total = firmware.length;
-    const int chunkSize = 720;
+    const int chunkSize = 240;
     const int startAddr = 0x0000;
 
     logger.i('OTA: Invio $total byte con chunk da $chunkSize...');
@@ -472,12 +461,10 @@ Future<Uint8List> downloadFirmwareBinary({
       final int currentSize = end - offset;
       final Uint8List chunk = firmware.sublist(offset, end);
 
-      // Calcolo indirizzo diviso 16 (LSB, MSB)
       final int addrCalc = (startAddr + offset) ~/ 16;
       final int addrLsb = addrCalc & 0xFF;
       final int addrMsb = (addrCalc >> 8) & 0xFF;
 
-      // Header a 4 byte come in ota.cpp: [Opcode, Size, Addr_LSB, Addr_MSB, ...Dati]
       final packet = Uint8List.fromList([
         cmdIapProm, // 0x82
         currentSize, // Dimensione effettiva del chunk
