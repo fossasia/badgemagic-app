@@ -188,7 +188,7 @@ public class MainActivity extends FlutterActivity {
             System.arraycopy(magic, 0, identify, 5, magic.length);
 
             int sent = connection.bulkTransfer(epOut, identify, identify.length, 1000);
-            if (sent < 0) throw new Exception("Error send IDENTIFY");
+            if (sent < 0) throw new Exception("Error sending IDENTIFY");
             int len = connection.bulkTransfer(epIn, inBuffer, inBuffer.length, 1000);
             if (len < 6 || inBuffer[1] != 0x00) throw new Exception("IDENTIFY failed (status: " + inBuffer[1] + ")");
 
@@ -197,7 +197,7 @@ public class MainActivity extends FlutterActivity {
 
             byte[] readConfig = new byte[]{(byte) 0xA7, 0x02, 0x00, 0x1F, 0x00};
             sent = connection.bulkTransfer(epOut, readConfig, readConfig.length, 1000);
-            if (sent < 0) throw new Exception("Error send READ_CONFIG");
+            if (sent < 0) throw new Exception("Error sending READ_CONFIG");
             len = connection.bulkTransfer(epIn, inBuffer, inBuffer.length, 1000);
             if (len < 26 || inBuffer[1] != 0x00) throw new Exception("READ_CONFIG not valid");
 
@@ -241,9 +241,9 @@ public class MainActivity extends FlutterActivity {
                     (byte) ((sectors >> 24) & 0xFF)
             };
             sent = connection.bulkTransfer(epOut, erase, erase.length, 1000);
-            if (sent < 0) throw new Exception("Errore invio ERASE");
+            if (sent < 0) throw new Exception("Error sending ERASE");
             len = connection.bulkTransfer(epIn, inBuffer, inBuffer.length, 6000);
-            if (len < 2 || inBuffer[1] != 0x00) throw new Exception("Errore cancellazione Flash");
+            if (len < 2 || inBuffer[1] != 0x00) throw new Exception("Error clearing Flash");
             Thread.sleep(500);
 
             byte[] ispKeyCmd = new byte[3 + 0x1E];
@@ -252,7 +252,7 @@ public class MainActivity extends FlutterActivity {
             ispKeyCmd[2] = 0x00;
 
             sent = connection.bulkTransfer(epOut, ispKeyCmd, ispKeyCmd.length, 1000);
-            if (sent < 0) throw new Exception("Error send the ISP_KEY");
+            if (sent < 0) throw new Exception("Error sending ISP_KEY");
             len = connection.bulkTransfer(epIn, inBuffer, inBuffer.length, 1000);
             if (len < 5 || inBuffer[1] != 0x00) throw new Exception("ISP_KEY command failed");
 
