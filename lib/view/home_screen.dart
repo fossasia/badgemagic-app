@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 
 import 'package:badgemagic/communication/completed_state.dart';
 import 'package:badgemagic/communication/ng_command_state.dart';
@@ -16,13 +17,11 @@ import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
 import 'package:badgemagic/providers/badge_scan_provider.dart';
-import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/next_gen_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
-import 'package:badgemagic/view/widgets/badge_action_buttons.dart';
 import 'package:badgemagic/view/widgets/badge_clipart_picker.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_view.dart';
@@ -295,7 +294,7 @@ class _HomeScreenState extends State<HomeScreen>
                     child: ConstrainedBox(
                       constraints:
                           const BoxConstraints(maxWidth: _badgePreviewMaxWidth),
-                      child: AnimationBadge(),
+                      child: const AnimationBadge(),
                     ),
                   );
                   final textField = BadgeTextInputField(
@@ -328,11 +327,7 @@ class _HomeScreenState extends State<HomeScreen>
                       });
                     },
                   );
-                  final actionButtons = BadgeActionButtons(
-                    onSave: _handleSave,
-                    onTransfer: () =>
-                        _showBleTransferDialog(context, inlineImageProvider),
-                  );
+
                   Widget actionButton({
                     required String label,
                     required bool primary,
@@ -617,59 +612,7 @@ class _HomeScreenState extends State<HomeScreen>
                             child: actionButton(
                               label: l10n.saveButton,
                               primary: false,
-                              onTap: () async {
-                                if (inlineImageController.text.trim().isEmpty) {
-                                  ToastUtils()
-                                      .showToast("Please enter a message");
-                                  return;
-                                }
-
-                                if (widget.savedBadgeFilename != null) {
-                                  SavedBadgeProvider savedBadgeProvider =
-                                      SavedBadgeProvider();
-                                  String baseFilename =
-                                      widget.savedBadgeFilename!;
-                                  if (baseFilename.endsWith('.json')) {
-                                    baseFilename = baseFilename.substring(
-                                        0, baseFilename.length - 5);
-                                  }
-
-                                  await savedBadgeProvider.updateBadgeData(
-                                    baseFilename,
-                                    inlineImageController.text,
-                                    animationProvider
-                                        .isEffectActive(FlashEffect()),
-                                    animationProvider
-                                        .isEffectActive(MarqueeEffect()),
-                                    animationProvider
-                                        .isEffectActive(InvertLEDEffect()),
-                                    speedDialProvider.getOuterValue(),
-                                    animationProvider.getAnimationIndex() ?? 1,
-                                  );
-
-                                  ToastUtils()
-                                      .showToast("Badge Updated Successfully");
-                                  if (!context.mounted) return;
-                                  Navigator.pushNamedAndRemoveUntil(
-                                    context,
-                                    '/savedBadge',
-                                    (route) => false,
-                                  );
-                                } else {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) {
-                                      return SaveBadgeDialog(
-                                        speed: speedDialProvider,
-                                        animationProvider: animationProvider,
-                                        textController: inlineImageController,
-                                        isInverse: animationProvider
-                                            .isEffectActive(InvertLEDEffect()),
-                                      );
-                                    },
-                                  );
-                                }
-                              },
+                              onTap: _handleSave,
                             ),
                           ),
                           SizedBox(width: 24.w),
@@ -695,24 +638,6 @@ class _HomeScreenState extends State<HomeScreen>
                       ],
                     );
                   });
-
-                  Widget cardWrap(Widget child) => Container(
-                        margin: EdgeInsets.fromLTRB(12.w, 8.h, 12.w, 12.h),
-                        clipBehavior: Clip.antiAlias,
-                        decoration: BoxDecoration(
-                          color: colorSurface,
-                          borderRadius: BorderRadius.circular(20.r),
-                          border: Border.all(color: const Color(0xFFEDEDED)),
-                          boxShadow: const [
-                            BoxShadow(
-                              color: Color.fromRGBO(0, 0, 0, 0.05),
-                              blurRadius: 14,
-                              offset: Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: child,
-                      );
 
                   final buttonBar = Padding(
                     padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
