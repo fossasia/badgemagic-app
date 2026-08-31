@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:provider/provider.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/main.dart';
@@ -40,12 +42,37 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   bool _isFlashingFirmware = false;
   double _flashProgress = 0.0;
+  bool _foregroundTaskInitialized = false;
 
   @override
   void initState() {
     super.initState();
     _setOrientation();
     initAutocheckFirmwareUpdate();
+    _initForegroundTask();
+  }
+
+  void _initForegroundTask() {
+    if (_foregroundTaskInitialized ||
+        Platform.isLinux ||
+        Platform.isMacOS ||
+        Platform.isWindows) return;
+    FlutterForegroundTask.init(
+      androidNotificationOptions: AndroidNotificationOptions(
+        channelId: 'ota_update_channel',
+        channelName: 'Aggiornamento firmware',
+        channelDescription: 'Aggiornamento firmware badge in corso',
+        onlyAlertOnce: true,
+      ),
+      iosNotificationOptions: const IOSNotificationOptions(),
+      foregroundTaskOptions: ForegroundTaskOptions(
+        eventAction: ForegroundTaskEventAction.nothing(),
+        autoRunOnBoot: false,
+        allowWakeLock: true,
+        allowWifiLock: false,
+      ),
+    );
+    _foregroundTaskInitialized = true;
   }
 
   void initAutocheckFirmwareUpdate() async {
@@ -466,6 +493,10 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
+      if (Platform.isAndroid || Platform.isIOS) {
+        await _startForegroundService();
+      }
+
       final device = await scanForBadge(
         mode: _scanMode,
         allowedNames: _controllers.map((c) => c.text.trim()).toList(),
@@ -490,6 +521,13 @@ class SettingsScreenState extends State<SettingsScreen> {
           if (mounted) {
             setState(() => _flashProgress = progress);
           }
+          if (Platform.isAndroid || Platform.isIOS) {
+            final pct = (progress * 100).toInt();
+            FlutterForegroundTask.updateService(
+              notificationTitle: 'Aggiornamento firmware',
+              notificationText: 'Scrittura in corso: $pct%',
+            );
+          }
         },
       );
 
@@ -502,6 +540,9 @@ class SettingsScreenState extends State<SettingsScreen> {
     } finally {
       if (mounted) {
         setState(() => _isFlashingFirmware = false);
+      }
+      if (Platform.isAndroid || Platform.isIOS) {
+        await _stopForegroundService();
       }
     }
   }
@@ -546,5 +587,24 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
 
     return completer.future;
+  }
+
+  Future<void> _startForegroundService() async {
+    final notificationPermission =
+        await FlutterForegroundTask.checkNotificationPermission();
+    if (notificationPermission != NotificationPermission.granted) {
+      await FlutterForegroundTask.requestNotificationPermission();
+    }
+
+    _initForegroundTask();
+
+    await FlutterForegroundTask.startService(
+      notificationTitle: 'Aggiornamento firmware',
+      notificationText: 'Preparazione...',
+    );
+  }
+
+  Future<void> _stopForegroundService() async {
+    await FlutterForegroundTask.stopService();
   }
 }

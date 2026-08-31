@@ -94,9 +94,9 @@ class FirmwareUpdateService {
       final services = await UniversalBle.discoverServices(deviceId);
 
       final hasSlotChar = services.any((s) =>
-      BleUuidParser.compareStrings(s.uuid, otaServiceUuid) &&
-          s.characteristics.any((c) =>
-              BleUuidParser.compareStrings(c.uuid, slotStatusCharacteristicUuid)));
+          BleUuidParser.compareStrings(s.uuid, otaServiceUuid) &&
+          s.characteristics.any((c) => BleUuidParser.compareStrings(
+              c.uuid, slotStatusCharacteristicUuid)));
 
       if (!hasSlotChar) {
         logger.w('FEE2 non trovata dopo discovery esplicita: fallback a SlotA');
@@ -183,7 +183,7 @@ class FirmwareUpdateService {
     if (activeSlot != ActiveSlot.slotA) {
       throw Exception(
         'Firmware locale disponibile solo per Slot B. '
-            'Slot attivo rilevato: $activeSlot',
+        'Slot attivo rilevato: $activeSlot',
       );
     }
 
@@ -210,13 +210,13 @@ class FirmwareUpdateService {
   // ============================================================
 
   Future<void> _erase(
-      String deviceId,
-      int targetStartAddr,
-      int binaryLength,
-      ) async {
+    String deviceId,
+    int targetStartAddr,
+    int binaryLength,
+  ) async {
     logger.i(
       'OTA: ERASE slot target a 0x${targetStartAddr.toRadixString(16)} '
-          '(${binaryLength} byte, blocco erase=$flashEraseBlockSize byte)',
+      '(${binaryLength} byte, blocco erase=$flashEraseBlockSize byte)',
     );
 
     const int relativeOffset = 0;
@@ -253,12 +253,12 @@ class FirmwareUpdateService {
   // ============================================================
 
   Future<void> _program(
-      String deviceId,
-      Uint8List firmware, {
-        required ActiveSlot targetSlot,
-        required int maxChunkSize,
-        Function(double progress)? onProgress,
-      }) async {
+    String deviceId,
+    Uint8List firmware, {
+    required ActiveSlot targetSlot,
+    required int maxChunkSize,
+    Function(double progress)? onProgress,
+  }) async {
     final int total = firmware.length;
     final int chunkSize = maxChunkSize;
 
