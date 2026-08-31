@@ -22,8 +22,8 @@ class WriteState extends NormalBleState {
   static const Duration _retryDelay = Duration(milliseconds: 200);
   static const Duration _chunkDelay = Duration(milliseconds: 120);
   static const Duration _initialDelay = Duration(milliseconds: 300);
-  static const Duration _disconnectTimeout = Duration(seconds: 2);
-  static const Duration _postDisconnectDelay = Duration(milliseconds: 500);
+
+  bool verifiedNextGen = false;
 
   WriteState({required this.manager, required this.device});
 
@@ -54,7 +54,7 @@ class WriteState extends NormalBleState {
     const double smoothingStep = 0.01;
     const Duration tickInterval = Duration(milliseconds: 16);
 
-    final Timer progressTimer = Timer.periodic(tickInterval, (_) {
+    Timer.periodic(tickInterval, (_) {
       if (displayedProgress < targetProgress) {
         displayedProgress =
             (displayedProgress + smoothingStep).clamp(0.0, targetProgress);
@@ -72,6 +72,12 @@ class WriteState extends NormalBleState {
     try {
       await Future.delayed(_initialDelay);
       if (isCancellationRequested) return _handleAbortedState();
+
+      List<BleService> discoveredServices =
+          await UniversalBle.discoverServices(deviceId);
+
+      verifiedNextGen = discoveredServices.any((service) =>
+          service.uuid.toLowerCase() == ngServiceUuid.toLowerCase());
 
       final services = await UniversalBle.discoverServices(deviceId);
       final serviceExists = services.any((s) => s.uuid == serviceUuid);
@@ -105,7 +111,8 @@ class WriteState extends NormalBleState {
 
       return CompletedState(
         isSuccess: true,
-        message: l10n.transferSucceeded,
+        message: "Data transferred successfully",
+        isNextGen: verifiedNextGen,
       );
     } catch (e) {
       logger.e("Transfer failed: $e");
@@ -117,8 +124,18 @@ class WriteState extends NormalBleState {
       }
       rethrow;
     } finally {
-      progressTimer.cancel();
-      await _safeDisconnect(deviceId);
+      if (!verifiedNextGen) {
+        try {
+          logger.d("Disconnecting from legacy device after write...");
+          await UniversalBle.disconnect(deviceId);
+          await Future.delayed(const Duration(milliseconds: 700));
+        } catch (e) {
+          logger.e("Error during disconnect: $e");
+        }
+      } else {
+        logger
+            .i("Keeping GATT connection alive for Next-Gen profile commands.");
+      }
     }
   }
 
@@ -172,18 +189,5 @@ class WriteState extends NormalBleState {
       }
     }
     throw Exception(l10n.transferFailed);
-  }
-
-  Future<void> _safeDisconnect(String deviceId) async {
-    try {
-      logger.d("Disconnecting from device...");
-
-      await UniversalBle.disconnect(deviceId).timeout(_disconnectTimeout);
-
-      await Future.delayed(_postDisconnectDelay);
-      logger.d("Device disconnected successfully.");
-    } catch (e) {
-      logger.w("Disconnect warning (non-critical): $e");
-    }
   }
 }

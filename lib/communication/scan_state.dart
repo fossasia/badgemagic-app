@@ -3,6 +3,8 @@ import 'package:badgemagic/communication/connect_state.dart';
 import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:get_it/get_it.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:provider/provider.dart';
 import 'package:badgemagic/others/app_logger.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
@@ -12,6 +14,7 @@ import 'package:badgemagic/others/globals.dart';
 import 'base_ble_state.dart';
 
 class ScanState extends NormalBleState {
+  final BuildContext context;
   final DataTransferManager manager;
   final BadgeScanMode mode;
   final List<String> allowedNames;
@@ -24,10 +27,13 @@ class ScanState extends NormalBleState {
     required this.manager,
     required this.mode,
     required this.allowedNames,
+    required this.context,
   });
 
   @override
   Future<BleState?> processState() async {
+    final badgeScanProvider =
+        Provider.of<BadgeScanProvider>(context, listen: false);
     manager.clearConnectedDevice();
     await UniversalBle.stopScan();
 
@@ -54,6 +60,7 @@ class ScanState extends NormalBleState {
                 normalizedAllowedNames.contains(deviceName);
 
             if (matchesUuid && matchesName) {
+              badgeScanProvider.addBadgeName(deviceName);
               isCompleted = true;
               timeoutTimer?.cancel();
               await UniversalBle.stopScan();
