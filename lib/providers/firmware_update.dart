@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/services.dart';
@@ -35,6 +36,7 @@ class FirmwareUpdateService {
   static const int cmdIapErase = 0x81;
   static const int cmdIapVerify = 0x82;
   static const int cmdIapEnd = 0x83;
+  static const int cmdIapInfo = 0x84;
 
   // ============================================================
   // OTA MEMORY ADDRESSES
@@ -43,30 +45,16 @@ class FirmwareUpdateService {
   static const int imageAStartAddr = 0x00001000;
   static const int imageBStartAddr = 0x00037000;
 
-  // Granularità minima di erase del Code Flash sui CH58x/CH582.
-  // ATTENZIONE: verifica questo valore contro la costante reale usata dal
-  // firmware (FLASH_BLOCK_SIZE / EEPROM_BLOCK_SIZE nel tuo ota.h/config.h).
-  // Sulla famiglia CH58x l'erase del code flash è tipicamente allineato a
-  // blocchi da 4096 byte (non 512): se il firmware usa un valore diverso,
-  // aggiorna SOLO questa costante.
   static const int flashEraseBlockSize = 4096;
 
   static const Duration eraseDelay = Duration(milliseconds: 600);
   static const Duration endDelay = Duration(milliseconds: 500);
 
-  // Pacing tra un chunk di programmazione e il successivo. Con
-  // withoutResponse=true non serve attendere un ack per ogni pacchetto: si
-  // fa una pausa breve ogni [_pacingEveryNChunks] pacchetti per non saturare
-  // lo stack BLE / il buffer di trasmissione del controller.
   static const int _pacingEveryNChunks = 8;
   static const Duration _pacingDelay = Duration(milliseconds: 4);
 
   static const Duration _writeTimeout = Duration(seconds: 4);
 
-  // Se > 0, ogni N chunk viene inviato anche un CMD_IAP_VERIFY sul blocco
-  // appena scritto (il firmware supporta già questo comando). Disattivato
-  // di default per non rallentare l'update; abilitalo se vuoi più
-  // robustezza a scapito della velocità.
   static const int verifyEveryNChunks = 0;
 
   // ============================================================
@@ -91,7 +79,30 @@ class FirmwareUpdateService {
   // ============================================================
 
   Future<ActiveSlot> queryActiveSlot(String deviceId) async {
+    // Su Linux/BlueZ, il badge espone il servizio 0000fee0 due volte
+    // (due istanze a handle diversi); una delle due non contiene FEE2,
+    // e universal_ble risolve per UUID (non per handle/istanza), quindi
+    // la lettura di FEE2 può fallire con characteristicNotFound anche
+    // se il device la espone davvero in un'altra istanza del servizio.
+    // Su Linux bypassiamo FEE2 e usiamo CMD_IAP_INFO su FEE1, che è
+    // raggiungibile senza ambiguità.
+    if (Platform.isLinux) {
+      return _queryActiveSlotViaInfo(deviceId);
+    }
+
     try {
+      final services = await UniversalBle.discoverServices(deviceId);
+
+      final hasSlotChar = services.any((s) =>
+      BleUuidParser.compareStrings(s.uuid, otaServiceUuid) &&
+          s.characteristics.any((c) =>
+              BleUuidParser.compareStrings(c.uuid, slotStatusCharacteristicUuid)));
+
+      if (!hasSlotChar) {
+        logger.w('FEE2 non trovata dopo discovery esplicita: fallback a SlotA');
+        return ActiveSlot.slotA;
+      }
+
       logger.i('Reading active slot from FEE2...');
       final data = await UniversalBle.read(
         deviceId,
@@ -99,14 +110,56 @@ class FirmwareUpdateService {
         slotStatusCharacteristicUuid,
         timeout: const Duration(seconds: 3),
       );
-
       if (data.isNotEmpty) {
         if (data[0] == 0x01) return ActiveSlot.slotA;
         if (data[0] == 0x02) return ActiveSlot.slotB;
       }
       return ActiveSlot.slotA;
     } catch (e) {
-      logger.w('FEE2 non presente: fallback a SlotA');
+      logger.w('FEE2 non presente: fallback a SlotA — errore: $e');
+      return ActiveSlot.slotA;
+    }
+  }
+
+  /// Interroga lo slot attivo tramite CMD_IAP_INFO (0x84) su FEE1.
+  /// Il firmware risponde con un pacchetto staged (letto subito dopo la
+  /// write) il cui primo byte è THIS_IMAGE_FLAG (0x01 = SlotA, 0x02 = SlotB).
+  Future<ActiveSlot> _queryActiveSlotViaInfo(String deviceId) async {
+    try {
+      logger.i('Reading active slot via CMD_IAP_INFO (FEE1)...');
+
+      final packet = Uint8List(2);
+      packet[0] = cmdIapInfo;
+      packet[1] = 0x00;
+
+      await UniversalBle.write(
+        deviceId,
+        otaServiceUuid,
+        otaCharacteristicUuid,
+        packet,
+        withoutResponse: false,
+      ).timeout(const Duration(seconds: 3));
+
+      // Piccola attesa per dare tempo al firmware di preparare la risposta
+      // staged prima di leggerla.
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      final data = await UniversalBle.read(
+        deviceId,
+        otaServiceUuid,
+        otaCharacteristicUuid,
+        timeout: const Duration(seconds: 3),
+      );
+
+      if (data.isNotEmpty) {
+        if (data[0] == 0x01) return ActiveSlot.slotA;
+        if (data[0] == 0x02) return ActiveSlot.slotB;
+      }
+
+      logger.w('CMD_IAP_INFO: risposta inattesa, fallback a SlotA. data=$data');
+      return ActiveSlot.slotA;
+    } catch (e) {
+      logger.w('CMD_IAP_INFO fallito: fallback a SlotA — errore: $e');
       return ActiveSlot.slotA;
     }
   }
@@ -130,7 +183,7 @@ class FirmwareUpdateService {
     if (activeSlot != ActiveSlot.slotA) {
       throw Exception(
         'Firmware locale disponibile solo per Slot B. '
-        'Slot attivo rilevato: $activeSlot',
+            'Slot attivo rilevato: $activeSlot',
       );
     }
 
@@ -155,26 +208,18 @@ class FirmwareUpdateService {
   // ============================================================
   // ERASE
   // ============================================================
-  //
-  // IMPORTANTE: il firmware, alla ricezione di CMD_IAP_ERASE, calcola
-  //   OpAdd = (addr_ricevuto * 16) + OTA_TARGET_START_ADD
-  // quindi l'indirizzo che inviamo via BLE deve essere un OFFSET
-  // RELATIVO all'inizio dello slot target (0 per l'inizio immagine),
-  // NON l'indirizzo assoluto: altrimenti il firmware somma due volte la
-  // base e il suo controllo di bound rifiuta il comando (o, peggio,
-  // scrive fuori dallo slot corretto).
 
   Future<void> _erase(
-    String deviceId,
-    int targetStartAddr,
-    int binaryLength,
-  ) async {
+      String deviceId,
+      int targetStartAddr,
+      int binaryLength,
+      ) async {
     logger.i(
       'OTA: ERASE slot target a 0x${targetStartAddr.toRadixString(16)} '
-      '(${binaryLength} byte, blocco erase=$flashEraseBlockSize byte)',
+          '(${binaryLength} byte, blocco erase=$flashEraseBlockSize byte)',
     );
 
-    const int relativeOffset = 0; // si cancella sempre dall'inizio dello slot
+    const int relativeOffset = 0;
     final int addrCalc = relativeOffset ~/ 16;
     final int addrLsb = addrCalc & 0xFF;
     final int addrMsb = (addrCalc >> 8) & 0xFF;
@@ -206,27 +251,21 @@ class FirmwareUpdateService {
   // ============================================================
   // PROM
   // ============================================================
-  //
-  // Stesso discorso dell'erase: l'indirizzo inviato per ogni chunk deve
-  // essere l'offset RELATIVO all'inizio dello slot target (offset ~/ 16),
-  // non (startAddr + offset) ~/ 16. Il firmware aggiunge già
-  // OTA_TARGET_START_ADD internamente.
 
   Future<void> _program(
-    String deviceId,
-    Uint8List firmware, {
-    required ActiveSlot targetSlot,
-    Function(double progress)? onProgress,
-  }) async {
+      String deviceId,
+      Uint8List firmware, {
+        required ActiveSlot targetSlot,
+        required int maxChunkSize,
+        Function(double progress)? onProgress,
+      }) async {
     final int total = firmware.length;
-    const int chunkSize = 16;
-    final int startAddr = targetSlotAddress(targetSlot); // solo per log
+    final int chunkSize = maxChunkSize;
 
     logger.i(
-      'OTA: Invio $total byte (Chunk: $chunkSize, Base target: 0x${startAddr.toRadixString(16)})...',
+      'OTA: Invio $total byte (Chunk: $chunkSize B)...',
     );
 
-    int chunkIndex = 0;
     int lastReportedPct = -1;
 
     for (int offset = 0; offset < total; offset += chunkSize) {
@@ -234,87 +273,56 @@ class FirmwareUpdateService {
       final int currentSize = end - offset;
       final Uint8List chunk = firmware.sublist(offset, end);
 
-      // Offset relativo allo slot target: NON sommare startAddr qui.
       final int addrCalc = offset ~/ 16;
       final int addrLsb = addrCalc & 0xFF;
       final int addrMsb = (addrCalc >> 8) & 0xFF;
 
-      final packet = Uint8List(20);
+      final packet = Uint8List(4 + currentSize);
       packet[0] = cmdIapProm;
       packet[1] = currentSize;
       packet[2] = addrLsb;
       packet[3] = addrMsb;
       packet.setRange(4, 4 + currentSize, chunk);
 
-      await UniversalBle.write(
-        deviceId,
-        otaServiceUuid,
-        otaCharacteristicUuid,
-        packet,
-        // Il characteristic FEE1 espone GATT_PROP_WRITE_NO_RSP: per i
-        // pacchetti di programmazione possiamo evitare di attendere un
-        // ack per ognuno, guadagnando parecchio in velocità.
-        withoutResponse: false,
-      ).timeout(_writeTimeout);
+      bool sent = false;
+      int attempt = 0;
+      while (!sent) {
+        attempt++;
+        try {
+          await UniversalBle.write(
+            deviceId,
+            otaServiceUuid,
+            otaCharacteristicUuid,
+            packet,
+            withoutResponse: false,
+            queueId: deviceId,
+          ).timeout(_writeTimeout);
+          sent = true;
+        } on TimeoutException {
+          logger.e('OTA: timeout offset=$offset (tentativo $attempt)');
+          UniversalBle.clearQueue(deviceId);
+          await Future.delayed(const Duration(milliseconds: 200));
 
-      chunkIndex++;
-
-      // Verifica opzionale (disattivata di default, vedi verifyEveryNChunks)
-      if (verifyEveryNChunks > 0 && chunkIndex % verifyEveryNChunks == 0) {
-        await _verifyChunk(
-          deviceId,
-          relativeOffset: offset,
-          data: chunk,
-        );
+          if (attempt >= 2) {
+            rethrow;
+          }
+        }
       }
 
       final int written = offset + currentSize;
       final double progress = (written / total).clamp(0.0, 1.0);
 
-      // Throttle: notifica la UI solo quando la percentuale intera cambia,
-      // invece che ad ogni singolo pacchetto da 16 byte.
       final int pct = (progress * 100).floor();
       if (pct != lastReportedPct) {
         lastReportedPct = pct;
         onProgress?.call(progress);
       }
 
-      if (chunkIndex % _pacingEveryNChunks == 0) {
-        await Future.delayed(_pacingDelay);
-      }
+      await Future.delayed(const Duration(milliseconds: 5));
     }
 
-    // Garantisce che l'ultimo progress (100%) venga sempre notificato.
     onProgress?.call(1.0);
-
-    logger.i('OTA: Scrittura firmware terminata con successo.');
-  }
-
-  /// Invia CMD_IAP_VERIFY per il blocco appena scritto. Usa lo stesso
-  /// schema di indirizzamento relativo di _program.
-  Future<void> _verifyChunk(
-    String deviceId, {
-    required int relativeOffset,
-    required Uint8List data,
-  }) async {
-    final int addrCalc = relativeOffset ~/ 16;
-    final int addrLsb = addrCalc & 0xFF;
-    final int addrMsb = (addrCalc >> 8) & 0xFF;
-
-    final packet = Uint8List(20);
-    packet[0] = cmdIapVerify;
-    packet[1] = data.length;
-    packet[2] = addrLsb;
-    packet[3] = addrMsb;
-    packet.setRange(4, 4 + data.length, data);
-
-    await UniversalBle.write(
-      deviceId,
-      otaServiceUuid,
-      otaCharacteristicUuid,
-      packet,
-      withoutResponse: false,
-    ).timeout(_writeTimeout);
+    logger.i('OTA: Scrittura terminata.');
   }
 
   // ============================================================
@@ -349,31 +357,64 @@ class FirmwareUpdateService {
   // MAIN OTA
   // ============================================================
 
+  bool _updateInProgress = false;
+
   Future<void> executeFirmwareUpdate({
     required String deviceId,
     required List<dynamic> releaseAssets,
     required String hardwareVariant,
     Function(double progress)? onProgress,
   }) async {
-    final activeSlot = await queryActiveSlot(deviceId);
-    final targetSlot = targetSlotFor(activeSlot);
-    final int targetAddr = targetSlotAddress(targetSlot);
+    if (_updateInProgress) {
+      logger.w('OTA: update già in corso, richiesta ignorata');
+      return;
+    }
+    _updateInProgress = true;
 
-    logger.i(
-      'Active: ${slotName(activeSlot)} -> Target: ${slotName(targetSlot)} (0x${targetAddr.toRadixString(16)})',
-    );
+    try {
+      UniversalBle.timeout = _writeTimeout;
+      UniversalBle.queueType = QueueType.perDevice;
 
-    final firmware = await downloadFirmwareBinary(activeSlot: activeSlot);
+      try {
+        await UniversalBle.requestConnectionPriority(
+          deviceId,
+          BleConnectionPriority.highPerformance,
+        );
+      } catch (_) {}
 
-    await _erase(deviceId, targetAddr, firmware.length);
+      int negotiatedMtu = 247;
+      if (!Platform.isLinux) {
+        try {
+          negotiatedMtu = await UniversalBle.requestMtu(deviceId, 512);
+          logger.i('MTU Negoziato: $negotiatedMtu');
+        } catch (e) {
+          logger.w('Fallback MTU: $e');
+        }
+      }
 
-    await _program(
-      deviceId,
-      firmware,
-      targetSlot: targetSlot,
-      onProgress: onProgress,
-    );
+      final int firmwareIapMaxBuffer = 240;
+      int maxDataPayload = (negotiatedMtu - 7).clamp(16, firmwareIapMaxBuffer);
+      maxDataPayload = maxDataPayload & ~3;
 
-    await _end(deviceId, targetSlot);
+      final activeSlot = await queryActiveSlot(deviceId);
+      final targetSlot = targetSlotFor(activeSlot);
+      final int targetAddr = targetSlotAddress(targetSlot);
+
+      final firmware = await downloadFirmwareBinary(activeSlot: activeSlot);
+
+      await _erase(deviceId, targetAddr, firmware.length);
+
+      await _program(
+        deviceId,
+        firmware,
+        targetSlot: targetSlot,
+        maxChunkSize: maxDataPayload,
+        onProgress: onProgress,
+      );
+
+      await _end(deviceId, targetSlot);
+    } finally {
+      _updateInProgress = false;
+    }
   }
 }
