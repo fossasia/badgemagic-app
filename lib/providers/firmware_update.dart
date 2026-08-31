@@ -22,24 +22,26 @@ class FirmwareUpdateService {
   // ============================================================
 
   static const String otaServiceUuid = '0000fee0-0000-1000-8000-00805f9b34fb';
-
   static const String otaCharacteristicUuid =
       '0000fee1-0000-1000-8000-00805f9b34fb';
-
   static const String slotStatusCharacteristicUuid =
       '0000fee2-0000-1000-8000-00805f9b34fb';
 
   // ============================================================
-  // OTA COMMANDS
+  // OTA COMMANDS (ota.h)
   // ============================================================
 
+  static const int cmdIapProm = 0x80;
   static const int cmdIapErase = 0x81;
-  static const int cmdIapProm = 0x82;
+  static const int cmdIapVerify = 0x82;
   static const int cmdIapEnd = 0x83;
 
   // ============================================================
-  // OTA SETTINGS
+  // OTA MEMORY ADDRESSES
   // ============================================================
+
+  static const int imageAStartAddr = 0x00001000;
+  static const int imageBStartAddr = 0x00037000;
 
   static const Duration eraseDelay = Duration(milliseconds: 600);
   static const Duration endDelay = Duration(milliseconds: 500);
@@ -92,6 +94,9 @@ class FirmwareUpdateService {
   String slotName(ActiveSlot slot) =>
       slot == ActiveSlot.slotA ? 'SlotA' : 'SlotB';
 
+  int targetSlotAddress(ActiveSlot targetSlot) =>
+      (targetSlot == ActiveSlot.slotB) ? imageBStartAddr : imageAStartAddr;
+
   // ============================================================
   // DOWNLOAD FIRMWARE
   // ============================================================
@@ -102,7 +107,7 @@ class FirmwareUpdateService {
     if (activeSlot != ActiveSlot.slotA) {
       throw Exception(
         'Firmware locale disponibile solo per Slot B. '
-        'Slot attivo rilevato: $activeSlot',
+            'Slot attivo rilevato: $activeSlot',
       );
     }
 
@@ -128,12 +133,28 @@ class FirmwareUpdateService {
   // ERASE
   // ============================================================
 
-  Future<void> _erase(String deviceId) async {
-    logger.i('OTA: ERASE');
-    final packet = Uint8List.fromList([
-      cmdIapErase,
-      ...List<int>.filled(15, 0),
-    ]);
+  Future<void> _erase(
+      String deviceId,
+      int targetStartAddr,
+      int binaryLength,
+      ) async {
+    logger.i('OTA: ERASE all\'indirizzo 0x${targetStartAddr.toRadixString(16)}');
+
+    final int addrCalc = targetStartAddr ~/ 16;
+    final int addrLsb = addrCalc & 0xFF;
+    final int addrMsb = (addrCalc >> 8) & 0xFF;
+
+    final int numBlocks = (binaryLength / 512).ceil();
+    final int blockLsb = numBlocks & 0xFF;
+    final int blockMsb = (numBlocks >> 8) & 0xFF;
+
+    final packet = Uint8List(20);
+    packet[0] = cmdIapErase;
+    packet[1] = 0x04;
+    packet[2] = addrLsb;
+    packet[3] = addrMsb;
+    packet[4] = blockLsb;
+    packet[5] = blockMsb;
 
     await UniversalBle.write(
       deviceId,
@@ -148,24 +169,22 @@ class FirmwareUpdateService {
   }
 
   // ============================================================
-  // PROM (Con aggiornamento notifica e offset Slot B)
+  // PROM
   // ============================================================
 
   Future<void> _program(
-    String deviceId,
-    Uint8List firmware, {
-    required ActiveSlot targetSlot,
-    required int maxChunkSize,
-    Function(double progress)? onProgress,
-  }) async {
+      String deviceId,
+      Uint8List firmware, {
+        required ActiveSlot targetSlot,
+        Function(double progress)? onProgress,
+      }) async {
     final int total = firmware.length;
-    final int chunkSize = maxChunkSize;
-
-    final int startAddr =
-        (targetSlot == ActiveSlot.slotB) ? 0x00010000 : 0x00000000;
+    const int chunkSize = 16;
+    final int startAddr = targetSlotAddress(targetSlot);
 
     logger.i(
-        'OTA: Invio $total byte (Chunk: $chunkSize, Base: 0x${startAddr.toRadixString(16)})...');
+      'OTA: Invio $total byte (Chunk: $chunkSize, Base: 0x${startAddr.toRadixString(16)})...',
+    );
 
     for (int offset = 0; offset < total; offset += chunkSize) {
       final int end = (offset + chunkSize < total) ? offset + chunkSize : total;
@@ -177,8 +196,8 @@ class FirmwareUpdateService {
       final int addrLsb = addrCalc & 0xFF;
       final int addrMsb = (addrCalc >> 8) & 0xFF;
 
-      final packet = Uint8List(4 + currentSize);
-      packet[0] = cmdIapProm; // 0x82
+      final packet = Uint8List(20);
+      packet[0] = cmdIapProm;
       packet[1] = currentSize;
       packet[2] = addrLsb;
       packet[3] = addrMsb;
@@ -196,6 +215,7 @@ class FirmwareUpdateService {
       final double progress = (written / total).clamp(0.0, 1.0);
 
       onProgress?.call(progress);
+      await Future.delayed(const Duration(milliseconds: 2));
     }
 
     logger.i('OTA: Scrittura firmware terminata con successo.');
@@ -205,12 +225,14 @@ class FirmwareUpdateService {
   // END
   // ============================================================
 
-  Future<void> _end(String deviceId) async {
-    logger.i('OTA: END');
-    final packet = Uint8List.fromList([
-      cmdIapEnd,
-      ...List<int>.filled(15, 0),
-    ]);
+  Future<void> _end(String deviceId, ActiveSlot targetSlot) async {
+    logger.i('OTA: END -> Switch a ${slotName(targetSlot)}');
+
+    final packet = Uint8List(20);
+    packet[0] = cmdIapEnd;
+    packet[1] = 0x02;
+    packet[2] = (targetSlot == ActiveSlot.slotB) ? 0x02 : 0x01;
+    packet[3] = 0x00;
 
     try {
       await UniversalBle.write(
@@ -237,38 +259,25 @@ class FirmwareUpdateService {
     required String hardwareVariant,
     Function(double progress)? onProgress,
   }) async {
-    int negotiatedMtu = 23;
-    try {
-      negotiatedMtu = await UniversalBle.requestMtu(
-        deviceId,
-        247,
-        timeout: const Duration(seconds: 4),
-      );
-      logger.i('Negotiated MTU: $negotiatedMtu');
-    } catch (e) {
-      logger.w('Richiesta MTU non supportata: $e');
-    }
-
-    final int rawPayload = (negotiatedMtu > 23) ? (negotiatedMtu - 7) : 16;
-    final int safeChunkSize = ((rawPayload ~/ 16) * 16).clamp(16, 240);
-
     final activeSlot = await queryActiveSlot(deviceId);
     final targetSlot = targetSlotFor(activeSlot);
+    final int targetAddr = targetSlotAddress(targetSlot);
+
     logger.i(
-        'Active: ${slotName(activeSlot)} -> Target: ${slotName(targetSlot)}');
+      'Active: ${slotName(activeSlot)} -> Target: ${slotName(targetSlot)} (0x${targetAddr.toRadixString(16)})',
+    );
 
     final firmware = await downloadFirmwareBinary(activeSlot: activeSlot);
 
-    await _erase(deviceId);
+    await _erase(deviceId, targetAddr, firmware.length);
 
     await _program(
       deviceId,
       firmware,
       targetSlot: targetSlot,
-      maxChunkSize: safeChunkSize,
       onProgress: onProgress,
     );
 
-    await _end(deviceId);
+    await _end(deviceId, targetSlot);
   }
 }
