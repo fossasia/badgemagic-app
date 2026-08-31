@@ -466,7 +466,6 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
-      // 2. Scansione BLE
       final device = await scanForBadge(
         mode: _scanMode,
         allowedNames: _controllers.map((c) => c.text.trim()).toList(),

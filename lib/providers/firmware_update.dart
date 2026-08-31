@@ -43,8 +43,31 @@ class FirmwareUpdateService {
   static const int imageAStartAddr = 0x00001000;
   static const int imageBStartAddr = 0x00037000;
 
+  // Granularità minima di erase del Code Flash sui CH58x/CH582.
+  // ATTENZIONE: verifica questo valore contro la costante reale usata dal
+  // firmware (FLASH_BLOCK_SIZE / EEPROM_BLOCK_SIZE nel tuo ota.h/config.h).
+  // Sulla famiglia CH58x l'erase del code flash è tipicamente allineato a
+  // blocchi da 4096 byte (non 512): se il firmware usa un valore diverso,
+  // aggiorna SOLO questa costante.
+  static const int flashEraseBlockSize = 4096;
+
   static const Duration eraseDelay = Duration(milliseconds: 600);
   static const Duration endDelay = Duration(milliseconds: 500);
+
+  // Pacing tra un chunk di programmazione e il successivo. Con
+  // withoutResponse=true non serve attendere un ack per ogni pacchetto: si
+  // fa una pausa breve ogni [_pacingEveryNChunks] pacchetti per non saturare
+  // lo stack BLE / il buffer di trasmissione del controller.
+  static const int _pacingEveryNChunks = 8;
+  static const Duration _pacingDelay = Duration(milliseconds: 4);
+
+  static const Duration _writeTimeout = Duration(seconds: 4);
+
+  // Se > 0, ogni N chunk viene inviato anche un CMD_IAP_VERIFY sul blocco
+  // appena scritto (il firmware supporta già questo comando). Disattivato
+  // di default per non rallentare l'update; abilitalo se vuoi più
+  // robustezza a scapito della velocità.
+  static const int verifyEveryNChunks = 0;
 
   // ============================================================
   // UPDATE CHECK
@@ -107,7 +130,7 @@ class FirmwareUpdateService {
     if (activeSlot != ActiveSlot.slotA) {
       throw Exception(
         'Firmware locale disponibile solo per Slot B. '
-            'Slot attivo rilevato: $activeSlot',
+        'Slot attivo rilevato: $activeSlot',
       );
     }
 
@@ -132,19 +155,31 @@ class FirmwareUpdateService {
   // ============================================================
   // ERASE
   // ============================================================
+  //
+  // IMPORTANTE: il firmware, alla ricezione di CMD_IAP_ERASE, calcola
+  //   OpAdd = (addr_ricevuto * 16) + OTA_TARGET_START_ADD
+  // quindi l'indirizzo che inviamo via BLE deve essere un OFFSET
+  // RELATIVO all'inizio dello slot target (0 per l'inizio immagine),
+  // NON l'indirizzo assoluto: altrimenti il firmware somma due volte la
+  // base e il suo controllo di bound rifiuta il comando (o, peggio,
+  // scrive fuori dallo slot corretto).
 
   Future<void> _erase(
-      String deviceId,
-      int targetStartAddr,
-      int binaryLength,
-      ) async {
-    logger.i('OTA: ERASE all\'indirizzo 0x${targetStartAddr.toRadixString(16)}');
+    String deviceId,
+    int targetStartAddr,
+    int binaryLength,
+  ) async {
+    logger.i(
+      'OTA: ERASE slot target a 0x${targetStartAddr.toRadixString(16)} '
+      '(${binaryLength} byte, blocco erase=$flashEraseBlockSize byte)',
+    );
 
-    final int addrCalc = targetStartAddr ~/ 16;
+    const int relativeOffset = 0; // si cancella sempre dall'inizio dello slot
+    final int addrCalc = relativeOffset ~/ 16;
     final int addrLsb = addrCalc & 0xFF;
     final int addrMsb = (addrCalc >> 8) & 0xFF;
 
-    final int numBlocks = (binaryLength / 512).ceil();
+    final int numBlocks = (binaryLength / flashEraseBlockSize).ceil();
     final int blockLsb = numBlocks & 0xFF;
     final int blockMsb = (numBlocks >> 8) & 0xFF;
 
@@ -162,7 +197,7 @@ class FirmwareUpdateService {
       otaCharacteristicUuid,
       packet,
       withoutResponse: false,
-    );
+    ).timeout(_writeTimeout);
 
     await Future.delayed(eraseDelay);
     logger.i('OTA: ERASE completed');
@@ -171,28 +206,36 @@ class FirmwareUpdateService {
   // ============================================================
   // PROM
   // ============================================================
+  //
+  // Stesso discorso dell'erase: l'indirizzo inviato per ogni chunk deve
+  // essere l'offset RELATIVO all'inizio dello slot target (offset ~/ 16),
+  // non (startAddr + offset) ~/ 16. Il firmware aggiunge già
+  // OTA_TARGET_START_ADD internamente.
 
   Future<void> _program(
-      String deviceId,
-      Uint8List firmware, {
-        required ActiveSlot targetSlot,
-        Function(double progress)? onProgress,
-      }) async {
+    String deviceId,
+    Uint8List firmware, {
+    required ActiveSlot targetSlot,
+    Function(double progress)? onProgress,
+  }) async {
     final int total = firmware.length;
     const int chunkSize = 16;
-    final int startAddr = targetSlotAddress(targetSlot);
+    final int startAddr = targetSlotAddress(targetSlot); // solo per log
 
     logger.i(
-      'OTA: Invio $total byte (Chunk: $chunkSize, Base: 0x${startAddr.toRadixString(16)})...',
+      'OTA: Invio $total byte (Chunk: $chunkSize, Base target: 0x${startAddr.toRadixString(16)})...',
     );
+
+    int chunkIndex = 0;
+    int lastReportedPct = -1;
 
     for (int offset = 0; offset < total; offset += chunkSize) {
       final int end = (offset + chunkSize < total) ? offset + chunkSize : total;
       final int currentSize = end - offset;
       final Uint8List chunk = firmware.sublist(offset, end);
 
-      final int absoluteAddr = startAddr + offset;
-      final int addrCalc = absoluteAddr ~/ 16;
+      // Offset relativo allo slot target: NON sommare startAddr qui.
+      final int addrCalc = offset ~/ 16;
       final int addrLsb = addrCalc & 0xFF;
       final int addrMsb = (addrCalc >> 8) & 0xFF;
 
@@ -208,17 +251,70 @@ class FirmwareUpdateService {
         otaServiceUuid,
         otaCharacteristicUuid,
         packet,
+        // Il characteristic FEE1 espone GATT_PROP_WRITE_NO_RSP: per i
+        // pacchetti di programmazione possiamo evitare di attendere un
+        // ack per ognuno, guadagnando parecchio in velocità.
         withoutResponse: false,
-      );
+      ).timeout(_writeTimeout);
+
+      chunkIndex++;
+
+      // Verifica opzionale (disattivata di default, vedi verifyEveryNChunks)
+      if (verifyEveryNChunks > 0 && chunkIndex % verifyEveryNChunks == 0) {
+        await _verifyChunk(
+          deviceId,
+          relativeOffset: offset,
+          data: chunk,
+        );
+      }
 
       final int written = offset + currentSize;
       final double progress = (written / total).clamp(0.0, 1.0);
 
-      onProgress?.call(progress);
-      await Future.delayed(const Duration(milliseconds: 2));
+      // Throttle: notifica la UI solo quando la percentuale intera cambia,
+      // invece che ad ogni singolo pacchetto da 16 byte.
+      final int pct = (progress * 100).floor();
+      if (pct != lastReportedPct) {
+        lastReportedPct = pct;
+        onProgress?.call(progress);
+      }
+
+      if (chunkIndex % _pacingEveryNChunks == 0) {
+        await Future.delayed(_pacingDelay);
+      }
     }
 
+    // Garantisce che l'ultimo progress (100%) venga sempre notificato.
+    onProgress?.call(1.0);
+
     logger.i('OTA: Scrittura firmware terminata con successo.');
+  }
+
+  /// Invia CMD_IAP_VERIFY per il blocco appena scritto. Usa lo stesso
+  /// schema di indirizzamento relativo di _program.
+  Future<void> _verifyChunk(
+    String deviceId, {
+    required int relativeOffset,
+    required Uint8List data,
+  }) async {
+    final int addrCalc = relativeOffset ~/ 16;
+    final int addrLsb = addrCalc & 0xFF;
+    final int addrMsb = (addrCalc >> 8) & 0xFF;
+
+    final packet = Uint8List(20);
+    packet[0] = cmdIapVerify;
+    packet[1] = data.length;
+    packet[2] = addrLsb;
+    packet[3] = addrMsb;
+    packet.setRange(4, 4 + data.length, data);
+
+    await UniversalBle.write(
+      deviceId,
+      otaServiceUuid,
+      otaCharacteristicUuid,
+      packet,
+      withoutResponse: false,
+    ).timeout(_writeTimeout);
   }
 
   // ============================================================
@@ -241,7 +337,7 @@ class FirmwareUpdateService {
         otaCharacteristicUuid,
         packet,
         withoutResponse: false,
-      );
+      ).timeout(_writeTimeout);
     } catch (e) {
       logger.w('Disconnessione durante il reboot del badge: $e');
     }
