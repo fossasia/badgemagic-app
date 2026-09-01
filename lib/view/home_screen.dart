@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:badgemagic/models/speed.dart';
 import 'package:badgemagic/storage/badge_loader_helper.dart';
 import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/globals.dart';
 import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
@@ -13,6 +14,7 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
+import 'package:badgemagic/providers/firmware_update.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -23,6 +25,7 @@ import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
 import 'package:badgemagic/view/widgets/gifview.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_view.dart';
 import 'package:badgemagic/view/widgets/badge_text_input_field.dart';
+import 'package:badgemagic/view/widgets/firmware_update_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -61,6 +64,8 @@ class _HomeScreenState extends State<HomeScreen>
   final TextEditingController inlineImageController =
       GetIt.instance.get<InlineImageProvider>().getController();
 
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
   final Converters _converters = Converters();
 
   bool isPrefixIconClicked = false;
@@ -77,6 +82,7 @@ class _HomeScreenState extends State<HomeScreen>
   static const _speedKey = 'badge_speed';
   static const _transitionKey = 'badge_transition';
   static const _effectsKey = 'badge_effects';
+  bool _hasCheckedThisSession = false;
 
   Timer? _debounceTimer;
 
@@ -107,6 +113,39 @@ class _HomeScreenState extends State<HomeScreen>
       speedDialProvider.addListener(_debouncedSavePreferences);
     });
     _tabController = TabController(length: 4, vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _initiateFirmwareCheck();
+    });
+  }
+
+  Future<void> _initiateFirmwareCheck() async {
+    final flasher = WchUsbIspFlasher();
+    final updateInfo = await flasher.checkForUpdates();
+    final prefs = await SharedPreferences.getInstance();
+    var version = updateInfo?['version'];
+    final bool shouldSkip =
+        prefs.getBool('skip_firmware_version_$version') ?? false;
+    bool autoCheck = await autocheckFirmwareUpdates();
+
+    if (autoCheck &&
+        updateInfo != null &&
+        mounted &&
+        !shouldSkip &&
+        !_hasCheckedThisSession) {
+      _hasCheckedThisSession = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return FirmwareUpdateDialog(
+            version: updateInfo['version']!,
+            date: updateInfo['date']!,
+            releaseAssets: updateInfo['assets'] ?? [],
+          );
+        },
+      );
+    }
   }
 
   Future<void> loadPreferences() async {
@@ -210,10 +249,10 @@ class _HomeScreenState extends State<HomeScreen>
       }
 
       ToastUtils().showToast(
-          "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
+          "${l10n.editingBadge}: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
     } catch (e, st) {
       debugPrint("Failed to load badge data: $e\n$st");
-      ToastUtils().showToast("Failed to load badge data");
+      ToastUtils().showToast(l10n.failedToLoadBadgeData);
     }
   }
 
@@ -356,7 +395,6 @@ class _HomeScreenState extends State<HomeScreen>
     return ValueListenableBuilder<Locale?>(
       valueListenable: appLocale,
       builder: (context, _, __) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
         return DefaultTabController(
           length: 4,
           child: CommonScaffold(
@@ -510,8 +548,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _handleSave() async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     if (inlineImageController.text.trim().isEmpty) {
-      ToastUtils().showToast("Please enter a message");
+      ToastUtils().showToast(l10n.pleaseEnterMessage);
       return;
     }
 
@@ -532,7 +571,7 @@ class _HomeScreenState extends State<HomeScreen>
         animationProvider.getAnimationIndex() ?? 1,
       );
 
-      ToastUtils().showToast("Badge Updated Successfully");
+      ToastUtils().showToast(l10n.badgeUpdatedSuccessfully);
       if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -601,7 +640,7 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (error) {
       bleDialogController.update(
         BleDialogStatus.error,
-        "An unexpected error\noccurred.",
+        l10n.unknownError,
       );
       await Future.delayed(const Duration(milliseconds: 2000));
       if (context.mounted) {
