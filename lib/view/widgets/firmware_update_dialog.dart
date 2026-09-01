@@ -252,7 +252,8 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
                 foregroundColor: Colors.white,
               ),
               icon: const Icon(Icons.usb, size: 18),
-              onPressed: () => openUrl('https://github.com/fossasia/badgemagic-firmware'),
+              onPressed: () =>
+                  openUrl('https://github.com/fossasia/badgemagic-firmware'),
               label: Text("See instructions on GitHub"),
             ),
           ],
