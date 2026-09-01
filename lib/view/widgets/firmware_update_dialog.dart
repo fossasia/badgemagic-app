@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -5,6 +6,7 @@ import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../constants.dart';
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
 import '../../providers/firmware_update.dart';
@@ -28,7 +30,7 @@ class FirmwareUpdateDialog extends StatefulWidget {
 class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
   bool _dontRemindAgain = false;
   bool _isFlashing = false;
-  String _statusText = '';
+  String _flashStatusText = '';
 
   final WchUsbIspFlasher _flasher = WchUsbIspFlasher();
 
@@ -105,7 +107,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
     setState(() {
       _isFlashing = true;
-      _statusText = l10n.firmwareDownloadProgress;
+      _flashStatusText = l10n.firmwareDownloadProgress;
     });
 
     try {
@@ -118,21 +120,34 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
 
       if (mounted) {
         setState(() {
-          _statusText = l10n.writingOnUsbIsp;
+          _flashStatusText = l10n.writingOnUsbIsp;
         });
       }
 
-      await _flasher.flashMergedBinary(
-        firmwareData: firmwareData,
-        onProgress: (progress) {
-          if (mounted) {
-            setState(() {
-              _statusText =
-                  l10n.flashUsbProgress((progress * 100).toStringAsFixed(0));
+      if (Platform.isAndroid) {
+        await _flasher.flashMergedBinary(
+          firmwareData: firmwareData,
+          onProgress: (progress) {
+            if (mounted) {
+              setState(() {
+                _flashStatusText =
+                    l10n.flashUsbProgress((progress * 100).toStringAsFixed(0));
+              });
+            }
+          },
+        );
+      } else if (Platform.isLinux) {
+        await _flasher.flashMergedBinaryLinux(
+            firmwareData: firmwareData,
+            onProgress: (progress) {
+              if (mounted) {
+                setState(() {
+                  _flashStatusText = l10n
+                      .flashUsbProgress((progress * 100).toStringAsFixed(0));
+                });
+              }
             });
-          }
-        },
-      );
+      }
 
       ToastUtils().showToast(l10n.firmwareUpdateSuccess);
       if (mounted) {
@@ -143,7 +158,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
       if (mounted) {
         setState(() {
           _isFlashing = false;
-          _statusText = '';
+          _flashStatusText = '';
         });
       }
     }
@@ -170,15 +185,6 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
               style: const TextStyle(fontWeight: FontWeight.bold)),
           Text(l10n.releasedLabel(widget.date),
               style: const TextStyle(fontWeight: FontWeight.bold)),
-          const SizedBox(height: 12),
-          Text(
-            l10n.firmwareUpdateInstruction,
-            style: TextStyle(
-              fontSize: 12,
-              color: Colors.grey.shade800,
-              fontStyle: FontStyle.italic,
-            ),
-          ),
           const SizedBox(height: 16),
           if (_isFlashing) ...[
             LinearProgressIndicator(
@@ -187,7 +193,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
             ),
             const SizedBox(height: 6),
             Text(
-              _statusText,
+              _flashStatusText,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade700),
             ),
           ] else ...[
@@ -229,15 +235,27 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
             },
             child: Text(l10n.laterButton),
           ),
-          ElevatedButton.icon(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
+          if (Platform.isAndroid || Platform.isLinux) ...[
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.usb, size: 18),
+              onPressed: _startUsbFlash,
+              label: Text(l10n.flashViaUsb),
             ),
-            icon: const Icon(Icons.usb, size: 18),
-            onPressed: _startUsbFlash,
-            label: Text(l10n.flashViaUsb),
-          ),
+          ] else ...[
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.red,
+                foregroundColor: Colors.white,
+              ),
+              icon: const Icon(Icons.usb, size: 18),
+              onPressed: () => openUrl('https://github.com/fossasia/badgemagic-firmware'),
+              label: Text("See instructions on GitHub"),
+            ),
+          ],
         ],
       ],
     );

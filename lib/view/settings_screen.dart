@@ -49,9 +49,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _setOrientation();
-    if (Platform.isAndroid) {
-      initAutocheckFirmwareUpdate();
-    }
+    initAutocheckFirmwareUpdate();
   }
 
   void initAutocheckFirmwareUpdate() async {
@@ -173,17 +171,30 @@ class SettingsScreenState extends State<SettingsScreen> {
         });
       }
 
-      await _flasher.flashMergedBinary(
-        firmwareData: firmwareData,
-        onProgress: (progress) {
-          if (mounted) {
-            setState(() {
-              _flashStatusText =
-                  l10n.flashUsbProgress((progress * 100).toStringAsFixed(0));
+      if (Platform.isAndroid) {
+        await _flasher.flashMergedBinary(
+          firmwareData: firmwareData,
+          onProgress: (progress) {
+            if (mounted) {
+              setState(() {
+                _flashStatusText =
+                    l10n.flashUsbProgress((progress * 100).toStringAsFixed(0));
+              });
+            }
+          },
+        );
+      } else if (Platform.isLinux) {
+        await _flasher.flashMergedBinaryLinux(
+            firmwareData: firmwareData,
+            onProgress: (progress) {
+              if (mounted) {
+                setState(() {
+                  _flashStatusText = l10n
+                      .flashUsbProgress((progress * 100).toStringAsFixed(0));
+                });
+              }
             });
-          }
-        },
-      );
+      }
 
       if (mounted) {
         setState(() => _availableUpdate = null);
@@ -386,112 +397,103 @@ class SettingsScreenState extends State<SettingsScreen> {
                     label: Text(l10n.addMore),
                   ),
                 ],
-                if (Platform.isAndroid) ...[
-                  const SizedBox(height: 24),
-                  const Divider(),
-                  const SizedBox(height: 12),
-                  Text(
-                    l10n.firmwareUpdate,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  Row(
-                    children: [
-                      ElevatedButton.icon(
-                        onPressed:
-                            _isCheckingUpdate ? null : _handleManualUpdateCheck,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.white,
-                          foregroundColor: indicatorColor,
-                          elevation: 0,
-                        ),
-                        icon: _isCheckingUpdate
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.red),
-                              )
-                            : const Icon(Icons.refresh),
-                        label: Text(l10n.checkFirmwareUpdateButton),
+                const SizedBox(height: 24),
+                const Divider(),
+                const SizedBox(height: 12),
+                Text(
+                  l10n.firmwareUpdate,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed:
+                          _isCheckingUpdate ? null : _handleManualUpdateCheck,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.white,
+                        foregroundColor: indicatorColor,
+                        elevation: 0,
                       ),
-                    ],
-                  ),
-                  if (_updateStatusMessage != null) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      _updateStatusMessage!,
-                      style:
-                          TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                      icon: _isCheckingUpdate
+                          ? const SizedBox(
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.red),
+                            )
+                          : const Icon(Icons.refresh),
+                      label: Text(l10n.checkFirmwareUpdateButton),
                     ),
                   ],
-                  if (_availableUpdate != null) ...[
-                    const SizedBox(height: 16),
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.red.shade50,
-                        border: Border.all(color: Colors.red.shade200),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              const Icon(Icons.new_releases_sharp,
-                                  color: Colors.red),
-                              const SizedBox(width: 8),
-                              Text(
-                                l10n.newFirmwareVersionFound,
-                                style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                    fontSize: 15),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Text(l10n.versionLabel(_availableUpdate!['version']),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w600)),
-                          Text(l10n.releasedLabel(_availableUpdate!['date']),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w600)),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.firmwareUpdateInstruction,
-                            style: TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey.shade800,
-                                fontStyle: FontStyle.italic),
-                          ),
-                          if (_isFlashingFirmware) ...[
-                            const SizedBox(height: 12),
-                            const LinearProgressIndicator(
-                              color: Colors.red,
-                            ),
-                            const SizedBox(height: 6),
+                ),
+                if (_updateStatusMessage != null) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    _updateStatusMessage!,
+                    style: TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                  ),
+                ],
+                if (_availableUpdate != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.red.shade50,
+                      border: Border.all(color: Colors.red.shade200),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.new_releases_sharp,
+                                color: Colors.red),
+                            const SizedBox(width: 8),
                             Text(
-                              _flashStatusText,
-                              style: TextStyle(
-                                  fontSize: 12, color: Colors.grey.shade700),
+                              l10n.newFirmwareVersionFound,
+                              style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                  fontSize: 15),
                             ),
-                          ] else ...[
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                TextButton(
-                                  onPressed: () =>
-                                      setState(() => _availableUpdate = null),
-                                  child: Text(
-                                    l10n.dismissButton,
-                                    style: const TextStyle(color: Colors.black),
-                                  ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Text(l10n.versionLabel(_availableUpdate!['version']),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        Text(l10n.releasedLabel(_availableUpdate!['date']),
+                            style:
+                                const TextStyle(fontWeight: FontWeight.w600)),
+                        if (_isFlashingFirmware) ...[
+                          const SizedBox(height: 12),
+                          const LinearProgressIndicator(
+                            color: Colors.red,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            _flashStatusText,
+                            style: TextStyle(
+                                fontSize: 12, color: Colors.grey.shade700),
+                          ),
+                        ] else ...[
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              TextButton(
+                                onPressed: () =>
+                                    setState(() => _availableUpdate = null),
+                                child: Text(
+                                  l10n.dismissButton,
+                                  style: const TextStyle(color: Colors.black),
                                 ),
-                                const SizedBox(width: 8),
+                              ),
+                              const SizedBox(width: 8),
+                              if (Platform.isAndroid || Platform.isLinux) ...[
                                 ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
@@ -501,30 +503,40 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   onPressed: _handleStartUsbFirmwareUpdate,
                                   label: Text(l10n.flashViaUsb),
                                 ),
+                              ] else ...[
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  icon: const Icon(Icons.usb, size: 18),
+                                  onPressed: () => openUrl('https://github.com/fossasia/badgemagic-firmware'),
+                                  label: Text("See instructions on GitHub"),
+                                ),
                               ],
-                            )
-                          ],
+                            ],
+                          )
                         ],
-                      ),
+                      ],
                     ),
-                  ],
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const SizedBox(width: 8),
-                      Text(l10n.checkUpdateStartup),
-                      Checkbox(
-                        activeColor: colorPrimary,
-                        value: autoCheck,
-                        onChanged: (value) async {
-                          if (value == null) return;
-                          setState(() => autoCheck = value);
-                          await prefs.setBool('auto_check_updates', value);
-                        },
-                      ),
-                    ],
                   ),
                 ],
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    Text(l10n.checkUpdateStartup),
+                    Checkbox(
+                      activeColor: colorPrimary,
+                      value: autoCheck,
+                      onChanged: (value) async {
+                        if (value == null) return;
+                        setState(() => autoCheck = value);
+                        await prefs.setBool('auto_check_updates', value);
+                      },
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 24),
                 Center(
                   child: GestureDetector(

@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:get_it/get_it.dart';
+import '../others/app_logger.dart';
 import '../others/localization_service.dart';
 import '../others/toast_utils.dart';
 
@@ -97,5 +99,82 @@ class WchUsbIspFlasher {
 
     onProgress?.call(1.0);
     ToastUtils().showToast(l10n.firmwareUpdateSuccessShort);
+  }
+
+  Future<String?> _findWchispBinary() async {
+    final which = await Process.run('which', ['wchisp']);
+    if (which.exitCode == 0) {
+      final path = (which.stdout as String).trim();
+      if (path.isNotEmpty) return path;
+    }
+
+    final home =
+        Platform.environment['HOME'] ?? Platform.environment['XDG_HOME'] ?? '';
+
+    final candidates = <String>[
+      if (home.isNotEmpty) '$home/.cargo/bin/wchisp',
+      if (home.isNotEmpty) '$home/.local/bin/wchisp',
+      '/usr/local/bin/wchisp',
+      '/usr/bin/wchisp',
+      '/opt/wchisp/wchisp',
+    ];
+
+    for (final path in candidates) {
+      if (await File(path).exists()) return path;
+    }
+
+    return null;
+  }
+
+  Future<void> flashMergedBinaryLinux({
+    required Uint8List firmwareData,
+    Function(double progress)? onProgress,
+  }) async {
+    final wchispPath = await _findWchispBinary();
+    if (wchispPath == null) {
+      ToastUtils()
+          .showErrorToast("wchisp not found. Verify that it is installed "
+              "(e.g. 'cargo install wchisp') and that its path is in PATH, "
+              "or report it to search in a custom location.");
+      throw Exception("wchisp not found (PATH and common locations)");
+    }
+
+    final tempDir = await Directory.systemTemp.createTemp('badgemagic_fw_');
+    final fwFile = File('${tempDir.path}/merged.bin');
+    await fwFile.writeAsBytes(firmwareData);
+
+    try {
+      final process = await Process.start(wchispPath, ['flash', fwFile.path]);
+
+      final stderrBuf = StringBuffer();
+      process.stdout.transform(const SystemEncoding().decoder).listen((line) {
+        logger.i('wchisp: $line');
+      });
+      process.stderr.transform(const SystemEncoding().decoder).listen((line) {
+        stderrBuf.writeln(line);
+        logger.e('wchisp: $line');
+      });
+
+      final exitCode = await process.exitCode;
+
+      if (exitCode != 0) {
+        final err = stderrBuf.toString();
+        if (err.toLowerCase().contains('permission') ||
+            err.toLowerCase().contains('access') ||
+            err.toLowerCase().contains('udev')) {
+          ToastUtils().showErrorToast(
+              "USB permission error: configure udev rules for the badge.");
+        } else {
+          ToastUtils().showErrorToast("Error during flash: $err");
+        }
+        throw Exception("wchisp flash failed (exit $exitCode): $err");
+      }
+
+      onProgress?.call(1.0);
+      ToastUtils().showToast(l10n.firmwareUpdateSuccessShort);
+    } finally {
+      if (await fwFile.exists()) await fwFile.delete();
+      await tempDir.delete(recursive: true);
+    }
   }
 }
