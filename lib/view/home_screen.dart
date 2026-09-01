@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:badgemagic/models/speed.dart';
 import 'package:badgemagic/storage/badge_loader_helper.dart';
 import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/globals.dart';
 import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
@@ -22,6 +23,7 @@ import 'package:badgemagic/view/widgets/badge_clipart_picker.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_view.dart';
 import 'package:badgemagic/view/widgets/badge_text_input_field.dart';
+import 'package:badgemagic/view/widgets/firmware_update_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -33,6 +35,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../providers/firmware_update.dart';
+import '../providers/firmware_update_ble.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
@@ -68,11 +73,14 @@ class _HomeScreenState extends State<HomeScreen>
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
+  final FirmwareUpdateService _updateService = FirmwareUpdateService();
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   static const _textKey = 'badge_text';
   static const _speedKey = 'badge_speed';
   static const _transitionKey = 'badge_transition';
   static const _effectsKey = 'badge_effects';
+  bool _hasCheckedThisSession = false;
 
   Timer? _debounceTimer;
 
@@ -101,6 +109,40 @@ class _HomeScreenState extends State<HomeScreen>
       speedDialProvider.addListener(_debouncedSavePreferences);
     });
     _tabController = TabController(length: 4, vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _initiateFirmwareCheck();
+    });
+  }
+
+  Future<void> _initiateFirmwareCheck() async {
+    final updateService = WchUsbIspFlasher();
+    final updateInfo = await updateService.checkForUpdates();
+    final prefs = await SharedPreferences.getInstance();
+    var version = updateInfo?['version'];
+    final bool shouldSkip =
+        prefs.getBool('skip_firmware_version_$version') ?? false;
+    bool autoCheck = await autocheckFirmwareUpdates();
+
+    if (autoCheck &&
+        updateInfo != null &&
+        mounted &&
+        !shouldSkip &&
+        !_hasCheckedThisSession) {
+      _hasCheckedThisSession = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return FirmwareUpdateDialog(
+            version: updateInfo['version']!,
+            date: updateInfo['date']!,
+            releaseAssets: updateInfo['assets'] ?? [],
+            service: _updateService,
+          );
+        },
+      );
+    }
   }
 
   Future<void> loadPreferences() async {

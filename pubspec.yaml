@@ -42,6 +42,7 @@ dependencies:
   cupertino_icons: ^1.0.9
   provider: ^6.1.5
   universal_ble: ^2.2.0
+  hid_tool: ^0.1.2
   permission_handler: ^12.0.3
   logger: ^2.7.0
   flutter_svg: ^2.3.0
@@ -58,6 +59,7 @@ dependencies:
   image: ^4.9.2
   qr_flutter: ^4.1.0
   mobile_scanner: ^7.2.0
+  flutter_foreground_task: ^11.0.1
 
 dev_dependencies:
   flutter_test:
@@ -94,6 +96,8 @@ flutter:
     - assets/animations/
     - assets/effects/
     - assets/vectors/
+    - assets/usb-c-4key/slotB/badgemagic-ch582-slotB.bin
+    - assets/usb-c-4key/slotA/badgemagic-ch582-slotA.bin
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see
