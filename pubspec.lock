@@ -149,10 +149,10 @@ packages:
     dependency: "direct dev"
     description:
       name: dart_style
-      sha256: "3f88fc9c96c568d631356507355a2d1e983ee000c9ac008bdcb39b5bf53ce777"
+      sha256: "82ade9fc4273f29ed673e33166944465225b4f7fc5d4aaef48605cc751c18fc1"
       url: "https://pub.dev"
     source: hosted
-    version: "3.1.12"
+    version: "3.1.13"
   dbus:
     dependency: transitive
     description:
@@ -853,10 +853,10 @@ packages:
     dependency: "direct main"
     description:
       name: universal_ble
-      sha256: acf41bc04affa322fbb48a29ee724408fac7b39e9fe83e9ef45d5925076de5e5
+      sha256: "14ecc6abed48e2fd1d707524e4a274302093b885f8b27ff207ec89ac23a1b8af"
       url: "https://pub.dev"
     source: hosted
-    version: "2.1.1"
+    version: "2.2.0"
   url_launcher:
     dependency: "direct main"
     description:
