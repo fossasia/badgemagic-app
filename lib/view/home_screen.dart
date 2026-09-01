@@ -14,7 +14,6 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
-import 'package:badgemagic/providers/firmware_update_ble.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -36,6 +35,9 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../providers/firmware_update.dart';
+import '../providers/firmware_update_ble.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
@@ -71,6 +73,8 @@ class _HomeScreenState extends State<HomeScreen>
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
+  final FirmwareUpdateService _updateService = FirmwareUpdateService();
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   static const _textKey = 'badge_text';
   static const _speedKey = 'badge_speed';
@@ -112,7 +116,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _initiateFirmwareCheck() async {
-    final updateService = FirmwareUpdateService();
+    final updateService = WchUsbIspFlasher();
     final updateInfo = await updateService.checkForUpdates();
     final prefs = await SharedPreferences.getInstance();
     var version = updateInfo?['version'];
@@ -133,8 +137,8 @@ class _HomeScreenState extends State<HomeScreen>
           return FirmwareUpdateDialog(
             version: updateInfo['version']!,
             date: updateInfo['date']!,
-            service: updateService,
-            releaseAssets: [],
+            releaseAssets: updateInfo['assets'] ?? [],
+            service: _updateService,
           );
         },
       );
