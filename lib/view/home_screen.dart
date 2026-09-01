@@ -14,7 +14,7 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
-import 'package:badgemagic/providers/firmware_update.dart';
+import 'package:badgemagic/providers/firmware_update_ble.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';

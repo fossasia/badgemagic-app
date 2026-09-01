@@ -15,7 +15,7 @@ import '../others/globals.dart';
 import '../others/localization_service.dart';
 import '../others/toast_utils.dart';
 import '../providers/badge_scan_provider.dart';
-import '../providers/firmware_update.dart';
+import '../providers/firmware_update_ble.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
