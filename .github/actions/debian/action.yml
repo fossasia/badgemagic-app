@@ -36,10 +36,6 @@ runs:
           libusb-1.0-0-dev \
           libudev-dev
 
-    - name: Get Flutter packages
-      shell: bash
-      run: flutter pub get
-
     - name: Build Linux (Debian) App
       shell: bash
       env:
