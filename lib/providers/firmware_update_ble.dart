@@ -79,13 +79,6 @@ class FirmwareUpdateService {
   // ============================================================
 
   Future<ActiveSlot> queryActiveSlot(String deviceId) async {
-    // Su Linux/BlueZ, il badge espone il servizio 0000fee0 due volte
-    // (due istanze a handle diversi); una delle due non contiene FEE2,
-    // e universal_ble risolve per UUID (non per handle/istanza), quindi
-    // la lettura di FEE2 può fallire con characteristicNotFound anche
-    // se il device la espone davvero in un'altra istanza del servizio.
-    // Su Linux bypassiamo FEE2 e usiamo CMD_IAP_INFO su FEE1, che è
-    // raggiungibile senza ambiguità.
     if (Platform.isLinux) {
       return _queryActiveSlotViaInfo(deviceId);
     }
@@ -99,7 +92,7 @@ class FirmwareUpdateService {
               c.uuid, slotStatusCharacteristicUuid)));
 
       if (!hasSlotChar) {
-        logger.w('FEE2 non trovata dopo discovery esplicita: fallback a SlotA');
+        logger.w('FEE2 not found after explicit discovery: fallback to SlotA');
         return ActiveSlot.slotA;
       }
 
@@ -116,14 +109,14 @@ class FirmwareUpdateService {
       }
       return ActiveSlot.slotA;
     } catch (e) {
-      logger.w('FEE2 non presente: fallback a SlotA — errore: $e');
+      logger.w('FEE2 not present: fallback to SlotA — error: $e');
       return ActiveSlot.slotA;
     }
   }
 
-  /// Interroga lo slot attivo tramite CMD_IAP_INFO (0x84) su FEE1.
-  /// Il firmware risponde con un pacchetto staged (letto subito dopo la
-  /// write) il cui primo byte è THIS_IMAGE_FLAG (0x01 = SlotA, 0x02 = SlotB).
+  /// Queries active slot via CMD_IAP_INFO (0x84) on FEE1.
+  /// The firmware responds with a staged packet (read right after write)
+  /// whose first byte is THIS_IMAGE_FLAG (0x01 = SlotA, 0x02 = SlotB).
   Future<ActiveSlot> _queryActiveSlotViaInfo(String deviceId) async {
     try {
       logger.i('Reading active slot via CMD_IAP_INFO (FEE1)...');
@@ -140,8 +133,8 @@ class FirmwareUpdateService {
         withoutResponse: false,
       ).timeout(const Duration(seconds: 3));
 
-      // Piccola attesa per dare tempo al firmware di preparare la risposta
-      // staged prima di leggerla.
+      // Short delay to give firmware time to prepare staged response
+      // before reading it.
       await Future.delayed(const Duration(milliseconds: 100));
 
       final data = await UniversalBle.read(
@@ -156,10 +149,10 @@ class FirmwareUpdateService {
         if (data[0] == 0x02) return ActiveSlot.slotB;
       }
 
-      logger.w('CMD_IAP_INFO: risposta inattesa, fallback a SlotA. data=$data');
+      logger.w('CMD_IAP_INFO: unexpected response, fallback to SlotA. data=$data');
       return ActiveSlot.slotA;
     } catch (e) {
-      logger.w('CMD_IAP_INFO fallito: fallback a SlotA — errore: $e');
+      logger.w('CMD_IAP_INFO failed: fallback to SlotA — error: $e');
       return ActiveSlot.slotA;
     }
   }
@@ -182,8 +175,8 @@ class FirmwareUpdateService {
   }) async {
     if (activeSlot != ActiveSlot.slotA) {
       throw Exception(
-        'Firmware locale disponibile solo per Slot B. '
-        'Slot attivo rilevato: $activeSlot',
+        'Local firmware available only for Slot B. '
+        'Active slot detected: $activeSlot',
       );
     }
 
@@ -195,13 +188,13 @@ class FirmwareUpdateService {
       final Uint8List firmware = byteData.buffer.asUint8List();
 
       if (firmware.isEmpty) {
-        throw Exception('Il file binario dell\'asset è vuoto (0 byte).');
+        throw Exception('Asset binary file is empty (0 bytes).');
       }
 
-      logger.i('Firmware asset caricato: ${firmware.length} byte');
+      logger.i('Firmware asset loaded: ${firmware.length} bytes');
       return firmware;
     } catch (e) {
-      throw Exception('Errore caricamento asset firmware: $e');
+      throw Exception('Error loading firmware asset: $e');
     }
   }
 
@@ -215,8 +208,8 @@ class FirmwareUpdateService {
     int binaryLength,
   ) async {
     logger.i(
-      'OTA: ERASE slot target a 0x${targetStartAddr.toRadixString(16)} '
-      '(${binaryLength} byte, blocco erase=$flashEraseBlockSize byte)',
+      'OTA: ERASE target slot at 0x${targetStartAddr.toRadixString(16)} '
+      '(${binaryLength} bytes, erase block=$flashEraseBlockSize bytes)',
     );
 
     const int relativeOffset = 0;
@@ -263,7 +256,7 @@ class FirmwareUpdateService {
     final int chunkSize = maxChunkSize;
 
     logger.i(
-      'OTA: Invio $total byte (Chunk: $chunkSize B)...',
+      'OTA: Sending $total bytes (Chunk: $chunkSize B)...',
     );
 
     int lastReportedPct = -1;
@@ -299,30 +292,35 @@ class FirmwareUpdateService {
           ).timeout(_writeTimeout);
           sent = true;
         } on TimeoutException {
-          logger.e('OTA: timeout offset=$offset (tentativo $attempt)');
+          logger.e('OTA: timeout offset=$offset (attempt $attempt)');
           UniversalBle.clearQueue(deviceId);
-          await Future.delayed(const Duration(milliseconds: 200));
+          await Future.delayed(const Duration(milliseconds: 300));
 
-          if (attempt >= 2) {
-            rethrow;
+          if (attempt >= 3) {
+            throw Exception(
+              'OTA failed at offset=$offset after $attempt attempts: '
+              'unstable connection or firmware not responding.',
+            );
           }
+        } catch (e) {
+          logger.e('OTA: unrecoverable error at offset=$offset: $e');
+          rethrow;
         }
       }
 
+      await Future.delayed(const Duration(milliseconds: 8));
+
       final int written = offset + currentSize;
       final double progress = (written / total).clamp(0.0, 1.0);
-
       final int pct = (progress * 100).floor();
       if (pct != lastReportedPct) {
         lastReportedPct = pct;
         onProgress?.call(progress);
       }
-
-      await Future.delayed(const Duration(milliseconds: 5));
     }
 
     onProgress?.call(1.0);
-    logger.i('OTA: Scrittura terminata.');
+    logger.i('OTA: Writing finished.');
   }
 
   // ============================================================
@@ -330,7 +328,7 @@ class FirmwareUpdateService {
   // ============================================================
 
   Future<void> _end(String deviceId, ActiveSlot targetSlot) async {
-    logger.i('OTA: END -> Switch a ${slotName(targetSlot)}');
+    logger.i('OTA: END -> Switch to ${slotName(targetSlot)}');
 
     final packet = Uint8List(20);
     packet[0] = cmdIapEnd;
@@ -347,7 +345,7 @@ class FirmwareUpdateService {
         withoutResponse: false,
       ).timeout(_writeTimeout);
     } catch (e) {
-      logger.w('Disconnessione durante il reboot del badge: $e');
+      logger.w('Disconnection during badge reboot: $e');
     }
 
     await Future.delayed(endDelay);
@@ -366,7 +364,7 @@ class FirmwareUpdateService {
     Function(double progress)? onProgress,
   }) async {
     if (_updateInProgress) {
-      logger.w('OTA: update già in corso, richiesta ignorata');
+      logger.w('OTA: update already in progress, request ignored');
       return;
     }
     _updateInProgress = true;
@@ -386,7 +384,7 @@ class FirmwareUpdateService {
       if (!Platform.isLinux) {
         try {
           negotiatedMtu = await UniversalBle.requestMtu(deviceId, 512);
-          logger.i('MTU Negoziato: $negotiatedMtu');
+          logger.i('Negotiated MTU: $negotiatedMtu');
         } catch (e) {
           logger.w('Fallback MTU: $e');
         }

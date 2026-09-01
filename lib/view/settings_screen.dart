@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/main.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
+import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -14,6 +16,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../communication/connect_state.dart';
 import '../others/byte_array_utils.dart';
 import '../others/globals.dart';
 import '../others/localization_service.dart';
@@ -69,8 +72,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'ota_update_channel',
-        channelName: 'Aggiornamento firmware',
-        channelDescription: 'Aggiornamento firmware badge in corso',
+        channelName: 'Firmware update',
+        channelDescription: 'Badge firmware update in progress',
         onlyAlertOnce: true,
       ),
       iosNotificationOptions: const IOSNotificationOptions(),
@@ -198,7 +201,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     try {
       final List<dynamic> assets = _availableUpdate!['assets'] ?? [];
       final Uint8List firmwareData =
-      await _flasher.downloadFirmwareBinary(assets);
+          await _flasher.downloadFirmwareBinary(assets);
 
       if (mounted) {
         setState(() {
@@ -310,7 +313,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
                     contentPadding:
-                    EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -363,7 +366,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   }
                                   _controllers = provider.badgeNames
                                       .map((name) =>
-                                      TextEditingController(text: name))
+                                          TextEditingController(text: name))
                                       .toList();
                                 });
                               },
@@ -412,7 +415,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   hintText: l10n.badgeNameHint,
                                   border: InputBorder.none,
                                   contentPadding:
-                                  const EdgeInsets.symmetric(vertical: 12),
+                                      const EdgeInsets.symmetric(vertical: 12),
                                 ),
                                 onChanged: (value) =>
                                     provider.updateBadgeName(index, value),
@@ -445,7 +448,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   children: [
                     ElevatedButton.icon(
                       onPressed:
-                      _isCheckingUpdate ? null : _handleManualUpdateCheck,
+                          _isCheckingUpdate ? null : _handleManualUpdateCheck,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: indicatorColor,
@@ -453,11 +456,11 @@ class SettingsScreenState extends State<SettingsScreen> {
                       ),
                       icon: _isCheckingUpdate
                           ? const SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: CircularProgressIndicator(
-                            strokeWidth: 2, color: Colors.red),
-                      )
+                              width: 16,
+                              height: 16,
+                              child: CircularProgressIndicator(
+                                  strokeWidth: 2, color: Colors.red),
+                            )
                           : const Icon(Icons.refresh),
                       label: Text(l10n.checkFirmwareUpdateButton),
                     ),
@@ -499,23 +502,23 @@ class SettingsScreenState extends State<SettingsScreen> {
                         const SizedBox(height: 8),
                         Text(l10n.versionLabel(_availableUpdate!['version']),
                             style:
-                            const TextStyle(fontWeight: FontWeight.w600)),
+                                const TextStyle(fontWeight: FontWeight.w600)),
                         Text(l10n.releasedLabel(_availableUpdate!['date']),
                             style:
-                            const TextStyle(fontWeight: FontWeight.w600)),
+                                const TextStyle(fontWeight: FontWeight.w600)),
                         if (_isFlashingFirmware) ...[
                           const SizedBox(height: 12),
-                          if(viaUSB)...[
-                          const LinearProgressIndicator(
-                            color: Colors.red,
-                          ),
+                          if (viaUSB) ...[
+                            const LinearProgressIndicator(
+                              color: Colors.red,
+                            ),
                             SizedBox(height: 6),
                             Text(
                               _flashStatusText,
                               style: TextStyle(
                                   fontSize: 12, color: Colors.grey.shade700),
                             ),
-                          ] else...[
+                          ] else ...[
                             LinearProgressIndicator(
                               value: _flashProgress,
                               color: Colors.red,
@@ -531,18 +534,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                         ] else ...[
                           const SizedBox(height: 12),
                           Row(
-                            mainAxisAlignment: MainAxisAlignment.end,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              TextButton(
-                                onPressed: () =>
-                                    setState(() => _availableUpdate = null),
-                                child: Text(
-                                  l10n.dismissButton,
-                                  style: const TextStyle(color: Colors.black),
-                                ),
-                              ),
-                              const SizedBox(width: 8),
-                              if (Platform.isAndroid || Platform.isLinux)...[
+                              if (Platform.isAndroid || Platform.isLinux) ...[
                                 ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
@@ -552,7 +546,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   onPressed: _handleStartUsbFirmwareUpdate,
                                   label: Text(l10n.flashViaUsb),
                                 ),
-                              const SizedBox(width: 8),
+                                const SizedBox(width: 8),
                               ],
                               ElevatedButton.icon(
                                 style: ElevatedButton.styleFrom(
@@ -560,8 +554,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   foregroundColor: Colors.white,
                                 ),
                                 icon: const Icon(Icons.flash_on, size: 18),
-                                onPressed:
-                                _handleStartFirmwareUpdate,
+                                onPressed: _handleStartFirmwareUpdate,
                                 label: Text(l10n.updateButton),
                               ),
                             ],
@@ -626,13 +619,41 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     setState(() {
       viaUSB = false;
-    });
-
-    setState(() {
       _isFlashingFirmware = true;
       _flashProgress = 0.0;
     });
 
+    bool isCancelled = false;
+    BleDialogStatus dialogStatus = BleDialogStatus.searching;
+    String dialogMessage = l10n.searchingDeviceBLE;
+    void Function(void Function())? updateDialogState;
+
+    final dialogFuture = showDialog<bool>(
+      context: context,
+      barrierDismissible: false,
+      builder: (dialogCtx) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          updateDialogState = setDialogState;
+          return BleProgressDialog(
+            status: dialogStatus,
+            progress: 0.0,
+            message: dialogMessage,
+          );
+        },
+      ),
+    );
+
+    dialogFuture.then((result) {
+      if (result == false) {
+        isCancelled = true;
+        ConnectState.stopAllBleOperations();
+        if (mounted) {
+          setState(() {
+            _isFlashingFirmware = false;
+          });
+        }
+      }
+    });
     try {
       if (Platform.isAndroid || Platform.isIOS) {
         await _startForegroundService();
@@ -643,41 +664,73 @@ class SettingsScreenState extends State<SettingsScreen> {
         allowedNames: _controllers.map((c) => c.text.trim()).toList(),
       );
 
+      if (isCancelled) return;
+
       if (device == null) {
-        throw Exception("Nessun badge rilevato nelle vicinanze.");
+        updateDialogState?.call(() {
+          dialogStatus = BleDialogStatus.error;
+          dialogMessage = l10n.noBadgesFound;
+        });
+        throw Exception(l10n.noBadgesFound);
       }
 
+      updateDialogState?.call(() {
+        dialogStatus = BleDialogStatus.connecting;
+        dialogMessage = l10n.deviceFound;
+      });
+
+      if (isCancelled) return;
+
       await UniversalBle.connect(device.deviceId);
+
+      if (isCancelled) {
+        await UniversalBle.disconnect(device.deviceId);
+        return;
+      }
 
       await UniversalBle.discoverServices(
         device.deviceId,
         timeout: const Duration(seconds: 10),
       );
 
+      if (isCancelled) {
+        await UniversalBle.disconnect(device.deviceId);
+        return;
+      }
+
+      if (mounted && Navigator.of(context, rootNavigator: true).canPop()) {
+        Navigator.of(context, rootNavigator: true).pop(true);
+      }
+
       await _updateService.executeFirmwareUpdate(
         deviceId: device.deviceId,
         releaseAssets: _availableUpdate!['assets'] ?? [],
         hardwareVariant: 'usbc_4key',
         onProgress: (progress) {
+          if (isCancelled) return;
           if (mounted) {
             setState(() => _flashProgress = progress);
           }
           if (Platform.isAndroid || Platform.isIOS) {
             final pct = (progress * 100).toInt();
             FlutterForegroundTask.updateService(
-              notificationTitle: 'Aggiornamento firmware',
-              notificationText: 'Scrittura in corso: $pct%',
+              notificationTitle: l10n.firmwareUpdate,
+              notificationText: 'Writing in progress: $pct%',
             );
           }
         },
       );
 
-      ToastUtils().showToast("Firmware aggiornato con successo!");
-      if (mounted) {
-        setState(() => _availableUpdate = null);
+      if (!isCancelled) {
+        ToastUtils().showToast(l10n.firmwareUpdateSuccessShort);
+        if (mounted) {
+          setState(() => _availableUpdate = null);
+        }
       }
     } catch (e) {
-      ToastUtils().showToast("Errore: $e");
+      if (!isCancelled) {
+        ToastUtils().showToast("Error: $e");
+      }
     } finally {
       if (mounted) {
         setState(() => _isFlashingFirmware = false);
@@ -732,7 +785,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _startForegroundService() async {
     final notificationPermission =
-    await FlutterForegroundTask.checkNotificationPermission();
+        await FlutterForegroundTask.checkNotificationPermission();
     if (notificationPermission != NotificationPermission.granted) {
       await FlutterForegroundTask.requestNotificationPermission();
     }
@@ -740,8 +793,8 @@ class SettingsScreenState extends State<SettingsScreen> {
     _initForegroundTask();
 
     await FlutterForegroundTask.startService(
-      notificationTitle: 'Aggiornamento firmware',
-      notificationText: 'Preparazione...',
+      notificationTitle: l10n.firmwareUpdate,
+      notificationText: 'Preparing...',
     );
   }
 
