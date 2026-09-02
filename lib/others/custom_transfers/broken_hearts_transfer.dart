@@ -4,8 +4,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferBrokenHeartsAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   final List<List<int>> heartShape = [
     [0, 0, 1, 1, 0, 1, 1, 0, 0],
     [0, 1, 1, 1, 1, 1, 1, 1, 0],
@@ -92,5 +93,6 @@ Future<void> customTransferBrokenHeartsAnimation(
     label: 'Broken Hearts',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }

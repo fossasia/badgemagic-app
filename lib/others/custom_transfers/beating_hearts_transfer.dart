@@ -4,8 +4,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferBeatingHeartsAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   final frames = List.generate(animationFrameCount, (i) {
     final frameBitmap = blankFrame();
     BeatingHeartsAnimation().processAnimation(
@@ -22,5 +23,6 @@ Future<void> customTransferBeatingHeartsAnimation(
     label: 'Beating Hearts',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }

@@ -42,8 +42,9 @@ Future<void> sendAnimationFrames({
   required List<List<List<bool>>> frames,
   required Future<void> Function(DataTransferManager) transferData,
   Speed speed = Speed.eight,
+  bool skipAdapterCheck = false,
 }) async {
-  if (!await checkAdapterState()) return;
+  if (!skipAdapterCheck && !await checkAdapterState()) return;
 
   final logger = Logger();
   logger.i('Starting $label animation transfer...');

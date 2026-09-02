@@ -4,8 +4,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferDiagonalAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   const int densestFrameIdx = 38;
 
   final frames = List.generate(animationFrameCount, (i) {
@@ -24,5 +25,6 @@ Future<void> customTransferDiagonalAnimation(
     label: 'Diagonal',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }

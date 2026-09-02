@@ -4,13 +4,15 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferCycleAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   final List<List<List<bool>>> frames = CycleAnimation().transferFrames();
 
   await sendAnimationFrames(
     label: 'Cycle',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }

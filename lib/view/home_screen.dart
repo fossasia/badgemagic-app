@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:io' show Platform;
+import 'dart:math' as math;
 
 import 'package:badgemagic/models/speed.dart';
 import 'package:badgemagic/storage/badge_loader_helper.dart';
@@ -19,7 +21,6 @@ import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
-import 'package:badgemagic/view/widgets/badge_action_buttons.dart';
 import 'package:badgemagic/view/widgets/badge_clipart_picker.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_view.dart';
@@ -36,6 +37,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+
+import '../providers/usb_transfer_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
@@ -95,6 +98,12 @@ class _HomeScreenState extends State<HomeScreen>
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       await _startImageCaching();
       await loadPreferences();
+
+      final usbPrefs = await SharedPreferences.getInstance();
+      if ((usbPrefs.getBool('usb_transfer_enabled') ?? !Platform.isLinux) &&
+          mounted) {
+        await context.read<UsbTransferProvider>().startUsbMonitoring();
+      }
 
       inlineImageProvider.setContext(context);
 
@@ -358,11 +367,75 @@ class _HomeScreenState extends State<HomeScreen>
                       });
                     },
                   );
-                  final actionButtons = BadgeActionButtons(
-                    onSave: _handleSave,
-                    onTransfer: () =>
-                        _showBleTransferDialog(context, inlineImageProvider),
-                  );
+                  Widget actionButton({
+                    required String label,
+                    required bool primary,
+                    required Future<void> Function() onTap,
+                  }) {
+                    final double height = math.min(50.h, 54.0);
+                    return SizedBox(
+                      height: height,
+                      child: FilledButton.tonal(
+                        onPressed: onTap,
+                        style: FilledButton.styleFrom(
+                          backgroundColor: colorSurfaceMuted,
+                          foregroundColor: colorTextStrong,
+                          elevation: 0,
+                          textStyle: TextStyle(
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.3,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14.r),
+                          ),
+                        ),
+                        child: Text(label),
+                      ),
+                    );
+                  }
+
+                  final actionButtons = Consumer<AnimationBadgeProvider>(
+                      builder: (context, animationProvider, _) {
+                    final isSpecial =
+                        animationProvider.isSpecialAnimationSelected();
+                    return Row(
+                      children: [
+                        if (!isSpecial) ...[
+                          Expanded(
+                            child: actionButton(
+                              label: l10n.saveButton,
+                              primary: false,
+                              onTap: _handleSave,
+                            ),
+                          ),
+                          SizedBox(width: 24.w),
+                        ],
+                        Expanded(
+                          child: actionButton(
+                            label: l10n.transferButton,
+                            primary: true,
+                            onTap: () async {
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              final isUsbEnabled =
+                                  prefs.getBool('usb_transfer_enabled') ??
+                                      !Platform.isLinux;
+
+                              if (!context.mounted) return;
+
+                              if (isUsbEnabled) {
+                                _showTransferBottomSheet(context);
+                              } else {
+                                _showBleTransferDialog(
+                                    context, inlineImageProvider);
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    );
+                  });
 
                   final buttonBar = Padding(
                     padding: EdgeInsets.fromLTRB(16.w, 4.h, 16.w, 12.h),
@@ -517,6 +590,186 @@ class _HomeScreenState extends State<HomeScreen>
         Navigator.of(context).pop();
       }
     }
+  }
+
+  Future<void> _sendViaUsb(UsbTransferProvider usbProvider) async {
+    final int aniIndex = animationProvider.getAnimationIndex() ?? 0;
+
+    List<int>? generatedData;
+    if (aniIndex >= 9) {
+      generatedData = await animationProvider.generateAnimationUsbPayload(
+        badgeData,
+        speedDialProvider.getOuterValue(),
+      );
+      if (generatedData == null || generatedData.isEmpty) {
+        ToastUtils().showErrorToast("Could not generate animation data.");
+        return;
+      }
+    } else {
+      generatedData = await animationProvider.generateLegacyPayload(
+        text: inlineImageController.text,
+        flash: animationProvider.isEffectActive(FlashEffect()),
+        marquee: animationProvider.isEffectActive(MarqueeEffect()),
+        invert: animationProvider.isEffectActive(InvertLEDEffect()),
+        speed: speedDialProvider.getOuterValue(),
+        badgeData: badgeData,
+      );
+      if (generatedData == null || generatedData.isEmpty) {
+        ToastUtils().showErrorToast("Please enter a message to transfer.");
+        return;
+      }
+    }
+
+    try {
+      ToastUtils().showToast("Searching for USB badge...");
+      bool connected = false;
+      const int maxAttempts = 40;
+      for (int attempt = 0; attempt < maxAttempts; attempt++) {
+        connected = await usbProvider.connectHid(silent: true);
+        if (connected) break;
+        if (attempt < maxAttempts - 1) {
+          await Future.delayed(const Duration(milliseconds: 300));
+        }
+      }
+
+      if (!connected) {
+        ToastUtils().showErrorToast(
+            "No USB badge found. Check the cable and try again.");
+        return;
+      }
+
+      final success = await usbProvider.writeBytes(generatedData, silent: true);
+      if (success) {
+        ToastUtils().showToast("USB transfer success!");
+      } else {
+        ToastUtils().showErrorToast("USB transfer failed. Try again.");
+      }
+    } catch (e) {
+      debugPrint("Error USB: $e");
+      ToastUtils().showErrorToast("Error USB transfer");
+    }
+  }
+
+  void _showTransferBottomSheet(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (bottomSheetContext) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: 20.h,
+                bottom:
+                    MediaQuery.of(bottomSheetContext).viewInsets.bottom + 20.h,
+                left: 16.w,
+                right: 16.w,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    "Choose Transfer Method",
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Consumer<UsbTransferProvider>(
+                    builder: (context, usbProvider, _) {
+                      Widget option({
+                        required String label,
+                        required IconData icon,
+                        required Color color,
+                        required Future<void> Function() onTap,
+                      }) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: onTap,
+                              child: Container(
+                                width: 56.w,
+                                height: 56.w,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: color.withOpacity(0.1),
+                                  border: Border.all(color: color, width: 2),
+                                ),
+                                child: Icon(icon, size: 24.w, color: color),
+                              ),
+                            ),
+                            SizedBox(height: 6.h),
+                            Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      final bool supportsUsb = Platform.isAndroid ||
+                          Platform.isWindows ||
+                          Platform.isLinux ||
+                          Platform.isMacOS;
+
+                      return Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 24.w,
+                        runSpacing: 16.h,
+                        children: [
+                          option(
+                            label: "Bluetooth",
+                            icon: Icons.bluetooth,
+                            color: colorAccent,
+                            onTap: () async {
+                              Navigator.pop(bottomSheetContext);
+                              _showBleTransferDialog(
+                                  context, inlineImageProvider);
+                            },
+                          ),
+                          if (supportsUsb)
+                            option(
+                              label: "USB HID",
+                              icon: Icons.usb,
+                              color: colorAccent,
+                              onTap: () async {
+                                Navigator.pop(bottomSheetContext);
+                                await _sendViaUsb(usbProvider);
+                              },
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                  SizedBox(height: 8.h),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _debouncedSavePreferences() {

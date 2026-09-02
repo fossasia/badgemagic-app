@@ -33,6 +33,8 @@ import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart';
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
+import 'package:badgemagic/communication/datagenerator.dart';
+import 'package:badgemagic/models/mode.dart';
 
 Map<int, BadgeAnimation?> animationMap = {
   0: LeftAnimation(),
@@ -302,5 +304,121 @@ class AnimationBadgeProvider extends ChangeNotifier {
         context,
       );
     }
+  }
+
+  Future<List<int>?> generateLegacyPayload({
+    required String text,
+    required bool flash,
+    required bool marquee,
+    required bool invert,
+    required int speed,
+    required BadgeMessageProvider badgeData,
+  }) async {
+    if (text.trim().isEmpty) return null;
+
+    try {
+      final dataObj = await badgeData.generateData(
+        text,
+        flash,
+        marquee,
+        invert,
+        speedMap[speed],
+        _currentAnimation == LeftAnimation()
+            ? Mode.left
+            : modeValueMap[getAnimationIndex() ?? 0],
+        null,
+      );
+
+      final transferManager = DataTransferManager(dataObj);
+
+      final List<List<int>> chunks = await transferManager.generateDataChunk();
+
+      if (chunks.isEmpty) {
+        debugPrint("Error: Native converter returned empty chunks.");
+        return null;
+      }
+
+      final List<int> flatPayload = chunks.expand((chunk) => chunk).toList();
+
+      debugPrint(
+          "USB payload generated via native converter. Size: ${flatPayload.length} bytes.");
+      return flatPayload;
+    } catch (e, stack) {
+      debugPrint(
+          "Error during payload generation with native converter: $e\n$stack");
+      return null;
+    }
+  }
+
+  Future<List<int>?> generateAnimationUsbPayload(
+    BadgeMessageProvider badgeData,
+    int speedLevel,
+  ) async {
+    List<int>? payload;
+    Future<void> capture(DataTransferManager manager) async {
+      final chunks = await manager.generateDataChunk();
+      if (chunks.isNotEmpty) {
+        payload = chunks.expand((chunk) => chunk).toList();
+      }
+    }
+
+    final int aniIndex = getAnimationIndex() ?? 0;
+    switch (aniIndex) {
+      case 9:
+        await transferPacmanAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 10:
+        await transferChevronAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 11:
+        await transferDiamondAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 12:
+        await transferBrokenHeartsAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 13:
+        await transferCupidAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 14:
+        await transferFeetAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 15:
+        await transferFishAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 16:
+        await transferDiagonalAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 17:
+        await transferEmergencyAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 18:
+        await transferBeatingHeartsAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 19:
+        await transferFireworksAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 20:
+        await transferEqualizerAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 21:
+        await transferCycleAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      default:
+        return null;
+    }
+    return payload;
   }
 }

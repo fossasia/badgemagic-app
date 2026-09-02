@@ -3,8 +3,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferChevronAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   const int arrowWidth = 4;
   const int arrowHeight = 7;
   const List<List<bool>> arrow = [
@@ -46,5 +47,6 @@ Future<void> customTransferChevronAnimation(
     label: 'Chevron',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }
