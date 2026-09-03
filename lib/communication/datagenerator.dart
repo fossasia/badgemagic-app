@@ -66,7 +66,8 @@ class DataTransferManager {
 }
 
 class RawDataTransferManager extends DataTransferManager {
-  final String pin;
+  String pin;
+  bool cancelledByUser = false;
   final Data textData;
 
   RawDataTransferManager({required this.pin, required this.textData})

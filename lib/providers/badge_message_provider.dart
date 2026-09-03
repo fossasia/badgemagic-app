@@ -200,40 +200,26 @@ class BadgeMessageProvider {
     final prefs = await SharedPreferences.getInstance();
     bool usePin = prefs.getBool('secure_connection_pin') ?? false;
 
+    Data data;
+    if (jsonData != null) {
+      data = fileHelper.jsonToData(jsonData);
+    } else {
+      data = await generateData(
+          text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
+    }
+
     if (usePin) {
       bool isTransferred = false;
       while (!isTransferred) {
-        String? currentPin;
-
-        if (savedPin != null && savedPin!.isNotEmpty) {
-          currentPin = savedPin;
-        } else {
-          currentPin = await showPinAuthDialog(context);
-
-          if (currentPin == null) {
-            bleDialogController.update(
-                BleDialogStatus.error, l10n.transferCanceledByUser);
-            return;
-          }
-        }
-
-        Data textData;
-        if (jsonData != null) {
-          textData = fileHelper.jsonToData(jsonData);
-        } else {
-          textData = await generateData(
-              text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
-        }
-
         RawDataTransferManager combinedManager = RawDataTransferManager(
-          pin: currentPin!,
-          textData: textData,
+          pin: savedPin ?? '',
+          textData: data,
         );
 
         bool success = await transferData(combinedManager, context: context);
 
         if (success) {
-          savedPin = currentPin;
+          savedPin = combinedManager.pin;
           isHardwareUnlocked = true;
           isTransferred = true;
           bleDialogController.update(
@@ -242,18 +228,16 @@ class BadgeMessageProvider {
           savedPin = null;
           isHardwareUnlocked = false;
 
+          if (combinedManager.cancelledByUser) {
+            bleDialogController.update(
+                BleDialogStatus.error, l10n.transferCanceledByUser);
+            return;
+          }
+
           await Future.delayed(const Duration(milliseconds: 1500));
         }
       }
       return;
-    }
-
-    Data data;
-    if (jsonData != null) {
-      data = fileHelper.jsonToData(jsonData);
-    } else {
-      data = await generateData(
-          text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
     }
 
     DataTransferManager manager = DataTransferManager(data);

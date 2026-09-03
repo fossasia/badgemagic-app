@@ -76,7 +76,8 @@ class SettingsScreenState extends State<SettingsScreen> {
       _isSecureConnectionEnabled =
           prefs.getBool('secure_connection_pin') ?? false;
     });
-}
+  }
+
   Future<void> _handleManualUpdateCheck() async {
     setState(() {
       _isCheckingUpdate = true;
@@ -340,6 +341,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     });
                   },
                 ),
+                const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 12),
                 Text(

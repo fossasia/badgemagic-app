@@ -72,6 +72,7 @@ class ScanState extends NormalBleState {
               nextStateCompleter.complete(ConnectState(
                 scanResult: device,
                 manager: manager,
+                context: context,
               ));
             }
           } catch (e) {
