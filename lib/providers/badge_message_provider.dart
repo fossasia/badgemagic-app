@@ -12,7 +12,6 @@ import 'package:badgemagic/models/speed.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
-import 'package:badgemagic/view/widgets/auth_pin_data.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/others/custom_transfers/transfers.dart';
 import 'package:permission_handler/permission_handler.dart';
