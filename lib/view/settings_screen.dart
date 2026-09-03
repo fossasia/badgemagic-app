@@ -340,10 +340,6 @@ class SettingsScreenState extends State<SettingsScreen> {
                     });
                   },
                 ),
-                const SizedBox(height: 24),
-                Text(provider.isLoaded ? l10n.badgeScanMode : '',
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
                 const Divider(),
                 const SizedBox(height: 12),
                 Text(
