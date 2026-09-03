@@ -213,7 +213,8 @@ class _RadialDialState extends State<RadialDial> {
               final delta = _scrollAccumulator > 0 ? -1 : 1;
               _scrollAccumulator = 0;
               final current = outerValueProvider.getOuterValue();
-              final newValue = (current + delta).clamp(1, maxValue.toInt()).toInt();
+              final newValue =
+                  (current + delta).clamp(1, maxValue.toInt()).toInt();
               if (newValue != current) {
                 setState(() {
                   outerValueProvider.setDialValue(newValue);
