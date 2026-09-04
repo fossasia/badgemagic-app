@@ -240,6 +240,7 @@ class BadgeMessageProvider {
     }
 
     DataTransferManager manager = DataTransferManager(data);
+    if (!context.mounted) return;
     await transferData(manager, context: context);
   }
 }
@@ -248,6 +249,12 @@ Future<void> transferFireworksAnimation(
     BadgeMessageProvider badgeDataProvider, int speedLevel) async {
   return customTransferFireworksAnimation(
       (manager) => badgeDataProvider.transferData(manager), speedLevel);
+}
+
+Future<void> transferGifAnimation(BadgeMessageProvider badgeDataProvider,
+    List<List<List<bool>>> frames, int speedLevel) async {
+  return customTransferGifAnimation(
+      (manager) => badgeDataProvider.transferData(manager), frames, speedLevel);
 }
 
 Future<void> transferBeatingHeartsAnimation(

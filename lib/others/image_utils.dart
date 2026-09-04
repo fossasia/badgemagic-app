@@ -220,6 +220,69 @@ class ImageUtils {
     return pixelArray;
   }
 
+  List<List<List<bool>>> decodeGifFramesToBool(Uint8List gifBytes,
+      {int width = 44, int height = 11}) {
+    final gifImage = img.decodeGif(gifBytes);
+    if (gifImage == null) {
+      throw Exception('Failed to decode GIF');
+    }
+
+    final List<List<List<bool>>> frames = [];
+    for (final frame in gifImage.frames) {
+      img.Image image = img.copyResize(frame, width: width, height: height);
+      image = img.grayscale(image);
+
+      final List<List<bool>> bitmap = [];
+      for (int y = 0; y < image.height; y++) {
+        final List<bool> row = [];
+        for (int x = 0; x < image.width; x++) {
+          final img.Pixel pixel = image.getPixel(x, y);
+          row.add(img.getLuminance(pixel) > 128);
+        }
+        bitmap.add(row);
+      }
+      frames.add(bitmap);
+    }
+    _centerFramesHorizontally(frames, width);
+    return frames;
+  }
+
+  void _centerFramesHorizontally(List<List<List<bool>>> frames, int width) {
+    int minCol = width;
+    int maxCol = -1;
+    for (final frame in frames) {
+      for (final row in frame) {
+        for (int x = 0; x < row.length; x++) {
+          if (row[x]) {
+            if (x < minCol) minCol = x;
+            if (x > maxCol) maxCol = x;
+          }
+        }
+      }
+    }
+    if (maxCol < minCol) return;
+
+    final int contentWidth = maxCol - minCol + 1;
+    final int widthMod = width % 8;
+    final int rOff = widthMod == 0 ? 0 : (8 - widthMod) ~/ 2;
+    final int shift = (width - contentWidth) ~/ 2 - rOff - minCol;
+    if (shift == 0) return;
+
+    for (int f = 0; f < frames.length; f++) {
+      final frame = frames[f];
+      for (int y = 0; y < frame.length; y++) {
+        final List<bool> row = frame[y];
+        final List<bool> shifted = List<bool>.filled(width, false);
+        for (int x = 0; x < row.length; x++) {
+          if (!row[x]) continue;
+          final int nx = x + shift;
+          if (nx >= 0 && nx < width) shifted[nx] = true;
+        }
+        frame[y] = shifted;
+      }
+    }
+  }
+
   List<String> convertGifFramesToLEDHex(Uint8List gifBytes) {
     final gifImage = img.decodeGif(gifBytes);
     if (gifImage == null) {

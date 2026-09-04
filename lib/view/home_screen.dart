@@ -20,8 +20,9 @@ import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/view/widgets/badge_action_buttons.dart';
-import 'package:badgemagic/view/widgets/badge_clipart_picker.dart';
+import 'package:badgemagic/view/widgets/vector_view.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
+import 'package:badgemagic/view/widgets/gifview.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_view.dart';
 import 'package:badgemagic/view/widgets/badge_text_input_field.dart';
 import 'package:badgemagic/view/widgets/firmware_update_dialog.dart';
@@ -69,10 +70,13 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
+  bool _showGifs = false;
+  String? _selectedGifPath;
   String previousText = '';
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
+  late final ScrollController _gifScrollController;
 
   static const _textKey = 'badge_text';
   static const _speedKey = 'badge_speed';
@@ -86,6 +90,7 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     _vectorScrollController = ScrollController();
+    _gifScrollController = ScrollController();
     WidgetsBinding.instance.addObserver(this);
     inlineImageController.addListener(handleTextChange);
     _setPortraitOrientation();
@@ -96,6 +101,7 @@ class _HomeScreenState extends State<HomeScreen>
       await _startImageCaching();
       await loadPreferences();
 
+      if (!mounted) return;
       inlineImageProvider.setContext(context);
 
       if (widget.savedBadgeFilename != null) {
@@ -270,6 +276,7 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     _debounceTimer?.cancel();
     _vectorScrollController.dispose();
+    _gifScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineImageController.removeListener(handleTextChange);
     inlineImageController.removeListener(_debouncedSavePreferences);
@@ -298,6 +305,84 @@ class _HomeScreenState extends State<HomeScreen>
       animationProvider.stopAnimation();
     } else if (state == AppLifecycleState.inactive) {
       animationProvider.stopAnimation();
+    }
+  }
+
+  Widget _buildClipartToggle() {
+    Widget segment(
+        String label, IconData icon, bool selected, VoidCallback onTap) {
+      return Expanded(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: EdgeInsets.symmetric(vertical: 6.h),
+            decoration: BoxDecoration(
+              color: selected ? colorPrimary : Colors.transparent,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon,
+                    size: 15.sp, color: selected ? Colors.white : mdGrey400),
+                SizedBox(width: 5.w),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? Colors.white : mdGrey400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.all(3.w),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Row(
+        children: [
+          segment('Cliparts', Icons.emoji_symbols_rounded, !_showGifs, () {
+            if (_showGifs) setState(() => _showGifs = false);
+          }),
+          segment('GIFs', Icons.gif_box_rounded, _showGifs, () {
+            if (!_showGifs) setState(() => _showGifs = true);
+          }),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleGifSelected(String assetPath) async {
+    if (_selectedGifPath == assetPath && animationProvider.isGifActive) {
+      animationProvider.stopAllAnimations();
+      animationProvider.badgeAnimation(
+        inlineImageController.text,
+        _converters,
+        animationProvider.isEffectActive(InvertLEDEffect()),
+      );
+      setState(() => _selectedGifPath = null);
+      return;
+    }
+    try {
+      final ByteData bytes = await rootBundle.load(assetPath);
+      final frames = imageUtils.decodeGifFramesToBool(
+        bytes.buffer.asUint8List(),
+      );
+      if (frames.isEmpty) return;
+      animationProvider.playGif(frames);
+      setState(() => _selectedGifPath = assetPath);
+    } catch (e) {
+      debugPrint('Failed to load GIF: $assetPath -> $e');
     }
   }
 
@@ -343,9 +428,54 @@ class _HomeScreenState extends State<HomeScreen>
                       );
                     },
                   );
-                  final clipartPicker = BadgeClipartPicker(
-                    visible: isPrefixIconClicked,
-                    controller: _vectorScrollController,
+                  final clipartPicker = AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: Visibility(
+                      visible: isPrefixIconClicked,
+                      child: Container(
+                        height: isPrefixIconClicked ? 225.h : 0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.r),
+                          color: colorSurfaceMuted,
+                        ),
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 15.w, vertical: 8.h),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 10.h, horizontal: 10.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildClipartToggle(),
+                            SizedBox(height: 6.h),
+                            Expanded(
+                              child: _showGifs
+                                  ? Scrollbar(
+                                      controller: _gifScrollController,
+                                      thumbVisibility: true,
+                                      trackVisibility: true,
+                                      thickness: 4.0,
+                                      radius: const Radius.circular(10),
+                                      child: GifGridView(
+                                        controller: _gifScrollController,
+                                        onGifSelected: _handleGifSelected,
+                                        selectedPath: _selectedGifPath,
+                                      ),
+                                    )
+                                  : Scrollbar(
+                                      controller: _vectorScrollController,
+                                      thumbVisibility: true,
+                                      trackVisibility: true,
+                                      thickness: 4.0,
+                                      radius: const Radius.circular(10),
+                                      child: VectorGridView(
+                                          controller: _vectorScrollController),
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   );
                   final tabBar = BadgeControlTabBar(
                     controller: _tabController,
@@ -530,6 +660,9 @@ class _HomeScreenState extends State<HomeScreen>
     final currentText = inlineImageController.text;
 
     if (currentText != previousText) {
+      if (currentText.isNotEmpty && _selectedGifPath != null) {
+        _selectedGifPath = null;
+      }
       if (animationProvider.isSpecialAnimationSelected() &&
           currentText.isNotEmpty) {
         animationProvider.resetToTextAnimation();
