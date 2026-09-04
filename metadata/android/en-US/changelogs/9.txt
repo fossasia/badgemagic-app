@@ -1,0 +1,17 @@
+🚀 Features
+
+ - icon when saved clipart or saved list is empty
+ - add animation while transition
+ - allow users to use other badges
+ - rate application feature
+ - about us selection in drawer
+ - feature to turn bluetooth on
+ - app specific directory storage
+
+ 🐛 Bug Fixes
+
+ - semantic changes for delete confirmation message
+ - app launch issue
+ - location issue with sending badges
+ - resolve drawer selection issue in draw clipart fragment
+ - reverse listing of saved badge
