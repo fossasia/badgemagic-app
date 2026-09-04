@@ -36,7 +36,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   bool autoCheck = false;
   bool _initialized = false;
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
-
+  bool _isSecureConnectionEnabled = false;
   final WchUsbIspFlasher _flasher = WchUsbIspFlasher();
 
   bool _isCheckingUpdate = false;
@@ -50,6 +50,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _setOrientation();
+    _loadSecureConnectionSetting();
     initAutocheckFirmwareUpdate();
   }
 
@@ -68,6 +69,14 @@ class SettingsScreenState extends State<SettingsScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+  }
+
+  Future<void> _loadSecureConnectionSetting() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _isSecureConnectionEnabled =
+          prefs.getBool('secure_connection_pin') ?? false;
+    });
   }
 
   Future<void> _handleManualUpdateCheck() async {
@@ -280,6 +289,60 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+                Row(
+                  children: [
+                    Text(
+                      l10n.secureConnection,
+                      style: const TextStyle(
+                          fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(width: 4),
+                    IconButton(
+                      icon: const Icon(Icons.info_outline,
+                          size: 20, color: colorPrimary),
+                      padding: EdgeInsets.zero,
+                      constraints: const BoxConstraints(),
+                      onPressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Row(
+                              children: [
+                                const Icon(Icons.lock_outline,
+                                    color: colorPrimary),
+                                const SizedBox(width: 8),
+                                Text(l10n.pinInformation),
+                              ],
+                            ),
+                            content: Text(
+                              l10n.pinInformationMessage,
+                            ),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text(l10n.iUnderstand),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                SwitchListTile(
+                  title: Text(l10n.requestPinBeforeSending),
+                  subtitle: Text(l10n.secureConnectionDescription),
+                  value: _isSecureConnectionEnabled,
+                  activeColor: colorPrimary,
+                  contentPadding: EdgeInsets.zero,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _isSecureConnectionEnabled = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 16),
                 const Divider(),
                 const SizedBox(height: 12),
                 Text(
@@ -346,6 +409,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: colorError,
                                 foregroundColor: colorOnPrimary,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 8),
                               ),
                             ),
                         ],
@@ -360,13 +425,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                       margin: const EdgeInsets.symmetric(vertical: 4),
                       decoration: BoxDecoration(
                         border: Border.all(
-                          color: isSelected ? colorSelected : colorBorder,
+                          color:
+                              isSelected ? colorPrimary : Colors.grey.shade300,
                           width: isSelected ? 2 : 1,
                         ),
                         borderRadius: BorderRadius.circular(8),
-                        color: isSelected
-                            ? colorSelectedSurface
-                            : colorTransparent,
+                        color: isSelected ? colorPrimary : colorTransparent,
                       ),
                       child: Row(
                         children: [
@@ -374,7 +438,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                             value: isSelected,
                             onChanged: (value) =>
                                 provider.toggleSelection(index),
-                            activeColor: colorSelected,
+                            activeColor: colorPrimary,
                           ),
                           Expanded(
                             child: Padding(
@@ -549,14 +613,19 @@ class SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 24),
                 Center(
                   child: GestureDetector(
-                    onTap: () {
+                    onTap: () async {
+                      final prefs = await SharedPreferences.getInstance();
+                      await prefs.setBool(
+                          'secure_connection_pin', _isSecureConnectionEnabled);
                       provider.setMode(_scanMode);
                       provider.setBadgeNames(
                         _controllers.map((c) => c.text.trim()).toList(),
                       );
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text(l10n.scanSettingsSaved)),
-                      );
+                      if (mounted) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text(l10n.scanSettingsSaved)),
+                        );
+                      }
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
