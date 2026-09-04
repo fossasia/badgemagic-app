@@ -229,7 +229,6 @@ class DataToByteArrayConverter {
   }
 
   String getSizes(Data data) {
-    final nbMessages = data.messages.length;
     String ans = data.messages
         .map((m) => m.text.length)
         .map((length) => toHex([
@@ -240,7 +239,7 @@ class DataToByteArrayConverter {
                   radix: 16),
             ]))
         .join()
-        .padRight(32 - nbMessages * 4 + 4, '0');
+        .padRight(32, '0');
     return ans;
   }
 

@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'dart:async';
 import 'dart:io' show Platform;
 import 'dart:typed_data';
@@ -287,17 +288,24 @@ class SettingsScreenState extends State<SettingsScreen> {
                       fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
-                RadioListTile<BadgeScanMode>(
+                ListTile(
                   title: Text(l10n.connectToAnyBadge),
-                  value: BadgeScanMode.any,
-                  groupValue: _scanMode,
-                  onChanged: (value) => setState(() => _scanMode = value!),
+                  leading: Radio<BadgeScanMode>(
+                    value: BadgeScanMode.any,
+                    groupValue: _scanMode,
+                    onChanged: (value) => setState(() => _scanMode = value!),
+                  ),
+                  onTap: () => setState(() => _scanMode = BadgeScanMode.any),
                 ),
-                RadioListTile<BadgeScanMode>(
+                ListTile(
                   title: Text(l10n.connectToBadgesWithNames),
-                  value: BadgeScanMode.specific,
-                  groupValue: _scanMode,
-                  onChanged: (value) => setState(() => _scanMode = value!),
+                  leading: Radio<BadgeScanMode>(
+                    value: BadgeScanMode.specific,
+                    groupValue: _scanMode,
+                    onChanged: (value) => setState(() => _scanMode = value!),
+                  ),
+                  onTap: () =>
+                      setState(() => _scanMode = BadgeScanMode.specific),
                 ),
                 if (_scanMode == BadgeScanMode.specific) ...[
                   if (_controllers.isNotEmpty)
