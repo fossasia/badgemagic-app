@@ -43,7 +43,7 @@ dependencies:
   provider: ^6.1.5
   universal_ble: ^2.2.0
   hid_tool: ^0.1.2
-  permission_handler: ^12.0.3
+  permission_handler: ^13.0.2
   logger: ^2.7.0
   flutter_svg: ^2.3.0
   get_it: ^9.2.1
