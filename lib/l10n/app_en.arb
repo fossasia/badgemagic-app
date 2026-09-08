@@ -286,5 +286,10 @@
   "flashUsbInstructions": "Connect the USB cable to the badge while clicking the button immediately above the USB port.",
   "batteryDesolderedWarning": "Note: The battery must be desoldered to perform this operation.",
   "batteryDesolderedLink": "Visit the official GitHub page for more details",
-  "doneButton": "Start Flash"
+  "doneButton": "Start Flash",
+  "cropImage": "Crop",
+  "cropFree": "Crop Free",
+  "undo": "Undo",
+  "redo": "Redo",
+  "imageImportedSuccessfully": "Image imported successfully!"
 }

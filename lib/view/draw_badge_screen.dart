@@ -17,6 +17,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 import '../providers/image_converter_provider.dart';
+import '../utils/image_crop_screen.dart';
 
 class DrawBadge extends StatefulWidget {
   final String? filename;
@@ -42,6 +43,8 @@ bool isDesktop =
 class _DrawBadgeState extends State<DrawBadge> {
   var drawToggle = DrawBadgeProvider();
   bool _showShapeOptions = false;
+
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   @override
   void didChangeDependencies() {
@@ -74,7 +77,6 @@ class _DrawBadgeState extends State<DrawBadge> {
   }
 
   Future<void> _saveBadge(FileHelper fileHelper) async {
-    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     List<List<int>> badgeGrid = drawToggle
         .getDrawViewGrid()
         .map((e) => e.map((e) => e ? 1 : 0).toList())
@@ -108,15 +110,25 @@ class _DrawBadgeState extends State<DrawBadge> {
   }
 
   Future<void> _importImage() async {
-    List<List<bool>>? convertedGrid =
-        await ImageToBadgeConverter.pickAndConvertImage();
+    final imageBytes = await ImageToBadgeConverter.pickImageBytes();
+    if (imageBytes == null) return;
+
+    if (!mounted) return;
+    final croppedBytes = await showImageCropScreen(
+      context,
+      imageBytes,
+      aspectRatio: 44 / 11,
+    );
+    if (croppedBytes == null) return;
+
+    final convertedGrid =
+        ImageToBadgeConverter.convertBytesToGrid(croppedBytes);
 
     if (convertedGrid != null) {
       setState(() {
         drawToggle.updateDrawViewGrid(convertedGrid);
       });
-
-      ToastUtils().showToast('Immagine importata con successo!');
+      ToastUtils().showToast(l10n.imageImportedSuccessfully);
     }
   }
 
@@ -237,7 +249,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                     Expanded(
                       child: DrawToolButton(
                         icon: Icons.image,
-                        label: 'Importa',
+                        label: l10n.import,
                         tint: colorOnSurface,
                         iconSize: iconSize,
                         fontSize: buttonTextSize,
@@ -248,7 +260,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                     Expanded(
                       child: DrawToolButton(
                         icon: Icons.category,
-                        label: 'Shapes',
+                        label: l10n.shapes,
                         tint: _showShapeOptions ? colorPrimary : colorOnSurface,
                         iconSize: iconSize,
                         fontSize: buttonTextSize,
@@ -268,7 +280,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                           final bool canUndo = drawToggle.canUndo;
                           return DrawToolButton(
                             icon: Icons.undo,
-                            label: 'Undo',
+                            label: l10n.undo,
                             tint: canUndo ? colorOnSurface : colorDisabled,
                             iconSize: iconSize,
                             fontSize: buttonTextSize,
@@ -285,7 +297,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                           final bool canRedo = drawToggle.canRedo;
                           return DrawToolButton(
                             icon: Icons.redo,
-                            label: 'Redo',
+                            label: l10n.redo,
                             tint: canRedo ? colorOnSurface : colorDisabled,
                             iconSize: iconSize,
                             fontSize: buttonTextSize,
