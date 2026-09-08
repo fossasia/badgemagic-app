@@ -14,6 +14,7 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
+import 'package:badgemagic/providers/firmware_update.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -36,7 +37,6 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../providers/firmware_update.dart';
 import '../providers/firmware_update_ble.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -65,6 +65,8 @@ class _HomeScreenState extends State<HomeScreen>
   final TextEditingController inlineImageController =
       GetIt.instance.get<InlineImageProvider>().getController();
 
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
   final Converters _converters = Converters();
 
   bool isPrefixIconClicked = false;
@@ -74,7 +76,6 @@ class _HomeScreenState extends State<HomeScreen>
   String errorVal = "";
   late final ScrollController _vectorScrollController;
   final FirmwareUpdateService _updateService = FirmwareUpdateService();
-  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   static const _textKey = 'badge_text';
   static const _speedKey = 'badge_speed';
@@ -246,10 +247,10 @@ class _HomeScreenState extends State<HomeScreen>
       }
 
       ToastUtils().showToast(
-          "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
+          "${l10n.editingBadge}: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
     } catch (e, st) {
       debugPrint("Failed to load badge data: $e\n$st");
-      ToastUtils().showToast("Failed to load badge data");
+      ToastUtils().showToast(l10n.failedToLoadBadgeData);
     }
   }
 
@@ -313,7 +314,6 @@ class _HomeScreenState extends State<HomeScreen>
     return ValueListenableBuilder<Locale?>(
       valueListenable: appLocale,
       builder: (context, _, __) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
         return DefaultTabController(
           length: 4,
           child: CommonScaffold(
@@ -422,8 +422,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _handleSave() async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     if (inlineImageController.text.trim().isEmpty) {
-      ToastUtils().showToast("Please enter a message");
+      ToastUtils().showToast(l10n.pleaseEnterMessage);
       return;
     }
 
@@ -444,7 +445,7 @@ class _HomeScreenState extends State<HomeScreen>
         animationProvider.getAnimationIndex() ?? 1,
       );
 
-      ToastUtils().showToast("Badge Updated Successfully");
+      ToastUtils().showToast(l10n.badgeUpdatedSuccessfully);
       if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -513,7 +514,7 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (error) {
       bleDialogController.update(
         BleDialogStatus.error,
-        "An unexpected error\noccurred.",
+        l10n.unknownError,
       );
       await Future.delayed(const Duration(milliseconds: 2000));
       if (context.mounted) {

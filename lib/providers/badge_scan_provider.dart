@@ -5,7 +5,7 @@ enum BadgeScanMode { any, specific }
 
 class BadgeScanProvider with ChangeNotifier {
   BadgeScanMode _mode = BadgeScanMode.any;
-  List<String> _badgeNames = ['LSLED', 'VBLAB'];
+  List<String> _badgeNames = ['lsled', 'vblab'];
   Set<int> _selectedIndices = {};
   bool _isLoaded = false;
 
@@ -48,7 +48,14 @@ class BadgeScanProvider with ChangeNotifier {
   }
 
   void setBadgeNames(List<String> names) {
-    _badgeNames = names.where((name) => name.trim().isNotEmpty).toList();
+    final seen = <String>{};
+    _badgeNames = names.map((name) => name.trim()).where((name) {
+      if (name.isEmpty) return false;
+      final lower = name.toLowerCase();
+      if (seen.contains(lower)) return false;
+      seen.add(lower);
+      return true;
+    }).toList();
     _selectedIndices.clear();
     _saveToPrefs();
     notifyListeners();
@@ -56,6 +63,12 @@ class BadgeScanProvider with ChangeNotifier {
 
   void addBadgeName(String name) {
     if (name.trim().isEmpty) return;
+    final cleanedName = name.trim();
+    if (cleanedName.isEmpty) return;
+
+    bool alreadyExists = _badgeNames.any((existingName) =>
+        existingName.toLowerCase() == cleanedName.toLowerCase());
+    if (alreadyExists) return;
     _badgeNames.add(name.trim());
     _saveToPrefs();
     notifyListeners();
@@ -75,6 +88,15 @@ class BadgeScanProvider with ChangeNotifier {
 
   void updateBadgeName(int index, String newName) {
     if (index < 0 || index >= _badgeNames.length) return;
+
+    final cleanedName = newName.trim();
+    if (cleanedName.isEmpty) return;
+
+    bool alreadyExists = _badgeNames.asMap().entries.any((entry) =>
+        entry.key != index &&
+        entry.value.toLowerCase() == cleanedName.toLowerCase());
+
+    if (alreadyExists) return;
     _badgeNames[index] = newName.trim();
     _saveToPrefs();
     notifyListeners();
@@ -124,9 +146,6 @@ class BadgeScanProvider with ChangeNotifier {
   }
 
   List<String> getSelectedBadgeNames() {
-    return _selectedIndices
-        .where((index) => index < _badgeNames.length)
-        .map((index) => _badgeNames[index])
-        .toList();
+    return _badgeNames;
   }
 }
