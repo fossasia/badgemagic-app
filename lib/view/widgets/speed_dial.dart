@@ -132,8 +132,10 @@ class RadialDial extends StatefulWidget {
 class _RadialDialState extends State<RadialDial> {
   final double maxValue = 8.0;
   bool isDragging = false;
+  double _scrollAccumulator = 0;
 
   static const double _dialMaxSize = 260;
+  static const double _scrollThreshold = 50.0;
 
   @override
   Widget build(BuildContext context) {
@@ -200,81 +202,103 @@ class _RadialDialState extends State<RadialDial> {
       updateOuterValue(angle);
     }
 
-    return RawGestureDetector(
-      behavior: HitTestBehavior.opaque,
-      gestures: {
-        _SelectivePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<
-            _SelectivePanGestureRecognizer>(
-          () => _SelectivePanGestureRecognizer(
-            debugOwner: this,
-            shouldClaimGesture: isTouchOnActiveArea,
-          ),
-          (_SelectivePanGestureRecognizer instance) {
-            instance.onStart = (details) {
-              FocusScope.of(context).unfocus();
-              isDragging = true;
-              RenderBox renderBox = context.findRenderObject() as RenderBox;
-              updateAngle(renderBox.globalToLocal(details.globalPosition),
-                  renderBox.size);
-            };
-            instance.onUpdate = (details) {
-              if (isDragging) {
+    return Listener(
+      onPointerSignal: (event) {
+        if (event is PointerScrollEvent) {
+          GestureBinding.instance.pointerSignalResolver.register(event,
+              (event) {
+            if (event is! PointerScrollEvent) return;
+            _scrollAccumulator += event.scrollDelta.dy;
+            if (_scrollAccumulator.abs() >= _scrollThreshold) {
+              final delta = _scrollAccumulator > 0 ? -1 : 1;
+              _scrollAccumulator = 0;
+              final current = outerValueProvider.getOuterValue();
+              final newValue = (current + delta).clamp(1, maxValue.toInt());
+              if (newValue != current) {
+                setState(() {
+                  outerValueProvider.setDialValue(newValue);
+                });
+              }
+            }
+          });
+        }
+      },
+      child: RawGestureDetector(
+        behavior: HitTestBehavior.opaque,
+        gestures: {
+          _SelectivePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<
+              _SelectivePanGestureRecognizer>(
+            () => _SelectivePanGestureRecognizer(
+              debugOwner: this,
+              shouldClaimGesture: isTouchOnActiveArea,
+            ),
+            (_SelectivePanGestureRecognizer instance) {
+              instance.onStart = (details) {
+                FocusScope.of(context).unfocus();
+                isDragging = true;
                 RenderBox renderBox = context.findRenderObject() as RenderBox;
                 updateAngle(renderBox.globalToLocal(details.globalPosition),
                     renderBox.size);
-              }
-            };
-            instance.onEnd = (details) {
-              isDragging = false;
-            };
-          },
-        ),
-      },
-      child: _capDialSize(
-        MediaQuery.of(context).size.width > 480,
-        Stack(
-          alignment: Alignment.center,
-          children: [
-            CustomPaint(
-              painter: RadialDialPainter(
-                value: outerValueProvider.getOuterValue().toDouble(),
-                max: maxValue,
-                color: colorPrimaryDark,
-              ),
-              child: SizedBox(
-                width: 200.w,
-                height: 210.h,
-              ),
-            ),
-            CustomPaint(
-              painter: InnerDialPainter(),
-              child: SizedBox(
-                width: 180.w,
-                height: 180.h,
-              ),
-            ),
-            CustomPaint(
-              painter: InnerPointerPainter(
-                value: outerValueProvider.getOuterValue().toDouble(),
-                max: maxValue,
-                color: colorPrimaryDark,
-              ),
-              child: SizedBox(
-                width: 140.w,
-                height: 140.h,
-              ),
-            ),
-            Positioned(
-              child: Text(
-                (outerValueProvider.getOuterValue()).toString(),
-                style: TextStyle(
-                  fontSize: 50.sp,
-                  fontWeight: FontWeight.w600,
-                  color: const Color.fromRGBO(113, 113, 113, 1),
+              };
+              instance.onUpdate = (details) {
+                if (isDragging) {
+                  RenderBox renderBox = context.findRenderObject() as RenderBox;
+                  updateAngle(renderBox.globalToLocal(details.globalPosition),
+                      renderBox.size);
+                }
+              };
+              instance.onEnd = (details) {
+                isDragging = false;
+              };
+            },
+          ),
+        },
+        child: _capDialSize(
+          MediaQuery.of(context).size.width > 480,
+          Stack(
+            alignment: Alignment.center,
+            children: [
+              CustomPaint(
+                painter: RadialDialPainter(
+                  value: outerValueProvider.getOuterValue().toDouble(),
+                  max: maxValue,
+                  color: colorPrimaryDark,
+                ),
+                child: SizedBox(
+                  width: 200.w,
+                  height: 210.h,
                 ),
               ),
-            ),
-          ],
+              CustomPaint(
+                painter: InnerDialPainter(),
+                child: SizedBox(
+                  width: 180.w,
+                  height: 180.h,
+                ),
+              ),
+              CustomPaint(
+                painter: InnerPointerPainter(
+                  value: outerValueProvider.getOuterValue().toDouble(),
+                  max: maxValue,
+                  color: colorPrimaryDark,
+                ),
+                child: SizedBox(
+                  width: 140.w,
+                  height: 140.h,
+                ),
+              ),
+              Positioned(
+                child: Text(
+                  (outerValueProvider.getOuterValue()).toString(),
+                  style: TextStyle(
+                    fontSize: 50.sp,
+                    fontWeight: FontWeight.w600,
+                    color: const Color.fromRGBO(113, 113, 113, 1),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -12,3 +12,4 @@ export 'feet_transfer.dart';
 export 'cupid_transfer.dart';
 export 'equalizer_transfer.dart';
 export 'cycle_transfer.dart';
+export 'gif_transfer.dart';

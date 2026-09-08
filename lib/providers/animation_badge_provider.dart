@@ -33,6 +33,7 @@ import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart';
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
+import 'package:badgemagic/badge_animation/ani_gif.dart';
 
 Map<int, BadgeAnimation?> animationMap = {
   0: LeftAnimation(),
@@ -77,7 +78,29 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   BadgeAnimation _currentAnimation = LeftAnimation();
 
+  bool _isGif = false;
+  List<List<List<bool>>>? _gifFrames;
+
+  bool get isGifActive => _isGif;
+  List<List<List<bool>>>? get gifFrames => _gifFrames;
+
   final Set<BadgeEffect?> _currentEffect = {};
+
+  void playGif(List<List<List<bool>>> frames) {
+    _gifFrames = frames;
+    _isGif = true;
+    _animationIndex = 0;
+    _currentAnimation = GifBadgeAnimation(frames);
+    _animationSpeed = 150000;
+    _timer?.cancel();
+    startTimer();
+    notifyListeners();
+  }
+
+  void clearGif() {
+    _isGif = false;
+    _gifFrames = null;
+  }
 
   List<List<bool>> getPaintGrid() => _paintGrid;
 
@@ -161,6 +184,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   void stopAllAnimations() {
     stopAnimation();
+    clearGif();
     _currentAnimation = LeftAnimation();
     _paintGrid = List.generate(11, (i) => List.generate(44, (j) => false));
     _newGrid = List.generate(11, (i) => List.generate(44, (j) => false));
@@ -188,6 +212,10 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   void setAnimationMode(BadgeAnimation? animation) {
+    if (animation is! GifBadgeAnimation) {
+      clearGif();
+    }
+
     _animationIndex = 0;
     _currentAnimation = animation ?? LeftAnimation();
     _timer?.cancel();
@@ -212,6 +240,11 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   void badgeAnimation(
       String message, Converters converters, bool isInverted) async {
+    if (message.isNotEmpty) {
+      clearGif();
+    } else if (_isGif) {
+      return;
+    }
     bool isSpecial = isSpecialAnimationSelected();
     if (message.isEmpty && !isSpecial) {
       stopAllAnimations();
@@ -258,8 +291,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required bool invert,
     required BuildContext context,
   }) async {
-    final int aniIndex = getAnimationIndex() ?? 0;
     final int selectedSpeed = speedDialProvider.getOuterValue();
+    if (isGifActive) {
+      await transferGifAnimation(badgeData, _gifFrames!, selectedSpeed);
+      return;
+    }
+    final int aniIndex = getAnimationIndex() ?? 0;
     if (aniIndex == 9) {
       await transferPacmanAnimation(badgeData, selectedSpeed);
     } else if (aniIndex == 10) {
