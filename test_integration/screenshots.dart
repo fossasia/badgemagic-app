@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:badgemagic/virtualbadge/view/draw_badge.dart';
+import 'package:badgemagic/view/widgets/draw_badge.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';

@@ -11,13 +11,12 @@ class FeetAnimation extends BadgeAnimation {
   static final int frameCount = 20;
 
   static final List<List<bool>> foot = [
-    // 0    1      2      3      4      5      6
-    [false, false, false, false, false, false, true], // big toe
-    [false, false, false, true, true, false, false], // toes
-    [false, true, true, false, true, false, true], // toes
-    [true, false, false, false, true, false, true], // arch
-    [true, true, true, true, true, false, true], // ball
-    [false, false, false, false, false, false, false], // heel
+    [false, false, false, false, false, false, true],
+    [false, false, false, true, true, false, false],
+    [false, true, true, false, true, false, true],
+    [true, false, false, false, true, false, true],
+    [true, true, true, true, true, false, true],
+    [false, false, false, false, false, false, false],
   ];
 
   static void _drawFoot(List<List<bool>> grid, int row, int col) {
@@ -50,15 +49,12 @@ class FeetAnimation extends BadgeAnimation {
     final grid = List.generate(
         badgeHeight, (_) => List.generate(badgeWidth, (_) => false));
 
-    // Shift both feet down so the bottom foot touches the last row
-    // Place the bottom of the foot at the last row
     final yBottom = badgeHeight - footHeight + 1;
     final yTop = yBottom - footHeight - verticalSpacing;
 
     final isLeftTurn = animationIndex % 2 == 0;
     final maxX = badgeWidth;
 
-    // Reset if both feet have gone past the badge
     if (leftX > maxX || rightX > maxX) {
       _resetFeet();
     }

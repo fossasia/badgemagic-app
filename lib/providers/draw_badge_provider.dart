@@ -19,7 +19,6 @@ class DrawBadgeProvider extends ChangeNotifier {
   DrawShape _selectedShape = DrawShape.freehand;
   BadgeAnimation currentAnimation = LeftAnimation();
 
-  // ========== GETTERS ==========
   List<List<bool>> getDrawViewGrid() {
     return List.generate(
       rows,
@@ -38,7 +37,6 @@ class DrawBadgeProvider extends ChangeNotifier {
   bool get canUndo => _undoStack.isNotEmpty;
   bool get canRedo => _redoStack.isNotEmpty;
 
-  // ========== STATE SETTERS ==========
   void toggleIsDrawing(bool drawing) {
     isDrawing = drawing;
     notifyListeners();
@@ -107,14 +105,13 @@ class DrawBadgeProvider extends ChangeNotifier {
     return GridPosition(row, col);
   }
 
-  // ========== UNDO / REDO ==========
   void _pushToUndoStack() {
     _undoStack.add(_copyGrid(_drawViewGrid));
-    _redoStack.clear(); // Invalidate redo stack on new action
+    _redoStack.clear();
   }
 
   void pushToUndoStack() {
-    _pushToUndoStack(); // Existing private method
+    _pushToUndoStack();
   }
 
   void undo() {

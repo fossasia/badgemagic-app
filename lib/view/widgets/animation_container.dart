@@ -1,14 +1,14 @@
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:badgemagic/services/localization_service.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:badgemagic/providers/imageprovider.dart';
+import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/view/widgets/special_animation_dialog.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
+import 'package:badgemagic/others/converters.dart';
 
 class AniContainer extends StatefulWidget {
   final String? animation;
@@ -71,7 +71,6 @@ class _AniContainerState extends State<AniContainer> {
       height: 65.h,
       child: GestureDetector(
         onTap: () async {
-          // Only show dialog for special animations (index >= 9)
           if (widget.index >= 9) {
             final textController =
                 Provider.of<InlineImageProvider>(context, listen: false)
@@ -82,7 +81,6 @@ class _AniContainerState extends State<AniContainer> {
               if (shouldSwitch == true) {
                 textController.clear();
                 animationCardState.setAnimationMode(badgeAnimation);
-                // Force preview update for special animations
                 animationCardState.badgeAnimation('', Converters(), false);
               }
               return;
@@ -91,7 +89,7 @@ class _AniContainerState extends State<AniContainer> {
           animationCardState.setAnimationMode(badgeAnimation);
         },
         child: Card(
-          surfaceTintColor: Colors.white,
+          surfaceTintColor: colorSurface,
           color: animationCardState.isAnimationActive(badgeAnimation)
               ? colorPrimaryDark
               : drawerHeaderTitle,
@@ -106,7 +104,7 @@ class _AniContainerState extends State<AniContainer> {
                         size: 36,
                         color:
                             animationCardState.isAnimationActive(badgeAnimation)
-                                ? Colors.white
+                                ? colorOnPrimary
                                 : const Color.fromARGB(255, 117, 117, 117),
                       )
                     : (widget.animation != null
@@ -115,7 +113,7 @@ class _AniContainerState extends State<AniContainer> {
                             fit: BoxFit.fill,
                             color: animationCardState
                                     .isAnimationActive(badgeAnimation)
-                                ? Colors.white
+                                ? colorOnPrimary
                                 : null,
                             colorBlendMode: animationCardState
                                     .isAnimationActive(badgeAnimation)
@@ -131,8 +129,8 @@ class _AniContainerState extends State<AniContainer> {
                   style: TextStyle(
                     fontSize: 9.sp,
                     color: animationCardState.isAnimationActive(badgeAnimation)
-                        ? Colors.white
-                        : Colors.black,
+                        ? colorOnPrimary
+                        : colorOnSurface,
                   ),
                   overflow: TextOverflow.ellipsis,
                   maxLines: 1,

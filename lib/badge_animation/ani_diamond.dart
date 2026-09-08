@@ -14,29 +14,25 @@ class DiamondAnimation extends BadgeAnimation {
     List<List<bool>> processGrid,
     List<List<bool>> canvas,
   ) {
-    // 1) Clear the canvas
     for (int y = 0; y < badgeHeight; y++) {
       for (int x = 0; x < badgeWidth; x++) {
         canvas[y][x] = false;
       }
     }
 
-    // 2) Geometry setup
     final int midX = badgeWidth ~/ 2;
-    final int cx1 = badgeWidth ~/ 4; // left-diamond center
-    final int cx2 = 3 * badgeWidth ~/ 4; // right-diamond center
+    final int cx1 = badgeWidth ~/ 4;
+    final int cx2 = 3 * badgeWidth ~/ 4;
     final int cy = badgeHeight ~/ 2;
     final int maxDx1 = min(cx1, badgeWidth - 1 - cx1);
     final int maxDx2 = min(cx2, badgeWidth - 1 - cx2);
     final int maxDy = min(cy, badgeHeight - 1 - cy);
 
-    // 3) Build list of spawn times
     final birthFrames = <int>[];
     for (int f = 0; f <= animationIndex; f += spawnInterval) {
       birthFrames.add(f);
     }
 
-    // 4) Bresenham line walker that only lights pixels in its half
     void drawLine(int x0, int y0, int x1, int y1, bool isLeft) {
       int dx = (x1 - x0).abs();
       int sx = x0 < x1 ? 1 : -1;
@@ -64,23 +60,21 @@ class DiamondAnimation extends BadgeAnimation {
       }
     }
 
-    // 5) Outline a single diamond of “radius” r around (cx,cy)
     void drawDiamond(int cx, int cy, int r, int maxDx, bool isLeft) {
       int ry = r;
       int rx = (maxDy > 0) ? ((r * maxDx) / maxDy).round() : r;
 
-      drawLine(cx, cy - ry, cx + rx, cy, isLeft); // top → right
-      drawLine(cx + rx, cy, cx, cy + ry, isLeft); // right → bottom
-      drawLine(cx, cy + ry, cx - rx, cy, isLeft); // bottom → left
-      drawLine(cx - rx, cy, cx, cy - ry, isLeft); // left → top
+      drawLine(cx, cy - ry, cx + rx, cy, isLeft);
+      drawLine(cx + rx, cy, cx, cy + ry, isLeft);
+      drawLine(cx, cy + ry, cx - rx, cy, isLeft);
+      drawLine(cx - rx, cy, cx, cy - ry, isLeft);
     }
 
-    // 6) Spawn & draw all diamonds so far
     for (final birth in birthFrames) {
       final int r = animationIndex - birth;
       if (r < 0) continue;
-      drawDiamond(cx1, cy, r, maxDx1, true); // left side
-      drawDiamond(cx2, cy, r, maxDx2, false); // right side
+      drawDiamond(cx1, cy, r, maxDx1, true);
+      drawDiamond(cx2, cy, r, maxDx2, false);
     }
   }
 }

@@ -12,17 +12,7 @@ class BrokenHeartsAnimation extends BadgeAnimation {
     [0, 0, 1, 1, 1, 1, 1, 0, 0],
     [0, 0, 0, 1, 1, 1, 0, 0, 0],
     [0, 0, 0, 0, 1, 0, 0, 0, 0],
-    [
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0,
-      0
-    ], // tip row (optional—it ensures the very bottom pixel sits one row above the badge bottom)
+    [0, 0, 0, 0, 0, 0, 0, 0, 0],
   ];
 
   final List<List<Point<int>>> _clustersLeft = [];
@@ -39,7 +29,6 @@ class BrokenHeartsAnimation extends BadgeAnimation {
     final int leftCx = badgeW ~/ 4 - heartW ~/ 2;
     final int topY = badgeH ~/ 2 - heartH ~/ 2;
 
-    // collect all solid pixels of left heart
     final pixels = <Point<int>>[];
     for (int y = 0; y < heartH; y++) {
       for (int x = 0; x < heartW; x++) {
@@ -49,7 +38,6 @@ class BrokenHeartsAnimation extends BadgeAnimation {
       }
     }
 
-    // carve into random clusters of size 1–4
     while (pixels.isNotEmpty) {
       int size = _rng.nextInt(min(4, pixels.length)) + 1;
       final clusterL = <Point<int>>[];
@@ -61,7 +49,6 @@ class BrokenHeartsAnimation extends BadgeAnimation {
           .add(clusterL.map((pt) => Point(pt.x + badgeW ~/ 2, pt.y)).toList());
     }
 
-    // sort so bottom-most clusters fall first
     final paired = List.generate(
       _clustersLeft.length,
       (i) => MapEntry(_clustersLeft[i], _clustersRight[i]),
@@ -69,7 +56,7 @@ class BrokenHeartsAnimation extends BadgeAnimation {
     paired.sort((a, b) {
       double ya = a.key.map((p) => p.y).reduce((u, v) => u + v) / a.key.length;
       double yb = b.key.map((p) => p.y).reduce((u, v) => u + v) / b.key.length;
-      return yb.compareTo(ya); // descending: larger Y first
+      return yb.compareTo(ya);
     });
     _clustersLeft
       ..clear()
@@ -89,7 +76,6 @@ class BrokenHeartsAnimation extends BadgeAnimation {
   ) {
     _initializeClusters(badgeHeight, badgeWidth);
 
-    // clear
     for (int y = 0; y < badgeHeight; y++) {
       for (int x = 0; x < badgeWidth; x++) {
         canvas[y][x] = false;
@@ -100,7 +86,6 @@ class BrokenHeartsAnimation extends BadgeAnimation {
     final int cycle = N + badgeHeight;
     final int frame = animationIndex % cycle;
 
-    // draw each cluster either “attached” or “falling”
     for (int i = 0; i < N; i++) {
       final bool isFalling = frame >= i;
       final int dy = frame - i;

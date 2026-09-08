@@ -4,7 +4,6 @@ import 'package:badgemagic/badge_animation/animation_abstract.dart';
 
 class CupidAnimation extends BadgeAnimation {
   static int frameCount(int bw, int bh) {
-    // Logical frame count for smooth animation
     int heartW = 9;
     int heartLeft = bw - heartW - 6;
     int arrowStart = 2 + 2;
@@ -16,7 +15,6 @@ class CupidAnimation extends BadgeAnimation {
   @override
   void processAnimation(
       int bh, int bw, int idx, List<List<bool>> pg, List<List<bool>> c) {
-    // Loop idx for continuous animation
     int frameLimit = CupidAnimation.frameCount(bw, bh);
     idx = idx % frameLimit;
     for (int y = 0; y < bh; y++) {

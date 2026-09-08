@@ -1,4 +1,4 @@
-import 'package:badgemagic/badge_effect/badgeeffectabstract.dart';
+import 'package:badgemagic/badge_effect/badge_effect_abstract.dart';
 
 class InvertLEDEffect extends BadgeEffect {
   @override

@@ -39,7 +39,6 @@ class LaserAnimation extends BadgeAnimation {
         }
       }
 
-      // Persist characters while the laser animates in the current frame
       for (int i = 0; i < index; i++) {
         for (int j = 0; j < badgeHeight; j++) {
           int sourceCol = startCol + i;

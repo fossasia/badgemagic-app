@@ -3,7 +3,6 @@ import 'package:badgemagic/badge_animation/animation_abstract.dart';
 
 /// An animation that simulates a graphic equalizer with bouncing vertical bars.
 class EqualizerAnimation extends BadgeAnimation {
-  // --- Animation Parameters ---
   /// The width of each vertical bar in pixels.
   static const int barWidth = 4;
 
@@ -51,10 +50,8 @@ class EqualizerAnimation extends BadgeAnimation {
     for (int i = 0; i < numberOfBars; i++) {
       if (_rng.nextDouble() < changeChance) {
         if (_rng.nextDouble() < resetChance) {
-          // Hard reset → instant jump
           _barHeights[i] = _rng.nextInt(badgeHeight) + 1;
         } else {
-          // This will do Smooth transition toward a random target
           double target = _rng.nextInt(badgeHeight).toDouble();
           _barHeights[i] = (_barHeights[i] * 0.7 + target * 0.3)
               .round()
@@ -63,7 +60,6 @@ class EqualizerAnimation extends BadgeAnimation {
       }
     }
 
-    // this draws the bars
     for (int i = 0; i < numberOfBars; i++) {
       int barHeight = _barHeights[i];
       int startX = i * (barWidth + gapWidth);

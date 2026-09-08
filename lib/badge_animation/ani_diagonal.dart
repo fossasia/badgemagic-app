@@ -3,8 +3,8 @@ import 'package:badgemagic/badge_animation/animation_abstract.dart';
 class DiagonalAnimation extends BadgeAnimation {
   static const int badgeHeight = 11;
   static const int badgeWidth = 44;
-  static const int vHeight = badgeWidth ~/ 3 + 1; // shape height
-  static const int vSpacing = 4; // reduced vertical spacing between shapes
+  static const int vHeight = badgeWidth ~/ 3 + 1;
+  static const int vSpacing = 4;
   static const int frameCount =
       0; // 0 indicates an infinite, non-repeating animation
 
@@ -16,7 +16,6 @@ class DiagonalAnimation extends BadgeAnimation {
     List<List<bool>> processGrid,
     List<List<bool>> canvas,
   ) {
-    // Clear canvas
     for (int y = 0; y < badgeHeight; y++) {
       for (int x = 0; x < badgeWidth; x++) {
         canvas[y][x] = false;
@@ -25,25 +24,23 @@ class DiagonalAnimation extends BadgeAnimation {
 
     int centerX = badgeWidth ~/ 2;
 
-    // Use birthFrames logic: spawn a new V every vSpacing frames, forever
     final birthFrames = <int>[];
     for (int f = 0; f <= animationIndex; f += vSpacing) {
       birthFrames.add(f);
     }
 
-    double speed = 0.5; // 0.5 = half speed, adjust as needed
+    double speed = 0.5;
     for (final birth in birthFrames) {
       double tipY = animationIndex * speed - birth;
       if (tipY < 0 || tipY - (vHeight - 1) >= badgeHeight) {
-        continue; // Only draw if any part is visible
+        continue;
       }
 
       int y1 = tipY.round();
       int y2 = (tipY - (vHeight - 1)).round();
 
-      // Improved: arms reach the edges exactly when tip reaches the bottom
       int maxArmOffset = centerX;
-      double minOffset = 1.0; // or 2.0 for a wider initial V
+      double minOffset = 1.0;
 
       double progress = (tipY).clamp(0, badgeHeight - 1) / (badgeHeight - 1);
       int endArmOffset =
@@ -56,7 +53,6 @@ class DiagonalAnimation extends BadgeAnimation {
     }
   }
 
-  // Simple line drawing function (like Bresenham's) to ensure no gaps
   void _drawLine(int x1, int y1, int x2, int y2, List<List<bool>> canvas,
       int badgeWidth, int badgeHeight) {
     int dx = (x2 - x1).abs();

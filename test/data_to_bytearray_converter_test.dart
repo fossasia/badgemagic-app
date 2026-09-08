@@ -1,12 +1,12 @@
 import 'dart:core';
-import 'package:badgemagic/bademagic_module/models/data.dart';
-import 'package:badgemagic/bademagic_module/models/messages.dart';
-import 'package:badgemagic/bademagic_module/models/mode.dart';
-import 'package:badgemagic/bademagic_module/models/speed.dart';
-import 'package:badgemagic/bademagic_module/utils/byte_array_utils.dart';
-import 'package:badgemagic/bademagic_module/utils/converters.dart';
-import 'package:badgemagic/bademagic_module/utils/data_to_bytearray_converter.dart';
-import 'package:badgemagic/providers/getitlocator.dart';
+import 'package:badgemagic/models/data.dart';
+import 'package:badgemagic/models/messages.dart';
+import 'package:badgemagic/models/mode.dart';
+import 'package:badgemagic/models/speed.dart';
+import 'package:badgemagic/others/byte_array_utils.dart';
+import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/data_to_bytearray_converter.dart';
+import 'package:badgemagic/providers/service_locator.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -210,11 +210,8 @@ void main() {
 
     List<List<int>> result = converter.convert(data);
 
-    expect([
-      toHex(result[3].sublist(14, 16) + result[4] + result[5].sublist(0, 15))
-    ], [
-      "00386CC6C6FEC6C6C6C60000FC6666667C666666FC00007CC6C6C0C0C0C6C67C00"
-    ]);
+    expect([toHex(result[4] + result[5] + result[6].sublist(0, 1))],
+        ["00386CC6C6FEC6C6C6C60000FC6666667C666666FC00007CC6C6C0C0C0C6C67C00"]);
   });
 
   test('each packet should contain 16 bytes', () async {
