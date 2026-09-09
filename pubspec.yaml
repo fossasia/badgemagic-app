@@ -44,7 +44,7 @@ dependencies:
   universal_ble: ^2.2.0
   hid_tool: ^0.1.2
   permission_handler: ^12.0.3
-  logger: ^2.7.0
+  logger: ^2.8.0
   flutter_svg: ^2.3.0
   get_it: ^9.2.1
   flutter_screenutil: ^5.9.3
