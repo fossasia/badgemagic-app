@@ -4,8 +4,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferEmergencyAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   final generated = List.generate(animationFrameCount, (i) {
     final frameBitmap = blankFrame();
     EmergencyAnimation().processAnimation(
@@ -33,5 +34,6 @@ Future<void> customTransferEmergencyAnimation(
     label: 'Emergency',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }
