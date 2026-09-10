@@ -30,7 +30,6 @@ class BadgeControlTabView extends StatelessWidget {
           ),
           const TransitionTab(),
           const EffectTab(),
-          const AnimationTab(),
         ],
       ),
     );
