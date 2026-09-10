@@ -853,10 +853,10 @@ packages:
     dependency: "direct main"
     description:
       name: universal_ble
-      sha256: "14ecc6abed48e2fd1d707524e4a274302093b885f8b27ff207ec89ac23a1b8af"
+      sha256: bdebe7d4ff3a24f28b5e56c999104ea1584a9de55da4ee0b4c2346bcf8f8c528
       url: "https://pub.dev"
     source: hosted
-    version: "2.2.0"
+    version: "2.3.0"
   url_launcher:
     dependency: "direct main"
     description:
