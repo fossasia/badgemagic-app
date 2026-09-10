@@ -18,6 +18,7 @@ import '../others/globals.dart';
 import '../others/localization_service.dart';
 import '../providers/badge_scan_provider.dart';
 import '../providers/firmware_update.dart';
+import '../providers/usb_transfer_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -74,6 +75,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _loadUsbSetting() async {
     final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
     setState(() {
       _isUsbTransferEnabled =
           prefs.getBool('usb_transfer_enabled') ?? !Platform.isLinux;
@@ -342,6 +344,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                           _isUsbTransferEnabled = value;
                         });
                         _saveUsbSetting(value);
+                        final usbProvider = context.read<UsbTransferProvider>();
+                        if (value) {
+                          usbProvider.startUsbMonitoring();
+                        } else {
+                          usbProvider.stopUsbMonitoring();
+                        }
                       },
                     ),
                   ),

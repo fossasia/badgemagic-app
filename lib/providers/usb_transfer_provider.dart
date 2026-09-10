@@ -40,6 +40,22 @@ class UsbTransferProvider with ChangeNotifier {
     });
   }
 
+  Future<void> stopUsbMonitoring() async {
+    if (_attachSubscription == null && _detachSubscription == null) return;
+    await _attachSubscription?.cancel();
+    await _detachSubscription?.cancel();
+    _attachSubscription = null;
+    _detachSubscription = null;
+    _permissionPrewarmed = false;
+    if (Platform.isAndroid) {
+      try {
+        await HidDeviceEvents.stopListening();
+      } catch (e) {
+        debugPrint("Error stopping USB monitoring: $e");
+      }
+    }
+  }
+
   Future<void> _prewarmPermission() async {
     if (_prewarming || _permissionPrewarmed || isConnected) return;
     _prewarming = true;
