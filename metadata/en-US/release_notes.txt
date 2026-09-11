@@ -1,0 +1,9 @@
+## Changes
+
+- chore: prepare repository for F-Droid release (#1232) - @AsCress
+- fix: build.gradle for fdroid build (#1231) - @AsCress
+
+## Contributors
+
+Thanks a lot to our contributors for making this release possible:
+@AsCress
