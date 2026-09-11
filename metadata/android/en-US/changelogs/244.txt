@@ -1,0 +1,8 @@
+## Changes
+
+- Prepare Release for F-Droid
+
+## Contributors
+
+Thanks a lot to our contributors for making this release possible:
+@AsCress

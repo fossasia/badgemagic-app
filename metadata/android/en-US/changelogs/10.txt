@@ -1,0 +1,4 @@
+🐛 Bug Fixes
+
+ - flash and marquee switched in saved badges
+ - invert LED padding
