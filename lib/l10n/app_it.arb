@@ -252,5 +252,8 @@
   "flashUsbConfirmationTitle": "Istruzioni Flash USB",
   "flashUsbInstructions": "Inserisci il cavo USB al badge mentre clicchi il bottone subito sopra la porta USB.",
   "batteryDesolderedWarning": "Nota: la batteria deve essere dissaldata per poterlo fare.",
-  "batteryDesolderedLink": "Vedi la pagina officiale di GitHhub per maggiori informazioni"
+  "batteryDesolderedLink": "Vedi la pagina officiale di GitHhub per maggiori informazioni",
+  "undo": "Annulla",
+  "redo": "Ripristina",
+  "imageImportedSuccessfully": "Immagine importata con successo!"
 }

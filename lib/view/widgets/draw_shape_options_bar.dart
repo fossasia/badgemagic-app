@@ -29,14 +29,14 @@ class DrawShapeOptionsBar extends StatelessWidget {
         children: [
           Expanded(
             child: Semantics(
-              label: 'Free',
+              label: l10n.free,
               child: _shapeCard(DrawShape.freehand, Icons.gesture, l10n.free),
             ),
           ),
           const SizedBox(width: 16),
           Expanded(
             child: Semantics(
-              label: 'Square',
+              label: l10n.square,
               child:
                   _shapeCard(DrawShape.square, Icons.crop_square, l10n.square),
             ),
@@ -44,7 +44,7 @@ class DrawShapeOptionsBar extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Semantics(
-              label: 'Rect',
+              label: l10n.rectangle,
               child: _shapeCard(DrawShape.rectangle, Icons.rectangle_outlined,
                   l10n.rectangle),
             ),
@@ -52,7 +52,7 @@ class DrawShapeOptionsBar extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Semantics(
-              label: 'Circle',
+              label: l10n.circle,
               child: _shapeCard(
                   DrawShape.circle, Icons.circle_outlined, l10n.circle),
             ),
@@ -60,7 +60,7 @@ class DrawShapeOptionsBar extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Semantics(
-              label: 'Triangle',
+              label: l10n.triangle,
               child: _shapeCard(
                   DrawShape.triangle, Icons.change_history, l10n.triangle),
             ),
