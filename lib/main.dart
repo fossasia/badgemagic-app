@@ -7,6 +7,7 @@ import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:badgemagic/providers/service_locator.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
+import 'package:badgemagic/providers/usb_transfer_provider.dart';
 import 'package:badgemagic/view/about_us_screen.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/home_screen.dart';
@@ -59,6 +60,7 @@ Future<void> main() async {
       ChangeNotifierProvider<SpeedDialProvider>(
         create: (ctx) => SpeedDialProvider(ctx.read<AnimationBadgeProvider>()),
       ),
+      ChangeNotifierProvider(create: (_) => UsbTransferProvider()),
     ],
     child: const MyApp(),
   ));
