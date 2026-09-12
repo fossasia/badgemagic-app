@@ -63,6 +63,8 @@ class ScanState extends NormalBleState {
               badgeScanProvider.addBadgeName(deviceName);
               isCompleted = true;
               timeoutTimer?.cancel();
+              timeoutTimer = null;
+              await subscription?.cancel();
               await UniversalBle.stopScan();
               bleDialogController.update(
                   BleDialogStatus.connecting, l10n.deviceFound);
@@ -70,6 +72,7 @@ class ScanState extends NormalBleState {
               nextStateCompleter.complete(ConnectState(
                 scanResult: device,
                 manager: manager,
+                context: context,
               ));
             }
           } catch (e) {

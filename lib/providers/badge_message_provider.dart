@@ -1,5 +1,5 @@
 import 'dart:io';
-
+import 'dart:async';
 import 'package:badgemagic/communication/base_ble_state.dart';
 import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/others/converters.dart';
@@ -15,6 +15,7 @@ import 'package:badgemagic/others/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/others/custom_transfers/transfers.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/others/app_logger.dart';
@@ -58,6 +59,13 @@ class BadgeMessageProvider {
   FileHelper fileHelper = FileHelper();
   Converters converters = Converters();
 
+  bool isHardwareUnlocked = false;
+  String? savedPin;
+
+  void resetSessionAuth() {
+    isHardwareUnlocked = false;
+  }
+
   Future<Data> getBadgeData(String text, bool flash, bool marq, Speed speed,
       Mode mode, bool isInverted) async {
     List<String> message = await converters.messageTohex(text, isInverted);
@@ -89,7 +97,7 @@ class BadgeMessageProvider {
     }
   }
 
-  Future<void> transferData(
+  Future<bool> transferData(
     DataTransferManager manager, {
     BuildContext? context,
   }) async {
@@ -104,10 +112,26 @@ class BadgeMessageProvider {
         context: context!);
 
     BleState? state = initialState;
+    DateTime now = DateTime.now();
+    dynamic lastState;
 
     while (state != null) {
+      lastState = state;
       state = await state.process();
     }
+
+    logger.d("Time to transfer data: ${DateTime.now().difference(now)}");
+    logger.d(".......Data transfer completed.......");
+
+    if (lastState != null) {
+      try {
+        if (lastState.isSuccess == false) {
+          return false;
+        }
+      } catch (_) {}
+    }
+
+    return true;
   }
 
   Future<void> checkAndTransfer(
@@ -172,12 +196,47 @@ class BadgeMessageProvider {
       return;
     }
 
+    final prefs = await SharedPreferences.getInstance();
+    bool usePin = prefs.getBool('secure_connection_pin') ?? false;
+
     Data data;
     if (jsonData != null) {
       data = fileHelper.jsonToData(jsonData);
     } else {
       data = await generateData(
           text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
+    }
+
+    if (usePin) {
+      bool isTransferred = false;
+      while (!isTransferred) {
+        RawDataTransferManager combinedManager = RawDataTransferManager(
+          pin: savedPin ?? '',
+          textData: data,
+        );
+
+        bool success = await transferData(combinedManager, context: context);
+
+        if (success) {
+          savedPin = combinedManager.pin;
+          isHardwareUnlocked = true;
+          isTransferred = true;
+          bleDialogController.update(
+              BleDialogStatus.success, l10n.transferSucceeded);
+        } else {
+          savedPin = null;
+          isHardwareUnlocked = false;
+
+          if (combinedManager.cancelledByUser) {
+            bleDialogController.update(
+                BleDialogStatus.error, l10n.transferCanceledByUser);
+            return;
+          }
+
+          await Future.delayed(const Duration(milliseconds: 1500));
+        }
+      }
+      return;
     }
 
     DataTransferManager manager = DataTransferManager(data);
