@@ -1,26 +1,33 @@
+import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:universal_ble/universal_ble.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../constants.dart';
+import '../../others/globals.dart';
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
+import '../../providers/badge_scan_provider.dart';
 import '../../providers/firmware_update.dart';
+import '../../providers/firmware_update_ble.dart';
 
 class FirmwareUpdateDialog extends StatefulWidget {
   final String version;
   final String date;
   final List<dynamic> releaseAssets;
+  final FirmwareUpdateService service;
 
   const FirmwareUpdateDialog({
     super.key,
     required this.version,
     required this.date,
     required this.releaseAssets,
+    required this.service,
   });
 
   @override
@@ -41,6 +48,48 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
 
   Future<void> _startUsbFlash() async {
     await _showFlashInstructionsDialog();
+  }
+
+  Future<BleDevice?> scanForBadge({
+    required BadgeScanMode mode,
+    required List<String> allowedNames,
+  }) async {
+    final completer = Completer<BleDevice?>();
+    StreamSubscription<BleDevice>? subscription;
+
+    final normalizedNames = allowedNames
+        .map((e) => e.trim().toLowerCase())
+        .where((e) => e.isNotEmpty)
+        .toList();
+
+    subscription = UniversalBle.scanStream.listen((device) async {
+      final matchesUuid = device.services.contains(serviceUuid);
+      final deviceName = (device.name ?? "").trim().toLowerCase();
+      final matchesName =
+          mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
+
+      if (matchesUuid && matchesName) {
+        subscription?.cancel();
+        await UniversalBle.stopScan();
+        if (!completer.isCompleted) {
+          completer.complete(device);
+        }
+      }
+    });
+
+    await UniversalBle.startScan(
+      scanFilter: ScanFilter(withServices: [serviceUuid]),
+    );
+
+    Timer(const Duration(seconds: 10), () async {
+      await UniversalBle.stopScan();
+      subscription?.cancel();
+      if (!completer.isCompleted) {
+        completer.complete(null);
+      }
+    });
+
+    return completer.future;
   }
 
   Future<void> _showFlashInstructionsDialog() async {
@@ -235,7 +284,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
             },
             child: Text(l10n.laterButton),
           ),
-          if (Platform.isAndroid || Platform.isLinux) ...[
+          if (Platform.isAndroid || Platform.isLinux)
             ElevatedButton.icon(
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.red,
@@ -245,18 +294,40 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
               onPressed: _startUsbFlash,
               label: Text(l10n.flashViaUsb),
             ),
-          ] else ...[
-            ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.red,
-                foregroundColor: Colors.white,
-              ),
-              icon: const Icon(Icons.usb, size: 18),
-              onPressed: () =>
-                  openUrl('https://github.com/fossasia/badgemagic-firmware'),
-              label: Text("See instructions on GitHub"),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
             ),
-          ],
+            onPressed: () async {
+              if (_dontRemindAgain) {
+                await widget.service.skipVersionPermanently(widget.version);
+              }
+
+              final nav = Navigator.of(context);
+              nav.pop();
+
+              final device = await scanForBadge(
+                mode: BadgeScanMode.any,
+                allowedNames: [],
+              );
+
+              if (device == null) {
+                ToastUtils().showToast(l10n.noBadgesFound);
+                return;
+              }
+
+              await UniversalBle.connect(device.deviceId);
+
+              await widget.service.executeFirmwareUpdate(
+                deviceId: device.deviceId,
+                releaseAssets: widget.releaseAssets,
+                hardwareVariant: 'usbc_4key',
+                onProgress: (progress) {},
+              );
+            },
+            child: Text(l10n.updateButton),
+          ),
         ],
       ],
     );

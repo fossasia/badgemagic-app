@@ -88,7 +88,7 @@ class BleProgressDialog extends StatelessWidget {
                   ),
                   onPressed: () {
                     ConnectState.stopAllBleOperations();
-                    Navigator.of(context).pop();
+                    Navigator.of(context).pop(false);
                   },
                   child:
                       Text(MaterialLocalizations.of(context).cancelButtonLabel),

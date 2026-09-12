@@ -265,6 +265,7 @@
   "dialogNewFirmwareVersionFound": "A new firmware version is available for your badge.",
   "dontRememberFirmwareVersionUpdate": "Don't remind me again for this version",
   "laterButton": "Later",
+  "updateButton": "Flash via BLE",
   "updateButton": "Update",
   "dismissButton": "Dismiss",
   "alreadyUpdatedStatusMessage": "No new firmware versions found",
