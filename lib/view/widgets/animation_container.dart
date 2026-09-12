@@ -71,10 +71,11 @@ class _AniContainerState extends State<AniContainer> {
       height: 65.h,
       child: GestureDetector(
         onTap: () async {
+          final imageProvider =
+              Provider.of<InlineImageProvider>(context, listen: false);
+          final textController = imageProvider.getController();
+
           if (widget.index >= 9) {
-            final textController =
-                Provider.of<InlineImageProvider>(context, listen: false)
-                    .getController();
             if (textController.text.trim().isNotEmpty) {
               final shouldSwitch = await showSpecialAnimationDialog(
                   context, textController.text.trim());

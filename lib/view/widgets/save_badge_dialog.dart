@@ -153,7 +153,6 @@ class SaveBadgeDialog extends StatelessWidget {
                           ],
                         ),
                       );
-                      if (!context.mounted) return;
                       if (result == 'rename') {
                         ToastUtils().showToast(l10n.pleaseEnterNewBadgeName);
                         return;
@@ -167,6 +166,7 @@ class SaveBadgeDialog extends StatelessWidget {
                           speed.getOuterValue(),
                           animationProvider.getAnimationIndex() ?? 1,
                         );
+                        if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                               content: Text(l10n.badgeUpdatedSuccessfully)),
@@ -209,7 +209,6 @@ class SaveBadgeDialog extends StatelessWidget {
                           ],
                         ),
                       );
-                      if (!context.mounted) return;
                       if (result == 'rename') {
                         ToastUtils().showToast(l10n.pleaseEnterNewBadgeName);
                         return;
@@ -218,7 +217,6 @@ class SaveBadgeDialog extends StatelessWidget {
                             '${directory.path}/$caseInsensitiveMatch';
                         final existingFile = File(existingFilePath);
                         await existingFile.writeAsString('');
-                        if (!context.mounted) return;
                         savedBadgeProvider.saveBadgeData(
                           caseInsensitiveMatch.substring(
                               0, caseInsensitiveMatch.length - 5),
@@ -229,6 +227,7 @@ class SaveBadgeDialog extends StatelessWidget {
                           speed.getOuterValue(),
                           animationProvider.getAnimationIndex() ?? 1,
                         );
+                        if (!context.mounted) return;
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(
                               content: Text(l10n.badgeUpdatedSuccessfully)),
@@ -245,7 +244,6 @@ class SaveBadgeDialog extends StatelessWidget {
                         return;
                       }
                     } else {
-                      if (!context.mounted) return;
                       savedBadgeProvider.saveBadgeData(
                         badgeNameController.text,
                         textController.text,
@@ -255,6 +253,7 @@ class SaveBadgeDialog extends StatelessWidget {
                         speed.getOuterValue(),
                         animationProvider.getAnimationIndex() ?? 1,
                       );
+                      if (!context.mounted) return;
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(content: Text(l10n.badgeSavedSuccessfully)),
                       );
