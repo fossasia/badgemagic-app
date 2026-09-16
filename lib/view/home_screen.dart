@@ -121,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen>
       animationProvider.addListener(_debouncedSavePreferences);
       speedDialProvider.addListener(_debouncedSavePreferences);
     });
-    _tabController = TabController(length: 4, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _initiateFirmwareCheck();
@@ -405,7 +405,7 @@ class _HomeScreenState extends State<HomeScreen>
       valueListenable: appLocale,
       builder: (context, _, __) {
         return DefaultTabController(
-          length: 4,
+          length: 3,
           child: CommonScaffold(
             index: 0,
             title: l10n.appTitle,
@@ -465,10 +465,10 @@ class _HomeScreenState extends State<HomeScreen>
                                       trackVisibility: true,
                                       thickness: 4.0,
                                       radius: const Radius.circular(10),
-                                      child: GifGridView(
+                                      child: GifAnimationGridView(
                                         controller: _gifScrollController,
                                         onGifSelected: _handleGifSelected,
-                                        selectedPath: _selectedGifPath,
+                                        selectedGifPath: _selectedGifPath,
                                       ),
                                     )
                                   : Scrollbar(
