@@ -59,7 +59,7 @@ dependencies:
   url_launcher: ^6.3.2
   image: ^4.9.2
   qr_flutter: ^4.1.0
-  mobile_scanner: ^7.2.0
+  mobile_scanner: ^7.4.2
   crop_your_image: ^2.0.0
 
 dev_dependencies:
