@@ -1,0 +1,5 @@
+- fix: Layout overflow in About Us Screen #1136 (#1218) - @samruddhi-Rahegaonkar
+- fix: rating link on Apple Store goes to Android #1172 (#1217) - @samruddhi-Rahegaonkar
+
+Thanks a lot to our contributors for making this release possible:
+@samruddhi-Rahegaonkar
