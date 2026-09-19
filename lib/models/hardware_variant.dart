@@ -54,8 +54,7 @@ extension HardwareVariantX on HardwareVariant {
       for (final a in assets) {
         final name = (a['name'] as String? ?? '').toLowerCase();
         if (!name.endsWith('.bin')) continue;
-        final hasAnyKnownKeyword =
-        _allKeywords.any((k) => name.contains(k));
+        final hasAnyKnownKeyword = _allKeywords.any((k) => name.contains(k));
         if (!hasAnyKnownKeyword) {
           return a as Map<String, dynamic>;
         }

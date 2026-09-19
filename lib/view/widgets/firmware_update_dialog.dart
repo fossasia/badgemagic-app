@@ -116,7 +116,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
       }
 
       final Uint8List firmwareData =
-      await _flasher.downloadFirmwareBinary(widget.downloadUrl);
+          await _flasher.downloadFirmwareBinary(widget.downloadUrl);
 
       if (mounted) {
         setState(() {

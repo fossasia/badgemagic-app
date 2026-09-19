@@ -133,7 +133,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   Future<void> _initiateFirmwareCheck() async {
     final prefs = await SharedPreferences.getInstance();
-    final variant = HardwareVariantX.fromName(prefs.getString(_hardwareVariantKey));
+    final variant =
+        HardwareVariantX.fromName(prefs.getString(_hardwareVariantKey));
     if (variant == null) return;
     final bool autoCheck = await autocheckFirmwareUpdates();
     if (!autoCheck) return;

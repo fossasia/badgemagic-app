@@ -120,7 +120,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
 
     final updateInfo =
-    await _flasher.checkForUpdates(_selectedHardwareVariant!);
+        await _flasher.checkForUpdates(_selectedHardwareVariant!);
 
     if (mounted) {
       setState(() {
@@ -224,7 +224,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     try {
       final String downloadUrl = _availableUpdate!['downloadUrl'];
       final Uint8List firmwareData =
-      await _flasher.downloadFirmwareBinary(downloadUrl);
+          await _flasher.downloadFirmwareBinary(downloadUrl);
 
       if (mounted) {
         setState(() {
@@ -548,7 +548,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                   },
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 ),
                 const SizedBox(height: 12),
