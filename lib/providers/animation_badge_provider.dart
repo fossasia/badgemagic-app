@@ -36,6 +36,7 @@ import 'package:badgemagic/badge_animation/ani_cycle.dart';
 import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/models/mode.dart';
 import 'package:badgemagic/badge_animation/ani_gif.dart';
+import 'package:badgemagic/others/custom_transfers/gif_transfer.dart';
 
 Map<int, BadgeAnimation?> animationMap = {
   0: LeftAnimation(),
@@ -294,40 +295,44 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required BuildContext context,
   }) async {
     final int selectedSpeed = speedDialProvider.getOuterValue();
+    Future<void> sink(DataTransferManager manager) =>
+        badgeData.transferData(manager, context: context);
+
     if (isGifActive) {
-      await transferGifAnimation(badgeData, _gifFrames!, selectedSpeed);
+      await customTransferGifAnimation(sink, _gifFrames!, selectedSpeed);
       return;
     }
     final int aniIndex = getAnimationIndex() ?? 0;
     if (aniIndex == 9) {
-      await transferPacmanAnimation(badgeData, selectedSpeed);
+      await transferPacmanAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 10) {
-      await transferChevronAnimation(badgeData, selectedSpeed);
+      await transferChevronAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 11) {
-      await transferDiamondAnimation(badgeData, selectedSpeed);
+      await transferDiamondAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 12) {
-      await transferBrokenHeartsAnimation(badgeData, selectedSpeed);
+      await transferBrokenHeartsAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 13) {
-      await transferCupidAnimation(badgeData, selectedSpeed);
+      await transferCupidAnimation(badgeData, selectedSpeed, sink: sink);
       setAnimationMode(CupidAnimation());
       _animationIndex = 0;
       if (_timer == null || !_timer!.isActive) startTimer();
     } else if (aniIndex == 14) {
-      await transferFeetAnimation(badgeData, selectedSpeed);
+      await transferFeetAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 15) {
-      await transferFishAnimation(badgeData, selectedSpeed);
+      await transferFishAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 16) {
-      await transferDiagonalAnimation(badgeData, selectedSpeed);
+      await transferDiagonalAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 17) {
-      await transferEmergencyAnimation(badgeData, selectedSpeed);
+      await transferEmergencyAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 18) {
-      await transferBeatingHeartsAnimation(badgeData, selectedSpeed);
+      await transferBeatingHeartsAnimation(badgeData, selectedSpeed,
+          sink: sink);
     } else if (aniIndex == 19) {
-      await transferFireworksAnimation(badgeData, selectedSpeed);
+      await transferFireworksAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 20) {
-      await transferEqualizerAnimation(badgeData, selectedSpeed);
+      await transferEqualizerAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 21) {
-      await transferCycleAnimation(badgeData, selectedSpeed);
+      await transferCycleAnimation(badgeData, selectedSpeed, sink: sink);
     } else {
       await badgeData.checkAndTransfer(
         inlineImageProvider.getController().text,
