@@ -267,6 +267,10 @@ class _AnimationGifTile extends StatelessWidget {
         final isSelected = animProv.isAnimationActive(badgeAnimation);
         return GestureDetector(
           onTap: () async {
+            if (isSelected) {
+              animProv.stopAllAnimations();
+              return;
+            }
             final textController =
                 Provider.of<InlineImageProvider>(context, listen: false)
                     .getController();
@@ -376,7 +380,7 @@ class _AnimatingLedPreviewState extends State<_AnimatingLedPreview> {
     _grid = List.generate(_rows, (_) => List.generate(_cols, (_) => false));
     _work = List.generate(_rows, (_) => List.generate(_cols, (_) => false));
     _timer = Timer.periodic(const Duration(milliseconds: 150), (_) {
-      widget.animation.processAnimation(_rows, _cols, _index, _work, _grid);
+      widget.animation.processAnimation(_rows, _cols, _index, _grid, _work);
       setState(() {
         final tmp = _grid;
         _grid = _work;
