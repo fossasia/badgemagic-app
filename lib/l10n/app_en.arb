@@ -303,5 +303,9 @@
   "enableUsbTransfers": "Enable USB Transfers",
   "usbTransferLinuxSubtitle": "sending badge data via OTG USB cable will be soon available on Linux",
   "usbTransferSubtitle": "Allows sending badge data via OTG USB cable in addition to Bluetooth.",
-  "seeInstructionsOnGithub": "See instructions on GitHub"
+  "seeInstructionsOnGithub": "See instructions on GitHub",
+  "badgeAuthentication": "Badge Authentication",
+  "enterPinInstruction": "Enter the 4-digit security code to unlock the badge transfer:",
+  "pinLengthError": "PIN must be exactly 4 digits",
+  "send": "Send"
 }

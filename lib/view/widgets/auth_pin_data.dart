@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:get_it/get_it.dart';
+
+import '../../others/localization_service.dart';
 
 Future<String?> showPinAuthDialog(BuildContext context) async {
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
   final TextEditingController pinController = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
@@ -10,11 +14,11 @@ Future<String?> showPinAuthDialog(BuildContext context) async {
     barrierDismissible: false,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.lock_outline, color: Colors.red),
-            SizedBox(width: 8),
-            Text('Badge Authentication'),
+            const Icon(Icons.lock_outline, color: Colors.red),
+            const SizedBox(width: 8),
+            Text(l10n.badgeAuthentication),
           ],
         ),
         content: Form(
@@ -22,8 +26,7 @@ Future<String?> showPinAuthDialog(BuildContext context) async {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Text(
-                  'Enter the 4-digit security code to unlock the badge transfer:'),
+              Text(l10n.enterPinInstruction),
               const SizedBox(height: 16),
               TextFormField(
                 controller: pinController,
@@ -39,7 +42,7 @@ Future<String?> showPinAuthDialog(BuildContext context) async {
                 ],
                 validator: (value) {
                   if (value == null || value.length < 4) {
-                    return 'PIN must be exactly 4 digits';
+                    return l10n.pinLengthError;
                   }
                   return null;
                 },
@@ -55,11 +58,12 @@ Future<String?> showPinAuthDialog(BuildContext context) async {
         ),
         actions: [
           TextButton(
-            child: const Text('Cancel', style: TextStyle(color: Colors.grey)),
+            child:
+                Text(l10n.cancel, style: const TextStyle(color: Colors.grey)),
             onPressed: () => Navigator.of(context).pop(null),
           ),
           TextButton(
-            child: const Text('Send'),
+            child: Text(l10n.send),
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 Navigator.of(context).pop(pinController.text);

@@ -204,34 +204,32 @@ class BadgeMessageProvider {
     }
 
     if (usePin) {
-      bool isTransferred = false;
-      while (!isTransferred) {
-        RawDataTransferManager combinedManager = RawDataTransferManager(
-          pin: savedPin ?? '',
-          textData: data,
-        );
+      const maxAttempts = 3;
+      for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+        final combinedManager =
+            RawDataTransferManager(pin: savedPin ?? '', textData: data);
 
-        bool success = await transferData(combinedManager, context: context);
+        final success = await transferData(combinedManager, context: context);
 
         if (success) {
           savedPin = combinedManager.pin;
           isHardwareUnlocked = true;
-          isTransferred = true;
+          return;
+        }
+
+        savedPin = null;
+        isHardwareUnlocked = false;
+
+        if (combinedManager.cancelledByUser) {
           bleDialogController.update(
-              BleDialogStatus.success, l10n.transferSucceeded);
-        } else {
-          savedPin = null;
-          isHardwareUnlocked = false;
-
-          if (combinedManager.cancelledByUser) {
-            bleDialogController.update(
-                BleDialogStatus.error, l10n.transferCanceledByUser);
-            return;
-          }
-
+              BleDialogStatus.error, l10n.transferCanceledByUser);
+          return;
+        }
+        if (attempt < maxAttempts) {
           await Future.delayed(const Duration(milliseconds: 1500));
         }
       }
+      bleDialogController.update(BleDialogStatus.error, l10n.transferFailed);
       return;
     }
 
