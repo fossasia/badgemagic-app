@@ -33,7 +33,10 @@ import 'package:badgemagic/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart';
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
+import 'package:badgemagic/communication/datagenerator.dart';
+import 'package:badgemagic/models/mode.dart';
 import 'package:badgemagic/badge_animation/ani_gif.dart';
+import 'package:badgemagic/others/custom_transfers/gif_transfer.dart';
 
 Map<int, BadgeAnimation?> animationMap = {
   0: LeftAnimation(),
@@ -292,40 +295,44 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required BuildContext context,
   }) async {
     final int selectedSpeed = speedDialProvider.getOuterValue();
+    Future<void> sink(DataTransferManager manager) =>
+        badgeData.transferData(manager, context: context);
+
     if (isGifActive) {
-      await transferGifAnimation(badgeData, _gifFrames!, selectedSpeed);
+      await customTransferGifAnimation(sink, _gifFrames!, selectedSpeed);
       return;
     }
     final int aniIndex = getAnimationIndex() ?? 0;
     if (aniIndex == 9) {
-      await transferPacmanAnimation(badgeData, selectedSpeed);
+      await transferPacmanAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 10) {
-      await transferChevronAnimation(badgeData, selectedSpeed);
+      await transferChevronAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 11) {
-      await transferDiamondAnimation(badgeData, selectedSpeed);
+      await transferDiamondAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 12) {
-      await transferBrokenHeartsAnimation(badgeData, selectedSpeed);
+      await transferBrokenHeartsAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 13) {
-      await transferCupidAnimation(badgeData, selectedSpeed);
+      await transferCupidAnimation(badgeData, selectedSpeed, sink: sink);
       setAnimationMode(CupidAnimation());
       _animationIndex = 0;
       if (_timer == null || !_timer!.isActive) startTimer();
     } else if (aniIndex == 14) {
-      await transferFeetAnimation(badgeData, selectedSpeed);
+      await transferFeetAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 15) {
-      await transferFishAnimation(badgeData, selectedSpeed);
+      await transferFishAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 16) {
-      await transferDiagonalAnimation(badgeData, selectedSpeed);
+      await transferDiagonalAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 17) {
-      await transferEmergencyAnimation(badgeData, selectedSpeed);
+      await transferEmergencyAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 18) {
-      await transferBeatingHeartsAnimation(badgeData, selectedSpeed);
+      await transferBeatingHeartsAnimation(badgeData, selectedSpeed,
+          sink: sink);
     } else if (aniIndex == 19) {
-      await transferFireworksAnimation(badgeData, selectedSpeed);
+      await transferFireworksAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 20) {
-      await transferEqualizerAnimation(badgeData, selectedSpeed);
+      await transferEqualizerAnimation(badgeData, selectedSpeed, sink: sink);
     } else if (aniIndex == 21) {
-      await transferCycleAnimation(badgeData, selectedSpeed);
+      await transferCycleAnimation(badgeData, selectedSpeed, sink: sink);
     } else {
       await badgeData.checkAndTransfer(
         inlineImageProvider.getController().text,
@@ -339,5 +346,121 @@ class AnimationBadgeProvider extends ChangeNotifier {
         context,
       );
     }
+  }
+
+  Future<List<int>?> generateLegacyPayload({
+    required String text,
+    required bool flash,
+    required bool marquee,
+    required bool invert,
+    required int speed,
+    required BadgeMessageProvider badgeData,
+  }) async {
+    if (text.trim().isEmpty) return null;
+
+    try {
+      final dataObj = await badgeData.generateData(
+        text,
+        flash,
+        marquee,
+        invert,
+        speedMap[speed],
+        _currentAnimation == LeftAnimation()
+            ? Mode.left
+            : modeValueMap[getAnimationIndex() ?? 0],
+        null,
+      );
+
+      final transferManager = DataTransferManager(dataObj);
+
+      final List<List<int>> chunks = await transferManager.generateDataChunk();
+
+      if (chunks.isEmpty) {
+        debugPrint("Error: Native converter returned empty chunks.");
+        return null;
+      }
+
+      final List<int> flatPayload = chunks.expand((chunk) => chunk).toList();
+
+      debugPrint(
+          "USB payload generated via native converter. Size: ${flatPayload.length} bytes.");
+      return flatPayload;
+    } catch (e, stack) {
+      debugPrint(
+          "Error during payload generation with native converter: $e\n$stack");
+      return null;
+    }
+  }
+
+  Future<List<int>?> generateAnimationUsbPayload(
+    BadgeMessageProvider badgeData,
+    int speedLevel,
+  ) async {
+    List<int>? payload;
+    Future<void> capture(DataTransferManager manager) async {
+      final chunks = await manager.generateDataChunk();
+      if (chunks.isNotEmpty) {
+        payload = chunks.expand((chunk) => chunk).toList();
+      }
+    }
+
+    final int aniIndex = getAnimationIndex() ?? 0;
+    switch (aniIndex) {
+      case 9:
+        await transferPacmanAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 10:
+        await transferChevronAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 11:
+        await transferDiamondAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 12:
+        await transferBrokenHeartsAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 13:
+        await transferCupidAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 14:
+        await transferFeetAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 15:
+        await transferFishAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 16:
+        await transferDiagonalAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 17:
+        await transferEmergencyAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 18:
+        await transferBeatingHeartsAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 19:
+        await transferFireworksAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 20:
+        await transferEqualizerAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      case 21:
+        await transferCycleAnimation(badgeData, speedLevel,
+            sink: capture, skipAdapterCheck: true);
+        break;
+      default:
+        return null;
+    }
+    return payload;
   }
 }

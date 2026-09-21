@@ -4,8 +4,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferCupidAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   final int logicalFrameCount =
       CupidAnimation.frameCount(animationBadgeWidth, animationBadgeHeight);
 
@@ -27,5 +28,6 @@ Future<void> customTransferCupidAnimation(
     label: 'Cupid',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }

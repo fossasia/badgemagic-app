@@ -18,6 +18,7 @@ import '../others/globals.dart';
 import '../others/localization_service.dart';
 import '../providers/badge_scan_provider.dart';
 import '../providers/firmware_update.dart';
+import '../providers/usb_transfer_provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -35,6 +36,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   late SharedPreferences prefs;
   bool autoCheck = false;
   bool _initialized = false;
+  bool _isUsbTransferEnabled = false;
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
   bool _isSecureConnectionEnabled = false;
   final WchUsbIspFlasher _flasher = WchUsbIspFlasher();
@@ -51,6 +53,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     super.initState();
     _setOrientation();
     _loadSecureConnectionSetting();
+    _loadUsbSetting();
     initAutocheckFirmwareUpdate();
   }
 
@@ -77,6 +80,20 @@ class SettingsScreenState extends State<SettingsScreen> {
       _isSecureConnectionEnabled =
           prefs.getBool('secure_connection_pin') ?? false;
     });
+  }
+
+  Future<void> _loadUsbSetting() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _isUsbTransferEnabled =
+          prefs.getBool('usb_transfer_enabled') ?? !Platform.isLinux;
+    });
+  }
+
+  Future<void> _saveUsbSetting(bool value) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool('usb_transfer_enabled', value);
   }
 
   Future<void> _handleManualUpdateCheck() async {
@@ -343,6 +360,63 @@ class SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 const SizedBox(height: 16),
+                if (Platform.isLinux)
+                  Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    child: const ListTile(
+                      title: Text(
+                        "Enable USB Transfers",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text(
+                        "sending badge data via OTG USB cable will be soon available on Linux",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                    ),
+                  )
+                else
+                  Card(
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                      side: BorderSide(color: Colors.grey.shade300),
+                    ),
+                    child: SwitchListTile(
+                      title: const Text(
+                        "Enable USB Transfers",
+                        style: TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: const Text(
+                        "Allows sending badge data via OTG USB cable in addition to Bluetooth.",
+                        style: TextStyle(fontSize: 12),
+                      ),
+                      activeColor: colorAccent,
+                      value: _isUsbTransferEnabled,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _isUsbTransferEnabled = value;
+                        });
+                        _saveUsbSetting(value);
+                        final usbProvider = context.read<UsbTransferProvider>();
+                        if (value) {
+                          usbProvider.startUsbMonitoring();
+                        } else {
+                          usbProvider.stopUsbMonitoring();
+                        }
+                      },
+                    ),
+                  ),
+                const SizedBox(height: 24),
                 const Divider(),
                 const SizedBox(height: 12),
                 Text(

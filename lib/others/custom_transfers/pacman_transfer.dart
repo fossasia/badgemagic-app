@@ -4,8 +4,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferPacmanAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   const int pacmanRadius = 4;
   const int foodRadius = 1;
   const int numBlocks = 3;
@@ -127,6 +128,7 @@ Future<void> customTransferPacmanAnimation(
     label: 'Pacman',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }
 
