@@ -22,6 +22,8 @@ class WriteState extends NormalBleState {
   static const Duration _retryDelay = Duration(milliseconds: 200);
   static const Duration _chunkDelay = Duration(milliseconds: 120);
   static const Duration _initialDelay = Duration(milliseconds: 300);
+  static const Duration _disconnectTimeout = Duration(seconds: 2);
+  static const Duration _postDisconnectDelay = Duration(milliseconds: 500);
 
   bool verifiedNextGen = false;
 
@@ -54,7 +56,7 @@ class WriteState extends NormalBleState {
     const double smoothingStep = 0.01;
     const Duration tickInterval = Duration(milliseconds: 16);
 
-    Timer.periodic(tickInterval, (_) {
+    final Timer progressTimer = Timer.periodic(tickInterval, (_) {
       if (displayedProgress < targetProgress) {
         displayedProgress =
             (displayedProgress + smoothingStep).clamp(0.0, targetProgress);
@@ -111,7 +113,7 @@ class WriteState extends NormalBleState {
 
       return CompletedState(
         isSuccess: true,
-        message: "Data transferred successfully",
+        message: l10n.transferSucceeded,
         isNextGen: verifiedNextGen,
       );
     } catch (e) {
@@ -124,6 +126,8 @@ class WriteState extends NormalBleState {
       }
       rethrow;
     } finally {
+      progressTimer.cancel();
+      await _safeDisconnect(deviceId);
       if (!verifiedNextGen) {
         try {
           logger.d("Disconnecting from legacy device after write...");
@@ -189,5 +193,18 @@ class WriteState extends NormalBleState {
       }
     }
     throw Exception(l10n.transferFailed);
+  }
+
+  Future<void> _safeDisconnect(String deviceId) async {
+    try {
+      logger.d("Disconnecting from device...");
+
+      await UniversalBle.disconnect(deviceId).timeout(_disconnectTimeout);
+
+      await Future.delayed(_postDisconnectDelay);
+      logger.d("Device disconnected successfully.");
+    } catch (e) {
+      logger.w("Disconnect warning (non-critical): $e");
+    }
   }
 }
