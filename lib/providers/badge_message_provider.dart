@@ -62,10 +62,6 @@ class BadgeMessageProvider {
   bool isHardwareUnlocked = false;
   String? savedPin;
 
-  void resetSessionAuth() {
-    isHardwareUnlocked = false;
-  }
-
   Future<Data> getBadgeData(String text, bool flash, bool marq, Speed speed,
       Mode mode, bool isInverted) async {
     List<String> message = await converters.messageTohex(text, isInverted);
