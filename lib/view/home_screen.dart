@@ -811,8 +811,6 @@ class _HomeScreenState extends State<HomeScreen>
                               if (isUsbEnabled) {
                                 _showTransferBottomSheet(context);
                               } else {
-                                _showBleTransferDialog(
-                                    context, inlineImageProvider);
                                 final finalState = await _showBleTransferDialog(
                                     context, inlineImageProvider);
                                 if (finalState != null &&

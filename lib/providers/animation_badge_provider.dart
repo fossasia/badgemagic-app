@@ -350,6 +350,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
     if (isGifActive) {
       await customTransferGifAnimation(sink, _gifFrames!, selectedSpeed);
+      return null;
     }
     final int aniIndex = getAnimationIndex() ?? 0;
     if (aniIndex == 9) {
