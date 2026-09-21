@@ -629,6 +629,8 @@ class _HomeScreenState extends State<HomeScreen>
                                                           12.r)),
                                             ),
                                             onPressed: () async {
+                                              animationProvider
+                                                  .setNgConnected(false);
                                               await animationProvider
                                                   .stopLiveStreaming();
                                               await sendNgCmd(
@@ -636,8 +638,6 @@ class _HomeScreenState extends State<HomeScreen>
                                                   "Power Off sent");
                                               await UniversalBle.disconnect(
                                                   device.deviceId);
-                                              animationProvider
-                                                  .setNgConnected(false);
                                             },
                                             icon: const Icon(
                                                 Icons.power_settings_new),
@@ -670,12 +670,12 @@ class _HomeScreenState extends State<HomeScreen>
                                                           12.r)),
                                             ),
                                             onPressed: () async {
+                                              animationProvider
+                                                  .setNgConnected(false);
                                               await animationProvider
                                                   .stopLiveStreaming();
                                               await UniversalBle.disconnect(
                                                   device.deviceId);
-                                              animationProvider
-                                                  .setNgConnected(false);
                                               ToastUtils()
                                                   .showToast(l10n.disconnected);
                                             },
