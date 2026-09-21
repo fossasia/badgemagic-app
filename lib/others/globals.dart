@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 final scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
 
@@ -8,3 +9,12 @@ final String characteristicUuid = "0000fee1-0000-1000-8000-00805f9b34fb";
 const String ngServiceUuid = "0000f055-0000-1000-8000-00805f9b34fb";
 const String ngWriteCharUuid = "0000f057-0000-1000-8000-00805f9b34fb";
 const String ngNotifyCharUuid = "0000f056-0000-1000-8000-00805f9b34fb";
+Future<bool> autocheckFirmwareUpdates() async {
+  final prefs = await SharedPreferences.getInstance();
+  bool? check = prefs.getBool('auto_check_updates');
+  if (check == null) {
+    prefs.setBool('auto_check_updates', false);
+    check = false;
+  }
+  return check;
+}

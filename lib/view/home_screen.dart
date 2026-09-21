@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 import 'dart:math' as math;
 
 import 'package:badgemagic/communication/completed_state.dart';
@@ -6,6 +7,7 @@ import 'package:badgemagic/communication/ng_command_state.dart';
 import 'package:badgemagic/models/speed.dart';
 import 'package:badgemagic/storage/badge_loader_helper.dart';
 import 'package:badgemagic/others/converters.dart';
+import 'package:badgemagic/others/globals.dart';
 import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/badge_effect/flash_effect.dart';
@@ -17,15 +19,19 @@ import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
 import 'package:badgemagic/providers/badge_scan_provider.dart';
+import 'package:badgemagic/providers/firmware_update.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/next_gen_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/view/widgets/badge_clipart_picker.dart';
+import 'package:badgemagic/view/widgets/vector_view.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
+import 'package:badgemagic/view/widgets/gifview.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_view.dart';
 import 'package:badgemagic/view/widgets/badge_text_input_field.dart';
+import 'package:badgemagic/view/widgets/firmware_update_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
@@ -38,6 +44,8 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
+
+import '../providers/usb_transfer_provider.dart';
 
 class HomeScreen extends StatefulWidget {
   final String? savedBadgeFilename;
@@ -65,21 +73,28 @@ class _HomeScreenState extends State<HomeScreen>
   final TextEditingController inlineImageController =
       GetIt.instance.get<InlineImageProvider>().getController();
 
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
   final Converters _converters = Converters();
+  final GlobalKey _textFieldKey = GlobalKey();
 
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
+  bool _showGifs = false;
+  String? _selectedGifPath;
   String previousText = '';
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
+  late final ScrollController _gifScrollController;
 
   static const _textKey = 'badge_text';
   static const _speedKey = 'badge_speed';
   static const _transitionKey = 'badge_transition';
   static const _effectsKey = 'badge_effects';
+  bool _hasCheckedThisSession = false;
 
   Timer? _debounceTimer;
 
@@ -87,6 +102,7 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     _vectorScrollController = ScrollController();
+    _gifScrollController = ScrollController();
     WidgetsBinding.instance.addObserver(this);
     inlineImageController.addListener(handleTextChange);
     _setPortraitOrientation();
@@ -97,6 +113,13 @@ class _HomeScreenState extends State<HomeScreen>
       await _startImageCaching();
       await loadPreferences();
 
+      final usbPrefs = await SharedPreferences.getInstance();
+      if ((usbPrefs.getBool('usb_transfer_enabled') ?? !Platform.isLinux) &&
+          mounted) {
+        await context.read<UsbTransferProvider>().startUsbMonitoring();
+      }
+
+      if (!mounted) return;
       inlineImageProvider.setContext(context);
 
       if (widget.savedBadgeFilename != null) {
@@ -108,6 +131,39 @@ class _HomeScreenState extends State<HomeScreen>
       speedDialProvider.addListener(_debouncedSavePreferences);
     });
     _tabController = TabController(length: 4, vsync: this);
+
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      _initiateFirmwareCheck();
+    });
+  }
+
+  Future<void> _initiateFirmwareCheck() async {
+    final flasher = WchUsbIspFlasher();
+    final updateInfo = await flasher.checkForUpdates();
+    final prefs = await SharedPreferences.getInstance();
+    var version = updateInfo?['version'];
+    final bool shouldSkip =
+        prefs.getBool('skip_firmware_version_$version') ?? false;
+    bool autoCheck = await autocheckFirmwareUpdates();
+
+    if (autoCheck &&
+        updateInfo != null &&
+        mounted &&
+        !shouldSkip &&
+        !_hasCheckedThisSession) {
+      _hasCheckedThisSession = true;
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return FirmwareUpdateDialog(
+            version: updateInfo['version']!,
+            date: updateInfo['date']!,
+            releaseAssets: updateInfo['assets'] ?? [],
+          );
+        },
+      );
+    }
   }
 
   Future<void> loadPreferences() async {
@@ -211,10 +267,10 @@ class _HomeScreenState extends State<HomeScreen>
       }
 
       ToastUtils().showToast(
-          "Editing badge: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
+          "${l10n.editingBadge}: ${badgeFilename.substring(0, badgeFilename.length - 5)}");
     } catch (e, st) {
       debugPrint("Failed to load badge data: $e\n$st");
-      ToastUtils().showToast("Failed to load badge data");
+      ToastUtils().showToast(l10n.failedToLoadBadgeData);
     }
   }
 
@@ -238,6 +294,7 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     _debounceTimer?.cancel();
     _vectorScrollController.dispose();
+    _gifScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineImageController.removeListener(handleTextChange);
     inlineImageController.removeListener(_debouncedSavePreferences);
@@ -269,6 +326,84 @@ class _HomeScreenState extends State<HomeScreen>
     }
   }
 
+  Widget _buildClipartToggle() {
+    Widget segment(
+        String label, IconData icon, bool selected, VoidCallback onTap) {
+      return Expanded(
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 180),
+            padding: EdgeInsets.symmetric(vertical: 6.h),
+            decoration: BoxDecoration(
+              color: selected ? colorPrimary : Colors.transparent,
+              borderRadius: BorderRadius.circular(20.r),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(icon,
+                    size: 15.sp, color: selected ? Colors.white : mdGrey400),
+                SizedBox(width: 5.w),
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontSize: 12.sp,
+                    fontWeight: FontWeight.w600,
+                    color: selected ? Colors.white : mdGrey400,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
+    return Container(
+      padding: EdgeInsets.all(3.w),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(20.r),
+      ),
+      child: Row(
+        children: [
+          segment('Cliparts', Icons.emoji_symbols_rounded, !_showGifs, () {
+            if (_showGifs) setState(() => _showGifs = false);
+          }),
+          segment('GIFs', Icons.gif_box_rounded, _showGifs, () {
+            if (!_showGifs) setState(() => _showGifs = true);
+          }),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _handleGifSelected(String assetPath) async {
+    if (_selectedGifPath == assetPath && animationProvider.isGifActive) {
+      animationProvider.stopAllAnimations();
+      animationProvider.badgeAnimation(
+        inlineImageController.text,
+        _converters,
+        animationProvider.isEffectActive(InvertLEDEffect()),
+      );
+      setState(() => _selectedGifPath = null);
+      return;
+    }
+    try {
+      final ByteData bytes = await rootBundle.load(assetPath);
+      final frames = imageUtils.decodeGifFramesToBool(
+        bytes.buffer.asUint8List(),
+      );
+      if (frames.isEmpty) return;
+      animationProvider.playGif(frames);
+      setState(() => _selectedGifPath = assetPath);
+    } catch (e) {
+      debugPrint('Failed to load GIF: $assetPath -> $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
@@ -278,7 +413,6 @@ class _HomeScreenState extends State<HomeScreen>
     return ValueListenableBuilder<Locale?>(
       valueListenable: appLocale,
       builder: (context, _, __) {
-        final l10n = GetIt.instance.get<LocalizationService>().l10n;
         return DefaultTabController(
           length: 4,
           child: CommonScaffold(
@@ -289,6 +423,8 @@ class _HomeScreenState extends State<HomeScreen>
               child: LayoutBuilder(
                 builder: (context, layoutConstraints) {
                   final bool isPhone = layoutConstraints.maxWidth < 600;
+                  final bool isHeightConstrained =
+                      layoutConstraints.maxHeight < 650;
 
                   final badgePreview = Center(
                     child: ConstrainedBox(
@@ -298,6 +434,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   );
                   final textField = BadgeTextInputField(
+                    key: _textFieldKey,
                     controller: inlineImageController,
                     onPrefixToggle: () {
                       setState(() {
@@ -312,9 +449,54 @@ class _HomeScreenState extends State<HomeScreen>
                       );
                     },
                   );
-                  final clipartPicker = BadgeClipartPicker(
-                    visible: isPrefixIconClicked,
-                    controller: _vectorScrollController,
+                  final clipartPicker = AnimatedSize(
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    child: Visibility(
+                      visible: isPrefixIconClicked,
+                      child: Container(
+                        height: isPrefixIconClicked ? 225.h : 0,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(10.r),
+                          color: colorSurfaceMuted,
+                        ),
+                        margin: EdgeInsets.symmetric(
+                            horizontal: 15.w, vertical: 8.h),
+                        padding: EdgeInsets.symmetric(
+                            vertical: 10.h, horizontal: 10.w),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _buildClipartToggle(),
+                            SizedBox(height: 6.h),
+                            Expanded(
+                              child: _showGifs
+                                  ? Scrollbar(
+                                      controller: _gifScrollController,
+                                      thumbVisibility: true,
+                                      trackVisibility: true,
+                                      thickness: 4.0,
+                                      radius: const Radius.circular(10),
+                                      child: GifGridView(
+                                        controller: _gifScrollController,
+                                        onGifSelected: _handleGifSelected,
+                                        selectedPath: _selectedGifPath,
+                                      ),
+                                    )
+                                  : Scrollbar(
+                                      controller: _vectorScrollController,
+                                      thumbVisibility: true,
+                                      trackVisibility: true,
+                                      thickness: 4.0,
+                                      radius: const Radius.circular(10),
+                                      child: VectorGridView(
+                                          controller: _vectorScrollController),
+                                    ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
                   );
                   final tabBar = BadgeControlTabBar(
                     controller: _tabController,
@@ -327,7 +509,6 @@ class _HomeScreenState extends State<HomeScreen>
                       });
                     },
                   );
-
                   Widget actionButton({
                     required String label,
                     required bool primary,
@@ -622,7 +803,20 @@ class _HomeScreenState extends State<HomeScreen>
                             label: l10n.transferButton,
                             primary: true,
                             onTap: () async {
-                              final finalState = await _showBleTransferDialog(
+                              final prefs =
+                                  await SharedPreferences.getInstance();
+                              final isUsbEnabled =
+                                  prefs.getBool('usb_transfer_enabled') ??
+                                      !Platform.isLinux;
+
+                              if (!context.mounted) return;
+
+                              if (isUsbEnabled) {
+                                _showTransferBottomSheet(context);
+                              } else {
+                                _showBleTransferDialog(
+                                    context, inlineImageProvider);
+                                    final finalState = await _showBleTransferDialog(
                                   context, inlineImageProvider);
                               if (finalState != null &&
                                   finalState.isSuccess &&
@@ -631,6 +825,7 @@ class _HomeScreenState extends State<HomeScreen>
                                     manager: badgeData.deviceManager,
                                     device: badgeData
                                         .deviceManager?.connectedDevice);
+                              }
                               }
                             },
                           ),
@@ -644,7 +839,7 @@ class _HomeScreenState extends State<HomeScreen>
                     child: actionButtons,
                   );
 
-                  if (isPhone) {
+                  if (isPhone && !isHeightConstrained) {
                     return Column(
                       children: [
                         badgePreview,
@@ -693,8 +888,9 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _handleSave() async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     if (inlineImageController.text.trim().isEmpty) {
-      ToastUtils().showToast("Please enter a message");
+      ToastUtils().showToast(l10n.pleaseEnterMessage);
       return;
     }
 
@@ -715,7 +911,7 @@ class _HomeScreenState extends State<HomeScreen>
         animationProvider.getAnimationIndex() ?? 1,
       );
 
-      ToastUtils().showToast("Badge Updated Successfully");
+      ToastUtils().showToast(l10n.badgeUpdatedSuccessfully);
       if (!mounted) return;
       Navigator.pushNamedAndRemoveUntil(
         context,
@@ -784,7 +980,7 @@ class _HomeScreenState extends State<HomeScreen>
     } catch (error) {
       bleDialogController.update(
         BleDialogStatus.error,
-        "An unexpected error\noccurred.",
+        l10n.unknownError,
       );
       await Future.delayed(const Duration(milliseconds: 2000));
       if (context.mounted) {
@@ -792,6 +988,186 @@ class _HomeScreenState extends State<HomeScreen>
       }
     }
     return null;
+  }
+
+  Future<void> _sendViaUsb(UsbTransferProvider usbProvider) async {
+    final int aniIndex = animationProvider.getAnimationIndex() ?? 0;
+
+    List<int>? generatedData;
+    if (aniIndex >= 9) {
+      generatedData = await animationProvider.generateAnimationUsbPayload(
+        badgeData,
+        speedDialProvider.getOuterValue(),
+      );
+      if (generatedData == null || generatedData.isEmpty) {
+        ToastUtils().showErrorToast("Could not generate animation data.");
+        return;
+      }
+    } else {
+      generatedData = await animationProvider.generateLegacyPayload(
+        text: inlineImageController.text,
+        flash: animationProvider.isEffectActive(FlashEffect()),
+        marquee: animationProvider.isEffectActive(MarqueeEffect()),
+        invert: animationProvider.isEffectActive(InvertLEDEffect()),
+        speed: speedDialProvider.getOuterValue(),
+        badgeData: badgeData,
+      );
+      if (generatedData == null || generatedData.isEmpty) {
+        ToastUtils().showErrorToast("Please enter a message to transfer.");
+        return;
+      }
+    }
+
+    try {
+      ToastUtils().showToast("Searching for USB badge...");
+      bool connected = false;
+      const int maxAttempts = 40;
+      for (int attempt = 0; attempt < maxAttempts; attempt++) {
+        connected = await usbProvider.connectHid(silent: true);
+        if (connected) break;
+        if (attempt < maxAttempts - 1) {
+          await Future.delayed(const Duration(milliseconds: 300));
+        }
+      }
+
+      if (!connected) {
+        ToastUtils().showErrorToast(
+            "No USB badge found. Check the cable and try again.");
+        return;
+      }
+
+      final success = await usbProvider.writeBytes(generatedData, silent: true);
+      if (success) {
+        ToastUtils().showToast("USB transfer success!");
+      } else {
+        ToastUtils().showErrorToast("USB transfer failed. Try again.");
+      }
+    } catch (e) {
+      debugPrint("Error USB: $e");
+      ToastUtils().showErrorToast("Error USB transfer");
+    }
+  }
+
+  void _showTransferBottomSheet(BuildContext context) {
+    FocusManager.instance.primaryFocus?.unfocus();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.white,
+      isScrollControlled: true,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+      ),
+      builder: (bottomSheetContext) {
+        return SafeArea(
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: 20.h,
+                bottom:
+                    MediaQuery.of(bottomSheetContext).viewInsets.bottom + 20.h,
+                left: 16.w,
+                right: 16.w,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Container(
+                    width: 40.w,
+                    height: 4.h,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[300],
+                      borderRadius: BorderRadius.circular(2.r),
+                    ),
+                  ),
+                  SizedBox(height: 16.h),
+                  Text(
+                    "Choose Transfer Method",
+                    style: TextStyle(
+                      fontSize: 16.sp,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black87,
+                    ),
+                  ),
+                  SizedBox(height: 20.h),
+                  Consumer<UsbTransferProvider>(
+                    builder: (context, usbProvider, _) {
+                      Widget option({
+                        required String label,
+                        required IconData icon,
+                        required Color color,
+                        required Future<void> Function() onTap,
+                      }) {
+                        return Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            GestureDetector(
+                              onTap: onTap,
+                              child: Container(
+                                width: 56.w,
+                                height: 56.w,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: color.withOpacity(0.1),
+                                  border: Border.all(color: color, width: 2),
+                                ),
+                                child: Icon(icon, size: 24.w, color: color),
+                              ),
+                            ),
+                            SizedBox(height: 6.h),
+                            Text(
+                              label,
+                              style: TextStyle(
+                                fontSize: 12.sp,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        );
+                      }
+
+                      final bool supportsUsb = Platform.isAndroid ||
+                          Platform.isWindows ||
+                          Platform.isLinux ||
+                          Platform.isMacOS;
+
+                      return Wrap(
+                        alignment: WrapAlignment.center,
+                        spacing: 24.w,
+                        runSpacing: 16.h,
+                        children: [
+                          option(
+                            label: "Bluetooth",
+                            icon: Icons.bluetooth,
+                            color: colorAccent,
+                            onTap: () async {
+                              Navigator.pop(bottomSheetContext);
+                              _showBleTransferDialog(
+                                  context, inlineImageProvider);
+                            },
+                          ),
+                          if (supportsUsb)
+                            option(
+                              label: "USB HID",
+                              icon: Icons.usb,
+                              color: colorAccent,
+                              onTap: () async {
+                                Navigator.pop(bottomSheetContext);
+                                await _sendViaUsb(usbProvider);
+                              },
+                            ),
+                        ],
+                      );
+                    },
+                  ),
+                  SizedBox(height: 8.h),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void _debouncedSavePreferences() {
@@ -971,6 +1347,9 @@ class _HomeScreenState extends State<HomeScreen>
     final currentText = inlineImageController.text;
 
     if (currentText != previousText) {
+      if (currentText.isNotEmpty && _selectedGifPath != null) {
+        _selectedGifPath = null;
+      }
       if (animationProvider.isSpecialAnimationSelected() &&
           currentText.isNotEmpty) {
         animationProvider.resetToTextAnimation();

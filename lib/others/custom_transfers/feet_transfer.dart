@@ -4,8 +4,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferFeetAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   const int badgeHeight = FeetAnimation.badgeHeight;
   const int badgeWidth = FeetAnimation.badgeWidth;
   final feetAnimation = FeetAnimation();
@@ -31,5 +32,6 @@ Future<void> customTransferFeetAnimation(
     label: 'Feet',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }

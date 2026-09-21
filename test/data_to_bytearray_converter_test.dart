@@ -210,11 +210,8 @@ void main() {
 
     List<List<int>> result = converter.convert(data);
 
-    expect([
-      toHex(result[3].sublist(14, 16) + result[4] + result[5].sublist(0, 15))
-    ], [
-      "00386CC6C6FEC6C6C6C60000FC6666667C666666FC00007CC6C6C0C0C0C6C67C00"
-    ]);
+    expect([toHex(result[4] + result[5] + result[6].sublist(0, 1))],
+        ["00386CC6C6FEC6C6C6C60000FC6666667C666666FC00007CC6C6C0C0C0C6C67C00"]);
   });
 
   test('each packet should contain 16 bytes', () async {

@@ -1,3 +1,4 @@
+// ignore_for_file: deprecated_member_use
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:flutter/material.dart';
@@ -78,17 +79,23 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
           ),
           body: Column(
             children: [
-              RadioListTile<BadgeScanMode>(
+              ListTile(
                 title: const Text('Connect to any badge'),
-                value: BadgeScanMode.any,
-                groupValue: _mode,
-                onChanged: (val) => setState(() => _mode = val!),
+                leading: Radio<BadgeScanMode>(
+                  value: BadgeScanMode.any,
+                  groupValue: _mode,
+                  onChanged: (val) => setState(() => _mode = val!),
+                ),
+                onTap: () => setState(() => _mode = BadgeScanMode.any),
               ),
-              RadioListTile<BadgeScanMode>(
+              ListTile(
                 title: const Text('Connect to badges with the following names'),
-                value: BadgeScanMode.specific,
-                groupValue: _mode,
-                onChanged: (val) => setState(() => _mode = val!),
+                leading: Radio<BadgeScanMode>(
+                  value: BadgeScanMode.specific,
+                  groupValue: _mode,
+                  onChanged: (val) => setState(() => _mode = val!),
+                ),
+                onTap: () => setState(() => _mode = BadgeScanMode.specific),
               ),
               if (_mode == BadgeScanMode.specific) ...[
                 if (_controllers.isNotEmpty)
