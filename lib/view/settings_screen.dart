@@ -314,17 +314,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     });
                   },
                 ),
-                const SizedBox(height: 24),
-                Text(l10n.badgeScanMode,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                RadioListTile<BadgeScanMode>(
-                  title: Text(l10n.connectToAnyBadge),
-                  value: BadgeScanMode.any,
-                  groupValue: _scanMode,
-                  onChanged: (value) => setState(() => _scanMode = value!),
-                ),
                 if (Platform.isLinux)
                   Card(
                     elevation: 0,

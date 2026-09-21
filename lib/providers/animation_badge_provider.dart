@@ -345,12 +345,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
     required BuildContext context,
   }) async {
     final int selectedSpeed = speedDialProvider.getOuterValue();
+    CompletedState? transferResult;
     Future<void> sink(DataTransferManager manager) =>
         badgeData.transferData(manager, context: context);
 
     if (isGifActive) {
       await customTransferGifAnimation(sink, _gifFrames!, selectedSpeed);
-      return;
     }
     final int aniIndex = getAnimationIndex() ?? 0;
     if (aniIndex == 9) {

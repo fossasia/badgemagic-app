@@ -25,7 +25,6 @@ import 'package:badgemagic/providers/next_gen_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
-import 'package:badgemagic/view/widgets/badge_clipart_picker.dart';
 import 'package:badgemagic/view/widgets/vector_view.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
 import 'package:badgemagic/view/widgets/gifview.dart';
@@ -77,8 +76,6 @@ class _HomeScreenState extends State<HomeScreen>
 
   final Converters _converters = Converters();
   final GlobalKey _textFieldKey = GlobalKey();
-
-  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
