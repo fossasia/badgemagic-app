@@ -816,16 +816,16 @@ class _HomeScreenState extends State<HomeScreen>
                               } else {
                                 _showBleTransferDialog(
                                     context, inlineImageProvider);
-                                    final finalState = await _showBleTransferDialog(
-                                  context, inlineImageProvider);
-                              if (finalState != null &&
-                                  finalState.isSuccess &&
-                                  finalState.isNextGen) {
-                                animationProvider.setNgConnected(true,
-                                    manager: badgeData.deviceManager,
-                                    device: badgeData
-                                        .deviceManager?.connectedDevice);
-                              }
+                                final finalState = await _showBleTransferDialog(
+                                    context, inlineImageProvider);
+                                if (finalState != null &&
+                                    finalState.isSuccess &&
+                                    finalState.isNextGen) {
+                                  animationProvider.setNgConnected(true,
+                                      manager: badgeData.deviceManager,
+                                      device: badgeData
+                                          .deviceManager?.connectedDevice);
+                                }
                               }
                             },
                           ),

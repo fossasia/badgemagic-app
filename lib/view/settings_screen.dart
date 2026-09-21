@@ -324,7 +324,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   value: BadgeScanMode.any,
                   groupValue: _scanMode,
                   onChanged: (value) => setState(() => _scanMode = value!),
-                  ),
+                ),
                 if (Platform.isLinux)
                   Card(
                     elevation: 0,
