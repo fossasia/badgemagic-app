@@ -202,6 +202,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
   @override
   void dispose() {
     _timer?.cancel();
+    _cancelNgConnectionSubscription();
+    _ngNotifySubscription?.cancel();
+    _ngNotifySubscription = null;
+    if (_frameAckCompleter != null && !_frameAckCompleter!.isCompleted) {
+      _frameAckCompleter!.completeError("Provider disposed");
+    }
     super.dispose();
   }
 
@@ -247,6 +253,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
   }
 
   StreamSubscription<Uint8List>? _ngNotifySubscription;
+  StreamSubscription<dynamic>? _ngConnectionSubscription;
   Completer<void>? _frameAckCompleter;
 
   bool _isNgConnected = false;
@@ -267,16 +274,75 @@ class AnimationBadgeProvider extends ChangeNotifier {
   bool _isStreaming = false;
   bool get isStreaming => _isStreaming;
 
+  void _cancelNgConnectionSubscription() {
+    _ngConnectionSubscription?.cancel();
+    _ngConnectionSubscription = null;
+  }
+
+  void _handleUnexpectedNgDisconnect() {
+    logger.w("Next-Gen device disconnected unexpectedly.");
+    _cancelNgConnectionSubscription();
+
+    _ngNotifySubscription?.cancel();
+    _ngNotifySubscription = null;
+
+    if (_frameAckCompleter != null && !_frameAckCompleter!.isCompleted) {
+      _frameAckCompleter!.completeError("Device disconnected");
+    }
+
+    _isStreaming = false;
+    _isNgConnected = false;
+    _ngManager = null;
+    _ngDevice = null;
+
+    notifyListeners();
+  }
+
   void setNgConnected(bool connected,
       {DataTransferManager? manager, BleDevice? device}) {
-    _isNgConnected = connected;
-    if (connected) {
-      _ngManager = manager;
-      _ngDevice = device;
-      if (device != null && device.name != null && device.name!.isNotEmpty) {
-        _ngDeviceName = device.name!;
+    if (!connected) {
+      _cancelNgConnectionSubscription();
+      _ngNotifySubscription?.cancel();
+      _ngNotifySubscription = null;
+      if (_frameAckCompleter != null && !_frameAckCompleter!.isCompleted) {
+        _frameAckCompleter!.completeError("Connection closed");
       }
+      _isStreaming = false;
+      _isNgConnected = false;
+      _ngManager = null;
+      _ngDevice = null;
+      notifyListeners();
+      return;
     }
+
+    _isNgConnected = true;
+    _ngManager = manager;
+    _ngDevice = device;
+    if (device != null && device.name != null && device.name!.isNotEmpty) {
+      _ngDeviceName = device.name!;
+    }
+
+    _cancelNgConnectionSubscription();
+
+    if (device != null && device.deviceId.isNotEmpty) {
+      _ngConnectionSubscription =
+          UniversalBle.connectionStream(device.deviceId).listen(
+        (event) {
+          final bool isDisconnected = (event is bool && !event) ||
+              (event is BleConnectionState &&
+                  event == BleConnectionState.disconnected);
+
+          if (isDisconnected) {
+            _handleUnexpectedNgDisconnect();
+          }
+        },
+        onError: (e) {
+          logger.w("Error on connection stream: $e");
+          _handleUnexpectedNgDisconnect();
+        },
+      );
+    }
+
     notifyListeners();
   }
 
@@ -429,6 +495,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
           "Next-Gen Channel: Starting writing legacy packets on active link");
 
       for (List<int> chunk in dataChunks) {
+        if (!_isNgConnected) break;
         await UniversalBle.write(
           deviceId!,
           serviceUuid, // 0xFEE0
@@ -536,6 +603,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         await _frameAckCompleter!.future
             .timeout(const Duration(milliseconds: 150));
       } catch (e) {
+        if (!_isStreaming || !_isNgConnected) break;
         logger.w("Slow frame or missed notification timeout: $e");
       }
 
@@ -553,6 +621,10 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
     _ngNotifySubscription?.cancel();
     _ngNotifySubscription = null;
+
+    if (_frameAckCompleter != null && !_frameAckCompleter!.isCompleted) {
+      _frameAckCompleter!.completeError("Live streaming stopped");
+    }
 
     if (_ngDevice != null && _isNgConnected) {
       try {
