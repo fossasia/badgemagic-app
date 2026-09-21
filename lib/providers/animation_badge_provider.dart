@@ -39,7 +39,6 @@ import 'package:flutter/material.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart';
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
 import 'package:universal_ble/universal_ble.dart';
-import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/models/mode.dart';
 import 'package:badgemagic/badge_animation/ani_gif.dart';
 import 'package:badgemagic/others/custom_transfers/gif_transfer.dart';

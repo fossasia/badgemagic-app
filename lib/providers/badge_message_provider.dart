@@ -197,7 +197,7 @@ class BadgeMessageProvider {
 
     DataTransferManager manager = DataTransferManager(data);
     if (!context.mounted) return null;
-    await transferData(manager, context: context);
+    return await transferData(manager, context: context);
   }
 }
 
