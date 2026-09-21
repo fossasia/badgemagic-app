@@ -299,5 +299,9 @@
   "cropFree": "Crop Free",
   "undo": "Undo",
   "redo": "Redo",
-  "imageImportedSuccessfully": "Image imported successfully!"
+  "imageImportedSuccessfully": "Image imported successfully!",
+  "enableUsbTransfers": "Enable USB Transfers",
+  "usbTransferLinuxSubtitle": "sending badge data via OTG USB cable will be soon available on Linux",
+  "usbTransferSubtitle": "Allows sending badge data via OTG USB cable in addition to Bluetooth.",
+  "seeInstructionsOnGithub": "See instructions on GitHub"
 }

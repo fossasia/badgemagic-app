@@ -367,17 +367,17 @@ class SettingsScreenState extends State<SettingsScreen> {
                       borderRadius: BorderRadius.circular(8),
                       side: BorderSide(color: Colors.grey.shade300),
                     ),
-                    child: const ListTile(
+                    child: ListTile(
                       title: Text(
-                        "Enable USB Transfers",
-                        style: TextStyle(
+                        l10n.enableUsbTransfers,
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                       subtitle: Text(
-                        "sending badge data via OTG USB cable will be soon available on Linux",
-                        style: TextStyle(fontSize: 12),
+                        l10n.usbTransferLinuxSubtitle,
+                        style: const TextStyle(fontSize: 12),
                       ),
                     ),
                   )
@@ -389,16 +389,16 @@ class SettingsScreenState extends State<SettingsScreen> {
                       side: BorderSide(color: Colors.grey.shade300),
                     ),
                     child: SwitchListTile(
-                      title: const Text(
-                        "Enable USB Transfers",
-                        style: TextStyle(
+                      title: Text(
+                        l10n.enableUsbTransfers,
+                        style: const TextStyle(
                           fontSize: 15,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      subtitle: const Text(
-                        "Allows sending badge data via OTG USB cable in addition to Bluetooth.",
-                        style: TextStyle(fontSize: 12),
+                      subtitle: Text(
+                        l10n.usbTransferSubtitle,
+                        style: const TextStyle(fontSize: 12),
                       ),
                       activeColor: colorAccent,
                       value: _isUsbTransferEnabled,
@@ -658,7 +658,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   icon: const Icon(Icons.usb, size: 18),
                                   onPressed: () => openUrl(
                                       'https://github.com/fossasia/badgemagic-firmware'),
-                                  label: Text("See instructions on GitHub"),
+                                  label: Text(l10n.seeInstructionsOnGithub),
                                 ),
                               ],
                             ],
