@@ -70,6 +70,7 @@ class _HomeScreenState extends State<HomeScreen>
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   final Converters _converters = Converters();
+  final GlobalKey _textFieldKey = GlobalKey();
 
   bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
@@ -414,6 +415,8 @@ class _HomeScreenState extends State<HomeScreen>
               child: LayoutBuilder(
                 builder: (context, layoutConstraints) {
                   final bool isPhone = layoutConstraints.maxWidth < 600;
+                  final bool isHeightConstrained =
+                      layoutConstraints.maxHeight < 650;
 
                   final badgePreview = Center(
                     child: ConstrainedBox(
@@ -423,6 +426,7 @@ class _HomeScreenState extends State<HomeScreen>
                     ),
                   );
                   final textField = BadgeTextInputField(
+                    key: _textFieldKey,
                     controller: inlineImageController,
                     onPrefixToggle: () {
                       setState(() {
@@ -572,7 +576,7 @@ class _HomeScreenState extends State<HomeScreen>
                     child: actionButtons,
                   );
 
-                  if (isPhone) {
+                  if (isPhone && !isHeightConstrained) {
                     return Column(
                       children: [
                         badgePreview,
