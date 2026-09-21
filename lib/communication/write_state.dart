@@ -127,12 +127,10 @@ class WriteState extends NormalBleState {
       rethrow;
     } finally {
       progressTimer.cancel();
-      await _safeDisconnect(deviceId);
       if (!verifiedNextGen) {
         try {
           logger.d("Disconnecting from legacy device after write...");
-          await UniversalBle.disconnect(deviceId);
-          await Future.delayed(const Duration(milliseconds: 700));
+          await _safeDisconnect(deviceId);
         } catch (e) {
           logger.e("Error during disconnect: $e");
         }
