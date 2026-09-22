@@ -149,7 +149,8 @@ class FirmwareUpdateService {
         if (data[0] == 0x02) return ActiveSlot.slotB;
       }
 
-      logger.w('CMD_IAP_INFO: unexpected response, fallback to SlotA. data=$data');
+      logger.w(
+          'CMD_IAP_INFO: unexpected response, fallback to SlotA. data=$data');
       return ActiveSlot.slotA;
     } catch (e) {
       logger.w('CMD_IAP_INFO failed: fallback to SlotA — error: $e');
@@ -255,11 +256,10 @@ class FirmwareUpdateService {
     final int total = firmware.length;
     final int chunkSize = maxChunkSize;
 
-    logger.i(
-      'OTA: Sending $total bytes (Chunk: $chunkSize B)...',
-    );
+    logger.i('OTA: Sending $total bytes (Chunk: $chunkSize B)...');
 
     int lastReportedPct = -1;
+    int chunkCounter = 0;
 
     for (int offset = 0; offset < total; offset += chunkSize) {
       final int end = (offset + chunkSize < total) ? offset + chunkSize : total;
@@ -279,8 +279,38 @@ class FirmwareUpdateService {
 
       bool sent = false;
       int attempt = 0;
+      const int maxAttempts = 5;
+
       while (!sent) {
         attempt++;
+
+        final connState = await UniversalBle.getConnectionState(deviceId);
+        if (connState != BleConnectionState.connected) {
+          logger
+              .w('OTA: connection lost before offset=$offset, reconnecting...');
+          try {
+            await UniversalBle.connect(deviceId);
+            await Future.delayed(const Duration(milliseconds: 800));
+            await UniversalBle.discoverServices(deviceId);
+            try {
+              await UniversalBle.requestConnectionPriority(
+                deviceId,
+                BleConnectionPriority.highPerformance,
+              );
+            } catch (_) {}
+          } catch (e) {
+            logger.e('OTA: reconnection failed: $e');
+            if (attempt >= maxAttempts) {
+              throw Exception(
+                'OTA failed at offset=$offset: device disconnected and '
+                'reconnection failed after $attempt attempts.',
+              );
+            }
+            await Future.delayed(Duration(milliseconds: 500 * attempt));
+            continue;
+          }
+        }
+
         try {
           await UniversalBle.write(
             deviceId,
@@ -295,20 +325,30 @@ class FirmwareUpdateService {
           logger.e('OTA: timeout offset=$offset (attempt $attempt)');
           UniversalBle.clearQueue(deviceId);
           await Future.delayed(const Duration(milliseconds: 300));
-
-          if (attempt >= 3) {
+          if (attempt >= maxAttempts) {
             throw Exception(
               'OTA failed at offset=$offset after $attempt attempts: '
               'unstable connection or firmware not responding.',
             );
           }
         } catch (e) {
-          logger.e('OTA: unrecoverable error at offset=$offset: $e');
-          rethrow;
+          logger.w('OTA: write error at offset=$offset (attempt $attempt): $e');
+          UniversalBle.clearQueue(deviceId);
+          await Future.delayed(Duration(milliseconds: 400 * attempt));
+          if (attempt >= maxAttempts) {
+            throw Exception(
+              'OTA failed at offset=$offset after $attempt attempts: $e',
+            );
+          }
         }
       }
 
-      await Future.delayed(const Duration(milliseconds: 8));
+      chunkCounter++;
+      if (chunkCounter % _pacingEveryNChunks == 0) {
+        await Future.delayed(_pacingDelay);
+      } else {
+        await Future.delayed(const Duration(milliseconds: 8));
+      }
 
       final int written = offset + currentSize;
       final double progress = (written / total).clamp(0.0, 1.0);

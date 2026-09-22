@@ -129,7 +129,8 @@ class SettingsScreenState extends State<SettingsScreen> {
       _availableUpdate = null;
     });
 
-    final updateInfo = await _flasher.checkForUpdates();
+    final updateInfo = await _updateService.checkForUpdates();
+    //final updateInfo = await _flasher.checkForUpdates();
 
     if (mounted) {
       setState(() {
