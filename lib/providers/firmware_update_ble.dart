@@ -16,8 +16,6 @@ enum ActiveSlot {
 }
 
 class FirmwareUpdateService {
-  static const String _prefKeySkipVersion = 'skip_firmware_version_';
-
   // ============================================================
   // BLE UUID
   // ============================================================

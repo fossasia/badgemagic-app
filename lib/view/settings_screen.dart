@@ -560,7 +560,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     onChanged: (bool value) {
                       setState(() {
                         _im_a_tester = value;
-                        viaBLE = true;
+                        viaBLE = _im_a_tester;
                       });
                       ToastUtils().showToast(
                         value ? "Tester mode ON" : "Tester mode OFF",
