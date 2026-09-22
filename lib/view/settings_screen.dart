@@ -128,13 +128,13 @@ class SettingsScreenState extends State<SettingsScreen> {
       _availableUpdate = null;
     });
 
-    final updateInfo = await _updateService.checkForUpdates();
-    //final updateInfo = await _flasher.checkForUpdates();
+    final updateInfo = await _flasher.checkForUpdates();
+    final updateInfo_HARDCODED = await _updateService.checkForUpdates();
 
     if (mounted) {
       setState(() {
         _isCheckingUpdate = false;
-        if (updateInfo != null) {
+        if (updateInfo != null || updateInfo_HARDCODED != null) {
           _availableUpdate = updateInfo;
         } else {
           _updateStatusMessage = l10n.alreadyUpdatedStatusMessage;
