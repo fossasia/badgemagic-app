@@ -50,8 +50,6 @@ class FirmwareUpdateService {
   static const Duration eraseDelay = Duration(milliseconds: 600);
   static const Duration endDelay = Duration(milliseconds: 500);
 
-  static const int _pacingEveryNChunks = 8;
-  static const Duration _pacingDelay = Duration(milliseconds: 4);
 
   static const Duration _writeTimeout = Duration(seconds: 4);
 
@@ -79,10 +77,15 @@ class FirmwareUpdateService {
   // ============================================================
 
   Future<ActiveSlot> queryActiveSlot(String deviceId) async {
-    if (Platform.isLinux) {
-      return _queryActiveSlotViaInfo(deviceId);
-    }
+    final ActiveSlot result = Platform.isLinux
+        ? await _queryActiveSlotViaInfo(deviceId)
+        : await _queryActiveSlotViaChar(deviceId);
 
+    logger.i('OTA: active slot detected -> ${slotName(result)}');
+    return result;
+  }
+
+  Future<ActiveSlot> _queryActiveSlotViaChar(String deviceId) async {
     try {
       final services = await UniversalBle.discoverServices(deviceId);
 
@@ -92,24 +95,27 @@ class FirmwareUpdateService {
               c.uuid, slotStatusCharacteristicUuid)));
 
       if (!hasSlotChar) {
-        logger.w('FEE2 not found after explicit discovery: fallback to SlotA');
+        logger.w('OTA: FEE2 not found after discovery, fallback to SlotA');
         return ActiveSlot.slotA;
       }
 
-      logger.i('Reading active slot from FEE2...');
+      logger.i('OTA: reading active slot from FEE2...');
       final data = await UniversalBle.read(
         deviceId,
         otaServiceUuid,
         slotStatusCharacteristicUuid,
         timeout: const Duration(seconds: 3),
       );
+      logger.d('OTA: FEE2 raw response: $data');
+
       if (data.isNotEmpty) {
         if (data[0] == 0x01) return ActiveSlot.slotA;
         if (data[0] == 0x02) return ActiveSlot.slotB;
       }
+      logger.w('OTA: FEE2 returned unexpected data, fallback to SlotA');
       return ActiveSlot.slotA;
     } catch (e) {
-      logger.w('FEE2 not present: fallback to SlotA — error: $e');
+      logger.w('OTA: FEE2 not present, fallback to SlotA — error: $e');
       return ActiveSlot.slotA;
     }
   }
@@ -119,7 +125,7 @@ class FirmwareUpdateService {
   /// whose first byte is THIS_IMAGE_FLAG (0x01 = SlotA, 0x02 = SlotB).
   Future<ActiveSlot> _queryActiveSlotViaInfo(String deviceId) async {
     try {
-      logger.i('Reading active slot via CMD_IAP_INFO (FEE1)...');
+      logger.i('OTA: reading active slot via CMD_IAP_INFO (FEE1)...');
 
       final packet = Uint8List(2);
       packet[0] = cmdIapInfo;
@@ -143,6 +149,7 @@ class FirmwareUpdateService {
         otaCharacteristicUuid,
         timeout: const Duration(seconds: 3),
       );
+      logger.d('OTA: CMD_IAP_INFO raw response: $data');
 
       if (data.isNotEmpty) {
         if (data[0] == 0x01) return ActiveSlot.slotA;
@@ -150,10 +157,10 @@ class FirmwareUpdateService {
       }
 
       logger.w(
-          'CMD_IAP_INFO: unexpected response, fallback to SlotA. data=$data');
+          'OTA: CMD_IAP_INFO unexpected response, fallback to SlotA. data=$data');
       return ActiveSlot.slotA;
     } catch (e) {
-      logger.w('CMD_IAP_INFO failed: fallback to SlotA — error: $e');
+      logger.w('OTA: CMD_IAP_INFO failed, fallback to SlotA — error: $e');
       return ActiveSlot.slotA;
     }
   }
@@ -161,8 +168,18 @@ class FirmwareUpdateService {
   ActiveSlot targetSlotFor(ActiveSlot activeSlot) =>
       (activeSlot == ActiveSlot.slotA) ? ActiveSlot.slotB : ActiveSlot.slotA;
 
-  String slotName(ActiveSlot slot) =>
-      slot == ActiveSlot.slotA ? 'SlotA' : 'SlotB';
+  String slotName(ActiveSlot slot) {
+    switch (slot) {
+      case ActiveSlot.slotA:
+        return 'SlotA';
+      case ActiveSlot.slotB:
+        return 'SlotB';
+      case ActiveSlot.unknown:
+        return 'Unknown';
+      case ActiveSlot.legacyFirmware:
+        return 'LegacyFirmware';
+    }
+  }
 
   int targetSlotAddress(ActiveSlot targetSlot) =>
       (targetSlot == ActiveSlot.slotB) ? imageBStartAddr : imageAStartAddr;
@@ -171,18 +188,18 @@ class FirmwareUpdateService {
   // DOWNLOAD FIRMWARE
   // ============================================================
 
-  Future<Uint8List> downloadFirmwareBinary({
-    required ActiveSlot activeSlot,
-  }) async {
-    if (activeSlot != ActiveSlot.slotA) {
-      throw Exception(
-        'Local firmware available only for Slot B. '
-        'Active slot detected: $activeSlot',
-      );
-    }
+  Future<Uint8List> downloadFirmwareBinary(
+      {required ActiveSlot activeSlot}) async {
+    final targetSlot = targetSlotFor(activeSlot);
+    final String slotFolder =
+        targetSlot == ActiveSlot.slotA ? 'slotA' : 'slotB';
+    final String suffix = targetSlot == ActiveSlot.slotA ? 'slotA' : 'slotB';
 
-    const String assetPath =
-        'assets/usb-c-4key/slotB/badgemagic-ch582-slotB.bin';
+    final String assetPath =
+        'assets/usb-c-4key/$slotFolder/badgemagic-ch582-$suffix.bin';
+
+    logger.i(
+        'OTA: active=${slotName(activeSlot)} -> writing to target=${slotName(targetSlot)}, asset=$assetPath');
 
     try {
       final ByteData byteData = await rootBundle.load(assetPath);
@@ -192,10 +209,10 @@ class FirmwareUpdateService {
         throw Exception('Asset binary file is empty (0 bytes).');
       }
 
-      logger.i('Firmware asset loaded: ${firmware.length} bytes');
+      logger.i('OTA: firmware asset loaded: ${firmware.length} bytes');
       return firmware;
     } catch (e) {
-      throw Exception('Error loading firmware asset: $e');
+      throw Exception('Error loading firmware asset ($assetPath): $e');
     }
   }
 
@@ -210,7 +227,7 @@ class FirmwareUpdateService {
   ) async {
     logger.i(
       'OTA: ERASE target slot at 0x${targetStartAddr.toRadixString(16)} '
-      '(${binaryLength} bytes, erase block=$flashEraseBlockSize bytes)',
+      '($binaryLength bytes, erase block=$flashEraseBlockSize bytes)',
     );
 
     const int relativeOffset = 0;
@@ -256,7 +273,8 @@ class FirmwareUpdateService {
     final int total = firmware.length;
     final int chunkSize = maxChunkSize;
 
-    logger.i('OTA: Sending $total bytes (Chunk: $chunkSize B)...');
+    logger.i(
+        'OTA: Sending $total bytes to ${slotName(targetSlot)} (Chunk: $chunkSize B)...');
 
     int lastReportedPct = -1;
     int lastEraseBlockIndex = -1;
@@ -371,7 +389,7 @@ class FirmwareUpdateService {
   // ============================================================
 
   Future<void> _end(String deviceId, ActiveSlot targetSlot) async {
-    logger.i('OTA: END -> Switch to ${slotName(targetSlot)}');
+    logger.i('OTA: END -> switching active slot to ${slotName(targetSlot)}');
 
     final packet = Uint8List(20);
     packet[0] = cmdIapEnd;
@@ -388,10 +406,11 @@ class FirmwareUpdateService {
         withoutResponse: false,
       ).timeout(_writeTimeout);
     } catch (e) {
-      logger.w('Disconnection during badge reboot: $e');
+      logger.w('OTA: disconnection during badge reboot (expected): $e');
     }
 
     await Future.delayed(endDelay);
+    logger.i('OTA: badge should now be running from ${slotName(targetSlot)}');
   }
 
   // ============================================================
@@ -427,9 +446,9 @@ class FirmwareUpdateService {
       if (!Platform.isLinux) {
         try {
           negotiatedMtu = await UniversalBle.requestMtu(deviceId, 512);
-          logger.i('Negotiated MTU: $negotiatedMtu');
+          logger.i('OTA: negotiated MTU: $negotiatedMtu');
         } catch (e) {
-          logger.w('Fallback MTU: $e');
+          logger.w('OTA: MTU negotiation failed, using fallback: $e');
         }
       }
 
@@ -440,6 +459,10 @@ class FirmwareUpdateService {
       final activeSlot = await queryActiveSlot(deviceId);
       final targetSlot = targetSlotFor(activeSlot);
       final int targetAddr = targetSlotAddress(targetSlot);
+
+      logger.i(
+          'OTA: plan -> active=${slotName(activeSlot)}, target=${slotName(targetSlot)}, '
+          'targetAddr=0x${targetAddr.toRadixString(16)}, chunkSize=$maxDataPayload B');
 
       final firmware = await downloadFirmwareBinary(activeSlot: activeSlot);
 
@@ -454,6 +477,11 @@ class FirmwareUpdateService {
       );
 
       await _end(deviceId, targetSlot);
+
+      logger.i('OTA: update completed successfully -> ${slotName(targetSlot)}');
+    } catch (e) {
+      logger.e('OTA: update failed: $e');
+      rethrow;
     } finally {
       _updateInProgress = false;
     }
