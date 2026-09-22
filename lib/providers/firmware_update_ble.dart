@@ -50,7 +50,6 @@ class FirmwareUpdateService {
   static const Duration eraseDelay = Duration(milliseconds: 600);
   static const Duration endDelay = Duration(milliseconds: 500);
 
-
   static const Duration _writeTimeout = Duration(seconds: 4);
 
   static const int verifyEveryNChunks = 0;
