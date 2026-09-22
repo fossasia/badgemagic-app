@@ -629,13 +629,13 @@ class _HomeScreenState extends State<HomeScreen>
                                                           12.r)),
                                             ),
                                             onPressed: () async {
-                                              animationProvider
-                                                  .setNgConnected(false);
                                               await animationProvider
                                                   .stopLiveStreaming();
                                               await sendNgCmd(
                                                   NgCommand.powerOff(),
                                                   "Power Off sent");
+                                              animationProvider
+                                                  .setNgConnected(false);
                                               await UniversalBle.disconnect(
                                                   device.deviceId);
                                             },
@@ -670,10 +670,10 @@ class _HomeScreenState extends State<HomeScreen>
                                                           12.r)),
                                             ),
                                             onPressed: () async {
-                                              animationProvider
-                                                  .setNgConnected(false);
                                               await animationProvider
                                                   .stopLiveStreaming();
+                                              animationProvider
+                                                  .setNgConnected(false);
                                               await UniversalBle.disconnect(
                                                   device.deviceId);
                                               ToastUtils()
