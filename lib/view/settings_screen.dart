@@ -47,6 +47,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
   double _flashProgress = 0.0;
   bool _foregroundTaskInitialized = false;
+  bool _im_a_tester = false;
 
   final WchUsbIspFlasher _flasher = WchUsbIspFlasher();
 
@@ -138,8 +139,10 @@ class SettingsScreenState extends State<SettingsScreen> {
           _availableUpdate = updateInfo;
           viaUSB = (Platform.isAndroid || Platform.isLinux) &&
               (_availableUpdate!['hasUsbFirmware'] == true);
-          // COMMENT THIS LINE TO TEST HARDCODED FIRMWARE
-          viaBLE = _availableUpdate!['hasOtaFirmware'] == true;
+          // COMMENT THIS LINE TO TEST HARDCODED FIRMWARE ^._.^
+          if (!_im_a_tester) {
+            viaBLE = _availableUpdate!['hasOtaFirmware'] == true;
+          }
         } else {
           _updateStatusMessage = l10n.alreadyUpdatedStatusMessage;
         }
@@ -529,7 +532,43 @@ class SettingsScreenState extends State<SettingsScreen> {
                   style: const TextStyle(
                       fontSize: 16, fontWeight: FontWeight.bold),
                 ),
-                const SizedBox(height: 8),
+                //TO TEST HARDCODED FIRMWARE ^._.^
+                Card(
+                  elevation: 0,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  child: SwitchListTile(
+                    secondary: Icon(
+                      Icons.bug_report_outlined,
+                      color: _im_a_tester ? Colors.red : Colors.grey,
+                    ),
+                    title: const Text(
+                      "Tester Mode",
+                      style: TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    subtitle: const Text(
+                      "Use hardcoded firmware to test BLE flash!",
+                      style: TextStyle(fontSize: 12),
+                    ),
+                    activeColor: Colors.red,
+                    value: _im_a_tester,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _im_a_tester = value;
+                        viaBLE = true;
+                      });
+                      ToastUtils().showToast(
+                        value ? "Tester mode ON" : "Tester mode OFF",
+                      );
+                    },
+                  ),
+                ),
+                const SizedBox(height: 10),
                 Row(
                   children: [
                     ElevatedButton.icon(
@@ -794,7 +833,8 @@ class SettingsScreenState extends State<SettingsScreen> {
       await _updateService.executeFirmwareUpdate(
         deviceId: device.deviceId,
         releaseAssets: _availableUpdate!['assets'] ?? [],
-        hardwareVariant: 'usbc_4key',
+        hardwareVariant: 'usb-c_4key',
+        isTest: _im_a_tester,
         onProgress: (progress) {
           if (isCancelled) return;
           if (mounted) {

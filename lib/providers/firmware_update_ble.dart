@@ -166,8 +166,8 @@ class FirmwareUpdateService {
   // DOWNLOAD FIRMWARE
   // ============================================================
 
-  //TO TEST THE HARDCODED FIRMWARE
-  /*Future<Uint8List> downloadFirmwareBinary(
+  //TO TEST THE HARDCODED FIRMWARE ^._.^
+  Future<Uint8List> downloadFirmwareBinary(
       {required ActiveSlot activeSlot}) async {
     final targetSlot = targetSlotFor(activeSlot);
     final String slotFolder =
@@ -194,7 +194,6 @@ class FirmwareUpdateService {
       throw Exception('Error loading firmware asset ($assetPath): $e');
     }
   }
-  */
 
   Future<Uint8List> downloadFirmwareBinaryFromRemote({
     required ActiveSlot activeSlot,
@@ -459,6 +458,7 @@ class FirmwareUpdateService {
     required String deviceId,
     required List<dynamic> releaseAssets,
     required String hardwareVariant,
+    required bool isTest,
     Function(double progress)? onProgress,
   }) async {
     if (_updateInProgress) {
@@ -500,13 +500,17 @@ class FirmwareUpdateService {
           'OTA: plan -> active=${slotName(activeSlot)}, target=${slotName(targetSlot)}, '
           'targetAddr=0x${targetAddr.toRadixString(16)}, chunkSize=$maxDataPayload B');
 
-      final firmware = await downloadFirmwareBinaryFromRemote(
-        activeSlot: activeSlot,
-        releaseAssets: releaseAssets,
-      );
+      var firmware;
 
-      // UNCOMMENT TO TEST HARDCODED FIRMWARE
-      //final firmware = await downloadFirmwareBinary(activeSlot: activeSlot);
+      if (isTest) {
+        // TO TEST HARDCODED FIRMWARE ^._.^
+        firmware = await downloadFirmwareBinary(activeSlot: activeSlot);
+      } else {
+        firmware = await downloadFirmwareBinaryFromRemote(
+          activeSlot: activeSlot,
+          releaseAssets: releaseAssets,
+        );
+      }
 
       await _erase(deviceId, targetAddr, firmware.length);
 

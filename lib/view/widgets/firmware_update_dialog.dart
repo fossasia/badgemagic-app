@@ -321,8 +321,9 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
               await widget.service.executeFirmwareUpdate(
                 deviceId: device.deviceId,
                 releaseAssets: widget.releaseAssets,
-                hardwareVariant: 'usbc_4key',
+                hardwareVariant: 'usb-c_4key',
                 onProgress: (progress) {},
+                isTest: false, //^._.^
               );
             },
             child: Text(l10n.updateButton),
