@@ -259,7 +259,7 @@ class FirmwareUpdateService {
     logger.i('OTA: Sending $total bytes (Chunk: $chunkSize B)...');
 
     int lastReportedPct = -1;
-    int chunkCounter = 0;
+    int lastEraseBlockIndex = -1;
 
     for (int offset = 0; offset < total; offset += chunkSize) {
       final int end = (offset + chunkSize < total) ? offset + chunkSize : total;
@@ -343,11 +343,14 @@ class FirmwareUpdateService {
         }
       }
 
-      chunkCounter++;
-      if (chunkCounter % _pacingEveryNChunks == 0) {
-        await Future.delayed(_pacingDelay);
+      final int eraseBlockIndex = offset ~/ flashEraseBlockSize;
+      final bool entersNewEraseBlock = eraseBlockIndex != lastEraseBlockIndex;
+      lastEraseBlockIndex = eraseBlockIndex;
+
+      if (entersNewEraseBlock) {
+        await Future.delayed(const Duration(milliseconds: 20));
       } else {
-        await Future.delayed(const Duration(milliseconds: 8));
+        await Future.delayed(const Duration(milliseconds: 3));
       }
 
       final int written = offset + currentSize;
