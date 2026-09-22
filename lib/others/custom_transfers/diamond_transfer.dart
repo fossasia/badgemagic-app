@@ -4,8 +4,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferDiamondAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   const int spawnInterval = 4;
   final DiamondAnimation diamondAnimation = DiamondAnimation();
 
@@ -32,5 +33,6 @@ Future<void> customTransferDiamondAnimation(
     label: 'Diamond',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }

@@ -4,8 +4,9 @@ import 'package:badgemagic/others/custom_transfers/common.dart';
 
 Future<void> customTransferEqualizerAnimation(
   Future<void> Function(DataTransferManager) transferData,
-  int speedLevel,
-) async {
+  int speedLevel, {
+  bool skipAdapterCheck = false,
+}) async {
   final equalizerAnimation = EqualizerAnimation();
 
   final frames = List.generate(animationFrameCount, (i) {
@@ -24,5 +25,6 @@ Future<void> customTransferEqualizerAnimation(
     label: 'Equalizer',
     frames: frames,
     transferData: transferData,
+    skipAdapterCheck: skipAdapterCheck,
   );
 }
