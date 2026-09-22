@@ -6,7 +6,6 @@ import 'dart:typed_data';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/main.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
-import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -23,7 +22,7 @@ import '../others/globals.dart';
 import '../others/localization_service.dart';
 import '../others/toast_utils.dart';
 import '../providers/badge_scan_provider.dart';
-import '../providers/firmware_update.dart';
+import '../providers/firmware_update_usb.dart';
 import '../providers/firmware_update_ble.dart';
 import '../providers/usb_transfer_provider.dart';
 
