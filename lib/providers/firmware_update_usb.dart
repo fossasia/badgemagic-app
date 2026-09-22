@@ -22,7 +22,10 @@ class WchUsbIspFlasher {
     try {
       final response = await http.get(
         Uri.parse(_apiLatestUrl),
-        headers: {'Accept': 'application/vnd.github+json'},
+        headers: {
+          'Accept': 'application/vnd.github+json',
+          'User-Agent': 'BadgeMagic-App',
+        },
       );
 
       if (response.statusCode == 200) {
@@ -41,10 +44,34 @@ class WchUsbIspFlasher {
           } catch (_) {}
         }
 
+        dynamic assetSlotA;
+        dynamic assetSlotB;
+        dynamic assetUsbMerged;
+
+        for (final asset in assets) {
+          final String name = (asset['name'] as String? ?? '').toLowerCase();
+
+          if (name == 'badgemagic-ch582-usb-c-4key_slota.bin') {
+            assetSlotA = asset;
+          } else if (name == 'badgemagic-ch582-usb-c-4key_slotb.bin') {
+            assetSlotB = asset;
+          } else if (name.endsWith('.bin')) {
+            assetUsbMerged = asset;
+          }
+        }
+
+        final bool hasOtaFirmware = assetSlotA != null && assetSlotB != null;
+        final bool hasUsbFirmware = assetUsbMerged != null;
+
         return {
           'version': version,
           'date': formattedDate,
           'assets': assets,
+          'hasOtaFirmware': hasOtaFirmware,
+          'hasUsbFirmware': hasUsbFirmware,
+          'assetSlotA': assetSlotA,
+          'assetSlotB': assetSlotB,
+          'assetUsbMerged': assetUsbMerged,
         };
       }
     } catch (_) {}

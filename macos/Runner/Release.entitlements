@@ -12,5 +12,11 @@
 	<true/>
 	<key>com.apple.security.network.server</key>
 	<true/>
+    <key>com.apple.security.network.client</key>
+    <true/>
+    <key>com.apple.security.device.usb</key>
+    <true/>
+    <key>com.apple.security.device.serial</key>
+    <true/>
 </dict>
 </plist>

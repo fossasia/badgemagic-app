@@ -56,6 +56,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   bool _isFlashingFirmware = false;
   bool viaUSB = true;
+  bool viaBLE = true;
   String _flashStatusText = '';
 
   @override
@@ -129,13 +130,16 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
 
     final updateInfo = await _flasher.checkForUpdates();
-    final updateInfo_HARDCODED = await _updateService.checkForUpdates();
 
     if (mounted) {
       setState(() {
         _isCheckingUpdate = false;
-        if (updateInfo != null || updateInfo_HARDCODED != null) {
+        if (updateInfo != null) {
           _availableUpdate = updateInfo;
+          viaUSB = (Platform.isAndroid || Platform.isLinux) &&
+              (_availableUpdate!['hasUsbFirmware'] == true);
+          // COMMENT THIS LINE TO TEST HARDCODED FIRMWARE
+          viaBLE = _availableUpdate!['hasOtaFirmware'] == true;
         } else {
           _updateStatusMessage = l10n.alreadyUpdatedStatusMessage;
         }
@@ -618,7 +622,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (Platform.isAndroid || Platform.isLinux) ...[
+                              if (Platform.isAndroid ||
+                                  Platform.isLinux && viaUSB) ...[
                                 ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
@@ -630,15 +635,16 @@ class SettingsScreenState extends State<SettingsScreen> {
                                 ),
                                 const SizedBox(width: 8),
                               ],
-                              ElevatedButton.icon(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
+                              if (viaBLE)
+                                ElevatedButton.icon(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Colors.red,
+                                    foregroundColor: Colors.white,
+                                  ),
+                                  icon: const Icon(Icons.flash_on, size: 18),
+                                  onPressed: _handleStartFirmwareUpdate,
+                                  label: Text(l10n.updateButton),
                                 ),
-                                icon: const Icon(Icons.flash_on, size: 18),
-                                onPressed: _handleStartFirmwareUpdate,
-                                label: Text(l10n.updateButton),
-                              ),
                             ],
                           )
                         ],
@@ -701,6 +707,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     setState(() {
       viaUSB = false;
+      viaBLE = false;
       _isFlashingFirmware = true;
       _flashProgress = 0.0;
     });

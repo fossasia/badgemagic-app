@@ -300,7 +300,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
             ),
             onPressed: () async {
               if (_dontRemindAgain) {
-                await widget.service.skipVersionPermanently(widget.version);
+                await _skipVersionPermanently(widget.version);
               }
 
               final nav = Navigator.of(context);

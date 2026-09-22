@@ -1,9 +1,9 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+import 'package:http/http.dart' as http;
 
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 import '../others/byte_array_utils.dart';
@@ -55,23 +55,6 @@ class FirmwareUpdateService {
   static const int verifyEveryNChunks = 0;
 
   // ============================================================
-  // UPDATE CHECK
-  // ============================================================
-
-  Future<Map<String, dynamic>?> checkForUpdates() async {
-    return {
-      'version': '1.0.0',
-      'date': '15 May 2026',
-      'assets': <dynamic>[],
-    };
-  }
-
-  Future<void> skipVersionPermanently(String version) async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('$_prefKeySkipVersion$version', true);
-  }
-
-  // ============================================================
   // SLOT
   // ============================================================
 
@@ -120,8 +103,6 @@ class FirmwareUpdateService {
   }
 
   /// Queries active slot via CMD_IAP_INFO (0x84) on FEE1.
-  /// The firmware responds with a staged packet (read right after write)
-  /// whose first byte is THIS_IMAGE_FLAG (0x01 = SlotA, 0x02 = SlotB).
   Future<ActiveSlot> _queryActiveSlotViaInfo(String deviceId) async {
     try {
       logger.i('OTA: reading active slot via CMD_IAP_INFO (FEE1)...');
@@ -138,8 +119,6 @@ class FirmwareUpdateService {
         withoutResponse: false,
       ).timeout(const Duration(seconds: 3));
 
-      // Short delay to give firmware time to prepare staged response
-      // before reading it.
       await Future.delayed(const Duration(milliseconds: 100));
 
       final data = await UniversalBle.read(
@@ -187,7 +166,8 @@ class FirmwareUpdateService {
   // DOWNLOAD FIRMWARE
   // ============================================================
 
-  Future<Uint8List> downloadFirmwareBinary(
+  //TO TEST THE HARDCODED FIRMWARE
+  /*Future<Uint8List> downloadFirmwareBinary(
       {required ActiveSlot activeSlot}) async {
     final targetSlot = targetSlotFor(activeSlot);
     final String slotFolder =
@@ -212,6 +192,63 @@ class FirmwareUpdateService {
       return firmware;
     } catch (e) {
       throw Exception('Error loading firmware asset ($assetPath): $e');
+    }
+  }
+  */
+
+  Future<Uint8List> downloadFirmwareBinaryFromRemote({
+    required ActiveSlot activeSlot,
+    required List<dynamic> releaseAssets,
+  }) async {
+    final targetSlot = targetSlotFor(activeSlot);
+    final String slotTag = targetSlot == ActiveSlot.slotA ? 'SlotA' : 'SlotB';
+    final String expectedFileName = 'badgemagic-ch582-usb-c-4key_$slotTag.bin';
+
+    logger.i(
+      'OTA: active=${slotName(activeSlot)} -> looking for target=${slotName(targetSlot)} remote asset: $expectedFileName',
+    );
+
+    dynamic targetAsset;
+    for (final asset in releaseAssets) {
+      final name = (asset['name'] as String? ?? '').trim();
+      if (name.toLowerCase() == expectedFileName.toLowerCase()) {
+        targetAsset = asset;
+        break;
+      }
+    }
+
+    if (targetAsset == null) {
+      throw Exception(
+          'Firmware asset "$expectedFileName" not found in release.');
+    }
+
+    final String? downloadUrl = targetAsset['browser_download_url'] as String?;
+    if (downloadUrl == null || downloadUrl.isEmpty) {
+      throw Exception('Download URL missing for asset "$expectedFileName".');
+    }
+
+    logger.i('OTA: Downloading firmware from $downloadUrl');
+
+    try {
+      final response = await http.get(Uri.parse(downloadUrl));
+
+      if (response.statusCode != 200) {
+        throw Exception(
+            'HTTP error ${response.statusCode} while downloading firmware.');
+      }
+
+      final Uint8List firmware = response.bodyBytes;
+
+      if (firmware.isEmpty) {
+        throw Exception('Downloaded firmware binary is empty (0 bytes).');
+      }
+
+      logger
+          .i('OTA: Firmware downloaded successfully: ${firmware.length} bytes');
+      return firmware;
+    } catch (e) {
+      throw Exception(
+          'Error downloading remote firmware ($expectedFileName): $e');
     }
   }
 
@@ -463,7 +500,13 @@ class FirmwareUpdateService {
           'OTA: plan -> active=${slotName(activeSlot)}, target=${slotName(targetSlot)}, '
           'targetAddr=0x${targetAddr.toRadixString(16)}, chunkSize=$maxDataPayload B');
 
-      final firmware = await downloadFirmwareBinary(activeSlot: activeSlot);
+      final firmware = await downloadFirmwareBinaryFromRemote(
+        activeSlot: activeSlot,
+        releaseAssets: releaseAssets,
+      );
+
+      // UNCOMMENT TO TEST HARDCODED FIRMWARE
+      //final firmware = await downloadFirmwareBinary(activeSlot: activeSlot);
 
       await _erase(deviceId, targetAddr, firmware.length);
 
