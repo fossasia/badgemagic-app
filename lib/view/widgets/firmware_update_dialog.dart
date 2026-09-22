@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../constants.dart';
 import '../../others/globals.dart';
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
