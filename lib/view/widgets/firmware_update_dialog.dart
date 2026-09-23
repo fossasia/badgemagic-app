@@ -315,16 +315,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
                 ToastUtils().showToast(l10n.noBadgesFound);
                 return;
               }
-
-              await UniversalBle.connect(device.deviceId);
-
-              await widget.service.executeFirmwareUpdate(
-                deviceId: device.deviceId,
-                releaseAssets: widget.releaseAssets,
-                hardwareVariant: 'usb-c_4key',
-                onProgress: (progress) {},
-                isTest: false, //^._.^
-              );
+              Navigator.pushNamed(context, '/settings');
             },
             child: Text(l10n.updateButton),
           ),

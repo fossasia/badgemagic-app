@@ -488,7 +488,7 @@ class FirmwareUpdateService {
 
       final int firmwareIapMaxBuffer = 240;
       int maxDataPayload = (negotiatedMtu - 7).clamp(16, firmwareIapMaxBuffer);
-      maxDataPayload = maxDataPayload & ~3;
+      maxDataPayload = maxDataPayload & ~15;
 
       final activeSlot = await queryActiveSlot(deviceId);
       final targetSlot = targetSlotFor(activeSlot);

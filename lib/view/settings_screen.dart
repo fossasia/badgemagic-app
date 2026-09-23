@@ -661,8 +661,8 @@ class SettingsScreenState extends State<SettingsScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              if (Platform.isAndroid ||
-                                  Platform.isLinux && viaUSB) ...[
+                              if ((Platform.isAndroid || Platform.isLinux) &&
+                                  viaUSB) ...[
                                 ElevatedButton.icon(
                                   style: ElevatedButton.styleFrom(
                                     backgroundColor: Colors.red,
@@ -876,6 +876,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   }) async {
     final completer = Completer<BleDevice?>();
     StreamSubscription<BleDevice>? subscription;
+    Timer? timeoutTimer;
 
     final normalizedNames = allowedNames
         .map((e) => e.trim().toLowerCase())
@@ -889,6 +890,7 @@ class SettingsScreenState extends State<SettingsScreen> {
           mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
 
       if (matchesUuid && matchesName) {
+        timeoutTimer?.cancel();
         subscription?.cancel();
         await UniversalBle.stopScan();
         if (!completer.isCompleted) {
@@ -901,7 +903,7 @@ class SettingsScreenState extends State<SettingsScreen> {
       scanFilter: ScanFilter(withServices: [serviceUuid]),
     );
 
-    Timer(const Duration(seconds: 10), () async {
+    timeoutTimer = Timer(const Duration(seconds: 10), () async {
       await UniversalBle.stopScan();
       subscription?.cancel();
       if (!completer.isCompleted) {

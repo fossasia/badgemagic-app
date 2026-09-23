@@ -46,7 +46,7 @@ class WchUsbIspFlasher {
 
         dynamic assetSlotA;
         dynamic assetSlotB;
-        dynamic assetUsbMerged;
+        dynamic assetUsb;
 
         for (final asset in assets) {
           final String name = (asset['name'] as String? ?? '').toLowerCase();
@@ -56,12 +56,12 @@ class WchUsbIspFlasher {
           } else if (name == 'badgemagic-ch582-usb-c-4key_slotb.bin') {
             assetSlotB = asset;
           } else if (name.endsWith('.bin')) {
-            assetUsbMerged = asset;
+            assetUsb = asset;
           }
         }
 
         final bool hasOtaFirmware = assetSlotA != null && assetSlotB != null;
-        final bool hasUsbFirmware = assetUsbMerged != null;
+        final bool hasUsbFirmware = assetUsb != null;
 
         return {
           'version': version,
@@ -71,7 +71,7 @@ class WchUsbIspFlasher {
           'hasUsbFirmware': hasUsbFirmware,
           'assetSlotA': assetSlotA,
           'assetSlotB': assetSlotB,
-          'assetUsbMerged': assetUsbMerged,
+          'assetUsb': assetUsb,
         };
       }
     } catch (_) {}
