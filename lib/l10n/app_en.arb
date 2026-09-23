@@ -276,6 +276,7 @@
   "releasedLabel": "• Released: {date}",
   "firmwareUpdateInstruction": "Connect the badge via OTG cable in Bootloader mode (button pressed upon insertion)",
   "flashViaUsb": "Flash via USB",
+  "flashViaBLE": "Flash via BLE",
   "removeWithCount": "Remove ({count})",
   "firmwareUpdateSuccess": "Firmware updated successfully via USB!",
   "badgeIspNotFound": "Badge ISP not found. Connect the ledtag with the boot button pressed.",

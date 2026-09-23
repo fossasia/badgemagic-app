@@ -682,7 +682,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                                   ),
                                   icon: const Icon(Icons.flash_on, size: 18),
                                   onPressed: _handleStartFirmwareUpdate,
-                                  label: Text(l10n.updateButton),
+                                  label: Text(l10n.flashViaBLE),
                                 ),
                             ],
                           )

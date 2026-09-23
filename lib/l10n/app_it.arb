@@ -244,6 +244,7 @@
   "releasedLabel": "• Rilasciato: {date}",
   "firmwareUpdateInstruction": "Collega il badge tramite cavo OTG in modalità Bootloader (pulsante premuto all'inserimento).",
   "flashViaUsb": "Flash via USB",
+  "flashViaBLE": "Flash via BLE",
   "removeWithCount": "Rimuovi ({count})",
   "firmwareUpdateSuccess": "Firmware aggiornato correttamente via USB!",
   "badgeIspNotFound": "Badge ISP non trovato. Collega il badge con il pulsante boot premuto.",

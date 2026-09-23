@@ -302,22 +302,10 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
               if (_dontRemindAgain) {
                 await _skipVersionPermanently(widget.version);
               }
-
-              final nav = Navigator.of(context);
-              nav.pop();
-
-              final device = await scanForBadge(
-                mode: BadgeScanMode.any,
-                allowedNames: [],
-              );
-
-              if (device == null) {
-                ToastUtils().showToast(l10n.noBadgesFound);
-                return;
-              }
+              Navigator.of(context).pop();
               Navigator.pushNamed(context, '/settings');
             },
-            child: Text(l10n.updateButton),
+            child: Text(l10n.flashViaBLE),
           ),
         ],
       ],
