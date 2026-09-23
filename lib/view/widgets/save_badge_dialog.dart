@@ -5,6 +5,7 @@ import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'dart:io';
@@ -39,7 +40,7 @@ class SaveBadgeDialog extends StatelessWidget {
     );
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.r),
+        borderRadius: BorderRadius.circular(AppRadius.small.r),
       ),
       child: Container(
         height: 180.h,

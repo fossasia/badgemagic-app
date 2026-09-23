@@ -1,3 +1,4 @@
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -29,7 +30,7 @@ class BleProgressDialog extends StatelessWidget {
             backgroundColor: colorSurface,
             surfaceTintColor: colorTransparent,
             shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16.r)),
+                borderRadius: BorderRadius.circular(AppRadius.large.r)),
             contentPadding: EdgeInsets.fromLTRB(16.w, 16.h, 16.w, 8.h),
             actionsPadding: EdgeInsets.only(bottom: 8.h),
             content: SizedBox(
@@ -53,7 +54,7 @@ class BleProgressDialog extends StatelessWidget {
                   if (status == BleDialogStatus.transferring) ...[
                     SizedBox(height: 12.h),
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(4.r),
+                      borderRadius: BorderRadius.circular(AppRadius.small.r),
                       child: LinearProgressIndicator(
                         value: progress,
                         backgroundColor: colorSurfaceMuted,

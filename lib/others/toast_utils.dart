@@ -1,4 +1,5 @@
 import 'package:badgemagic/others/globals.dart' as globals;
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -33,7 +34,7 @@ class ToastUtils {
         backgroundColor: Colors.white,
         behavior: SnackBarBehavior.floating,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
         ),
         dismissDirection: DismissDirection.startToEnd,
       ),
