@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/font_provider.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/special_text_field.dart';
 import 'package:extended_text_field/extended_text_field.dart';
 import 'package:flutter/material.dart';
@@ -67,7 +68,7 @@ class BadgeTextInputField extends StatelessWidget {
       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
       child: Material(
         color: drawerHeaderTitle,
-        borderRadius: BorderRadius.circular(10.r),
+        borderRadius: BorderRadius.circular(AppRadius.medium.r),
         elevation: 4,
         child: ExtendedTextField(
           inputFormatters: [
@@ -98,10 +99,10 @@ class BadgeTextInputField extends StatelessWidget {
               : const TextStyle(fontSize: 14),
           decoration: InputDecoration(
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
+              borderRadius: BorderRadius.circular(AppRadius.medium.r),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10.r),
+              borderRadius: BorderRadius.circular(AppRadius.medium.r),
               borderSide: BorderSide(color: colorPrimary),
             ),
             contentPadding: EdgeInsets.symmetric(
@@ -138,7 +139,8 @@ class BadgeTextInputField extends StatelessWidget {
                       ),
                       shape: WidgetStatePropertyAll(
                         RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16.r),
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.large.r),
                         ),
                       ),
                     ),
@@ -176,7 +178,7 @@ class BadgeTextInputField extends StatelessWidget {
                     }).toList(),
                     builder: (context, controller, child) {
                       return InkWell(
-                        borderRadius: BorderRadius.circular(8.r),
+                        borderRadius: BorderRadius.circular(AppRadius.medium.r),
                         onTap: () {
                           FocusScope.of(context).unfocus();
                           controller.isOpen

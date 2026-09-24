@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/utils/badge_utils.dart';
 import 'package:flutter/material.dart';
 
@@ -31,7 +32,7 @@ class BadgePaint extends CustomPainter {
       offsetHeightBadgeBackground,
       offsetWidthBadgeBackground + badgeWidth,
       offsetHeightBadgeBackground + badgeHeight,
-      const Radius.circular(10.0),
+      const Radius.circular(AppRadius.medium),
     );
 
     canvas.drawRRect(gridRect, rectPaint);

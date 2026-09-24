@@ -8,6 +8,7 @@ import 'package:badgemagic/providers/service_locator.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/providers/usb_transfer_provider.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/about_us_screen.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/home_screen.dart';
@@ -119,7 +120,7 @@ class MyApp extends StatelessWidget {
                   surfaceTintColor: colorTransparent,
                   elevation: 0,
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(28.0),
+                    borderRadius: BorderRadius.circular(AppRadius.large),
                   ),
                   actionsPadding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

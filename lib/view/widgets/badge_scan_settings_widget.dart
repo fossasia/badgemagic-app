@@ -1,6 +1,7 @@
 // ignore_for_file: deprecated_member_use
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -159,7 +160,7 @@ class _BadgeScanSettingsWidgetState extends State<BadgeScanSettingsWidget> {
                             color: isSelected ? colorSelected : colorBorder,
                             width: isSelected ? 2 : 1,
                           ),
-                          borderRadius: BorderRadius.circular(8),
+                          borderRadius: BorderRadius.circular(AppRadius.medium),
                           color: isSelected
                               ? colorSelectedSurface
                               : colorTransparent,
