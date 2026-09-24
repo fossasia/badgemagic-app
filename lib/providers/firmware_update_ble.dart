@@ -46,11 +46,9 @@ class FirmwareUpdateService {
   static const int flashEraseBlockSize = 4096;
 
   static const Duration eraseDelay = Duration(milliseconds: 600);
-  static const Duration endDelay = Duration(milliseconds: 500);
+  static const Duration endDelay = Duration(milliseconds: 1000);
 
   static const Duration _writeTimeout = Duration(seconds: 4);
-
-  static const int verifyEveryNChunks = 0;
 
   // ============================================================
   // SLOT
@@ -304,7 +302,8 @@ class FirmwareUpdateService {
     Function(double progress)? onProgress,
   }) async {
     final int total = firmware.length;
-    final int chunkSize = maxChunkSize;
+
+    final int chunkSize = Platform.isAndroid ? 128 : maxChunkSize;
 
     logger.i(
         'OTA: Sending $total bytes to ${slotName(targetSlot)} (Chunk: $chunkSize B)...');
@@ -328,40 +327,19 @@ class FirmwareUpdateService {
       packet[3] = addrMsb;
       packet.setRange(4, 4 + currentSize, chunk);
 
+      final connState = await UniversalBle.getConnectionState(deviceId);
+      if (connState != BleConnectionState.connected) {
+        throw Exception(
+          'OTA interrupted: connextion lost at the offset $offset. Retry',
+        );
+      }
+
       bool sent = false;
       int attempt = 0;
-      const int maxAttempts = 5;
+      const int maxAttempts = 3;
 
       while (!sent) {
         attempt++;
-
-        final connState = await UniversalBle.getConnectionState(deviceId);
-        if (connState != BleConnectionState.connected) {
-          logger
-              .w('OTA: connection lost before offset=$offset, reconnecting...');
-          try {
-            await UniversalBle.connect(deviceId);
-            await Future.delayed(const Duration(milliseconds: 800));
-            await UniversalBle.discoverServices(deviceId);
-            try {
-              await UniversalBle.requestConnectionPriority(
-                deviceId,
-                BleConnectionPriority.highPerformance,
-              );
-            } catch (_) {}
-          } catch (e) {
-            logger.e('OTA: reconnection failed: $e');
-            if (attempt >= maxAttempts) {
-              throw Exception(
-                'OTA failed at offset=$offset: device disconnected and '
-                'reconnection failed after $attempt attempts.',
-              );
-            }
-            await Future.delayed(Duration(milliseconds: 500 * attempt));
-            continue;
-          }
-        }
-
         try {
           await UniversalBle.write(
             deviceId,
@@ -375,22 +353,19 @@ class FirmwareUpdateService {
         } on TimeoutException {
           logger.e('OTA: timeout offset=$offset (attempt $attempt)');
           UniversalBle.clearQueue(deviceId);
-          await Future.delayed(const Duration(milliseconds: 300));
           if (attempt >= maxAttempts) {
             throw Exception(
-              'OTA failed at offset=$offset after $attempt attempts: '
-              'unstable connection or firmware not responding.',
+              'OTA fallita: timeout all\'offset $offset after $attempt attempts.',
             );
           }
+          await Future.delayed(const Duration(milliseconds: 200));
         } catch (e) {
           logger.w('OTA: write error at offset=$offset (attempt $attempt): $e');
           UniversalBle.clearQueue(deviceId);
-          await Future.delayed(Duration(milliseconds: 400 * attempt));
           if (attempt >= maxAttempts) {
-            throw Exception(
-              'OTA failed at offset=$offset after $attempt attempts: $e',
-            );
+            throw Exception('OTA failed at the offset $offset: $e');
           }
+          await Future.delayed(Duration(milliseconds: 150 * attempt));
         }
       }
 
@@ -399,9 +374,11 @@ class FirmwareUpdateService {
       lastEraseBlockIndex = eraseBlockIndex;
 
       if (entersNewEraseBlock) {
-        await Future.delayed(const Duration(milliseconds: 20));
+        await Future.delayed(const Duration(milliseconds: 40));
       } else {
-        await Future.delayed(const Duration(milliseconds: 3));
+        await Future.delayed(
+          Duration(milliseconds: Platform.isAndroid ? 8 : 2),
+        );
       }
 
       final int written = offset + currentSize;
@@ -424,7 +401,9 @@ class FirmwareUpdateService {
   Future<void> _end(String deviceId, ActiveSlot targetSlot) async {
     logger.i('OTA: END -> switching active slot to ${slotName(targetSlot)}');
 
-    final packet = Uint8List(20);
+    await Future.delayed(const Duration(milliseconds: 300));
+
+    final packet = Uint8List(4);
     packet[0] = cmdIapEnd;
     packet[1] = 0x02;
     packet[2] = (targetSlot == ActiveSlot.slotB) ? 0x02 : 0x01;
@@ -437,7 +416,7 @@ class FirmwareUpdateService {
         otaCharacteristicUuid,
         packet,
         withoutResponse: false,
-      ).timeout(_writeTimeout);
+      ).timeout(const Duration(seconds: 3));
     } catch (e) {
       logger.w('OTA: disconnection during badge reboot (expected): $e');
     }
@@ -469,12 +448,21 @@ class FirmwareUpdateService {
       UniversalBle.timeout = _writeTimeout;
       UniversalBle.queueType = QueueType.perDevice;
 
-      try {
-        await UniversalBle.requestConnectionPriority(
-          deviceId,
-          BleConnectionPriority.highPerformance,
-        );
-      } catch (_) {}
+      if (!Platform.isAndroid && !Platform.isLinux) {
+        try {
+          await UniversalBle.requestConnectionPriority(
+            deviceId,
+            BleConnectionPriority.highPerformance,
+          );
+        } catch (_) {}
+      } else if (Platform.isAndroid) {
+        try {
+          await UniversalBle.requestConnectionPriority(
+            deviceId,
+            BleConnectionPriority.balanced,
+          );
+        } catch (_) {}
+      }
 
       int negotiatedMtu = 247;
       if (!Platform.isLinux) {
@@ -496,9 +484,9 @@ class FirmwareUpdateService {
 
       logger.i(
           'OTA: plan -> active=${slotName(activeSlot)}, target=${slotName(targetSlot)}, '
-          'targetAddr=0x${targetAddr.toRadixString(16)}, chunkSize=$maxDataPayload B');
+          'targetAddr=0x${targetAddr.toRadixString(16)}, chunkSize=${Platform.isAndroid ? 16 : maxDataPayload} B');
 
-      var firmware;
+      Uint8List firmware;
 
       if (isTest) {
         // TO TEST HARDCODED FIRMWARE ^._.^
