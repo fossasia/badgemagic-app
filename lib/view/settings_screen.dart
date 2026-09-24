@@ -957,33 +957,56 @@ class SettingsScreenState extends State<SettingsScreen> {
         .where((e) => e.isNotEmpty)
         .toList();
 
-    subscription = UniversalBle.scanStream.listen((device) async {
-      final matchesUuid = device.services.contains(serviceUuid);
-      final deviceName = (device.name ?? "").trim().toLowerCase();
-      final matchesName =
-          mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
-
-      if (matchesUuid && matchesName) {
-        timeoutTimer?.cancel();
-        subscription?.cancel();
+    Future<void> cleanup() async {
+      timeoutTimer?.cancel();
+      timeoutTimer = null;
+      await subscription?.cancel();
+      subscription = null;
+      try {
         await UniversalBle.stopScan();
-        if (!completer.isCompleted) {
-          completer.complete(device);
-        }
-      }
-    });
+      } catch (_) {}
+    }
 
-    await UniversalBle.startScan(
-      scanFilter: ScanFilter(withServices: [serviceUuid]),
+    subscription = UniversalBle.scanStream.listen(
+          (device) async {
+        final matchesUuid = device.services.contains(serviceUuid);
+        final deviceName = (device.name ?? "").trim().toLowerCase();
+        final matchesName =
+            mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
+
+        if (matchesUuid && matchesName) {
+          await cleanup();
+          if (!completer.isCompleted) {
+            completer.complete(device);
+          }
+        }
+      },
+      onError: (Object error) async {
+        await cleanup();
+        if (!completer.isCompleted) {
+          completer.completeError(error);
+        }
+      },
     );
 
     timeoutTimer = Timer(const Duration(seconds: 10), () async {
-      await UniversalBle.stopScan();
-      subscription?.cancel();
+      await cleanup();
       if (!completer.isCompleted) {
         completer.complete(null);
       }
     });
+
+    try {
+      await UniversalBle.startScan(
+        scanFilter: ScanFilter(withServices: [serviceUuid]),
+      );
+    } catch (e) {
+      await cleanup();
+      if (!completer.isCompleted) {
+        completer.completeError(e);
+      }
+      rethrow;
+    }
 
     return completer.future;
   }

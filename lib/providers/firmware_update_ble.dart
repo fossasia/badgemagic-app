@@ -477,7 +477,7 @@ class FirmwareUpdateService {
       } catch (_) {}
 
       int negotiatedMtu = 247;
-      if (!Platform.isLinux) {
+      if (!Platform.isLinux && !Platform.isMacOS) {
         try {
           negotiatedMtu = await UniversalBle.requestMtu(deviceId, 512);
           logger.i('OTA: negotiated MTU: $negotiatedMtu');
