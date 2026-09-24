@@ -16,7 +16,7 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
-import 'package:badgemagic/providers/firmware_update.dart';
+import 'package:badgemagic/providers/firmware_update_usb.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
@@ -38,7 +38,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import '../providers/firmware_update_ble.dart';
 import '../providers/usb_transfer_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -80,6 +80,7 @@ class _HomeScreenState extends State<HomeScreen>
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
+  final FirmwareUpdateService _updateService = FirmwareUpdateService();
   late final ScrollController _gifScrollController;
 
   static const _textKey = 'badge_text';
@@ -130,8 +131,8 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _initiateFirmwareCheck() async {
-    final flasher = WchUsbIspFlasher();
-    final updateInfo = await flasher.checkForUpdates();
+    final updateService = WchUsbIspFlasher();
+    final updateInfo = await updateService.checkForUpdates();
     final prefs = await SharedPreferences.getInstance();
     var version = updateInfo?['version'];
     final bool shouldSkip =
@@ -152,6 +153,7 @@ class _HomeScreenState extends State<HomeScreen>
             version: updateInfo['version']!,
             date: updateInfo['date']!,
             releaseAssets: updateInfo['assets'] ?? [],
+            service: _updateService,
           );
         },
       );
