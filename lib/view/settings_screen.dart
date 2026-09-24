@@ -968,7 +968,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     }
 
     subscription = UniversalBle.scanStream.listen(
-          (device) async {
+      (device) async {
         final matchesUuid = device.services.contains(serviceUuid);
         final deviceName = (device.name ?? "").trim().toLowerCase();
         final matchesName =
