@@ -47,7 +47,7 @@ dependencies:
   logger: ^2.8.0
   image_picker: ^1.2.3
   flutter_svg: ^2.3.0
-  get_it: ^9.2.1
+  get_it: ^9.3.0
   flutter_screenutil: ^5.9.3
   extended_text_field: ^17.0.0
   path_provider: ^2.1.6
