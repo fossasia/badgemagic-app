@@ -1,0 +1,3 @@
+Badge Magic lets you create scrolling symbols and text on LED name badges through Bluetooth. The app provides options to portray names, clipart and simple animations on LED badges. For the org.fossasia.badgemagic.data transfer from the smartphone to the LED badge we use Bluetooth.
+
+You can purchase a compatible LED Badge at https://sg.pslab.io
