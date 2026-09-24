@@ -25,6 +25,8 @@ class WriteState extends NormalBleState {
   static const Duration _disconnectTimeout = Duration(seconds: 2);
   static const Duration _postDisconnectDelay = Duration(milliseconds: 500);
 
+  bool verifiedNextGen = false;
+
   WriteState({required this.manager, required this.device});
 
   static Future<void> cancelTransfer() async {
@@ -73,6 +75,12 @@ class WriteState extends NormalBleState {
       await Future.delayed(_initialDelay);
       if (isCancellationRequested) return _handleAbortedState();
 
+      List<BleService> discoveredServices =
+          await UniversalBle.discoverServices(deviceId);
+
+      verifiedNextGen = discoveredServices.any((service) =>
+          service.uuid.toLowerCase() == ngServiceUuid.toLowerCase());
+
       final services = await UniversalBle.discoverServices(deviceId);
       final serviceExists = services.any((s) => s.uuid == serviceUuid);
       if (!serviceExists) {
@@ -106,6 +114,7 @@ class WriteState extends NormalBleState {
       return CompletedState(
         isSuccess: true,
         message: l10n.transferSucceeded,
+        isNextGen: verifiedNextGen,
       );
     } catch (e) {
       logger.e("Transfer failed: $e");
@@ -118,7 +127,17 @@ class WriteState extends NormalBleState {
       rethrow;
     } finally {
       progressTimer.cancel();
-      await _safeDisconnect(deviceId);
+      if (!verifiedNextGen) {
+        try {
+          logger.d("Disconnecting from legacy device after write...");
+          await _safeDisconnect(deviceId);
+        } catch (e) {
+          logger.e("Error during disconnect: $e");
+        }
+      } else {
+        logger
+            .i("Keeping GATT connection alive for Next-Gen profile commands.");
+      }
     }
   }
 

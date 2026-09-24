@@ -33,6 +33,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
   late BadgeScanMode _scanMode;
   late List<TextEditingController> _controllers;
+  bool _isStreamingEnabled = false;
   late SharedPreferences prefs;
   bool autoCheck = false;
   bool _initialized = false;
@@ -253,6 +254,7 @@ class SettingsScreenState extends State<SettingsScreen> {
 
         if (!_initialized) {
           _scanMode = provider.mode;
+          _isStreamingEnabled = provider.isStreamingEnabled;
           _controllers = provider.badgeNames
               .map((name) => TextEditingController(text: name))
               .toList();
@@ -297,6 +299,22 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 24),
+                Text(l10n.appFeaturesTitle,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                SwitchListTile(
+                  title: Text(l10n.enableBadheStreaming),
+                  subtitle: Text(l10n.enableBadheStreamingWarning),
+                  value: _isStreamingEnabled,
+                  activeColor: colorAccent,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _isStreamingEnabled = value;
+                    });
+                  },
+                ),
+                const SizedBox(height: 8),
                 if (Platform.isLinux)
                   Card(
                     elevation: 0,
@@ -625,6 +643,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   child: GestureDetector(
                     onTap: () {
                       provider.setMode(_scanMode);
+                      provider.setStreamingEnabled(_isStreamingEnabled);
                       provider.setBadgeNames(
                         _controllers.map((c) => c.text.trim()).toList(),
                       );
