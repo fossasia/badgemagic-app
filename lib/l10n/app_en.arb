@@ -291,5 +291,17 @@
   "cropFree": "Crop Free",
   "undo": "Undo",
   "redo": "Redo",
-  "imageImportedSuccessfully": "Image imported successfully!"
+  "imageImportedSuccessfully": "Image imported successfully!",
+  "enableUsbTransfers": "Enable USB Transfers",
+  "linuxUsbSoonAvailable": "sending badge data via OTG USB cable will be soon available on Linux",
+  "usbTransferDescription": "Allows sending badge data via OTG USB cable in addition to Bluetooth.",
+  "developerMode": "Developer Mode",
+  "developerModeDescription": "Unlocks all firmware update options (USB and BLE), regardless of what the release supports.",
+  "developerModeOn": "Developer mode ON",
+  "developerModeOff": "Developer mode OFF",
+  "testBleFirmwareUpdate": "Test BLE Firmware Update",
+  "testBleFirmwareDescription": "Use the HARDCODED firmware to test the flash on the badge via BLE",
+  "flashingFirmwareProgress": "Flashing firmware... {progress}%",
+  "writingInProgress": "Writing in progress: {progress}%",
+  "preparing": "Preparing..."
 }
