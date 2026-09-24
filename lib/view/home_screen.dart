@@ -39,6 +39,7 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../models/hardware_variant.dart';
 import '../providers/usb_transfer_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -90,6 +91,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   Timer? _debounceTimer;
 
+  static const _hardwareVariantKey = 'firmware_hardware_variant';
+
   @override
   void initState() {
     super.initState();
@@ -130,28 +133,30 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _initiateFirmwareCheck() async {
-    final flasher = WchUsbIspFlasher();
-    final updateInfo = await flasher.checkForUpdates();
     final prefs = await SharedPreferences.getInstance();
-    var version = updateInfo?['version'];
+    final variant =
+        HardwareVariantX.fromName(prefs.getString(_hardwareVariantKey));
+    if (variant == null) return;
+    final bool autoCheck = await autocheckFirmwareUpdates();
+    if (!autoCheck) return;
+    final flasher = WchUsbIspFlasher();
+    final updateInfo = await flasher.checkForUpdates(variant);
+    if (updateInfo == null) return;
+    final String? version = updateInfo['version'] as String?;
+    if (version == null) return;
     final bool shouldSkip =
         prefs.getBool('skip_firmware_version_$version') ?? false;
-    bool autoCheck = await autocheckFirmwareUpdates();
 
-    if (autoCheck &&
-        updateInfo != null &&
-        mounted &&
-        !shouldSkip &&
-        !_hasCheckedThisSession) {
+    if (mounted && !shouldSkip && !_hasCheckedThisSession) {
       _hasCheckedThisSession = true;
       showDialog(
         context: context,
         barrierDismissible: false,
         builder: (BuildContext context) {
           return FirmwareUpdateDialog(
-            version: updateInfo['version']!,
-            date: updateInfo['date']!,
-            releaseAssets: updateInfo['assets'] ?? [],
+            version: version,
+            date: updateInfo['date'] as String? ?? '',
+            downloadUrl: updateInfo['downloadUrl'] as String? ?? '',
           );
         },
       );
