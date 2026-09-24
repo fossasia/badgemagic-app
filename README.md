@@ -81,6 +81,7 @@ The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and ha
 <a href='https://apps.apple.com/us/app/badge-magic/id6740176888'><img align='center' height='55' src='./docs/images/appstore_badge.svg'></a>
 <a href='https://play.google.com/store/apps/details?id=org.fossasia.badgemagic'><img align='center' height='55' src='./docs/images/google_play_badge.png'></a>
 <a href='https://f-droid.org/en/packages/org.fossasia.badgemagic/'><img align='center' alt='Get it on F-Droid' src='./docs/images/fdroid_badge.png' height="55"/></a>
+<a href='https://flathub.org/apps/org.fossasia.BadgeMagic'><img align='center' height='55' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/></a>
 
 ## Get Beta Versions (Built from the latest code)
 
