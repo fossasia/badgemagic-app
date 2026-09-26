@@ -10,11 +10,12 @@ import 'package:logger/logger.dart';
 Future<void> customTransferGifAnimation(
     Future<void> Function(DataTransferManager) transferData,
     List<List<List<bool>>> frames,
-    int speedLevel) async {
-  if (!await checkAdapterState()) return;
+    int speedLevel,
+    {bool skipAdapterCheck = false}) async {
+  if (!skipAdapterCheck && !await checkAdapterState()) return;
 
   const int maxFrames = 8;
-  final Speed selectedSpeed = Speed.values[(speedLevel - 1).clamp(0, 7)];
+  final Speed selectedSpeed = Speed.eight;
   final logger = Logger();
 
   final List<List<List<bool>>> sampledFrames;

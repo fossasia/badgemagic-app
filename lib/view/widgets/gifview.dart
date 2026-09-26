@@ -15,19 +15,34 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 const List<Map<String, String>> presetGifs = [
-  {'path': 'assets/gifs/cosmic_cat.gif', 'label': 'Cosmic Cat'},
-  {'path': 'assets/gifs/dino_run.gif', 'label': 'Dino Run'},
-  {'path': 'assets/gifs/invader.gif', 'label': 'Invader'},
-  {'path': 'assets/gifs/rocket.gif', 'label': 'Rocket'},
-  {'path': 'assets/gifs/smiley.gif', 'label': 'Smiley'},
-  {'path': 'assets/gifs/ghost.gif', 'label': 'Ghost'},
-  {'path': 'assets/gifs/skull.gif', 'label': 'Skull'},
-  {'path': 'assets/gifs/dvd.gif', 'label': 'DVD'},
   {'path': 'assets/gifs/bounce.gif', 'label': 'Bounce'},
   {'path': 'assets/gifs/coffee.gif', 'label': 'Coffee'},
+  {'path': 'assets/gifs/cosmic_cat.gif', 'label': 'Cosmic Cat'},
+  {'path': 'assets/gifs/dino_run.gif', 'label': 'Dino Run'},
+  {'path': 'assets/gifs/dvd.gif', 'label': 'DVD'},
+  {'path': 'assets/gifs/ghost.gif', 'label': 'Ghost'},
+  {'path': 'assets/gifs/invader.gif', 'label': 'Invader'},
   {'path': 'assets/gifs/rain.gif', 'label': 'Rain'},
+  {'path': 'assets/gifs/rocket.gif', 'label': 'Rocket'},
+  {'path': 'assets/gifs/skull.gif', 'label': 'Skull'},
+  {'path': 'assets/gifs/smiley.gif', 'label': 'Smiley'},
   {'path': 'assets/gifs/wave.gif', 'label': 'Wave'},
 ];
+
+const Map<String, IconData> gifPreviewIcons = {
+  'assets/gifs/bounce.gif': Icons.sports_basketball,
+  'assets/gifs/coffee.gif': Icons.local_cafe,
+  'assets/gifs/cosmic_cat.gif': Icons.pets,
+  'assets/gifs/dino_run.gif': Icons.directions_run,
+  'assets/gifs/dvd.gif': Icons.album,
+  'assets/gifs/ghost.gif': Icons.face,
+  'assets/gifs/invader.gif': Icons.videogame_asset,
+  'assets/gifs/rain.gif': Icons.water_drop,
+  'assets/gifs/rocket.gif': Icons.rocket_launch,
+  'assets/gifs/skull.gif': Icons.dangerous,
+  'assets/gifs/smiley.gif': Icons.sentiment_satisfied,
+  'assets/gifs/wave.gif': Icons.waves,
+};
 
 class GifAnimationGridView extends StatefulWidget {
   final ScrollController? controller;
