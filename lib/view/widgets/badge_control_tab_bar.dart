@@ -52,6 +52,10 @@ class BadgeControlTabBar extends StatelessWidget {
             key: const ValueKey('tab_effects'),
             text: l10n.effectsTitle,
           ),
+          Tab(
+            key: const ValueKey('tab_animation'),
+            text: l10n.animation,
+          ),
         ],
       ),
     );

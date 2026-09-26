@@ -196,9 +196,14 @@ Future<void> transferFireworksAnimation(
 }
 
 Future<void> transferGifAnimation(BadgeMessageProvider badgeDataProvider,
-    List<List<List<bool>>> frames, int speedLevel) async {
+    List<List<List<bool>>> frames, int speedLevel,
+    {Future<void> Function(DataTransferManager)? sink,
+    bool skipAdapterCheck = false}) async {
   return customTransferGifAnimation(
-      (manager) => badgeDataProvider.transferData(manager), frames, speedLevel);
+      sink ?? (manager) => badgeDataProvider.transferData(manager),
+      frames,
+      speedLevel,
+      skipAdapterCheck: skipAdapterCheck);
 }
 
 Future<void> transferBeatingHeartsAnimation(
