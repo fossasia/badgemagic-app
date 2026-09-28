@@ -1,6 +1,7 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
@@ -80,7 +81,8 @@ class DrawShapeOptionsBar extends StatelessWidget {
         backgroundColor: isSelected ? colorPrimary : colorSurface,
         elevation: isSelected ? 2 : 1,
         side: BorderSide(color: isSelected ? colorPrimary : colorBorder),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+        shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(AppRadius.medium)),
         padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 8),
         minimumSize: const Size(55, 40),
       ),

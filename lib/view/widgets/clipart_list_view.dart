@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/others/image_utils.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';
@@ -43,7 +44,7 @@ class SavedClipartListView extends StatelessWidget {
           height: 90.h,
           decoration: BoxDecoration(
             color: colorSurface,
-            borderRadius: BorderRadius.circular(15.dg),
+            borderRadius: BorderRadius.circular(AppRadius.medium.dg),
             boxShadow: [
               BoxShadow(
                 color: colorShadow.withValues(alpha: 0.5),

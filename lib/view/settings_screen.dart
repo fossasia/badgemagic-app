@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/main.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -13,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../models/hardware_variant.dart';
 import '../others/byte_array_utils.dart';
 import '../others/globals.dart';
 import '../others/localization_service.dart';
@@ -49,12 +51,31 @@ class SettingsScreenState extends State<SettingsScreen> {
   bool _isFlashingFirmware = false;
   String _flashStatusText = '';
 
+  HardwareVariant? _selectedHardwareVariant;
+
+  static const _hardwareVariantKey = 'firmware_hardware_variant';
+
   @override
   void initState() {
     super.initState();
     _setOrientation();
     _loadUsbSetting();
+    _loadHardwareVariant();
     initAutocheckFirmwareUpdate();
+  }
+
+  Future<void> _loadHardwareVariant() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _selectedHardwareVariant =
+          HardwareVariantX.fromName(prefs.getString(_hardwareVariantKey));
+    });
+  }
+
+  Future<void> _saveHardwareVariant(HardwareVariant variant) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_hardwareVariantKey, variant.name);
   }
 
   void initAutocheckFirmwareUpdate() async {
@@ -89,13 +110,19 @@ class SettingsScreenState extends State<SettingsScreen> {
   }
 
   Future<void> _handleManualUpdateCheck() async {
+    if (_selectedHardwareVariant == null) {
+      _showSelectBadgeDialog();
+      return;
+    }
+
     setState(() {
       _isCheckingUpdate = true;
       _updateStatusMessage = null;
       _availableUpdate = null;
     });
 
-    final updateInfo = await _flasher.checkForUpdates();
+    final updateInfo =
+        await _flasher.checkForUpdates(_selectedHardwareVariant!);
 
     if (mounted) {
       setState(() {
@@ -107,6 +134,23 @@ class SettingsScreenState extends State<SettingsScreen> {
         }
       });
     }
+  }
+
+  void _showSelectBadgeDialog() {
+    showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text("Select your badge"),
+        content: const Text(
+            "Please select your badge model before checking for firmware updates."),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+          ),
+        ],
+      ),
+    );
   }
 
   Future<void> _handleStartUsbFirmwareUpdate() async {
@@ -180,9 +224,9 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
-      final List<dynamic> assets = _availableUpdate!['assets'] ?? [];
+      final String downloadUrl = _availableUpdate!['downloadUrl'];
       final Uint8List firmwareData =
-          await _flasher.downloadFirmwareBinary(assets);
+          await _flasher.downloadFirmwareBinary(downloadUrl);
 
       if (mounted) {
         setState(() {
@@ -319,7 +363,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   Card(
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                       side: BorderSide(color: Colors.grey.shade300),
                     ),
                     child: const ListTile(
@@ -340,7 +384,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   Card(
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                       side: BorderSide(color: Colors.grey.shade300),
                     ),
                     child: SwitchListTile(
@@ -455,7 +499,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                           color: isSelected ? colorSelected : colorBorder,
                           width: isSelected ? 2 : 1,
                         ),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppRadius.medium),
                         color: isSelected
                             ? colorSelectedSurface
                             : colorTransparent,
@@ -506,6 +550,28 @@ class SettingsScreenState extends State<SettingsScreen> {
                       fontSize: 16, fontWeight: FontWeight.bold),
                 ),
                 const SizedBox(height: 8),
+                DropdownButtonFormField<HardwareVariant>(
+                  initialValue: _selectedHardwareVariant,
+                  hint: const Text("Select your badge model"),
+                  items: HardwareVariant.values.map((v) {
+                    return DropdownMenuItem(value: v, child: Text(v.label));
+                  }).toList(),
+                  onChanged: (value) {
+                    if (value == null) return;
+                    setState(() => _selectedHardwareVariant = value);
+                    _saveHardwareVariant(value);
+                    setState(() {
+                      _availableUpdate = null;
+                      _updateStatusMessage = null;
+                    });
+                  },
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    contentPadding:
+                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
+                const SizedBox(height: 12),
                 Row(
                   children: [
                     ElevatedButton.icon(
@@ -542,7 +608,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
                       border: Border.all(color: Colors.red.shade200),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -655,7 +721,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 40, vertical: 10),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(AppRadius.small),
                         color: mdGrey400,
                       ),
                       child: Text(

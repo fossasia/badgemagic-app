@@ -1,5 +1,6 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -174,7 +175,7 @@ class _VectorGridViewState extends State<VectorGridView> {
                 },
                 child: Card(
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(5),
+                    borderRadius: BorderRadius.circular(AppRadius.small),
                   ),
                   surfaceTintColor: colorSurface,
                   color: colorSurface,
@@ -206,7 +207,7 @@ class _VectorGridViewState extends State<VectorGridView> {
               },
               child: Card(
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
+                  borderRadius: BorderRadius.circular(AppRadius.small),
                   side: isSelected
                       ? BorderSide(color: colorTextSecondary, width: 2)
                       : BorderSide.none,

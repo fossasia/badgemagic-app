@@ -14,13 +14,13 @@ import '../../providers/firmware_update.dart';
 class FirmwareUpdateDialog extends StatefulWidget {
   final String version;
   final String date;
-  final List<dynamic> releaseAssets;
+  final String downloadUrl;
 
   const FirmwareUpdateDialog({
     super.key,
     required this.version,
     required this.date,
-    required this.releaseAssets,
+    required this.downloadUrl,
   });
 
   @override
@@ -116,7 +116,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
       }
 
       final Uint8List firmwareData =
-          await _flasher.downloadFirmwareBinary(widget.releaseAssets);
+          await _flasher.downloadFirmwareBinary(widget.downloadUrl);
 
       if (mounted) {
         setState(() {

@@ -1,4 +1,5 @@
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/vector_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -23,7 +24,7 @@ class BadgeClipartPicker extends StatelessWidget {
         child: Container(
           height: visible ? 200.h : 0,
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10.r),
+            borderRadius: BorderRadius.circular(AppRadius.medium.r),
             color: colorSurfaceMuted,
           ),
           margin: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
@@ -33,7 +34,7 @@ class BadgeClipartPicker extends StatelessWidget {
             thumbVisibility: true,
             trackVisibility: true,
             thickness: 4.0,
-            radius: const Radius.circular(10),
+            radius: const Radius.circular(AppRadius.medium),
             child: VectorGridView(controller: controller),
           ),
         ),
