@@ -5,6 +5,7 @@ import 'dart:typed_data';
 
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/main.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -344,7 +345,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   Card(
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                       side: BorderSide(color: Colors.grey.shade300),
                     ),
                     child: const ListTile(
@@ -365,7 +366,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                   Card(
                     elevation: 0,
                     shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                       side: BorderSide(color: Colors.grey.shade300),
                     ),
                     child: SwitchListTile(
@@ -480,7 +481,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                           color: isSelected ? colorSelected : colorBorder,
                           width: isSelected ? 2 : 1,
                         ),
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppRadius.medium),
                         color: isSelected
                             ? colorSelectedSurface
                             : colorTransparent,
@@ -589,7 +590,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                     decoration: BoxDecoration(
                       color: Colors.red.shade50,
                       border: Border.all(color: Colors.red.shade200),
-                      borderRadius: BorderRadius.circular(8),
+                      borderRadius: BorderRadius.circular(AppRadius.medium),
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -701,7 +702,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 40, vertical: 10),
                       decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(4),
+                        borderRadius: BorderRadius.circular(AppRadius.small),
                         color: mdGrey400,
                       ),
                       child: Text(

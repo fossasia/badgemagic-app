@@ -1,4 +1,5 @@
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:badgemagic/others/localization_service.dart';
@@ -14,7 +15,7 @@ class DeleteBadgeDialog extends StatelessWidget {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
     return Dialog(
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(5.r),
+        borderRadius: BorderRadius.circular(AppRadius.small.r),
       ),
       child: SingleChildScrollView(
         child: Padding(
