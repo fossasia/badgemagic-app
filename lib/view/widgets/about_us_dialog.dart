@@ -1,4 +1,5 @@
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -53,7 +54,7 @@ class LicenseDialogContainer extends StatelessWidget {
         const SizedBox(height: 10),
         Container(
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(4),
+            borderRadius: BorderRadius.circular(AppRadius.small),
             color: colorBorder,
           ),
           child: Padding(
@@ -83,7 +84,7 @@ void showLicenseDialog(BuildContext context) {
         insetPadding: EdgeInsets.all(8),
         backgroundColor: colorSurface,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0),
+          borderRadius: BorderRadius.circular(AppRadius.medium),
         ),
         child: Container(
           constraints: BoxConstraints(maxHeight: 500.h),
@@ -94,8 +95,8 @@ void showLicenseDialog(BuildContext context) {
                 decoration: BoxDecoration(
                   color: colorSurface,
                   borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(10.0),
-                    topRight: Radius.circular(10.0),
+                    topLeft: Radius.circular(AppRadius.medium),
+                    topRight: Radius.circular(AppRadius.medium),
                   ),
                 ),
                 child: Align(

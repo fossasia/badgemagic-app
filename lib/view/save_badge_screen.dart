@@ -4,6 +4,7 @@ import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/qr_scan_screen.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
@@ -139,7 +140,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                 minimumSize: Size.zero,
                 tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6.r),
+                  borderRadius: BorderRadius.circular(AppRadius.small.r),
                   side: const BorderSide(color: drawerHeaderTitle),
                 ),
               ),
@@ -316,7 +317,8 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: colorPrimary,
                                 shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(5.r),
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.small.r),
                                 ),
                                 padding: EdgeInsets.symmetric(vertical: 12.h),
                               ),
