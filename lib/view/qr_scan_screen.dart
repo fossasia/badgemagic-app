@@ -1,4 +1,5 @@
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/utils/qr_code_helper.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/l10n/app_localizations.dart';
@@ -103,7 +104,7 @@ class _QrScanScreenState extends State<QrScanScreen> {
             height: 240,
             decoration: BoxDecoration(
               border: Border.all(color: colorOnPrimary, width: 3),
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(AppRadius.medium),
             ),
           ),
           Positioned(

@@ -6,6 +6,7 @@ import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:get_it/get_it.dart';
+import '../models/hardware_variant.dart';
 import '../others/app_logger.dart';
 import '../others/localization_service.dart';
 import '../others/toast_utils.dart';
@@ -18,7 +19,7 @@ class WchUsbIspFlasher {
 
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
-  Future<Map<String, dynamic>?> checkForUpdates() async {
+  Future<Map<String, dynamic>?> checkForUpdates(HardwareVariant variant) async {
     try {
       final response = await http.get(
         Uri.parse(_apiLatestUrl),
@@ -33,6 +34,12 @@ class WchUsbIspFlasher {
 
         if (version.isEmpty) return null;
 
+        final asset = variant.findAsset(assets);
+        if (asset == null) {
+          logger.w('No firmware asset found for variant: ${variant.label}');
+          return null;
+        }
+
         String formattedDate = rawDate;
         if (rawDate.isNotEmpty) {
           try {
@@ -44,26 +51,15 @@ class WchUsbIspFlasher {
         return {
           'version': version,
           'date': formattedDate,
-          'assets': assets,
+          'assetName': asset['name'],
+          'downloadUrl': asset['browser_download_url'],
         };
       }
     } catch (_) {}
     return null;
   }
 
-  Future<Uint8List> downloadFirmwareBinary(List<dynamic> assets) async {
-    final asset = assets.firstWhere(
-      (a) {
-        final name = (a['name'] as String? ?? '').toLowerCase();
-        return name.contains('merged') && name.endsWith('.bin');
-      },
-      orElse: () => assets.firstWhere(
-        (a) => (a['name'] as String? ?? '').toLowerCase().endsWith('.bin'),
-        orElse: () => throw Exception('No .bin file found'),
-      ),
-    );
-
-    final String downloadUrl = asset['browser_download_url'];
+  Future<Uint8List> downloadFirmwareBinary(String downloadUrl) async {
     final response = await http.get(Uri.parse(downloadUrl));
 
     if (response.statusCode != 200 || response.bodyBytes.isEmpty) {

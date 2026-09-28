@@ -1,4 +1,5 @@
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -42,7 +43,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
               Container(
                 decoration: BoxDecoration(
                   color: colorSurface,
-                  borderRadius: BorderRadius.circular(10),
+                  borderRadius: BorderRadius.circular(AppRadius.medium),
                   boxShadow: const [
                     BoxShadow(
                       color: colorShadow,
@@ -124,7 +125,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       offset: Offset(0, 1),
                     )
                   ],
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(AppRadius.small),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -180,7 +181,7 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                       offset: Offset(0, 1),
                     )
                   ],
-                  borderRadius: BorderRadius.circular(6),
+                  borderRadius: BorderRadius.circular(AppRadius.small),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
