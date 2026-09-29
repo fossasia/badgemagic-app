@@ -644,68 +644,29 @@ class SettingsScreenState extends State<SettingsScreen> {
                 ),
                 const SizedBox(height: 8),
                 if (_developerMode) ...[
-                DropdownButtonFormField<HardwareVariant>(
-                  initialValue: _selectedHardwareVariant,
-                  hint: const Text("Select your badge model"),
-                  items: HardwareVariant.values.map((v) {
-                    return DropdownMenuItem(value: v, child: Text(v.label));
-                  }).toList(),
-                  onChanged: (value) {
-                    if (value == null) return;
-                    setState(() => _selectedHardwareVariant = value);
-                    _saveHardwareVariant(value);
-                    setState(() {
-                      _availableUpdate = null;
-                      _updateStatusMessage = null;
-                    });
-                  },
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    ElevatedButton.icon(
-                      onPressed:
-                          _isCheckingUpdate ? null : _handleManualUpdateCheck,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: indicatorColor,
-                        elevation: 0,
-                      ),
-                      icon: _isCheckingUpdate
-                          ? const SizedBox(
-                              width: 16,
-                              height: 16,
-                              child: CircularProgressIndicator(
-                                  strokeWidth: 2, color: Colors.red),
-                            )
-                          : const Icon(Icons.refresh),
-                      label: Text(l10n.checkFirmwareUpdateButton),
+                  DropdownButtonFormField<HardwareVariant>(
+                    initialValue: _selectedHardwareVariant,
+                    hint: const Text("Select your badge model"),
+                    items: HardwareVariant.values.map((v) {
+                      return DropdownMenuItem(value: v, child: Text(v.label));
+                    }).toList(),
+                    onChanged: (value) {
+                      if (value == null) return;
+                      setState(() => _selectedHardwareVariant = value);
+                      _saveHardwareVariant(value);
+                      setState(() {
+                        _availableUpdate = null;
+                        _updateStatusMessage = null;
+                      });
+                    },
+                    decoration: const InputDecoration(
+                      border: OutlineInputBorder(),
+                      contentPadding:
+                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     ),
-                  ],
-                ),
-                if (_updateStatusMessage != null) ...[
+                  ),
                   const SizedBox(height: 12),
-                  Text(
-                    l10n.firmwareUpdate,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                ],
-                if (_availableUpdate != null) ...[
-                  const SizedBox(height: 16),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.red.shade50,
-                      border: Border.all(color: Colors.red.shade200),
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                    ),
-                     //TO TEST HARDCODED FIRMWARE ^._.^
+                  // ^._.^
                   Card(
                     elevation: 0,
                     shape: RoundedRectangleBorder(
@@ -809,7 +770,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                               const LinearProgressIndicator(
                                 color: Colors.red,
                               ),
-                              SizedBox(height: 6),
+                              const SizedBox(height: 6),
                               Text(
                                 _flashStatusText,
                                 style: TextStyle(
@@ -858,29 +819,29 @@ class SettingsScreenState extends State<SettingsScreen> {
                                     label: Text(l10n.flashViaBLE),
                                   ),
                               ],
-                            )
+                            ),
                           ],
                         ],
                       ),
                     ),
                   ],
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      const SizedBox(width: 8),
-                      Text(l10n.checkUpdateStartup),
-                      Checkbox(
-                        activeColor: colorPrimary,
-                        value: autoCheck,
-                        onChanged: (value) async {
-                          if (value == null) return;
-                          setState(() => autoCheck = value);
-                          await prefs.setBool('auto_check_updates', value);
-                        },
-                      ),
-                    ],
-                  ),
                 ],
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    const SizedBox(width: 8),
+                    Text(l10n.checkUpdateStartup),
+                    Checkbox(
+                      activeColor: colorPrimary,
+                      value: autoCheck,
+                      onChanged: (value) async {
+                        if (value == null) return;
+                        setState(() => autoCheck = value);
+                        await prefs.setBool('auto_check_updates', value);
+                      },
+                    ),
+                  ],
+                ),
                 const SizedBox(height: 24),
                 Center(
                   child: GestureDetector(

@@ -20,6 +20,7 @@ class FirmwareUpdateDialog extends StatefulWidget {
   final String date;
   final List<dynamic> releaseAssets;
   final FirmwareUpdateService service;
+  final String downloadUrl;
 
   const FirmwareUpdateDialog({
     super.key,

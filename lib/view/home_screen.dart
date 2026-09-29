@@ -136,8 +136,6 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _initiateFirmwareCheck() async {
-    final updateService = WchUsbIspFlasher();
-    final updateInfo = await updateService.checkForUpdates();
     final prefs = await SharedPreferences.getInstance();
     final variant =
         HardwareVariantX.fromName(prefs.getString(_hardwareVariantKey));
@@ -159,8 +157,6 @@ class _HomeScreenState extends State<HomeScreen>
         barrierDismissible: false,
         builder: (BuildContext context) {
           return FirmwareUpdateDialog(
-            version: updateInfo['version']!,
-            date: updateInfo['date']!,
             releaseAssets: updateInfo['assets'] ?? [],
             service: _updateService,
             version: version,
