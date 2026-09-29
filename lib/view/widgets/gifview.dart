@@ -1,4 +1,5 @@
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:flutter/material.dart';
 
 const List<Map<String, String>> presetGifs = [
@@ -98,7 +99,7 @@ class _GifTile extends StatelessWidget {
       onTap: onTap,
       child: Card(
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
+          borderRadius: BorderRadius.circular(AppRadius.small),
           side: BorderSide(
             color: isSelected ? colorPrimary : Colors.transparent,
             width: isSelected ? 1.5 : 0,

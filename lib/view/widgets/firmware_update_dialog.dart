@@ -27,6 +27,7 @@ class FirmwareUpdateDialog extends StatefulWidget {
     required this.date,
     required this.releaseAssets,
     required this.service,
+    required this.downloadUrl,
   });
 
   @override
@@ -164,7 +165,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
       }
 
       final Uint8List firmwareData =
-          await _flasher.downloadFirmwareBinary(widget.releaseAssets);
+          await _flasher.downloadFirmwareBinary(widget.downloadUrl);
 
       if (mounted) {
         setState(() {

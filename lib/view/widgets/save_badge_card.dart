@@ -10,6 +10,7 @@ import 'package:badgemagic/providers/badge_slot_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/home_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:badgemagic/view/widgets/qr_share_dialog.dart';
@@ -46,14 +47,14 @@ class SaveBadgeCard extends StatelessWidget {
     return InkWell(
       onLongPress: onLongPress,
       onTap: onTap,
-      borderRadius: BorderRadius.circular(6.dg),
+      borderRadius: BorderRadius.circular(AppRadius.small.dg),
       child: Container(
         width: 370.w,
         padding: EdgeInsets.all(6.dg),
         margin: EdgeInsets.all(10.dg),
         decoration: BoxDecoration(
           color: isSelected ? Colors.grey.shade300 : colorSurface,
-          borderRadius: BorderRadius.circular(6.dg),
+          borderRadius: BorderRadius.circular(AppRadius.small.dg),
           boxShadow: [
             BoxShadow(
               color: colorShadow.withValues(alpha: 0.5),
@@ -84,7 +85,7 @@ class SaveBadgeCard extends StatelessWidget {
                           ),
                         );
                       },
-                      borderRadius: BorderRadius.circular(6.r),
+                      borderRadius: BorderRadius.circular(AppRadius.small.r),
                       child: Container(
                         padding: EdgeInsets.symmetric(
                             horizontal: 8.w, vertical: 4.h),
@@ -93,7 +94,8 @@ class SaveBadgeCard extends StatelessWidget {
                             color: Colors.grey.shade400,
                             width: 1,
                           ),
-                          borderRadius: BorderRadius.circular(6.r),
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.small.r),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -230,7 +232,8 @@ class SaveBadgeCard extends StatelessWidget {
                               horizontal: 10.w, vertical: 4.h),
                           decoration: BoxDecoration(
                             color: colorPrimary,
-                            borderRadius: BorderRadius.circular(100),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.large),
                           ),
                           child: Image.asset(
                             "assets/icons/flash.png",
@@ -244,7 +247,8 @@ class SaveBadgeCard extends StatelessWidget {
                               horizontal: 12.w, vertical: 4.h),
                           decoration: BoxDecoration(
                             color: colorPrimary,
-                            borderRadius: BorderRadius.circular(100),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.large),
                           ),
                           child: Image.asset(
                             "assets/icons/square.png",
@@ -258,7 +262,8 @@ class SaveBadgeCard extends StatelessWidget {
                               horizontal: 12.w, vertical: 4.h),
                           decoration: BoxDecoration(
                             color: colorPrimary,
-                            borderRadius: BorderRadius.circular(100),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.large),
                           ),
                           child: Image.asset(
                             "assets/icons/t_invert.png",
@@ -271,7 +276,7 @@ class SaveBadgeCard extends StatelessWidget {
                             horizontal: 12.w, vertical: 4.h),
                         decoration: BoxDecoration(
                           color: colorPrimary,
-                          borderRadius: BorderRadius.circular(100),
+                          borderRadius: BorderRadius.circular(AppRadius.large),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
@@ -299,7 +304,7 @@ class SaveBadgeCard extends StatelessWidget {
                             horizontal: 12.w, vertical: 4.h),
                         decoration: BoxDecoration(
                           color: colorPrimary,
-                          borderRadius: BorderRadius.circular(100),
+                          borderRadius: BorderRadius.circular(AppRadius.large),
                         ),
                         child: Text(
                           file

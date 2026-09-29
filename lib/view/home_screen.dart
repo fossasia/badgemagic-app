@@ -21,6 +21,7 @@ import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
+import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/vector_view.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
 import 'package:badgemagic/view/widgets/gifview.dart';
@@ -39,6 +40,8 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../providers/firmware_update_ble.dart';
+
+import '../models/hardware_variant.dart';
 import '../providers/usb_transfer_provider.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -91,6 +94,8 @@ class _HomeScreenState extends State<HomeScreen>
 
   Timer? _debounceTimer;
 
+  static const _hardwareVariantKey = 'firmware_hardware_variant';
+
   @override
   void initState() {
     super.initState();
@@ -134,16 +139,20 @@ class _HomeScreenState extends State<HomeScreen>
     final updateService = WchUsbIspFlasher();
     final updateInfo = await updateService.checkForUpdates();
     final prefs = await SharedPreferences.getInstance();
-    var version = updateInfo?['version'];
+    final variant =
+        HardwareVariantX.fromName(prefs.getString(_hardwareVariantKey));
+    if (variant == null) return;
+    final bool autoCheck = await autocheckFirmwareUpdates();
+    if (!autoCheck) return;
+    final flasher = WchUsbIspFlasher();
+    final updateInfo = await flasher.checkForUpdates(variant);
+    if (updateInfo == null) return;
+    final String? version = updateInfo['version'] as String?;
+    if (version == null) return;
     final bool shouldSkip =
         prefs.getBool('skip_firmware_version_$version') ?? false;
-    bool autoCheck = await autocheckFirmwareUpdates();
 
-    if (autoCheck &&
-        updateInfo != null &&
-        mounted &&
-        !shouldSkip &&
-        !_hasCheckedThisSession) {
+    if (mounted && !shouldSkip && !_hasCheckedThisSession) {
       _hasCheckedThisSession = true;
       showDialog(
         context: context,
@@ -154,6 +163,9 @@ class _HomeScreenState extends State<HomeScreen>
             date: updateInfo['date']!,
             releaseAssets: updateInfo['assets'] ?? [],
             service: _updateService,
+            version: version,
+            date: updateInfo['date'] as String? ?? '',
+            downloadUrl: updateInfo['downloadUrl'] as String? ?? '',
           );
         },
       );
@@ -332,7 +344,7 @@ class _HomeScreenState extends State<HomeScreen>
             padding: EdgeInsets.symmetric(vertical: 6.h),
             decoration: BoxDecoration(
               color: selected ? colorPrimary : Colors.transparent,
-              borderRadius: BorderRadius.circular(20.r),
+              borderRadius: BorderRadius.circular(AppRadius.large.r),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -359,7 +371,7 @@ class _HomeScreenState extends State<HomeScreen>
       padding: EdgeInsets.all(3.w),
       decoration: BoxDecoration(
         color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(20.r),
+        borderRadius: BorderRadius.circular(AppRadius.large.r),
       ),
       child: Row(
         children: [
@@ -451,7 +463,8 @@ class _HomeScreenState extends State<HomeScreen>
                       child: Container(
                         height: isPrefixIconClicked ? 225.h : 0,
                         decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10.r),
+                          borderRadius:
+                              BorderRadius.circular(AppRadius.medium.r),
                           color: colorSurfaceMuted,
                         ),
                         margin: EdgeInsets.symmetric(
@@ -470,7 +483,8 @@ class _HomeScreenState extends State<HomeScreen>
                                       thumbVisibility: true,
                                       trackVisibility: true,
                                       thickness: 4.0,
-                                      radius: const Radius.circular(10),
+                                      radius: const Radius.circular(
+                                          AppRadius.medium),
                                       child: GifGridView(
                                         controller: _gifScrollController,
                                         onGifSelected: _handleGifSelected,
@@ -482,7 +496,8 @@ class _HomeScreenState extends State<HomeScreen>
                                       thumbVisibility: true,
                                       trackVisibility: true,
                                       thickness: 4.0,
-                                      radius: const Radius.circular(10),
+                                      radius: const Radius.circular(
+                                          AppRadius.medium),
                                       child: VectorGridView(
                                           controller: _vectorScrollController),
                                     ),
@@ -523,7 +538,8 @@ class _HomeScreenState extends State<HomeScreen>
                             letterSpacing: 0.3,
                           ),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(14.r),
+                            borderRadius:
+                                BorderRadius.circular(AppRadius.medium.r),
                           ),
                         ),
                         child: Text(label),
@@ -793,7 +809,8 @@ class _HomeScreenState extends State<HomeScreen>
       backgroundColor: Colors.white,
       isScrollControlled: true,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20.r)),
+        borderRadius:
+            BorderRadius.vertical(top: Radius.circular(AppRadius.large.r)),
       ),
       builder: (bottomSheetContext) {
         return SafeArea(
@@ -814,7 +831,7 @@ class _HomeScreenState extends State<HomeScreen>
                     height: 4.h,
                     decoration: BoxDecoration(
                       color: Colors.grey[300],
-                      borderRadius: BorderRadius.circular(2.r),
+                      borderRadius: BorderRadius.circular(AppRadius.small.r),
                     ),
                   ),
                   SizedBox(height: 16.h),
