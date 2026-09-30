@@ -82,7 +82,6 @@ class _HomeScreenState extends State<HomeScreen>
   String errorVal = "";
   late final ScrollController _vectorScrollController;
   final FirmwareUpdateService _updateService = FirmwareUpdateService();
-  late final ScrollController _gifScrollController;
 
   static const _textKey = 'badge_text';
   static const _speedKey = 'badge_speed';
