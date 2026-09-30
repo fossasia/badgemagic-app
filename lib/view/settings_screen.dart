@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'dart:async';
 import 'dart:io' show Platform;
-import 'dart:typed_data';
 
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/main.dart';
