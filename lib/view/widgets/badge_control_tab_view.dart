@@ -7,11 +7,15 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 class BadgeControlTabView extends StatelessWidget {
   final TabController controller;
   final ValueChanged<bool>? onDialInteracting;
+  final ValueChanged<String> onGifSelected;
+  final String? selectedGifPath;
 
   const BadgeControlTabView({
     super.key,
     required this.controller,
+    required this.onGifSelected,
     this.onDialInteracting,
+    this.selectedGifPath,
   });
 
   @override
@@ -30,7 +34,10 @@ class BadgeControlTabView extends StatelessWidget {
           ),
           const TransitionTab(),
           const EffectTab(),
-          const AnimationTab(),
+          AnimationTab(
+            onGifSelected: onGifSelected,
+            selectedGifPath: selectedGifPath,
+          ),
         ],
       ),
     );
