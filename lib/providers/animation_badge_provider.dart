@@ -192,6 +192,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
     _paintGrid = List.generate(11, (i) => List.generate(44, (j) => false));
     _newGrid = List.generate(11, (i) => List.generate(44, (j) => false));
     logger.d("All animations stopped");
+    notifyListeners();
   }
 
   @override
@@ -402,6 +403,12 @@ class AnimationBadgeProvider extends ChangeNotifier {
       if (chunks.isNotEmpty) {
         payload = chunks.expand((chunk) => chunk).toList();
       }
+    }
+
+    if (isGifActive && _gifFrames != null) {
+      await transferGifAnimation(badgeData, _gifFrames!, speedLevel,
+          sink: capture, skipAdapterCheck: true);
+      return payload;
     }
 
     final int aniIndex = getAnimationIndex() ?? 0;
