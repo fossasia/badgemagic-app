@@ -85,6 +85,10 @@ class _AniContainerState extends State<AniContainer> {
               }
               return;
             }
+            if (animationCardState.isAnimationActive(badgeAnimation)) {
+              animationCardState.stopAllAnimations();
+              return;
+            }
           }
           animationCardState.setAnimationMode(badgeAnimation);
         },

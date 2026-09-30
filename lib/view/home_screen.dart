@@ -28,7 +28,6 @@ import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/vector_view.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_bar.dart';
-import 'package:badgemagic/view/widgets/gifview.dart';
 import 'package:badgemagic/view/widgets/badge_control_tab_view.dart';
 import 'package:badgemagic/view/widgets/badge_text_input_field.dart';
 import 'package:badgemagic/view/widgets/firmware_update_dialog.dart';
@@ -81,13 +80,11 @@ class _HomeScreenState extends State<HomeScreen>
 
   bool isPrefixIconClicked = false;
   bool isDialInteracting = false;
-  bool _showGifs = false;
   String? _selectedGifPath;
   String previousText = '';
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
-  late final ScrollController _gifScrollController;
 
   static const _textKey = 'badge_text';
   static const _speedKey = 'badge_speed';
@@ -103,7 +100,6 @@ class _HomeScreenState extends State<HomeScreen>
   void initState() {
     super.initState();
     _vectorScrollController = ScrollController();
-    _gifScrollController = ScrollController();
     WidgetsBinding.instance.addObserver(this);
     inlineImageController.addListener(handleTextChange);
     _setPortraitOrientation();
@@ -297,7 +293,6 @@ class _HomeScreenState extends State<HomeScreen>
   void dispose() {
     _debounceTimer?.cancel();
     _vectorScrollController.dispose();
-    _gifScrollController.dispose();
     WidgetsBinding.instance.removeObserver(this);
     inlineImageController.removeListener(handleTextChange);
     inlineImageController.removeListener(_debouncedSavePreferences);
@@ -327,60 +322,6 @@ class _HomeScreenState extends State<HomeScreen>
     } else if (state == AppLifecycleState.inactive) {
       animationProvider.stopAnimation();
     }
-  }
-
-  Widget _buildClipartToggle() {
-    Widget segment(
-        String label, IconData icon, bool selected, VoidCallback onTap) {
-      return Expanded(
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onTap,
-          child: AnimatedContainer(
-            duration: const Duration(milliseconds: 180),
-            padding: EdgeInsets.symmetric(vertical: 6.h),
-            decoration: BoxDecoration(
-              color: selected ? colorPrimary : Colors.transparent,
-              borderRadius: BorderRadius.circular(AppRadius.large.r),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(icon,
-                    size: 15.sp, color: selected ? Colors.white : mdGrey400),
-                SizedBox(width: 5.w),
-                Text(
-                  label,
-                  style: TextStyle(
-                    fontSize: 12.sp,
-                    fontWeight: FontWeight.w600,
-                    color: selected ? Colors.white : mdGrey400,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-    }
-
-    return Container(
-      padding: EdgeInsets.all(3.w),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(AppRadius.large.r),
-      ),
-      child: Row(
-        children: [
-          segment('Cliparts', Icons.emoji_symbols_rounded, !_showGifs, () {
-            if (_showGifs) setState(() => _showGifs = false);
-          }),
-          segment('GIFs', Icons.gif_box_rounded, _showGifs, () {
-            if (!_showGifs) setState(() => _showGifs = true);
-          }),
-        ],
-      ),
-    );
   }
 
   Future<void> _handleGifSelected(String assetPath) async {
@@ -468,38 +409,14 @@ class _HomeScreenState extends State<HomeScreen>
                             horizontal: 15.w, vertical: 8.h),
                         padding: EdgeInsets.symmetric(
                             vertical: 10.h, horizontal: 10.w),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            _buildClipartToggle(),
-                            SizedBox(height: 6.h),
-                            Expanded(
-                              child: _showGifs
-                                  ? Scrollbar(
-                                      controller: _gifScrollController,
-                                      thumbVisibility: true,
-                                      trackVisibility: true,
-                                      thickness: 4.0,
-                                      radius: const Radius.circular(
-                                          AppRadius.medium),
-                                      child: GifGridView(
-                                        controller: _gifScrollController,
-                                        onGifSelected: _handleGifSelected,
-                                        selectedPath: _selectedGifPath,
-                                      ),
-                                    )
-                                  : Scrollbar(
-                                      controller: _vectorScrollController,
-                                      thumbVisibility: true,
-                                      trackVisibility: true,
-                                      thickness: 4.0,
-                                      radius: const Radius.circular(
-                                          AppRadius.medium),
-                                      child: VectorGridView(
-                                          controller: _vectorScrollController),
-                                    ),
-                            ),
-                          ],
+                        child: Scrollbar(
+                          controller: _vectorScrollController,
+                          thumbVisibility: true,
+                          trackVisibility: true,
+                          thickness: 4.0,
+                          radius: const Radius.circular(AppRadius.medium),
+                          child: VectorGridView(
+                              controller: _vectorScrollController),
                         ),
                       ),
                     ),
@@ -514,6 +431,8 @@ class _HomeScreenState extends State<HomeScreen>
                         isDialInteracting = interacting;
                       });
                     },
+                    onGifSelected: _handleGifSelected,
+                    selectedGifPath: _selectedGifPath,
                   );
                   Widget actionButton({
                     required String label,
@@ -547,7 +466,8 @@ class _HomeScreenState extends State<HomeScreen>
                   final actionButtons = Consumer<AnimationBadgeProvider>(
                       builder: (context, animationProvider, _) {
                     final isSpecial =
-                        animationProvider.isSpecialAnimationSelected();
+                        animationProvider.isSpecialAnimationSelected() ||
+                            animationProvider.isGifActive;
                     final device = animationProvider.ngDevice;
 
                     final scanProvider = context.watch<BadgeScanProvider>();
@@ -999,7 +919,7 @@ class _HomeScreenState extends State<HomeScreen>
     final int aniIndex = animationProvider.getAnimationIndex() ?? 0;
 
     List<int>? generatedData;
-    if (aniIndex >= 9) {
+    if (animationProvider.isGifActive || aniIndex >= 9) {
       generatedData = await animationProvider.generateAnimationUsbPayload(
         badgeData,
         speedDialProvider.getOuterValue(),
