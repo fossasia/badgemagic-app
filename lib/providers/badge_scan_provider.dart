@@ -8,11 +8,13 @@ class BadgeScanProvider with ChangeNotifier {
   List<String> _badgeNames = ['lsled', 'vblab'];
   Set<int> _selectedIndices = {};
   bool _isLoaded = false;
+  bool _isStreamingEnabled = false;
 
   BadgeScanMode get mode => _mode;
   List<String> get badgeNames => List.unmodifiable(_badgeNames);
   Set<int> get selectedIndices => Set.unmodifiable(_selectedIndices);
   bool get isLoaded => _isLoaded;
+  bool get isStreamingEnabled => _isStreamingEnabled;
 
   BadgeScanProvider() {
     _loadFromPrefs();
@@ -25,6 +27,8 @@ class BadgeScanProvider with ChangeNotifier {
     if (modeIndex != null) {
       _mode = BadgeScanMode.values[modeIndex];
     }
+
+    _isStreamingEnabled = prefs.getBool('badge_streaming_mode') ?? false;
 
     final storedNames = prefs.getStringList('badge_names');
     if (storedNames != null && storedNames.isNotEmpty) {
@@ -39,6 +43,7 @@ class BadgeScanProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setInt('badge_scan_mode', _mode.index);
     await prefs.setStringList('badge_names', _badgeNames);
+    await prefs.setBool('badge_streaming_mode', _isStreamingEnabled);
   }
 
   void setMode(BadgeScanMode mode) {
@@ -57,6 +62,12 @@ class BadgeScanProvider with ChangeNotifier {
       return true;
     }).toList();
     _selectedIndices.clear();
+    _saveToPrefs();
+    notifyListeners();
+  }
+
+  void setStreamingEnabled(bool enabled) {
+    _isStreamingEnabled = enabled;
     _saveToPrefs();
     notifyListeners();
   }
