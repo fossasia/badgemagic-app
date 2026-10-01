@@ -8,6 +8,7 @@ import 'package:badgemagic/main.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
+import 'package:badgemagic/view/widgets/setting_option.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
@@ -424,70 +425,29 @@ class SettingsScreenState extends State<SettingsScreen> {
                         EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   ),
                 ),
-                const SizedBox(height: 24),
-                Row(
-                  children: [
-                    Text(
-                      l10n.secureConnection,
-                      style: const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(width: 4),
-                    IconButton(
-                      icon: const Icon(Icons.info_outline,
-                          size: 20, color: colorPrimary),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(),
-                      onPressed: () {
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Row(
-                              children: [
-                                const Icon(Icons.lock_outline,
-                                    color: colorPrimary),
-                                const SizedBox(width: 8),
-                                Text(l10n.pinInformation),
-                              ],
-                            ),
-                            content: Text(
-                              l10n.pinInformationMessage,
-                            ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text(l10n.iUnderstand),
-                              ),
-                            ],
-                          ),
-                        );
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                SwitchListTile(
-                  title: Text(l10n.requestPinBeforeSending),
-                  subtitle: Text(l10n.secureConnectionDescription),
+                const SizedBox(height: 16),
+                Text(l10n.appFeaturesTitle,
+                    style: const TextStyle(
+                        fontSize: 16, fontWeight: FontWeight.bold)),
+                const SizedBox(height: 8),
+                buildSwitchCard(
+                  title: l10n.requestPinBeforeSending,
+                  subtitle: l10n.secureConnectionDescription,
+                  icon: Icons.lock_outline,
                   value: _isSecureConnectionEnabled,
-                  activeColor: colorPrimary,
-                  contentPadding: EdgeInsets.zero,
                   onChanged: (bool value) {
                     setState(() {
                       _isSecureConnectionEnabled = value;
                     });
                   },
                 ),
-                const SizedBox(height: 16),
-                Text(l10n.appFeaturesTitle,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 8),
-                SwitchListTile(
-                  title: Text(l10n.enableBadheStreaming),
-                  subtitle: Text(l10n.enableBadheStreamingWarning),
-                  value: _isStreamingEnabled,
+                buildSwitchCard(
+                  title: l10n.enableBadheStreaming,
+                  subtitle: l10n.enableBadheStreamingWarning,
+                  icon: Icons.sensors,
                   activeColor: colorAccent,
+                  value: _isStreamingEnabled,
                   onChanged: (bool value) {
                     setState(() {
                       _isStreamingEnabled = value;
@@ -517,39 +477,24 @@ class SettingsScreenState extends State<SettingsScreen> {
                     ),
                   )
                 else
-                  Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                      side: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    child: SwitchListTile(
-                      title: Text(
-                        l10n.enableUsbTransfers,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        l10n.usbTransferDescription,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      activeColor: colorAccent,
-                      value: _isUsbTransferEnabled,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _isUsbTransferEnabled = value;
-                        });
-                        _saveUsbSetting(value);
-                        final usbProvider = context.read<UsbTransferProvider>();
-                        if (value) {
-                          usbProvider.startUsbMonitoring();
-                        } else {
-                          usbProvider.stopUsbMonitoring();
-                        }
-                      },
-                    ),
+                  buildSwitchCard(
+                    title: l10n.enableUsbTransfers,
+                    subtitle: l10n.usbTransferDescription,
+                    icon: Icons.usb,
+                    activeColor: colorAccent,
+                    value: _isUsbTransferEnabled,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _isUsbTransferEnabled = value;
+                      });
+                      _saveUsbSetting(value);
+                      final usbProvider = context.read<UsbTransferProvider>();
+                      if (value) {
+                        usbProvider.startUsbMonitoring();
+                      } else {
+                        usbProvider.stopUsbMonitoring();
+                      }
+                    },
                   ),
                 const SizedBox(height: 24),
                 const Divider(),
@@ -683,49 +628,30 @@ class SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 24),
                 const Divider(),
                 const SizedBox(height: 12),
-                Card(
-                  elevation: 0,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                    side: BorderSide(color: Colors.grey.shade300),
-                  ),
-                  child: SwitchListTile(
-                    secondary: Icon(
-                      Icons.developer_mode,
-                      color: _developerMode ? Colors.red : Colors.grey,
-                    ),
-                    title: Text(
-                      l10n.developerMode,
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text(
-                      l10n.developerModeDescription,
-                      style: const TextStyle(fontSize: 12),
-                    ),
-                    activeColor: Colors.red,
-                    value: _developerMode,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _developerMode = value;
-                        if (value) {
-                          viaUSB = (Platform.isAndroid || Platform.isLinux);
-                          viaBLE = true;
-                        } else if (_availableUpdate != null) {
-                          viaUSB = (Platform.isAndroid || Platform.isLinux) &&
-                              (_availableUpdate!['hasUsbFirmware'] == true);
-                          viaBLE = _testerBleMode ||
-                              (_availableUpdate!['hasOtaFirmware'] == true);
-                        }
-                      });
-                      _saveDeveloperMode(value);
-                      ToastUtils().showToast(
-                        value ? l10n.developerModeOn : l10n.developerModeOff,
-                      );
-                    },
-                  ),
+                buildSwitchCard(
+                  title: l10n.developerMode,
+                  subtitle: l10n.developerModeDescription,
+                  icon: Icons.developer_mode,
+                  activeColor: Colors.red,
+                  value: _developerMode,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _developerMode = value;
+                      if (value) {
+                        viaUSB = (Platform.isAndroid || Platform.isLinux);
+                        viaBLE = true;
+                      } else if (_availableUpdate != null) {
+                        viaUSB = (Platform.isAndroid || Platform.isLinux) &&
+                            (_availableUpdate!['hasUsbFirmware'] == true);
+                        viaBLE = _testerBleMode ||
+                            (_availableUpdate!['hasOtaFirmware'] == true);
+                      }
+                    });
+                    _saveDeveloperMode(value);
+                    ToastUtils().showToast(
+                      value ? l10n.developerModeOn : l10n.developerModeOff,
+                    );
+                  },
                 ),
                 const SizedBox(height: 8),
                 if (_developerMode) ...[
@@ -752,39 +678,21 @@ class SettingsScreenState extends State<SettingsScreen> {
                   ),
                   const SizedBox(height: 12),
                   // ^._.^
-                  Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      side: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    child: SwitchListTile(
-                      secondary: Icon(
-                        Icons.bug_report_outlined,
-                        color: _testerBleMode ? Colors.red : Colors.grey,
-                      ),
-                      title: Text(
-                        l10n.testBleFirmwareUpdate,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        l10n.testBleFirmwareDescription,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                      activeColor: Colors.red,
-                      value: _testerBleMode,
-                      onChanged: (bool value) {
-                        setState(() {
-                          _testerBleMode = value;
-                          viaBLE = value;
-                        });
-                        _saveTesterBleMode(value);
-                      },
-                    ),
+                  buildSwitchCard(
+                    title: l10n.testBleFirmwareUpdate,
+                    subtitle: l10n.testBleFirmwareDescription,
+                    icon: Icons.bug_report_outlined,
+                    activeColor: Colors.red,
+                    value: _testerBleMode,
+                    onChanged: (bool value) {
+                      setState(() {
+                        _testerBleMode = value;
+                        viaBLE = value;
+                      });
+                      _saveTesterBleMode(value);
+                    },
                   ),
+
                   const SizedBox(height: 10),
                   Row(
                     children: [
