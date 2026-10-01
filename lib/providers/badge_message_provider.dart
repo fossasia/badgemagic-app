@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:async';
 import 'package:badgemagic/communication/base_ble_state.dart';
+import 'package:badgemagic/communication/completed_state.dart';
 import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/file_helper.dart';
@@ -58,6 +59,7 @@ class BadgeMessageProvider {
       GetIt.instance.get<InlineImageProvider>();
   FileHelper fileHelper = FileHelper();
   Converters converters = Converters();
+  DataTransferManager? deviceManager;
 
   bool isHardwareUnlocked = false;
   String? savedPin;
@@ -93,10 +95,11 @@ class BadgeMessageProvider {
     }
   }
 
-  Future<bool> transferData(
+  Future<CompletedState?> transferData(
     DataTransferManager manager, {
     BuildContext? context,
   }) async {
+    deviceManager = manager;
     final scanProvider = context != null
         ? Provider.of<BadgeScanProvider>(context, listen: false)
         : null;
@@ -119,18 +122,14 @@ class BadgeMessageProvider {
     logger.d("Time to transfer data: ${DateTime.now().difference(now)}");
     logger.d(".......Data transfer completed.......");
 
-    if (lastState != null) {
-      try {
-        if (lastState.isSuccess == false) {
-          return false;
-        }
-      } catch (_) {}
+    if (lastState is CompletedState) {
+      return lastState;
     }
 
-    return true;
+    return null;
   }
 
-  Future<void> checkAndTransfer(
+  Future<CompletedState?> checkAndTransfer(
       String? text,
       bool? flash,
       bool? marq,
@@ -161,7 +160,7 @@ class BadgeMessageProvider {
       if (mode != Mode.pacman && !isFireworks) {
         bleDialogController.update(
             BleDialogStatus.error, l10n.pleaseEnterMessage);
-        return;
+        return null;
       }
     }
 
@@ -173,7 +172,7 @@ class BadgeMessageProvider {
 
         if (!connectStatus.isGranted) {
           bleDialogController.update(BleDialogStatus.error, l10n.turnBLEOn);
-          return;
+          return null;
         }
       }
     }
@@ -189,7 +188,7 @@ class BadgeMessageProvider {
             BleDialogStatus.error, l10n.turnOnBluetoothMessage);
       }
       logger.w('Bluetooth is currently disabled/unavailable: $adapterState');
-      return;
+      return null;
     }
 
     final prefs = await SharedPreferences.getInstance();
@@ -234,8 +233,8 @@ class BadgeMessageProvider {
     }
 
     DataTransferManager manager = DataTransferManager(data);
-    if (!context.mounted) return;
-    await transferData(manager, context: context);
+    if (!context.mounted) return null;
+    return await transferData(manager, context: context);
   }
 }
 
