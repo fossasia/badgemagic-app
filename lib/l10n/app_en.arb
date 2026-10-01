@@ -249,6 +249,38 @@
   "couldNotGenerateQrImage": "Could not generate QR image.",
   "couldNotShareQrImage": "Could not share QR image.",
   "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
+  "turnBLEOn": "Please turn on Bluetooth in your settings",
+  "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
+  "defaultFont": "Default",
+  "font": "Font",
+  "connected": "Connected",
+  "liveMirroring": "Live Mirroring",
+  "liveMirroringSubtitle": "Sync the app preview to the badge in real time",
+  "powerOff": "Turn off Badge",
+  "disconnect": "Disconnect",
+  "disconnected": "Disconnected",
+  "currentName": "Current Name: ",
+  "renameBadge": "Rename Badge",
+  "bleAlwaysOn": "BLE Always On",
+  "bleAlwaysOnSubtitle": "Keep Bluetooth active during animations",
+  "alwaysOnEnabled": "Always-On Enabled",
+  "alwaysOnDisabled": "Always-On Disabled",
+  "savingAndRebooting": "Saving and rebooting badge...",
+  "nameApplied": "Name applied to device",
+  "savedToFlash": "Saved to Flash!",
+  "turnOff": "Turn Off tha badge",
+  "editingBadgeWithName": "Editing badge: {name}",
+  "@editingBadgeWithName": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "saveFlashAndReboot": "Save and Reboot the badge",
+  "appFeaturesTitle": "App Features",
+  "enableBadheStreaming": "Enable Badge Streaming",
+  "enableBadheStreamingWarning": "Only FOSSASIA firmware supports this feature",
   "renameBadge": "Rename Badge",
   "newName": "New name",
   "rename": "Rename",
