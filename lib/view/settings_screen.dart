@@ -628,6 +628,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 24),
                 const Divider(),
                 const SizedBox(height: 12),
+                Text(
+                  l10n.firmwareUpdate,
+                  style: const TextStyle(
+                      fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 8),
                 buildSwitchCard(
                   title: l10n.developerMode,
                   subtitle: l10n.developerModeDescription,
