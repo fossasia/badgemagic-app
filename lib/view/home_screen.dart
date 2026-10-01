@@ -19,7 +19,7 @@ import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/badge_message_provider.dart'
     hide modeValueMap, speedMap;
 import 'package:badgemagic/providers/badge_scan_provider.dart';
-import 'package:badgemagic/providers/firmware_update.dart';
+import 'package:badgemagic/providers/firmware_update_usb.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/providers/next_gen_provider.dart';
 import 'package:badgemagic/providers/saved_badge_provider.dart';
@@ -43,6 +43,7 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
+import '../providers/firmware_update_ble.dart';
 
 import '../models/hardware_variant.dart';
 import '../providers/usb_transfer_provider.dart';
@@ -85,6 +86,7 @@ class _HomeScreenState extends State<HomeScreen>
   String _cachedText = '';
   String errorVal = "";
   late final ScrollController _vectorScrollController;
+  final FirmwareUpdateService _updateService = FirmwareUpdateService();
 
   static const _textKey = 'badge_text';
   static const _speedKey = 'badge_speed';
@@ -156,6 +158,8 @@ class _HomeScreenState extends State<HomeScreen>
         barrierDismissible: false,
         builder: (BuildContext context) {
           return FirmwareUpdateDialog(
+            releaseAssets: updateInfo['assets'] ?? [],
+            service: _updateService,
             version: version,
             date: updateInfo['date'] as String? ?? '',
             downloadUrl: updateInfo['downloadUrl'] as String? ?? '',
