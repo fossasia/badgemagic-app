@@ -164,7 +164,10 @@ class WriteState extends NormalBleState {
         final isHardDisconnection = errorStr.contains('DEVICE_DISCONNECTED') ||
             errorStr.contains('DEVICE_NOT_FOUND') ||
             errorStr.contains('deviceDisconnected') ||
-            errorStr.contains('deviceNotFound');
+            errorStr.contains('deviceNotFound') ||
+            errorStr.contains('connectionTerminated') ||
+            errorStr.contains('CONNECTION_TERMINATED') ||
+            errorStr.contains('connection_terminated');
 
         if (isHardDisconnection) {
           final isNearEnd = chunkIndex >= (totalChunks * 0.85).floor();
