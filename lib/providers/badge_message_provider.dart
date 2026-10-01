@@ -208,12 +208,20 @@ class BadgeMessageProvider {
         final combinedManager =
             RawDataTransferManager(pin: savedPin ?? '', textData: data);
 
-        final success = await transferData(combinedManager, context: context);
+        CompletedState? result;
+        try {
+          result = await transferData(combinedManager, context: context);
+        } catch (e) {
+          logger.e("Transfer attempt $attempt failed with exception: $e");
+          result = null;
+        }
+
+        final bool success = result?.isSuccess ?? false;
 
         if (success) {
           savedPin = combinedManager.pin;
           isHardwareUnlocked = true;
-          return;
+          return result;
         }
 
         savedPin = null;
@@ -222,14 +230,14 @@ class BadgeMessageProvider {
         if (combinedManager.cancelledByUser) {
           bleDialogController.update(
               BleDialogStatus.error, l10n.transferCanceledByUser);
-          return;
+          return null;
         }
         if (attempt < maxAttempts) {
           await Future.delayed(const Duration(milliseconds: 1500));
         }
       }
       bleDialogController.update(BleDialogStatus.error, l10n.transferFailed);
-      return;
+      return null;
     }
 
     DataTransferManager manager = DataTransferManager(data);
