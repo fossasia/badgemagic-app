@@ -36,6 +36,8 @@ class ScanState extends NormalBleState {
         Provider.of<BadgeScanProvider>(context, listen: false);
     manager.clearConnectedDevice();
     await UniversalBle.stopScan();
+    bleDialogController.update(
+        BleDialogStatus.searching, l10n.searchingDeviceBLE);
 
     Completer<BleState?> nextStateCompleter = Completer();
     StreamSubscription<BleDevice>? subscription;
