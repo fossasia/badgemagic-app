@@ -95,15 +95,21 @@ class WriteState extends NormalBleState {
         currentChunkIndex++;
         targetProgress = currentChunkIndex / totalChunks;
 
-        await _writeChunkWithRetry(
+        bool shouldContinue = await _writeChunkWithRetry(
           deviceId: deviceId,
           chunk: chunk,
           chunkIndex: currentChunkIndex,
           totalChunks: totalChunks,
         );
 
+        if (!shouldContinue) {
+          targetProgress = 1.0;
+          break;
+        }
+
         await Future.delayed(_chunkDelay);
       }
+
       targetProgress = 1.0;
       await Future.delayed(const Duration(milliseconds: 300));
 
@@ -141,14 +147,15 @@ class WriteState extends NormalBleState {
     }
   }
 
-  Future<void> _writeChunkWithRetry({
+  Future<bool> _writeChunkWithRetry({
     required String deviceId,
     required List<int> chunk,
     required int chunkIndex,
     required int totalChunks,
   }) async {
     for (int attempt = 1; attempt <= _maxRetries; attempt++) {
-      if (isCancellationRequested) return;
+      if (isCancellationRequested) return false;
+
       try {
         await UniversalBle.write(
           deviceId,
@@ -158,7 +165,7 @@ class WriteState extends NormalBleState {
           withoutResponse: false,
         );
         logger.d("Chunk $chunkIndex written successfully on attempt $attempt");
-        return;
+        return true;
       } catch (e) {
         final errorStr = e.toString();
         final isHardDisconnection = errorStr.contains('DEVICE_DISCONNECTED') ||
@@ -167,7 +174,9 @@ class WriteState extends NormalBleState {
             errorStr.contains('deviceNotFound') ||
             errorStr.contains('connectionTerminated') ||
             errorStr.contains('CONNECTION_TERMINATED') ||
-            errorStr.contains('connection_terminated');
+            errorStr.contains('connection_terminated') ||
+            errorStr.contains('characteristicNotFound') ||
+            errorStr.contains('Unknown characteristic');
 
         if (isHardDisconnection) {
           final isNearEnd = chunkIndex >= (totalChunks * 0.85).floor();
@@ -177,12 +186,12 @@ class WriteState extends NormalBleState {
               "Chunk $chunkIndex/$totalChunks: device disconnected near end — "
               "treating as implicit success.",
             );
-            return;
+            return false;
           } else {
             logger.e(
               "Chunk $chunkIndex/$totalChunks: device disconnected too early — aborting retries.",
             );
-            break;
+            throw Exception(l10n.transferFailed);
           }
         }
 
