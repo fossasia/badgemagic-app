@@ -55,7 +55,7 @@ dependencies:
   go_router: ^18.0.2
   share_plus: ^13.3.0
   file_picker: ^13.1.0
-  google_fonts: ^8.2.1
+  google_fonts: ^9.0.0
   url_launcher: ^6.3.2
   image: ^4.10.1
   qr_flutter: ^4.1.0
