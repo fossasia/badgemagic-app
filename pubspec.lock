@@ -403,18 +403,18 @@ packages:
     dependency: "direct main"
     description:
       name: go_router
-      sha256: "008ab21d89d0de8ccd79586838f7533f126c2d894f50bf25f2947888d3c225b5"
+      sha256: "530dcbb298dc7c319aea9e3b7c580a61effb2abee2c93825d2dd8d5af0e230f1"
       url: "https://pub.dev"
     source: hosted
-    version: "18.0.1"
+    version: "18.0.2"
   google_fonts:
     dependency: "direct main"
     description:
       name: google_fonts
-      sha256: e3cb3ee6b47fd2472c23de6da5744796a4da195137759ddb3fbcc9467b7b3c7d
+      sha256: fdbbfbbb1a62f376ab29fa9627561d389751fb984da0b630ce3326e272911c8a
       url: "https://pub.dev"
     source: hosted
-    version: "8.2.1"
+    version: "9.0.0"
   hid_tool:
     dependency: "direct main"
     description:
@@ -600,10 +600,10 @@ packages:
     dependency: transitive
     description:
       name: material_ui
-      sha256: "7ba1ca315d50a004791dbab290417c52a61466d56db2822fe3c5c2994903110c"
+      sha256: "32d98f11cf5942a095a8c3e01b03e4de3b17941437713dcf36b1088fb62e23d2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "1.5.0"
   meta:
     dependency: transitive
     description:
