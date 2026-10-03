@@ -468,7 +468,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
 
   Future<void> sendDirectLegacyUpdate({
     required String text,
-    required dynamic badgeData,
+    required BadgeMessageProvider badgeData,
     required bool flash,
     required bool marquee,
     required bool invert,
@@ -485,7 +485,7 @@ class AnimationBadgeProvider extends ChangeNotifier {
         marquee,
         invert,
         speedMap[speed],
-        animationMap[getAnimationIndex() ?? 0],
+        modeValueMap[getAnimationIndex() ?? 0],
         null,
       );
 
