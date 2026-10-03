@@ -10,6 +10,7 @@ import 'package:get_it/get_it.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/draw_badge.dart';
+import 'package:badgemagic/view/widgets/draw_move_options_bar.dart';
 import 'package:badgemagic/view/widgets/draw_shape_options_bar.dart';
 import 'package:badgemagic/view/widgets/draw_tool_button.dart';
 import 'package:badgemagic/view/widgets/save_clipart_name_dialog.dart';
@@ -70,6 +71,15 @@ class _DrawBadgeState extends State<DrawBadge> {
       DeviceOrientation.landscapeRight,
       DeviceOrientation.landscapeLeft,
     ]);
+  }
+
+  void _onDrawProviderReady(DrawBadgeProvider provider) {
+    drawToggle = provider;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
   }
 
   bool _isBadgeGridEmpty(List<List<int>> grid) {
@@ -164,8 +174,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                               child: AspectRatio(
                                 aspectRatio: 44 / 13,
                                 child: BMBadge(
-                                  providerInit: (provider) =>
-                                      drawToggle = provider,
+                                  providerInit: _onDrawProviderReady,
                                   badgeGrid: widget.badgeGrid
                                       ?.map(
                                           (e) => e.map((e) => e == 1).toList())
@@ -179,7 +188,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                       child: Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 8.0),
                         child: BMBadge(
-                          providerInit: (provider) => drawToggle = provider,
+                          providerInit: _onDrawProviderReady,
                           badgeGrid: widget.badgeGrid
                               ?.map((e) => e.map((e) => e == 1).toList())
                               .toList(),
@@ -308,6 +317,12 @@ class _DrawBadgeState extends State<DrawBadge> {
                     ),
                   ],
                 ),
+              ),
+              const SizedBox(height: 8),
+              DrawMoveOptionsBar(
+                provider: drawToggle,
+                iconSize: iconSize,
+                fontSize: buttonTextSize,
               ),
               const SizedBox(height: 12),
               if (_showShapeOptions)
