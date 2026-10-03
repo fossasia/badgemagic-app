@@ -4,6 +4,8 @@ import 'package:badgemagic/badge_animation/animation_abstract.dart';
 
 enum DrawShape { freehand, square, rectangle, circle, triangle }
 
+enum DrawMoveDirection { left, right, up, down }
+
 class DrawBadgeProvider extends ChangeNotifier {
   final int rows = 11;
   final int cols = 44;
@@ -128,6 +130,52 @@ class DrawBadgeProvider extends ChangeNotifier {
       _drawViewGrid = _redoStack.removeLast();
       notifyListeners();
     }
+  }
+
+  /// Shifts the entire committed drawing by one cell with wrap-around.
+  /// One call is one undoable action.
+  void shiftDrawing(DrawMoveDirection direction) {
+    clearPreviewGrid();
+    _pushToUndoStack();
+    _drawViewGrid = _shiftedGrid(_drawViewGrid, direction);
+    notifyListeners();
+  }
+
+  List<List<bool>> _shiftedGrid(
+    List<List<bool>> grid,
+    DrawMoveDirection direction,
+  ) {
+    final int rowCount = rows;
+    final int colCount = cols;
+    final List<List<bool>> shifted =
+        List.generate(rowCount, (_) => List.filled(colCount, false));
+
+    for (int row = 0; row < rowCount; row++) {
+      for (int col = 0; col < colCount; col++) {
+        final int sourceRow;
+        final int sourceCol;
+        switch (direction) {
+          case DrawMoveDirection.left:
+            sourceRow = row;
+            sourceCol = (col + 1) % colCount;
+            break;
+          case DrawMoveDirection.right:
+            sourceRow = row;
+            sourceCol = (col - 1 + colCount) % colCount;
+            break;
+          case DrawMoveDirection.up:
+            sourceRow = (row + 1) % rowCount;
+            sourceCol = col;
+            break;
+          case DrawMoveDirection.down:
+            sourceRow = (row - 1 + rowCount) % rowCount;
+            sourceCol = col;
+            break;
+        }
+        shifted[row][col] = grid[sourceRow][sourceCol];
+      }
+    }
+    return shifted;
   }
 
   List<List<bool>> _copyGrid(List<List<bool>> grid) {
