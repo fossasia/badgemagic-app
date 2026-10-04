@@ -419,18 +419,20 @@ class Converters {
           image[i][j] = -1;
         }
       } else {
-        finalSum += (height - j - 1);
+        finalSum += (width - j - 1);
         break;
       }
     }
 
     int diff = 0;
-    if ((height - finalSum) % 8 > 0) {
-      diff = 8 - (height - finalSum) % 8;
+    if ((width - finalSum) % 8 > 0) {
+      diff = 8 - (width - finalSum) % 8;
     }
 
-    int rOff = (diff / 2).floor();
-    int lOff = (diff / 2).ceil();
+    // rOff is applied on the left, lOff on the right.
+    // For trim:false keep content left-aligned (issue #1557).
+    final int rOff = trim ? (diff / 2).floor() : 0;
+    final int lOff = trim ? (diff / 2).ceil() : diff;
 
     List<List<int>> list =
         List.generate(height, (i) => List.filled(width + rOff + lOff, 0));
