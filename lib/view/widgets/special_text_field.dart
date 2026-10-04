@@ -55,7 +55,45 @@ class InlineImage extends SpecialText {
 
 const int kInlineImageSentinelStart = 0x7fffffff;
 
+class ScreenDivider extends SpecialText {
+  static const String flag = '\f';
+  ScreenDivider(TextStyle? textStyle, {this.start})
+      : super('\f', '\f', textStyle);
+  final int? start;
+
+  @override
+  InlineSpan finishText() {
+    return WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      child: Container(
+        width: 1.5,
+        height: 16.h,
+        margin: EdgeInsets.symmetric(horizontal: 4.w),
+        color: Colors.red.withValues(alpha: 0.5),
+      ),
+    );
+  }
+}
+
+class HiddenDivider extends SpecialText {
+  static const String flag = '\f';
+  HiddenDivider(TextStyle? textStyle, {this.start})
+      : super('\f', '\f', textStyle);
+  final int? start;
+
+  @override
+  InlineSpan finishText() {
+    return const WidgetSpan(
+      child: SizedBox.shrink(), // Completely invisible
+    );
+  }
+}
+
 class ImageBuilder extends SpecialTextSpanBuilder {
+  final bool isAnimationMode;
+
+  ImageBuilder({this.isAnimationMode = false});
+
   @override
   SpecialText? createSpecialText(String flag,
       {TextStyle? textStyle,
@@ -67,6 +105,12 @@ class ImageBuilder extends SpecialTextSpanBuilder {
         textStyle,
         start: kInlineImageSentinelStart,
       );
+    } else if (flag.contains(ScreenDivider.flag)) {
+      if (isAnimationMode) {
+        return ScreenDivider(textStyle, start: index);
+      } else {
+        return HiddenDivider(textStyle, start: index);
+      }
     }
     return null;
   }

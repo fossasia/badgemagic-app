@@ -92,7 +92,9 @@ class BadgeTextInputField extends StatelessWidget {
             }),
           ],
           controller: controller,
-          specialTextSpanBuilder: ImageBuilder(),
+          specialTextSpanBuilder: ImageBuilder(
+            isAnimationMode: Provider.of<AnimationBadgeProvider>(context).getAnimationIndex() == 5,
+          ),
           style: Provider.of<FontProvider>(context).selectedFont != null
               ? _getFontStyle(Provider.of<FontProvider>(context).selectedFont!)
                   .copyWith(fontSize: 14)
@@ -116,14 +118,72 @@ class BadgeTextInputField extends StatelessWidget {
               constraints: const BoxConstraints(),
               splashRadius: 24,
             ),
-            suffixIcon: Container(
-              constraints: BoxConstraints(
-                maxWidth:
-                    math.min(MediaQuery.of(context).size.width * 0.280, 200.0),
-              ),
-              padding: EdgeInsets.only(left: 8.w, right: 8.w),
-              child: Consumer<FontProvider>(
-                builder: (context, fontProvider, _) {
+
+            suffixIcon: Consumer<AnimationBadgeProvider>(
+              builder: (context, aniProvider, _) {
+                final isAnimationMode = aniProvider.getAnimationIndex() == 5;
+                return Container(
+                  constraints: BoxConstraints(
+                    maxWidth: math.min(
+                        MediaQuery.of(context).size.width *
+                            (isAnimationMode ? 0.42 : 0.280),
+                        isAnimationMode ? 300.0 : 200.0),
+                  ),
+                  padding: EdgeInsets.only(left: 8.w, right: 4.w),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (isAnimationMode)
+                        Padding(
+                          padding: EdgeInsets.only(right: 4.w),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(6.r),
+                            onTap: () {
+                              final sel = controller.selection;
+                              final text = controller.text;
+                              final insertPos = sel.isValid ? sel.baseOffset : text.length;
+                              final newText =
+                                  '${text.substring(0, insertPos)}\f${text.substring(insertPos)}';
+                              controller.value = TextEditingValue(
+                                text: newText,
+                                selection: TextSelection.collapsed(
+                                  offset: insertPos + 1,
+                                ),
+                              );
+                            },
+                            child: Container(
+                              padding: EdgeInsets.symmetric(
+                                  horizontal: 6.w, vertical: 4.h),
+                              decoration: BoxDecoration(
+                                color: colorPrimary.withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(6.r),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Icon(
+                                    Icons.add,
+                                    size: 12,
+                                    color: colorPrimary,
+                                  ),
+                                  SizedBox(width: 2.w),
+                                  Text(
+                                    'Screen',
+                                    style: TextStyle(
+                                      fontSize: 10.sp,
+                                      color: colorPrimary,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      Expanded(
+                        child: Consumer<FontProvider>(
+                          builder: (context, fontProvider, _) {
+>>>>>>> 9e9dd07 (fix: replace visible pipe with invisible form feed for screen separator)
                   return MenuAnchor(
                     alignmentOffset: const Offset(0, 8),
                     style: MenuStyle(
