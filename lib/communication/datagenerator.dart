@@ -75,7 +75,7 @@ class RawDataTransferManager extends DataTransferManager {
 
   @override
   Future<List<List<int>>> generateDataChunk() async {
-    List<List<int>> textChunks = await converter.convert(textData);
+    List<List<int>> textChunks = converter.convert(textData);
 
     List<String> pinHex = pin.codeUnits
         .map((char) => char.toRadixString(16).padLeft(2, '0'))

@@ -79,12 +79,12 @@ class _AniContainerState extends State<AniContainer> {
           final currentIndex =
               Provider.of<AnimationBadgeProvider>(context, listen: false)
                   .getAnimationIndex();
-                  
+
           if (currentIndex == 5 && widget.index != 5) {
             // WE ARE LEAVING SPLITTING
             // Save the full multi-frame text
             imageProvider.savedMultiFrameText = textController.text;
-            
+
             // Find which frame is active
             int activeIndex = 0;
             final parts = textController.text.split('\f');
@@ -94,12 +94,12 @@ class _AniContainerState extends State<AniContainer> {
               if (activeIndex == -1) activeIndex = 0;
             }
             imageProvider.savedActiveFrameIndex = activeIndex;
-            
+
             // Set the main controller to just the active frame's text
             if (parts.isNotEmpty) {
               textController.text = parts[activeIndex];
             }
-            
+
             // Clear the active-frame reference
             imageProvider.activeFrameController = null;
           } else if (currentIndex != 5 && widget.index == 5) {
@@ -109,16 +109,16 @@ class _AniContainerState extends State<AniContainer> {
               List<String> parts =
                   imageProvider.savedMultiFrameText!.split('\f');
               int activeIndex = imageProvider.savedActiveFrameIndex ?? 0;
-              
+
               // Replace the old active frame with any edits made in other modes
               if (activeIndex < parts.length) {
                 parts[activeIndex] = textController.text;
               } else if (parts.isEmpty) {
                 parts = [textController.text];
               }
-              
+
               textController.text = parts.join('\f');
-              
+
               // Clear saved state so we don't accidentally restore stale data later
               imageProvider.savedMultiFrameText = null;
               imageProvider.savedActiveFrameIndex = null;

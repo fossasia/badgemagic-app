@@ -505,7 +505,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 if (isStreamingFeatureEnabled)
                                   Card(
                                     color: animationProvider.isStreaming
-                                        ? colorPrimary.withOpacity(0.05)
+                                        ? colorPrimary.withValues(alpha: 0.05)
                                         : Colors.grey[100],
                                     elevation: 0,
                                     shape: RoundedRectangleBorder(
@@ -531,7 +531,7 @@ class _HomeScreenState extends State<HomeScreen>
                                         style: const TextStyle(fontSize: 10),
                                       ),
                                       value: animationProvider.isStreaming,
-                                      activeColor: colorPrimary,
+                                      activeThumbColor: colorPrimary,
                                       onChanged: (bool value) async {
                                         if (value) {
                                           await animationProvider
@@ -1037,7 +1037,7 @@ class _HomeScreenState extends State<HomeScreen>
                                 height: 56.w,
                                 decoration: BoxDecoration(
                                   shape: BoxShape.circle,
-                                  color: color.withOpacity(0.1),
+                                  color: color.withValues(alpha: 0.1),
                                   border: Border.all(color: color, width: 2),
                                 ),
                                 child: Icon(icon, size: 24.w, color: color),

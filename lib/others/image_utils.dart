@@ -79,7 +79,7 @@ class ImageUtils {
           int color = (a << 24);
           pixelArray[y][x] = color;
         } else {
-          pixelArray[y][x] = Colors.transparent.value;
+          pixelArray[y][x] = 0;
         }
       }
     }

@@ -11,6 +11,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:badgemagic/providers/animation_badge_provider.dart';
 
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
@@ -93,7 +94,9 @@ class BadgeTextInputField extends StatelessWidget {
           ],
           controller: controller,
           specialTextSpanBuilder: ImageBuilder(
-            isAnimationMode: Provider.of<AnimationBadgeProvider>(context).getAnimationIndex() == 5,
+            isAnimationMode: Provider.of<AnimationBadgeProvider>(context)
+                    .getAnimationIndex() ==
+                5,
           ),
           style: Provider.of<FontProvider>(context).selectedFont != null
               ? _getFontStyle(Provider.of<FontProvider>(context).selectedFont!)
@@ -118,7 +121,6 @@ class BadgeTextInputField extends StatelessWidget {
               constraints: const BoxConstraints(),
               splashRadius: 24,
             ),
-
             suffixIcon: Consumer<AnimationBadgeProvider>(
               builder: (context, aniProvider, _) {
                 final isAnimationMode = aniProvider.getAnimationIndex() == 5;
@@ -141,9 +143,10 @@ class BadgeTextInputField extends StatelessWidget {
                             onTap: () {
                               final sel = controller.selection;
                               final text = controller.text;
-                              final insertPos = sel.isValid ? sel.baseOffset : text.length;
+                              final insertPos =
+                                  sel.isValid ? sel.baseOffset : text.length;
                               final newText =
-                                  '${text.substring(0, insertPos)}\f${text.substring(insertPos)}';
+                                  '${text.substring(0, insertPos)}|${text.substring(insertPos)}';
                               controller.value = TextEditingValue(
                                 text: newText,
                                 selection: TextSelection.collapsed(
@@ -183,98 +186,111 @@ class BadgeTextInputField extends StatelessWidget {
                       Expanded(
                         child: Consumer<FontProvider>(
                           builder: (context, fontProvider, _) {
->>>>>>> 9e9dd07 (fix: replace visible pipe with invisible form feed for screen separator)
-                  return MenuAnchor(
-                    alignmentOffset: const Offset(0, 8),
-                    style: MenuStyle(
-                      alignment: AlignmentDirectional.bottomEnd,
-                      minimumSize: const WidgetStatePropertyAll(Size(180, 0)),
-                      backgroundColor:
-                          const WidgetStatePropertyAll(colorSurface),
-                      surfaceTintColor:
-                          const WidgetStatePropertyAll(colorSurface),
-                      elevation: const WidgetStatePropertyAll(6),
-                      padding: WidgetStatePropertyAll(
-                        EdgeInsets.symmetric(vertical: 6.h),
-                      ),
-                      shape: WidgetStatePropertyAll(
-                        RoundedRectangleBorder(
-                          borderRadius:
-                              BorderRadius.circular(AppRadius.large.r),
-                        ),
-                      ),
-                    ),
-                    menuChildren: <String?>[
-                      null,
-                      ...fontProvider.availableFonts,
-                    ].map((opt) {
-                      final label = opt ?? 'Default';
-                      final selected = fontProvider.selectedFont == opt;
-                      return MenuItemButton(
-                        onPressed: () {
-                          fontProvider.changeFont(opt);
-                          onFontChanged();
-                        },
-                        trailingIcon: selected
-                            ? Icon(Icons.check, size: 18, color: colorPrimary)
-                            : const SizedBox(width: 18),
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 4.h),
-                          child: Text(
-                            label,
-                            style: (opt == null
-                                    ? const TextStyle()
-                                    : _getFontStyle(opt))
-                                .copyWith(
-                              fontSize: 14,
-                              color: selected ? colorPrimary : colorTextStrong,
-                              fontWeight: selected
-                                  ? FontWeight.w600
-                                  : FontWeight.normal,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                    builder: (context, controller, child) {
-                      return InkWell(
-                        borderRadius: BorderRadius.circular(AppRadius.medium.r),
-                        onTap: () {
-                          FocusScope.of(context).unfocus();
-                          controller.isOpen
-                              ? controller.close()
-                              : controller.open();
-                        },
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 6.h),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Flexible(
-                                child: Text(
-                                  fontProvider.selectedFont ?? 'Default',
-                                  textAlign: TextAlign.end,
-                                  style: TextStyle(
-                                    color: mdGrey400,
-                                    fontSize: 12.sp,
+                            return MenuAnchor(
+                              alignmentOffset: const Offset(0, 8),
+                              style: MenuStyle(
+                                alignment: AlignmentDirectional.bottomEnd,
+                                minimumSize:
+                                    const WidgetStatePropertyAll(Size(180, 0)),
+                                backgroundColor:
+                                    const WidgetStatePropertyAll(colorSurface),
+                                surfaceTintColor:
+                                    const WidgetStatePropertyAll(colorSurface),
+                                elevation: const WidgetStatePropertyAll(6),
+                                padding: WidgetStatePropertyAll(
+                                  EdgeInsets.symmetric(vertical: 6.h),
+                                ),
+                                shape: WidgetStatePropertyAll(
+                                  RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(
+                                        AppRadius.large.r),
                                   ),
-                                  overflow: TextOverflow.ellipsis,
-                                  maxLines: 1,
                                 ),
                               ),
-                              Icon(
-                                Icons.arrow_drop_down,
-                                size: 20,
-                                color: mdGrey400,
-                              ),
-                            ],
-                          ),
+                              menuChildren: <String?>[
+                                null,
+                                ...fontProvider.availableFonts,
+                              ].map((opt) {
+                                final label = opt ?? 'Default';
+                                final selected =
+                                    fontProvider.selectedFont == opt;
+                                return MenuItemButton(
+                                  onPressed: () {
+                                    fontProvider.changeFont(opt);
+                                    onFontChanged();
+                                  },
+                                  trailingIcon: selected
+                                      ? Icon(Icons.check,
+                                          size: 18, color: colorPrimary)
+                                      : const SizedBox(width: 18),
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 4.h),
+                                    child: Text(
+                                      label,
+                                      style: (opt == null
+                                              ? const TextStyle()
+                                              : _getFontStyle(opt))
+                                          .copyWith(
+                                        fontSize: 14,
+                                        color: selected
+                                            ? colorPrimary
+                                            : colorTextStrong,
+                                        fontWeight: selected
+                                            ? FontWeight.w600
+                                            : FontWeight.normal,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                              builder: (context, controller, child) {
+                                return InkWell(
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.medium.r),
+                                  onTap: () {
+                                    FocusScope.of(context).unfocus();
+                                    controller.isOpen
+                                        ? controller.close()
+                                        : controller.open();
+                                  },
+                                  child: Padding(
+                                    padding:
+                                        EdgeInsets.symmetric(vertical: 6.h),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Flexible(
+                                          child: Text(
+                                            fontProvider.selectedFont ??
+                                                'Default',
+                                            textAlign: TextAlign.end,
+                                            style: TextStyle(
+                                              color: mdGrey400,
+                                              fontSize: 12.sp,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                            maxLines: 1,
+                                          ),
+                                        ),
+                                        Icon(
+                                          Icons.arrow_drop_down,
+                                          size: 20,
+                                          color: mdGrey400,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            );
+                          },
                         ),
-                      );
-                    },
-                  );
-                },
-              ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ),

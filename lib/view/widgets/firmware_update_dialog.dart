@@ -304,6 +304,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
               if (_dontRemindAgain) {
                 await _skipVersionPermanently(widget.version);
               }
+              if (!context.mounted) return;
               Navigator.of(context).pop();
               Navigator.pushNamed(context, '/settings');
             },

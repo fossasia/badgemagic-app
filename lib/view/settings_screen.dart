@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'dart:async';
 import 'dart:io' show Platform;
-import 'dart:typed_data';
 
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/main.dart';
@@ -89,7 +88,9 @@ class SettingsScreenState extends State<SettingsScreen> {
     if (_foregroundTaskInitialized ||
         Platform.isLinux ||
         Platform.isMacOS ||
-        Platform.isWindows) return;
+        Platform.isWindows) {
+      return;
+    }
     FlutterForegroundTask.init(
       androidNotificationOptions: AndroidNotificationOptions(
         channelId: 'ota_update_channel',
@@ -853,7 +854,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       provider.setBadgeNames(
                         _controllers.map((c) => c.text.trim()).toList(),
                       );
-                      if (mounted) {
+                      if (context.mounted) {
                         ScaffoldMessenger.of(context).showSnackBar(
                           SnackBar(content: Text(l10n.scanSettingsSaved)),
                         );

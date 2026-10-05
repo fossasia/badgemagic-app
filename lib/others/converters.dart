@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart';
 
 String getFontKey(
     String fontFamily, double fontSize, FontWeight weight, bool italic) {
-  return '$fontFamily-${fontSize.round()}-${weight.index}-$italic';
+  return '$fontFamily-${fontSize.round()}-${weight.value}-$italic';
 }
 
 class Converters {
@@ -207,8 +207,8 @@ class Converters {
           i += 6;
         } else if (text[i] == '|') {
           // Frame separator: flush current text then pad to next screen boundary.
-          if (currentText.isNotEmpty) {
-            segments.add({'type': 'text', 'content': currentText});
+          if (currentText.trim().isNotEmpty) {
+            segments.add({'type': 'text', 'content': currentText.trim()});
             currentText = '';
           }
           segments.add({'type': 'frame_break'});
@@ -218,8 +218,8 @@ class Converters {
           i++;
         }
       }
-      if (currentText.isNotEmpty) {
-        segments.add({'type': 'text', 'content': currentText});
+      if (currentText.trim().isNotEmpty) {
+        segments.add({'type': 'text', 'content': currentText.trim()});
       }
 
       List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
@@ -261,6 +261,11 @@ class Converters {
             combinedMatrix[row].addAll(clipartMatrix[row].map((v) => v == 1));
           }
         }
+      }
+
+      bool hasFrameBreak = segments.any((s) => s['type'] == 'frame_break');
+      if (hasFrameBreak) {
+        _padMatrixToNextFrame(combinedMatrix);
       }
 
       int totalColumns =
@@ -318,7 +323,7 @@ class Converters {
   /// [badgeScreenWidth] (default 44). Used to align frames at screen boundaries
   /// when the "Animation" (Splitting) transition is active.
   void _padMatrixToNextFrame(
-      List<List<bool>> combinedMatrix, {
+    List<List<bool>> combinedMatrix, {
     int badgeScreenWidth = 44,
   }) {
     final currentWidth =
@@ -352,8 +357,8 @@ class Converters {
       } else if (text[i] == '|') {
         // Frame separator: flush current text segment then pad matrix to the
         // next 44-column screen boundary so the following frame starts fresh.
-        if (currentText.isNotEmpty) {
-          segments.add({'type': 'text', 'content': currentText});
+        if (currentText.trim().isNotEmpty) {
+          segments.add({'type': 'text', 'content': currentText.trim()});
           currentText = '';
         }
         segments.add({'type': 'frame_break'});
@@ -363,8 +368,8 @@ class Converters {
         i++;
       }
     }
-    if (currentText.isNotEmpty) {
-      segments.add({'type': 'text', 'content': currentText});
+    if (currentText.trim().isNotEmpty) {
+      segments.add({'type': 'text', 'content': currentText.trim()});
     }
 
     List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
@@ -407,6 +412,11 @@ class Converters {
           combinedMatrix[row].addAll(clipartMatrix[row].map((v) => v == 1));
         }
       }
+    }
+
+    bool hasFrameBreak = segments.any((s) => s['type'] == 'frame_break');
+    if (hasFrameBreak) {
+      _padMatrixToNextFrame(combinedMatrix);
     }
 
     if (combinedMatrix[0].isEmpty) return const [];

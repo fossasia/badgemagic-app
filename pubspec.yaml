@@ -62,6 +62,7 @@ dependencies:
   flutter_foreground_task: ^11.0.3
   mobile_scanner: ^7.4.2
   crop_your_image: ^2.0.1
+  http: ^1.6.0
 dev_dependencies:
   flutter_test:
     sdk: flutter

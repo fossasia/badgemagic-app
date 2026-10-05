@@ -59,7 +59,7 @@ class CommonScaffold extends StatelessWidget {
                   child: Container(
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(12.r),
                       border: Border.all(color: Colors.greenAccent, width: 1.5),
                     ),

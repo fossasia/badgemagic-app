@@ -179,7 +179,7 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                       ],
                     ),
                   );
-                  if (!mounted) return;
+                  if (!context.mounted) return;
                   if (confirm == true) {
                     final provider = Provider.of<InlineImageProvider>(context,
                         listen: false);

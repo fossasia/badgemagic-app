@@ -6,7 +6,7 @@ import 'package:badgemagic/view/widgets/auth_pin_data.dart';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/others/app_logger.dart';
-import 'package:badgemagic/others/localization_service.dart';
+
 import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:universal_ble/universal_ble.dart';
@@ -17,7 +17,6 @@ class ConnectState extends RetryBleState {
   final DataTransferManager manager;
   final BuildContext context;
   final bleDialogController = GetIt.instance<BleDialogController>();
-  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   ConnectState({
     required this.manager,

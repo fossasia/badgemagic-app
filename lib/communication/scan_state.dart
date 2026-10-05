@@ -71,6 +71,8 @@ class ScanState extends NormalBleState {
               bleDialogController.update(
                   BleDialogStatus.connecting, l10n.deviceFound);
 
+              if (!context.mounted) return;
+
               nextStateCompleter.complete(ConnectState(
                 scanResult: device,
                 manager: manager,

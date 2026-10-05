@@ -249,15 +249,12 @@
   "couldNotGenerateQrImage": "Could not generate QR image.",
   "couldNotShareQrImage": "Could not share QR image.",
   "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
-<<<<<<< HEAD
-<<<<<<< HEAD
   "turnBLEOn": "Please turn on Bluetooth in your settings",
   "secureConnection": "Secure Connection (PIN)",
   "iUnderstand": "I understand",
   "requestPinBeforeSending": "Request PIN before sending",
   "secureConnectionDescription": "[FOSSASIA's firmware only] Ask pin to transfer data to the badge. To activate in SECURITY option on the badge before.",
   "transferCanceledByUser": "Transfer canceled by user",
-  "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
   "defaultFont": "Default",
   "font": "Font",
   "connected": "Connected",

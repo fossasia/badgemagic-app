@@ -18,11 +18,10 @@ class NgCommandState extends NormalBleState {
 
     await UniversalBle.discoverServices(deviceId);
 
-    await UniversalBle.setNotifiable(
+    await UniversalBle.subscribeNotifications(
       deviceId,
       ngServiceUuid,
       ngNotifyCharUuid,
-      BleInputProperty.notification,
     );
 
     late final StreamSubscription sub;

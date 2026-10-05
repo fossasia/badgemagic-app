@@ -210,6 +210,7 @@ class BadgeMessageProvider {
 
         CompletedState? result;
         try {
+          if (!context.mounted) return null;
           result = await transferData(combinedManager, context: context);
         } catch (e) {
           logger.e("Transfer attempt $attempt failed with exception: $e");

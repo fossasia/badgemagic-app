@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../theme/app_radius.dart';
@@ -33,7 +32,7 @@ Widget buildSwitchCard({
         subtitle,
         style: const TextStyle(fontSize: 12),
       ),
-      activeColor: activeColor,
+      activeThumbColor: activeColor,
       value: value,
       onChanged: onChanged,
     ),
