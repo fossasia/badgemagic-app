@@ -330,7 +330,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
       _ngConnectionSubscription =
           UniversalBle.connectionStream(device.deviceId).listen(
         (event) {
-          final bool isDisconnected = !event;
+          final bool isDisconnected =
+              (event == false) || (event.toString().contains('disconnected'));
 
           if (isDisconnected) {
             _handleUnexpectedNgDisconnect();

@@ -328,7 +328,13 @@ class Converters {
   }) {
     final currentWidth =
         combinedMatrix.isNotEmpty ? combinedMatrix[0].length : 0;
-    if (currentWidth == 0) return;
+    if (currentWidth == 0) {
+      if (combinedMatrix.isEmpty) return;
+      for (final row in combinedMatrix) {
+        row.addAll(List<bool>.filled(badgeScreenWidth, false));
+      }
+      return;
+    }
     final remainder = currentWidth % badgeScreenWidth;
     if (remainder == 0) return; // already aligned
     final paddingNeeded = badgeScreenWidth - remainder;

@@ -85,13 +85,20 @@ class _AniContainerState extends State<AniContainer> {
             // Save the full multi-frame text
             imageProvider.savedMultiFrameText = textController.text;
 
-            // Find which frame is active
+            // Find which frame is active based on cursor position
             int activeIndex = 0;
-            final parts = textController.text.split('\f');
-            if (imageProvider.activeFrameController != null) {
-              final activeText = imageProvider.activeFrameController!.text;
-              activeIndex = parts.indexOf(activeText);
-              if (activeIndex == -1) activeIndex = 0;
+            final parts = textController.text.split('|');
+            final cursorPosition = textController.selection.isValid
+                ? textController.selection.baseOffset
+                : textController.text.length;
+
+            int currentPos = 0;
+            for (int i = 0; i < parts.length; i++) {
+              currentPos += parts[i].length + 1; // +1 for the separator
+              if (cursorPosition <= currentPos) {
+                activeIndex = i;
+                break;
+              }
             }
             imageProvider.savedActiveFrameIndex = activeIndex;
 
@@ -100,14 +107,14 @@ class _AniContainerState extends State<AniContainer> {
               textController.text = parts[activeIndex];
             }
 
-            // Clear the active-frame reference
+            // Clear the active-frame reference (now unused)
             imageProvider.activeFrameController = null;
           } else if (currentIndex != 5 && widget.index == 5) {
             // WE ARE ENTERING SPLITTING
             // Restore previous frames if they exist
             if (imageProvider.savedMultiFrameText != null) {
               List<String> parts =
-                  imageProvider.savedMultiFrameText!.split('\f');
+                  imageProvider.savedMultiFrameText!.split('|');
               int activeIndex = imageProvider.savedActiveFrameIndex ?? 0;
 
               // Replace the old active frame with any edits made in other modes
@@ -117,7 +124,7 @@ class _AniContainerState extends State<AniContainer> {
                 parts = [textController.text];
               }
 
-              textController.text = parts.join('\f');
+              textController.text = parts.join('|');
 
               // Clear saved state so we don't accidentally restore stale data later
               imageProvider.savedMultiFrameText = null;
