@@ -328,6 +328,7 @@
   "cropFree": "Crop Free",
   "undo": "Undo",
   "redo": "Redo",
+  "move": "Move",
   "moveLeft": "Left",
   "moveRight": "Right",
   "moveUp": "Up",

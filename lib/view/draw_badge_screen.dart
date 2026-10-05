@@ -44,6 +44,7 @@ bool isDesktop =
 class _DrawBadgeState extends State<DrawBadge> {
   var drawToggle = DrawBadgeProvider();
   bool _showShapeOptions = false;
+  bool _showMoveOptions = false;
 
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
@@ -275,7 +276,26 @@ class _DrawBadgeState extends State<DrawBadge> {
                         fontSize: buttonTextSize,
                         onPressed: () => setState(() {
                           _showShapeOptions = !_showShapeOptions;
-                          if (!_showShapeOptions) {
+                          if (_showShapeOptions) {
+                            _showMoveOptions = false;
+                          } else {
+                            drawToggle.setShape(DrawShape.freehand);
+                          }
+                        }),
+                      ),
+                    ),
+                    const SizedBox(width: 4),
+                    Expanded(
+                      child: DrawToolButton(
+                        icon: Icons.open_with,
+                        label: l10n.move,
+                        tint: _showMoveOptions ? colorPrimary : colorOnSurface,
+                        iconSize: iconSize,
+                        fontSize: buttonTextSize,
+                        onPressed: () => setState(() {
+                          _showMoveOptions = !_showMoveOptions;
+                          if (_showMoveOptions) {
+                            _showShapeOptions = false;
                             drawToggle.setShape(DrawShape.freehand);
                           }
                         }),
@@ -318,14 +338,16 @@ class _DrawBadgeState extends State<DrawBadge> {
                   ],
                 ),
               ),
-              const SizedBox(height: 8),
-              DrawMoveOptionsBar(
-                provider: drawToggle,
-                iconSize: iconSize,
-                fontSize: buttonTextSize,
-              ),
-              const SizedBox(height: 12),
-              if (_showShapeOptions)
+              if (_showMoveOptions) ...[
+                const SizedBox(height: 8),
+                DrawMoveOptionsBar(
+                  provider: drawToggle,
+                  iconSize: iconSize,
+                  fontSize: buttonTextSize,
+                ),
+              ],
+              if (_showShapeOptions) ...[
+                const SizedBox(height: 12),
                 DrawShapeOptionsBar(
                   selectedShape: drawToggle.selectedShape,
                   onSelect: (shape) => setState(() {
@@ -334,6 +356,7 @@ class _DrawBadgeState extends State<DrawBadge> {
                   iconSize: iconSize,
                   fontSize: buttonTextSize,
                 ),
+              ],
               const SizedBox(height: 8),
             ],
           );
