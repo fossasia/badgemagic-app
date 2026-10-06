@@ -56,7 +56,7 @@ dependencies:
   share_plus: ^13.3.1
   file_picker: ^13.1.0
   google_fonts: ^9.0.0
-  url_launcher: ^6.3.2
+  url_launcher: ^6.3.3
   image: ^4.10.1
   qr_flutter: ^4.1.0
   flutter_foreground_task: ^11.0.3
