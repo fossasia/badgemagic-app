@@ -53,8 +53,8 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 The app consent you to install our firmware! Go in [badgemagic-firmware](https://github.com/fossasia/badgemagic-firmware) repository and follow the instructions to prepare the badge!
 - **USB firmware update**: You put your badge in ISP mode, you choice your badge version and the game is done
 - **BLE firmware update**: This feature is in beta version and more slow, but it consent to update the badge while the app is in background
-- **Security PIN**: To avoid external connection you ca activate a security PIN on the badge and on the app
-- **Badge Renaming**: You can rename your badge, to make it unique and unrecognizable from the app
+- **Security PIN**: You ca activate a security PIN to authorize the data transfers
+- **Badge Renaming**: You can rename your badge, to make it unique and recognizable by the app
 - **Streaming mode**: You can stream in real time what you are writing in the app on the badge
 
 The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and has been significantly expanded with modern features and improved user experience.
