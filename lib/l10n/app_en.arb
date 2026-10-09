@@ -56,7 +56,7 @@
   "noSavedClipart": "No saved clipart!",
   "noSavedClipartMessage": "Looks like there are no saved cliparts yet.",
   "savedClipartTitle": "Saved Clipart",
-  "aboutBadgeMagic": "Badge Magic is an app to control LED name badges. The goal is to provide options to portray names, graphics, and simple animations on LED badges. For the data transfer from the smartphone to the LED badge we use Bluetooth. The project is based on the work of Nihlcem.",
+  "aboutBadgeMagic": "Badge Magic is an app to control LED name badges. The goal is to provide options to portray names, graphics, and simple animations on LED badges. For the data transfer from the smartphone to the LED badge we use Bluetooth. The project is based on the work of Nilhcem.",
   "developedBy": "Developed by",
   "fossasiaContributors": "FOSSASIA contributors",
   "contactUs": "Contact Us",
@@ -273,7 +273,7 @@
   "savingAndRebooting": "Saving and rebooting badge...",
   "nameApplied": "Name applied to device",
   "savedToFlash": "Saved to Flash!",
-  "turnOff": "Turn Off tha badge",
+  "turnOff": "Turn Off the badge",
   "editingBadgeWithName": "Editing badge: {name}",
   "@editingBadgeWithName": {
     "placeholders": {
