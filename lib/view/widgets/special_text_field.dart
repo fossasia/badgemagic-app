@@ -105,13 +105,49 @@ class ImageBuilder extends SpecialTextSpanBuilder {
         textStyle,
         start: kInlineImageSentinelStart,
       );
-    } else if (flag.contains(ScreenDivider.flag)) {
-      if (isAnimationMode) {
-        return ScreenDivider(textStyle, start: index);
-      } else {
-        return HiddenDivider(textStyle, start: index);
-      }
     }
     return null;
+  }
+
+  @override
+  TextSpan build(String data,
+      {TextStyle? textStyle, SpecialTextGestureTapCallback? onTap}) {
+    final originalSpan = super.build(data, textStyle: textStyle, onTap: onTap);
+
+    List<InlineSpan> newChildren = [];
+
+    void processTextSpan(TextSpan span) {
+      if (span.text != null && span.text!.contains('|')) {
+        final parts = span.text!.split('|');
+        for (int i = 0; i < parts.length; i++) {
+          if (parts[i].isNotEmpty) {
+            newChildren.add(TextSpan(text: parts[i], style: span.style));
+          }
+          if (i < parts.length - 1) {
+            newChildren.add(isAnimationMode
+                ? ScreenDivider(span.style).finishText()
+                : HiddenDivider(span.style).finishText());
+          }
+        }
+      } else {
+        newChildren.add(span);
+      }
+    }
+
+    if (originalSpan.children != null) {
+      for (var child in originalSpan.children!) {
+        if (child is TextSpan) {
+          processTextSpan(child);
+        } else {
+          newChildren.add(child);
+        }
+      }
+    } else if (originalSpan.text != null) {
+      processTextSpan(originalSpan);
+    } else {
+      return originalSpan;
+    }
+
+    return TextSpan(children: newChildren, style: originalSpan.style);
   }
 }
