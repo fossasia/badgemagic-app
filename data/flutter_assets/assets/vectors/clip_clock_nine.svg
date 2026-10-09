@@ -1,0 +1,10 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 44 11"
+    id="vector">
+    <path
+        id="path"
+        d="M 21 5 L 17 5 L 17 6 L 21 6 Z M 20 5 L 20 2 L 21 2 L 21 5 Z M 15 4 L 16 4 L 16 7 L 15 7 Z M 16 2 L 17 2 L 17 4 L 16 4 Z M 16 7 L 17 7 L 17 9 L 16 9 Z M 17 9 L 19 9 L 19 10 L 17 10 Z M 17 1 L 19 1 L 19 2 L 17 2 Z M 19 0 L 22 0 L 22 1 L 19 1 Z M 19 10 L 22 10 L 22 11 L 19 11 Z M 22 9 L 24 9 L 24 10 L 22 10 Z M 22 1 L 24 1 L 24 2 L 22 2 Z M 24 2 L 25 2 L 25 4 L 24 4 Z M 24 7 L 25 7 L 25 9 L 24 9 Z M 25 4 L 26 4 L 26 7 L 25 7 Z"
+        fill="#000000"
+        stroke-width="1"/>
+</svg>
