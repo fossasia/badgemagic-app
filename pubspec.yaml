@@ -45,7 +45,7 @@ dependencies:
   hid_tool: ^0.1.2
   permission_handler: ^12.0.3
   logger: ^2.8.0
-  image_picker: ^1.2.3
+  image_picker: ^1.2.4
   flutter_svg: ^2.3.0
   get_it: ^9.3.0
   flutter_screenutil: ^5.9.3
