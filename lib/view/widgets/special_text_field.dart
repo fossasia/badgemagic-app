@@ -57,8 +57,7 @@ const int kInlineImageSentinelStart = 0x7fffffff;
 
 class ScreenDivider extends SpecialText {
   static const String flag = '|';
-  ScreenDivider(TextStyle? textStyle, {this.start})
-      : super('|', '', textStyle);
+  ScreenDivider(TextStyle? textStyle, {this.start}) : super('|', '', textStyle);
   final int? start;
 
   @override
@@ -77,8 +76,7 @@ class ScreenDivider extends SpecialText {
 
 class HiddenDivider extends SpecialText {
   static const String flag = '|';
-  HiddenDivider(TextStyle? textStyle, {this.start})
-      : super('|', '', textStyle);
+  HiddenDivider(TextStyle? textStyle, {this.start}) : super('|', '', textStyle);
   final int? start;
 
   @override
