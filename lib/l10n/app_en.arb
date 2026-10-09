@@ -56,7 +56,7 @@
   "noSavedClipart": "No saved clipart!",
   "noSavedClipartMessage": "Looks like there are no saved cliparts yet.",
   "savedClipartTitle": "Saved Clipart",
-  "aboutBadgeMagic": "Badge Magic is an app to control LED name badges. The goal is to provide options to portray names, graphics, and simple animations on LED badges. For the data transfer from the smartphone to the LED badge we use Bluetooth. The project is based on the work of Nilhcem.",
+  "aboutBadgeMagic": "Badge Magic is an app to control LED name badges. The goal is to provide options to portray names, graphics, and simple animations on LED badges. For the data transfer from the smartphone to the LED badge we use Bluetooth. The project is based on the work of Nihlcem.",
   "developedBy": "Developed by",
   "fossasiaContributors": "FOSSASIA contributors",
   "contactUs": "Contact Us",
@@ -255,7 +255,6 @@
   "requestPinBeforeSending": "Request PIN before sending",
   "secureConnectionDescription": "[FOSSASIA's firmware only] Ask pin to transfer data to the badge. To activate in SECURITY option on the badge before.",
   "transferCanceledByUser": "Transfer canceled by user",
-  "qrShareInstruction": "Scan this code from another device, or tap share to send the QR image.",
   "defaultFont": "Default",
   "font": "Font",
   "connected": "Connected",
@@ -273,7 +272,7 @@
   "savingAndRebooting": "Saving and rebooting badge...",
   "nameApplied": "Name applied to device",
   "savedToFlash": "Saved to Flash!",
-  "turnOff": "Turn Off the badge",
+  "turnOff": "Turn Off tha badge",
   "editingBadgeWithName": "Editing badge: {name}",
   "@editingBadgeWithName": {
     "placeholders": {
@@ -347,5 +346,7 @@
   "testBleFirmwareDescription": "Use the HARDCODED firmware to test the flash on the badge via BLE",
   "flashingFirmwareProgress": "Flashing firmware... {progress}%",
   "writingInProgress": "Writing in progress: {progress}%",
-  "preparing": "Preparing..."
+  "preparing": "Preparing...",
+  "addFrame": "Add Screen",
+  "frameHint": "Type text for this screen"
 }

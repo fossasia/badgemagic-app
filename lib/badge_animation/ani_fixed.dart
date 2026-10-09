@@ -1,3 +1,4 @@
+
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 
 class FixedAnimation extends BadgeAnimation {
