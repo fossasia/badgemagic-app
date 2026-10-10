@@ -71,25 +71,94 @@ class _AniContainerState extends State<AniContainer> {
       height: 65.h,
       child: GestureDetector(
         onTap: () async {
+          final imageProvider =
+              Provider.of<InlineImageProvider>(context, listen: false);
+          final textController = imageProvider.getController();
+
+          // Switch logic for Splitting (index 5) vs other animations
+          final currentIndex =
+              Provider.of<AnimationBadgeProvider>(context, listen: false)
+                  .getAnimationIndex();
+
+          bool shouldSwitch = true;
+          bool isSpecialAndNotEmpty = false;
+
+          // Only show dialog for special animations (index >= 9)
           if (widget.index >= 9) {
-            final textController =
-                Provider.of<InlineImageProvider>(context, listen: false)
-                    .getController();
             if (textController.text.trim().isNotEmpty) {
-              final shouldSwitch = await showSpecialAnimationDialog(
+              isSpecialAndNotEmpty = true;
+              final switchResult = await showSpecialAnimationDialog(
                   context, textController.text.trim());
-              if (shouldSwitch == true) {
-                textController.clear();
-                animationCardState.setAnimationMode(badgeAnimation);
-                animationCardState.badgeAnimation('', Converters(), false);
+              shouldSwitch = switchResult == true;
+            } else {
+              if (animationCardState.isAnimationActive(badgeAnimation)) {
+                animationCardState.stopAllAnimations();
+                return;
               }
-              return;
-            }
-            if (animationCardState.isAnimationActive(badgeAnimation)) {
-              animationCardState.stopAllAnimations();
-              return;
             }
           }
+
+          if (!shouldSwitch) return;
+
+          if (currentIndex == 5 && widget.index != 5) {
+            // WE ARE LEAVING SPLITTING
+            // Save the full multi-frame text
+            imageProvider.savedMultiFrameText = textController.text;
+
+            // Find which frame is active based on cursor position
+            int activeIndex = 0;
+            final parts = textController.text.split('|');
+            final cursorPosition = textController.selection.isValid
+                ? textController.selection.baseOffset
+                : textController.text.length;
+
+            int currentPos = 0;
+            for (int i = 0; i < parts.length; i++) {
+              currentPos += parts[i].length + 1; // +1 for the separator
+              if (cursorPosition < currentPos) {
+                activeIndex = i;
+                break;
+              }
+            }
+            imageProvider.savedActiveFrameIndex = activeIndex;
+
+            // Set the main controller to just the active frame's text
+            if (parts.isNotEmpty) {
+              textController.text = parts[activeIndex];
+            }
+
+            // Clear the active-frame reference (now unused)
+            imageProvider.activeFrameController = null;
+          } else if (currentIndex != 5 && widget.index == 5) {
+            // WE ARE ENTERING SPLITTING
+            // Restore previous frames if they exist
+            if (imageProvider.savedMultiFrameText != null) {
+              List<String> parts =
+                  imageProvider.savedMultiFrameText!.split('|');
+              int activeIndex = imageProvider.savedActiveFrameIndex ?? 0;
+
+              // Replace the old active frame with any edits made in other modes
+              if (activeIndex < parts.length) {
+                parts[activeIndex] = textController.text;
+              } else if (parts.isEmpty) {
+                parts = [textController.text];
+              }
+
+              textController.text = parts.join('|');
+
+              // Clear saved state so we don't accidentally restore stale data later
+              imageProvider.savedMultiFrameText = null;
+              imageProvider.savedActiveFrameIndex = null;
+            }
+          }
+
+          if (isSpecialAndNotEmpty) {
+            textController.clear();
+            animationCardState.setAnimationMode(badgeAnimation);
+            animationCardState.badgeAnimation('', Converters(), false);
+            return;
+          }
+
           animationCardState.setAnimationMode(badgeAnimation);
         },
         child: Card(

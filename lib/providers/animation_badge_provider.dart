@@ -242,10 +242,11 @@ class AnimationBadgeProvider extends ChangeNotifier {
   int? getAnimationIndex() {
     for (var animation in animationMap.entries) {
       if (animation.value != null && animation.value == _currentAnimation) {
+        logger.i("Animation Index: ${animation.key}");
         return animation.key;
       }
     }
-    return 0;
+    return null;
   }
 
   bool isAnimationActive(BadgeAnimation? badgeAnimation) {
@@ -329,9 +330,8 @@ class AnimationBadgeProvider extends ChangeNotifier {
       _ngConnectionSubscription =
           UniversalBle.connectionStream(device.deviceId).listen(
         (event) {
-          final bool isDisconnected = (!event) ||
-              (event is BleConnectionState &&
-                  event == BleConnectionState.disconnected);
+          final bool isDisconnected =
+              (event == false) || (event.toString().contains('disconnected'));
 
           if (isDisconnected) {
             _handleUnexpectedNgDisconnect();
@@ -367,11 +367,6 @@ class AnimationBadgeProvider extends ChangeNotifier {
     bool isSpecial = isSpecialAnimationSelected();
     if (message.isEmpty && !isSpecial) {
       stopAllAnimations();
-      List<List<bool>> emptyGrid =
-          List.generate(11, (i) => List.generate(44, (j) => false));
-      _newGrid = emptyGrid;
-      _paintGrid = emptyGrid;
-      notifyListeners();
       return;
     }
     if (_timer == null || !_timer!.isActive) {
