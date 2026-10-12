@@ -58,8 +58,6 @@ class DrawBadgeProvider extends ChangeNotifier {
     }
   }
 
-  /// Notifies listeners after a batch of preview cell updates so the
-  /// drawing canvas can paint the rubber-band shape while dragging.
   void refreshPreviewGrid() {
     notifyListeners();
   }
