@@ -35,6 +35,7 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 - **Undo/Redo**: Full drawing history support
 - **Grid-Based**: Precise 11×44 LED grid editing
 - **Real-time Preview**: See changes as you draw
+- **Import from image**: It is possible to pixelate an image from the gallery
 
 ### 📱 **User Interface**
 - **4 Main Tabs**: Speed, Transition, Effects, and Animation
@@ -45,7 +46,16 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 ### 🔧 **Advanced Features**
 - **Bluetooth Alias Management**: Rename and manage connected devices
 - **Scan Settings**: Configure device discovery preferences
+- **USB transfer**: Transfer data to the badge trough USB
 - **Cross-Platform Support**: Works on Android, iOS, and Linux (mobile and desktop platforms)
+
+### 👾 **FOSSASIA's firmware feature**
+The app consent you to install our firmware! Go in [badgemagic-firmware](https://github.com/fossasia/badgemagic-firmware) repository and follow the instructions to prepare the badge!
+- **USB firmware update**: You put your badge in ISP mode, you choice your badge version and the game is done
+- **BLE firmware update**: This feature is in beta version and more slow, but it consent to update the badge while the app is in background
+- **Security PIN**: You ca activate a security PIN to authorize the data transfers
+- **Badge Renaming**: You can rename your badge, to make it unique and recognizable by the app
+- **Streaming mode**: You can stream in real time what you are writing in the app on the badge
 
 The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and has been significantly expanded with modern features and improved user experience.
 
