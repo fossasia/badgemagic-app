@@ -57,7 +57,7 @@ class BadgeActionButtons extends StatelessWidget {
             if (!isSpecial) ...[
               Expanded(
                 child: _actionButton(
-                  label: l10n.saveButton,
+                  label: l10n.save,
                   onTap: onSave,
                 ),
               ),
