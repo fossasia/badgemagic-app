@@ -225,7 +225,8 @@ class Converters {
         }
       }
 
-      final bool hasFrameBreak = segments.any((s) => s['type'] == 'frame_break');
+      final bool hasFrameBreak =
+          segments.any((s) => s['type'] == 'frame_break');
       List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
       // Track where the current frame starts so we can auto-wrap at 44 cols.
       int frameStartCol = 0;
