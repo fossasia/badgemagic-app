@@ -57,6 +57,22 @@ class BadgeTextInputField extends StatelessWidget {
     }
   }
 
+  static const Map<String, int> _charLedWidths = {
+    '0': 8, '1': 7, '2': 8, '3': 8, '4': 8, '5': 8, '6': 8, '7': 8, '8': 8, '9': 8,
+    '#': 8, '&': 8, '_': 9, '-': 8, '?': 8, '@': 9, '(': 5, ')': 5, '=': 7, '+': 7,
+    '!': 5, "'": 3, ':': 3, '%': 8, '/': 8, '"': 7, '[': 5, ']': 5, ' ': 3, '*': 9,
+    ',': 3, '.': 3, '\$': 8, '~': 8, '{': 7, '}': 7, '<': 7, '>': 7, '^': 8, '`': 3,
+    ';': 3, '\\': 8, '|': 3,
+    'a': 8, 'b': 8, 'c': 8, 'd': 8, 'e': 8, 'f': 7, 'g': 8, 'h': 8, 'i': 5, 'j': 7,
+    'k': 8, 'l': 5, 'm': 8, 'n': 8, 'o': 8, 'p': 8, 'q': 8, 'r': 8, 's': 8, 't': 7,
+    'u': 8, 'v': 8, 'w': 8, 'x': 8, 'y': 7, 'z': 8,
+    'A': 8, 'B': 8, 'C': 8, 'D': 8, 'E': 8, 'F': 8, 'G': 8, 'H': 8, 'I': 7, 'J': 7,
+    'K': 8, 'L': 8, 'M': 8, 'N': 8, 'O': 7, 'P': 8, 'Q': 8, 'R': 8, 'S': 8, 'T': 7,
+    'U': 8, 'V': 8, 'W': 8, 'X': 8, 'Y': 7, 'Z': 8,
+  };
+
+  static int _getCharWidth(String char) => _charLedWidths[char] ?? 8;
+
   static final RegExp _emojiRegex = RegExp(
     r'(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\udc00-\udfff]|\ud83d[\udc00-\udfff]|\ud83e[\udc00-\udfff]|[\uFE00-\uFE0F])',
   );
@@ -64,6 +80,8 @@ class BadgeTextInputField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    final isAnimationMode =
+        Provider.of<AnimationBadgeProvider>(context).getAnimationIndex() == 5;
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
@@ -92,38 +110,69 @@ class BadgeTextInputField extends StatelessWidget {
               return newValue;
             }),
             // Auto-insert a screen divider when the current frame's text
-            // exceeds the badge screen width (~44 LED columns).
-            // Average default-font char width is ~6 LED columns.
+            // exceeds the badge screen width (44 LED columns) in animation mode.
             TextInputFormatter.withFunction((oldValue, newValue) {
-              final text = newValue.text;
-              final cursor = newValue.selection.baseOffset;
+              if (!isAnimationMode) return newValue;
+              if (newValue.text.length <= oldValue.text.length) {
+                return newValue;
+              }
+
+              String text = newValue.text;
+              int cursor = newValue.selection.baseOffset;
               if (cursor <= 0 || cursor > text.length) return newValue;
 
-              // Find the start of the current frame (after the last |).
-              final frameStart = text.lastIndexOf('|', cursor - 1) + 1;
-              final currentFrame = text.substring(frameStart, cursor);
+              while (true) {
+                final frameStart = text.lastIndexOf('|', cursor - 1) + 1;
+                final currentFrame = text.substring(frameStart, cursor);
 
-              // Estimate pixel width: ~6 LED columns per character.
-              const int avgCharWidth = 6;
-              const int badgeScreenWidth = 44;
-              if (currentFrame.length * avgCharWidth > badgeScreenWidth) {
-                // Insert | before the character that caused overflow.
-                final insertAt = cursor - 1;
-                final newText =
-                    '${text.substring(0, insertAt)}|${text.substring(insertAt)}';
-                return TextEditingValue(
-                  text: newText,
-                  selection: TextSelection.collapsed(offset: insertAt + 1),
-                );
+                int frameWidth = 0;
+                int overflowIndex = -1;
+                int i = 0;
+                while (i < currentFrame.length) {
+                  int itemWidth = 8;
+                  int itemLen = 1;
+
+                  if (currentFrame[i] == '<' &&
+                      i + 5 < currentFrame.length &&
+                      currentFrame[i + 5] == '>') {
+                    itemWidth = 12;
+                    itemLen = 6;
+                  } else if (currentFrame[i] == '[' &&
+                      i + 3 < currentFrame.length &&
+                      currentFrame[i + 3] == ']') {
+                    itemWidth = 12;
+                    itemLen = 4;
+                  } else {
+                    itemWidth = _getCharWidth(currentFrame[i]);
+                    itemLen = 1;
+                  }
+
+                  if (frameWidth + itemWidth > 44) {
+                    overflowIndex = frameStart + i;
+                    break;
+                  }
+                  frameWidth += itemWidth;
+                  i += itemLen;
+                }
+
+                if (overflowIndex != -1) {
+                  text =
+                      '${text.substring(0, overflowIndex)}|${text.substring(overflowIndex)}';
+                  cursor = (cursor > overflowIndex) ? cursor + 1 : cursor;
+                } else {
+                  break;
+                }
               }
-              return newValue;
+
+              return TextEditingValue(
+                text: text,
+                selection: TextSelection.collapsed(offset: cursor),
+              );
             }),
           ],
           controller: controller,
           specialTextSpanBuilder: ImageBuilder(
-            isAnimationMode: Provider.of<AnimationBadgeProvider>(context)
-                    .getAnimationIndex() ==
-                5,
+            isAnimationMode: isAnimationMode,
           ),
           style: Provider.of<FontProvider>(context).selectedFont != null
               ? _getFontStyle(Provider.of<FontProvider>(context).selectedFont!)
