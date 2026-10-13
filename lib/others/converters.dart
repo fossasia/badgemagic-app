@@ -226,10 +226,13 @@ class Converters {
       }
 
       List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
+      // Track where the current frame starts so we can auto-wrap at 44 cols.
+      int frameStartCol = 0;
 
       for (var segment in segments) {
         if (segment['type'] == 'frame_break') {
           _padMatrixToNextFrame(combinedMatrix);
+          frameStartCol = combinedMatrix[0].length;
         } else if (segment['type'] == 'text') {
           String text = segment['content'];
           for (int i = 0; i < text.length; i++) {
@@ -239,6 +242,12 @@ class Converters {
                 rows: 11, hasDescender: hasDescender);
             List<List<bool>> charMatrix = matrixData['matrix'];
             charMatrix = _trimAndPadCharMatrix(charMatrix);
+            // Auto-wrap: if adding this character would exceed 44 cols, start a new frame.
+            final charWidth = charMatrix.isNotEmpty ? charMatrix[0].length : 0;
+            if (combinedMatrix[0].length - frameStartCol + charWidth > 44) {
+              _padMatrixToNextFrame(combinedMatrix);
+              frameStartCol = combinedMatrix[0].length;
+            }
             for (int row = 0; row < 11; row++) {
               combinedMatrix[row].addAll(charMatrix[row]);
             }
@@ -266,6 +275,7 @@ class Converters {
         }
       }
 
+      // Pad the final frame to a 44-column boundary if any frame breaks exist.
       bool hasFrameBreak = segments.any((s) => s['type'] == 'frame_break');
       if (hasFrameBreak) {
         _padMatrixToNextFrame(combinedMatrix);
@@ -383,17 +393,26 @@ class Converters {
     }
 
     List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
+    // Track where the current frame starts so we can auto-wrap at 44 cols.
+    int frameStartCol = 0;
 
     for (var segment in segments) {
       if (segment['type'] == 'frame_break') {
-        // Pad to the next full badge screen (44 columns).
+        // Manual screen divider: pad to the next full badge screen (44 columns).
         _padMatrixToNextFrame(combinedMatrix);
+        frameStartCol = combinedMatrix[0].length;
       } else if (segment['type'] == 'text') {
         String segmentText = segment['content'];
         for (final char in segmentText.split('')) {
           if (!converter.charCodes.containsKey(char)) continue;
           final charMatrix = _trimAndPadCharMatrix(
               _charCodeToBoolMatrix(converter.charCodes[char]!));
+          // Auto-wrap: if adding this character would exceed 44 cols, start a new frame.
+          final charWidth = charMatrix.isNotEmpty ? charMatrix[0].length : 0;
+          if (combinedMatrix[0].length - frameStartCol + charWidth > 44) {
+            _padMatrixToNextFrame(combinedMatrix);
+            frameStartCol = combinedMatrix[0].length;
+          }
           for (int row = 0; row < 11; row++) {
             combinedMatrix[row].addAll(charMatrix[row]);
           }
@@ -424,6 +443,7 @@ class Converters {
       }
     }
 
+    // Pad the final frame to a 44-column boundary if any frame breaks exist.
     bool hasFrameBreak = segments.any((s) => s['type'] == 'frame_break');
     if (hasFrameBreak) {
       _padMatrixToNextFrame(combinedMatrix);

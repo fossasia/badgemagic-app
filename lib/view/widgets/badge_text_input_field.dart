@@ -73,6 +73,7 @@ class BadgeTextInputField extends StatelessWidget {
         elevation: 4,
         child: ExtendedTextField(
           inputFormatters: [
+            // Strip unsupported emoji characters.
             TextInputFormatter.withFunction((oldValue, newValue) {
               if (_emojiRegex.hasMatch(newValue.text)) {
                 final strippedText = newValue.text.replaceAll(_emojiRegex, ' ');
@@ -81,12 +82,38 @@ class BadgeTextInputField extends StatelessWidget {
                   newValue.selection.baseOffset,
                   strippedText.length,
                 );
-
                 return TextEditingValue(
                   text: strippedText,
                   selection: TextSelection.collapsed(
                     offset: math.max(0, newSelectionOffset),
                   ),
+                );
+              }
+              return newValue;
+            }),
+            // Auto-insert a screen divider when the current frame's text
+            // exceeds the badge screen width (~44 LED columns).
+            // Average default-font char width is ~6 LED columns.
+            TextInputFormatter.withFunction((oldValue, newValue) {
+              final text = newValue.text;
+              final cursor = newValue.selection.baseOffset;
+              if (cursor <= 0 || cursor > text.length) return newValue;
+
+              // Find the start of the current frame (after the last |).
+              final frameStart = text.lastIndexOf('|', cursor - 1) + 1;
+              final currentFrame = text.substring(frameStart, cursor);
+
+              // Estimate pixel width: ~6 LED columns per character.
+              const int avgCharWidth = 6;
+              const int badgeScreenWidth = 44;
+              if (currentFrame.length * avgCharWidth > badgeScreenWidth) {
+                // Insert | before the character that caused overflow.
+                final insertAt = cursor - 1;
+                final newText =
+                    '${text.substring(0, insertAt)}|${text.substring(insertAt)}';
+                return TextEditingValue(
+                  text: newText,
+                  selection: TextSelection.collapsed(offset: insertAt + 1),
                 );
               }
               return newValue;
