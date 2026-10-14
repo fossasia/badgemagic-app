@@ -41,9 +41,7 @@ class _SavedClipartScreenState extends State<SavedClipartScreen> {
 
   Object? _cacheKeyForFileName(String fileName) {
     for (final key in imageprovider.imageCache.keys) {
-      if (key is List &&
-          key.isNotEmpty &&
-          key[0].toString() == fileName) {
+      if (key is List && key.isNotEmpty && key[0].toString() == fileName) {
         return key;
       }
     }
