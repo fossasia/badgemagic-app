@@ -122,6 +122,7 @@
   "animationPicture": "Картинка",
   "pleaseSelectClipart": "Перед сохранением нарисуйте или выберите клипарт",
   "addToBadge": "Добавить на бейдж",
+  "couldNotAddClipartToBadge": "Не удалось добавить этот клипарт на бейдж. Попробуйте ещё раз.",
   "pleaseEnterMessage": "Введите текст сообщения",
   "pleaseEnterNewBadgeName": "Введите, пожалуйста, название нового бейджа.",
   "scanQrInstruction": "Наведите камеру на QR-код бейджа, отправленный с другого устройства.",

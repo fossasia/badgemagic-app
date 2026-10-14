@@ -161,6 +161,7 @@
   "badgeScanMode": "Modalità Scansione Badge",
   "pleaseSelectClipart": "Si prega di disegnare o selezionare un clipart prima di salvare",
   "addToBadge": "Aggiungi al Badge",
+  "couldNotAddClipartToBadge": "Impossibile aggiungere questo clipart al badge. Riprova.",
   "renameBadge": "Rinomina Badge",
   "newName": "Nuovo nome",
   "rename": "Rinomina",

@@ -17,7 +17,7 @@ class SavedClipartListView extends StatelessWidget {
   final ImageUtils imageUtils = ImageUtils();
 
   final Future<void> Function(String) refreshClipartCallback;
-  final void Function(String fileName) onClipartSelected;
+  final Future<void> Function(String fileName) onClipartSelected;
 
   SavedClipartListView({
     super.key,
@@ -98,7 +98,7 @@ class SavedClipartListView extends StatelessWidget {
                   runSpacing: 4.h,
                   children: [
                     TextButton.icon(
-                      onPressed: () => onClipartSelected(fileName),
+                      onPressed: () async => onClipartSelected(fileName),
                       style: TextButton.styleFrom(
                         foregroundColor: colorPrimary,
                         padding: EdgeInsets.symmetric(
