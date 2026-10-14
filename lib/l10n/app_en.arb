@@ -161,6 +161,7 @@
   "triangle": "Triangle",
   "badgeScanMode": "Badge Scan Mode",
   "pleaseSelectClipart": "Please draw or select a clipart before saving",
+  "addToBadge": "Add to Badge",
   "searchingDeviceBLE": "Searching for device...",
   "turnOnBluetoothMessage": "Please turn on Bluetooth",
   "connexionFailed": "Failed to connect. Retrying...",

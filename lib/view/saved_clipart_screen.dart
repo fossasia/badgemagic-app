@@ -111,6 +111,25 @@ class _SavedClipartScreenState extends State<SavedClipartScreen> {
                   logger.i('Clipart $fileName deleted');
                 });
               },
+              onClipartSelected: (String fileName) {
+                Object? cacheKey;
+                for (final key in imageprovider.imageCache.keys) {
+                  if (key is List &&
+                      key.isNotEmpty &&
+                      key[0].toString() == fileName) {
+                    cacheKey = key;
+                    break;
+                  }
+                }
+                if (cacheKey != null) {
+                  imageprovider.insertInlineImage(cacheKey);
+                }
+                Navigator.pushNamedAndRemoveUntil(
+                  context,
+                  '/',
+                  (route) => false,
+                );
+              },
             ),
     );
   }
