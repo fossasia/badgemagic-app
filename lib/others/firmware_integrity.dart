@@ -4,44 +4,48 @@ import 'package:crypto/crypto.dart';
 
 import 'app_logger.dart';
 
-/// Thrown when a downloaded firmware file does not match the SHA-256
-/// digest published with the release.
+/// Thrown when a firmware file cannot be trusted: its SHA-256 does not
+/// match the digest published with the release, or the published digest
+/// is not a valid SHA-256.
 class FirmwareIntegrityException implements Exception {
-  final String expected;
-  final String actual;
+  final String? expected;
+  final String? actual;
 
-  const FirmwareIntegrityException({
-    required this.expected,
-    required this.actual,
-  });
+  const FirmwareIntegrityException({this.expected, this.actual});
 
   @override
-  String toString() =>
-      'Firmware checksum mismatch (expected $expected, got $actual)';
+  String toString() => expected == null
+      ? 'The SHA-256 digest published for this firmware is not valid'
+      : 'Firmware checksum mismatch (expected $expected, got $actual)';
 }
 
 /// Reads a GitHub asset digest such as "sha256:<64 hex chars>" and returns
-/// the lower-case hash, or null if the value is missing or malformed.
-String? parseSha256Digest(String? digest) {
+/// the lower-case hash. Returns null if the release has no digest for the
+/// file. Throws [FirmwareIntegrityException] if a digest is there but is
+/// not a valid SHA-256, because then the file cannot be trusted.
+String? parseSha256Digest(Object? digest) {
   if (digest == null) return null;
-  final match = RegExp(r'^sha256:([0-9a-fA-F]{64})$').firstMatch(digest.trim());
-  return match?.group(1)?.toLowerCase();
+  final match = digest is String
+      ? RegExp(r'^sha256:([0-9a-fA-F]{64})$').firstMatch(digest.trim())
+      : null;
+  if (match == null) throw const FirmwareIntegrityException();
+  return match.group(1)!.toLowerCase();
 }
 
-/// Finds the release asset with [downloadUrl] and returns its SHA-256,
-/// or null if the asset or its digest is not there.
+/// Finds the release asset with [downloadUrl] and returns its SHA-256, or
+/// null if the asset or its digest is not there. Throws
+/// [FirmwareIntegrityException] if the digest is not valid.
 String? sha256ForAssetUrl(List<dynamic> assets, String downloadUrl) {
   for (final asset in assets) {
     if (asset is Map && asset['browser_download_url'] == downloadUrl) {
-      final digest = asset['digest'];
-      return parseSha256Digest(digest is String ? digest : null);
+      return parseSha256Digest(asset['digest']);
     }
   }
   return null;
 }
 
 /// Throws [FirmwareIntegrityException] if [data] does not match
-/// [expectedSha256]. If no digest is known, only a warning is logged.
+/// [expectedSha256]. If no digest is published, only a warning is logged.
 void verifyFirmwareSha256(Uint8List data, String? expectedSha256) {
   if (expectedSha256 == null) {
     logger.w('No SHA-256 digest published for this firmware, skipping check');

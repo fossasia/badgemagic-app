@@ -18,11 +18,28 @@ void main() {
       expect(parseSha256Digest('sha256:${abcHash.toUpperCase()}'), abcHash);
     });
 
-    test('returns null for missing or malformed values', () {
+    test('returns null when there is no digest', () {
       expect(parseSha256Digest(null), isNull);
-      expect(parseSha256Digest(''), isNull);
-      expect(parseSha256Digest('md5:abc'), isNull);
-      expect(parseSha256Digest('sha256:1234'), isNull);
+    });
+
+    test('throws for a malformed digest', () {
+      for (final bad in ['', 'md5:abc', 'sha256:1234', abcHash]) {
+        expect(
+          () => parseSha256Digest(bad),
+          throwsA(isA<FirmwareIntegrityException>()),
+        );
+      }
+    });
+
+    test('throws for a digest that is not a string', () {
+      expect(
+        () => parseSha256Digest(42),
+        throwsA(isA<FirmwareIntegrityException>()),
+      );
+      expect(
+        () => parseSha256Digest(['sha256:$abcHash']),
+        throwsA(isA<FirmwareIntegrityException>()),
+      );
     });
   });
 
@@ -32,7 +49,8 @@ void main() {
         'browser_download_url': 'https://example.com/a.bin',
         'digest': 'sha256:$abcHash',
       },
-      {'browser_download_url': 'https://example.com/b.bin'},
+      {'browser_download_url': 'https://example.com/b.bin', 'digest': null},
+      {'browser_download_url': 'https://example.com/d.bin', 'digest': 42},
     ];
 
     test('finds the digest of the matching asset', () {
@@ -41,6 +59,13 @@ void main() {
 
     test('returns null when the asset has no digest', () {
       expect(sha256ForAssetUrl(assets, 'https://example.com/b.bin'), isNull);
+    });
+
+    test('throws when the digest is not valid', () {
+      expect(
+        () => sha256ForAssetUrl(assets, 'https://example.com/d.bin'),
+        throwsA(isA<FirmwareIntegrityException>()),
+      );
     });
 
     test('returns null for an unknown url', () {
@@ -74,7 +99,7 @@ void main() {
       );
     });
 
-    test('skips the check when no digest is available', () {
+    test('skips the check when no digest is published', () {
       expect(() => verifyFirmwareSha256(abcBytes, null), returnsNormally);
     });
   });

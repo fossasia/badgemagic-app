@@ -248,7 +248,7 @@ class FirmwareUpdateService {
 
       verifyFirmwareSha256(
         firmware,
-        parseSha256Digest(targetAsset['digest'] as String?),
+        parseSha256Digest(targetAsset['digest']),
       );
 
       logger.i(
