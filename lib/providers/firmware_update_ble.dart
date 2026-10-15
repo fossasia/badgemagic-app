@@ -1,19 +1,16 @@
 import 'dart:async';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:http/http.dart' as http;
 
 import 'package:flutter/services.dart';
 import 'package:universal_ble/universal_ble.dart';
 
 import '../others/byte_array_utils.dart';
+import '../others/firmware_integrity.dart';
 
-enum ActiveSlot {
-  slotA,
-  slotB,
-  unknown,
-  legacyFirmware,
-}
+enum ActiveSlot { slotA, slotB, unknown, legacyFirmware }
 
 class FirmwareUpdateService {
   // ============================================================
@@ -67,10 +64,16 @@ class FirmwareUpdateService {
     try {
       final services = await UniversalBle.discoverServices(deviceId);
 
-      final hasSlotChar = services.any((s) =>
-          BleUuidParser.compareStrings(s.uuid, otaServiceUuid) &&
-          s.characteristics.any((c) => BleUuidParser.compareStrings(
-              c.uuid, slotStatusCharacteristicUuid)));
+      final hasSlotChar = services.any(
+        (s) =>
+            BleUuidParser.compareStrings(s.uuid, otaServiceUuid) &&
+            s.characteristics.any(
+              (c) => BleUuidParser.compareStrings(
+                c.uuid,
+                slotStatusCharacteristicUuid,
+              ),
+            ),
+      );
 
       if (!hasSlotChar) {
         logger.w('OTA: FEE2 not found after discovery, fallback to SlotA');
@@ -131,7 +134,8 @@ class FirmwareUpdateService {
       }
 
       logger.w(
-          'OTA: CMD_IAP_INFO unexpected response, fallback to SlotA. data=$data');
+        'OTA: CMD_IAP_INFO unexpected response, fallback to SlotA. data=$data',
+      );
       return ActiveSlot.slotA;
     } catch (e) {
       logger.w('OTA: CMD_IAP_INFO failed, fallback to SlotA — error: $e');
@@ -163,8 +167,9 @@ class FirmwareUpdateService {
   // ============================================================
 
   //TO TEST THE HARDCODED FIRMWARE ^._.^
-  Future<Uint8List> downloadFirmwareBinary(
-      {required ActiveSlot activeSlot}) async {
+  Future<Uint8List> downloadFirmwareBinary({
+    required ActiveSlot activeSlot,
+  }) async {
     final targetSlot = targetSlotFor(activeSlot);
     final String slotFolder =
         targetSlot == ActiveSlot.slotA ? 'slotA' : 'slotB';
@@ -174,7 +179,8 @@ class FirmwareUpdateService {
         'assets/usb-c-4key/$slotFolder/badgemagic-ch582-$suffix.bin';
 
     logger.i(
-        'OTA: active=${slotName(activeSlot)} -> writing to target=${slotName(targetSlot)}, asset=$assetPath');
+      'OTA: active=${slotName(activeSlot)} -> writing to target=${slotName(targetSlot)}, asset=$assetPath',
+    );
 
     try {
       final ByteData byteData = await rootBundle.load(assetPath);
@@ -214,7 +220,8 @@ class FirmwareUpdateService {
 
     if (targetAsset == null) {
       throw Exception(
-          'Firmware asset "$expectedFileName" not found in release.');
+        'Firmware asset "$expectedFileName" not found in release.',
+      );
     }
 
     final String? downloadUrl = targetAsset['browser_download_url'] as String?;
@@ -229,7 +236,8 @@ class FirmwareUpdateService {
 
       if (response.statusCode != 200) {
         throw Exception(
-            'HTTP error ${response.statusCode} while downloading firmware.');
+          'HTTP error ${response.statusCode} while downloading firmware.',
+        );
       }
 
       final Uint8List firmware = response.bodyBytes;
@@ -238,12 +246,21 @@ class FirmwareUpdateService {
         throw Exception('Downloaded firmware binary is empty (0 bytes).');
       }
 
-      logger
-          .i('OTA: Firmware downloaded successfully: ${firmware.length} bytes');
+      verifyFirmwareSha256(
+        firmware,
+        parseSha256Digest(targetAsset['digest'] as String?),
+      );
+
+      logger.i(
+        'OTA: Firmware downloaded successfully: ${firmware.length} bytes',
+      );
       return firmware;
+    } on FirmwareIntegrityException {
+      rethrow;
     } catch (e) {
       throw Exception(
-          'Error downloading remote firmware ($expectedFileName): $e');
+        'Error downloading remote firmware ($expectedFileName): $e',
+      );
     }
   }
 
@@ -306,7 +323,8 @@ class FirmwareUpdateService {
     final int chunkSize = Platform.isAndroid ? 128 : maxChunkSize;
 
     logger.i(
-        'OTA: Sending $total bytes to ${slotName(targetSlot)} (Chunk: $chunkSize B)...');
+      'OTA: Sending $total bytes to ${slotName(targetSlot)} (Chunk: $chunkSize B)...',
+    );
 
     int lastReportedPct = -1;
     int lastEraseBlockIndex = -1;
@@ -483,8 +501,9 @@ class FirmwareUpdateService {
       final int targetAddr = targetSlotAddress(targetSlot);
 
       logger.i(
-          'OTA: plan -> active=${slotName(activeSlot)}, target=${slotName(targetSlot)}, '
-          'targetAddr=0x${targetAddr.toRadixString(16)}, chunkSize=${Platform.isAndroid ? 16 : maxDataPayload} B');
+        'OTA: plan -> active=${slotName(activeSlot)}, target=${slotName(targetSlot)}, '
+        'targetAddr=0x${targetAddr.toRadixString(16)}, chunkSize=${Platform.isAndroid ? 16 : maxDataPayload} B',
+      );
 
       Uint8List firmware;
 

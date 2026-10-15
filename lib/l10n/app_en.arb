@@ -258,6 +258,7 @@
   "badgeIspNotFound": "Badge ISP not found. Connect the ledtag with the boot button pressed.",
   "usbPermissionDenied": "USB permission denied by user",
   "firmwareUpdateSuccessShort": "Firmware updated successfully!",
+  "firmwareChecksumMismatch": "The firmware file failed the integrity check. Nothing was written to your badge. Please try again.",
   "flashUsbConfirmationTitle": "USB Flash Instructions",
   "flashUsbInstructions": "Connect the USB cable to the badge while clicking the button immediately above the USB port.",
   "batteryDesolderedWarning": "Note: The battery must be desoldered or you have to short-circuit the C3 capacitor to perform this operation.",

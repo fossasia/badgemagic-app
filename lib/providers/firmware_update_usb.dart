@@ -2,18 +2,22 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
+
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:get_it/get_it.dart';
+
 import '../models/hardware_variant.dart';
 import '../others/app_logger.dart';
+import '../others/firmware_integrity.dart';
 import '../others/localization_service.dart';
 import '../others/toast_utils.dart';
 
 class WchUsbIspFlasher {
-  static const MethodChannel _channel =
-      MethodChannel('org.fossasia.badgemagic/wch_isp');
+  static const MethodChannel _channel = MethodChannel(
+    'org.fossasia.badgemagic/wch_isp',
+  );
   static const String _apiLatestUrl =
       'https://api.github.com/repos/fossasia/badgemagic-firmware/releases/latest';
 
@@ -87,14 +91,19 @@ class WchUsbIspFlasher {
     return null;
   }
 
-  Future<Uint8List> downloadFirmwareBinary(String downloadUrl) async {
+  Future<Uint8List> downloadFirmwareBinary(
+    String downloadUrl, {
+    String? expectedSha256,
+  }) async {
     final response = await http.get(Uri.parse(downloadUrl));
 
     if (response.statusCode != 200 || response.bodyBytes.isEmpty) {
       throw Exception(
-          'Download failed from $downloadUrl (HTTP ${response.statusCode})');
+        'Download failed from $downloadUrl (HTTP ${response.statusCode})',
+      );
     }
 
+    verifyFirmwareSha256(response.bodyBytes, expectedSha256);
     return response.bodyBytes;
   }
 
@@ -117,9 +126,7 @@ class WchUsbIspFlasher {
       }
     }
 
-    await _channel.invokeMethod('flashFirmware', {
-      'firmware': firmwareData,
-    });
+    await _channel.invokeMethod('flashFirmware', {'firmware': firmwareData});
 
     onProgress?.call(1.0);
     ToastUtils().showToast(l10n.firmwareUpdateSuccessShort);
@@ -156,10 +163,11 @@ class WchUsbIspFlasher {
   }) async {
     final wchispPath = await _findWchispBinary();
     if (wchispPath == null) {
-      ToastUtils()
-          .showErrorToast("wchisp not found. Verify that it is installed "
-              "(e.g. 'cargo install wchisp') and that its path is in PATH, "
-              "or report it to search in a custom location.");
+      ToastUtils().showErrorToast(
+        "wchisp not found. Verify that it is installed "
+        "(e.g. 'cargo install wchisp') and that its path is in PATH, "
+        "or report it to search in a custom location.",
+      );
       throw Exception("wchisp not found (PATH and common locations)");
     }
 
@@ -187,7 +195,8 @@ class WchUsbIspFlasher {
             err.toLowerCase().contains('access') ||
             err.toLowerCase().contains('udev')) {
           ToastUtils().showErrorToast(
-              "USB permission error: configure udev rules for the badge.");
+            "USB permission error: configure udev rules for the badge.",
+          );
         } else {
           ToastUtils().showErrorToast("Error during flash: $err");
         }
