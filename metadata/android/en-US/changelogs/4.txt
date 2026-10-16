@@ -1,0 +1,3 @@
+- miscellaneous bug fixes
+- draw support for cliparts
+- edit support for badges
