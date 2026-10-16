@@ -31,8 +31,20 @@ class WriteState extends NormalBleState {
 
   static Future<void> cancelTransfer() async {
     isCancellationRequested = true;
-    await Future.delayed(const Duration(seconds: 1));
+  }
+
+  /// Clears an old cancel request. Call it when a new transfer starts.
+  static void resetCancellation() {
     isCancellationRequested = false;
+  }
+
+  /// The badge may drop the connection right after it received the last
+  /// chunk. A disconnect on any earlier chunk means data is missing.
+  static bool isDisconnectAcceptable({
+    required int chunkIndex,
+    required int totalChunks,
+  }) {
+    return chunkIndex >= totalChunks;
   }
 
   BleState? _handleAbortedState() {
@@ -65,7 +77,7 @@ class WriteState extends NormalBleState {
 
         bleDialogController.update(
           BleDialogStatus.transferring,
-          "Sending data...\n$displayedPercent%",
+          l10n.writingInProgress(displayedPercent.toString()),
           newProgress: displayedProgress,
         );
       }
@@ -81,8 +93,8 @@ class WriteState extends NormalBleState {
       verifiedNextGen = discoveredServices.any((service) =>
           service.uuid.toLowerCase() == ngServiceUuid.toLowerCase());
 
-      final services = await UniversalBle.discoverServices(deviceId);
-      final serviceExists = services.any((s) => s.uuid == serviceUuid);
+      final serviceExists = discoveredServices
+          .any((s) => s.uuid.toLowerCase() == serviceUuid.toLowerCase());
       if (!serviceExists) {
         throw Exception(l10n.noBLEServiceFound);
       }
@@ -179,11 +191,12 @@ class WriteState extends NormalBleState {
             errorStr.contains('Unknown characteristic');
 
         if (isHardDisconnection) {
-          final isNearEnd = chunkIndex >= (totalChunks * 0.85).floor();
+          final isLastChunk = isDisconnectAcceptable(
+              chunkIndex: chunkIndex, totalChunks: totalChunks);
 
-          if (isNearEnd) {
+          if (isLastChunk) {
             logger.w(
-              "Chunk $chunkIndex/$totalChunks: device disconnected near end — "
+              "Chunk $chunkIndex/$totalChunks: device disconnected after the last chunk — "
               "treating as implicit success.",
             );
             return false;

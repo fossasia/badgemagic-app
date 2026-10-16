@@ -6,6 +6,7 @@ import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/communication/scan_state.dart';
+import 'package:badgemagic/communication/write_state.dart';
 import 'package:badgemagic/models/data.dart';
 import 'package:badgemagic/models/messages.dart';
 import 'package:badgemagic/models/mode.dart';
@@ -99,6 +100,7 @@ class BadgeMessageProvider {
     DataTransferManager manager, {
     BuildContext? context,
   }) async {
+    WriteState.resetCancellation();
     deviceManager = manager;
     final scanProvider = context != null
         ? Provider.of<BadgeScanProvider>(context, listen: false)
