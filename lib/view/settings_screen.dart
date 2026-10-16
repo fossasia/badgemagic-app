@@ -21,6 +21,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../communication/connect_state.dart';
 import '../models/hardware_variant.dart';
 import '../others/byte_array_utils.dart';
+import '../others/firmware_integrity.dart';
 import '../others/globals.dart';
 import '../others/localization_service.dart';
 import '../others/toast_utils.dart';
@@ -112,8 +113,9 @@ class SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     setState(() {
-      _selectedHardwareVariant =
-          HardwareVariantX.fromName(prefs.getString(_hardwareVariantKey));
+      _selectedHardwareVariant = HardwareVariantX.fromName(
+        prefs.getString(_hardwareVariantKey),
+      );
     });
   }
 
@@ -195,8 +197,9 @@ class SettingsScreenState extends State<SettingsScreen> {
       _availableUpdate = null;
     });
 
-    final updateInfo =
-        await _flasher.checkForUpdates(_selectedHardwareVariant!);
+    final updateInfo = await _flasher.checkForUpdates(
+      _selectedHardwareVariant!,
+    );
 
     if (mounted) {
       setState(() {
@@ -222,7 +225,8 @@ class SettingsScreenState extends State<SettingsScreen> {
       builder: (context) => AlertDialog(
         title: const Text("Select your badge"),
         content: const Text(
-            "Please select your badge model before checking for firmware updates."),
+          "Please select your badge model before checking for firmware updates.",
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(),
@@ -249,8 +253,10 @@ class SettingsScreenState extends State<SettingsScreen> {
         return AlertDialog(
           title: Row(
             children: [
-              const Icon(Icons.integration_instructions_outlined,
-                  color: Colors.red),
+              const Icon(
+                Icons.integration_instructions_outlined,
+                color: Colors.red,
+              ),
               const SizedBox(width: 8),
               Text(l10n.flashUsbConfirmationTitle),
             ],
@@ -263,13 +269,16 @@ class SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   l10n.batteryDesolderedWarning,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.red),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: () async {
                     final url = Uri.parse(
-                        'https://github.com/fossasia/badgemagic-firmware');
+                      'https://github.com/fossasia/badgemagic-firmware',
+                    );
                     if (await canLaunchUrl(url)) {
                       await launchUrl(url);
                     }
@@ -308,8 +317,13 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     try {
       final String downloadUrl = _availableUpdate!['downloadUrl'];
-      final Uint8List firmwareData =
-          await _flasher.downloadFirmwareBinary(downloadUrl);
+      final Uint8List firmwareData = await _flasher.downloadFirmwareBinary(
+        downloadUrl,
+        expectedSha256: sha256ForAssetUrl(
+          _availableUpdate!['assets'] ?? [],
+          downloadUrl,
+        ),
+      );
 
       if (mounted) {
         setState(() {
@@ -323,23 +337,26 @@ class SettingsScreenState extends State<SettingsScreen> {
           onProgress: (progress) {
             if (mounted) {
               setState(() {
-                _flashStatusText =
-                    l10n.flashUsbProgress((progress * 100).toStringAsFixed(0));
+                _flashStatusText = l10n.flashUsbProgress(
+                  (progress * 100).toStringAsFixed(0),
+                );
               });
             }
           },
         );
       } else if (Platform.isLinux) {
         await _flasher.flashMergedBinaryLinux(
-            firmwareData: firmwareData,
-            onProgress: (progress) {
-              if (mounted) {
-                setState(() {
-                  _flashStatusText = l10n
-                      .flashUsbProgress((progress * 100).toStringAsFixed(0));
-                });
-              }
-            });
+          firmwareData: firmwareData,
+          onProgress: (progress) {
+            if (mounted) {
+              setState(() {
+                _flashStatusText = l10n.flashUsbProgress(
+                  (progress * 100).toStringAsFixed(0),
+                );
+              });
+            }
+          },
+        );
       }
 
       if (mounted) {
@@ -347,6 +364,9 @@ class SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       logger.e('Flash USB error: $e');
+      if (e is FirmwareIntegrityException) {
+        ToastUtils().showToast(l10n.firmwareChecksumMismatch);
+      }
     } finally {
       if (mounted) {
         setState(() {
@@ -398,7 +418,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   l10n.language,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
@@ -414,21 +436,27 @@ class SettingsScreenState extends State<SettingsScreen> {
                       setState(() => selectedLanguage = value);
                       final newLocale = Locale(value);
                       appLocale.value = newLocale;
-                      GetIt.instance
-                          .get<LocalizationService>()
-                          .saveLocale(newLocale);
+                      GetIt.instance.get<LocalizationService>().saveLocale(
+                            newLocale,
+                          );
                     }
                   },
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(),
-                    contentPadding:
-                        EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 8,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 16),
-                Text(l10n.appFeaturesTitle,
-                    style: const TextStyle(
-                        fontSize: 16, fontWeight: FontWeight.bold)),
+                Text(
+                  l10n.appFeaturesTitle,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
                 const SizedBox(height: 8),
                 buildSwitchCard(
                   title: l10n.requestPinBeforeSending,
@@ -480,7 +508,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   l10n.badgeScanMode,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 ListTile(
@@ -530,19 +560,26 @@ class SettingsScreenState extends State<SettingsScreen> {
                                     controller.dispose();
                                   }
                                   _controllers = provider.badgeNames
-                                      .map((name) =>
-                                          TextEditingController(text: name))
+                                      .map(
+                                        (name) =>
+                                            TextEditingController(text: name),
+                                      )
                                       .toList();
                                 });
                               },
                               icon: const Icon(Icons.delete, size: 18),
-                              label: Text(l10n.removeWithCount(
-                                  provider.selectedIndices.length.toString())),
+                              label: Text(
+                                l10n.removeWithCount(
+                                  provider.selectedIndices.length.toString(),
+                                ),
+                              ),
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: colorError,
                                 foregroundColor: colorOnPrimary,
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
+                                  horizontal: 12,
+                                  vertical: 8,
+                                ),
                               ),
                             ),
                         ],
@@ -582,8 +619,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                                 decoration: InputDecoration(
                                   hintText: l10n.badgeNameHint,
                                   border: InputBorder.none,
-                                  contentPadding:
-                                      const EdgeInsets.symmetric(vertical: 12),
+                                  contentPadding: const EdgeInsets.symmetric(
+                                    vertical: 12,
+                                  ),
                                 ),
                                 onChanged: (value) =>
                                     provider.updateBadgeName(index, value),
@@ -609,7 +647,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                 Text(
                   l10n.firmwareUpdate,
                   style: const TextStyle(
-                      fontSize: 16, fontWeight: FontWeight.bold),
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 buildSwitchCard(
@@ -656,8 +696,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                     },
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
-                      contentPadding:
-                          EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
@@ -693,7 +735,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                                 width: 16,
                                 height: 16,
                                 child: CircularProgressIndicator(
-                                    strokeWidth: 2, color: Colors.red),
+                                  strokeWidth: 2,
+                                  color: Colors.red,
+                                ),
                               )
                             : const Icon(Icons.refresh),
                         label: Text(l10n.checkFirmwareUpdateButton),
@@ -704,8 +748,10 @@ class SettingsScreenState extends State<SettingsScreen> {
                     const SizedBox(height: 12),
                     Text(
                       _updateStatusMessage!,
-                      style:
-                          TextStyle(color: Colors.grey.shade700, fontSize: 14),
+                      style: TextStyle(
+                        color: Colors.grey.shade700,
+                        fontSize: 14,
+                      ),
                     ),
                   ],
                   if (_availableUpdate != null) ...[
@@ -722,36 +768,41 @@ class SettingsScreenState extends State<SettingsScreen> {
                         children: [
                           Row(
                             children: [
-                              const Icon(Icons.new_releases_sharp,
-                                  color: Colors.red),
+                              const Icon(
+                                Icons.new_releases_sharp,
+                                color: Colors.red,
+                              ),
                               const SizedBox(width: 8),
                               Text(
                                 l10n.newFirmwareVersionFound,
                                 style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.red,
-                                    fontSize: 15),
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.red,
+                                  fontSize: 15,
+                                ),
                               ),
                             ],
                           ),
                           const SizedBox(height: 8),
-                          Text(l10n.versionLabel(_availableUpdate!['version']),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w600)),
-                          Text(l10n.releasedLabel(_availableUpdate!['date']),
-                              style:
-                                  const TextStyle(fontWeight: FontWeight.w600)),
+                          Text(
+                            l10n.versionLabel(_availableUpdate!['version']),
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
+                          Text(
+                            l10n.releasedLabel(_availableUpdate!['date']),
+                            style: const TextStyle(fontWeight: FontWeight.w600),
+                          ),
                           if (_isFlashingFirmware) ...[
                             const SizedBox(height: 12),
                             if (viaUSB) ...[
-                              const LinearProgressIndicator(
-                                color: Colors.red,
-                              ),
+                              const LinearProgressIndicator(color: Colors.red),
                               const SizedBox(height: 6),
                               Text(
                                 _flashStatusText,
                                 style: TextStyle(
-                                    fontSize: 12, color: Colors.grey.shade700),
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700,
+                                ),
                               ),
                             ] else ...[
                               LinearProgressIndicator(
@@ -762,9 +813,12 @@ class SettingsScreenState extends State<SettingsScreen> {
                               const SizedBox(height: 4),
                               Text(
                                 l10n.flashingFirmwareProgress(
-                                    (_flashProgress * 100).toStringAsFixed(0)),
+                                  (_flashProgress * 100).toStringAsFixed(0),
+                                ),
                                 style: TextStyle(
-                                    fontSize: 12, color: Colors.grey.shade700),
+                                  fontSize: 12,
+                                  color: Colors.grey.shade700,
+                                ),
                               ),
                             ],
                           ] else ...[
@@ -825,7 +879,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                     onTap: () async {
                       final prefs = await SharedPreferences.getInstance();
                       await prefs.setBool(
-                          'secure_connection_pin', _isSecureConnectionEnabled);
+                        'secure_connection_pin',
+                        _isSecureConnectionEnabled,
+                      );
                       provider.setMode(_scanMode);
                       provider.setStreamingEnabled(_isStreamingEnabled);
                       provider.setBadgeNames(
@@ -839,7 +895,9 @@ class SettingsScreenState extends State<SettingsScreen> {
                     },
                     child: Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 40, vertical: 10),
+                        horizontal: 40,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(AppRadius.small),
                         color: mdGrey400,
@@ -850,7 +908,7 @@ class SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
                   ),
-                )
+                ),
               ],
             ),
           ),
@@ -976,7 +1034,11 @@ class SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       if (!isCancelled) {
-        ToastUtils().showToast("Error: $e");
+        ToastUtils().showToast(
+          e is FirmwareIntegrityException
+              ? l10n.firmwareChecksumMismatch
+              : "Error: $e",
+        );
       }
     } finally {
       if (mounted) {

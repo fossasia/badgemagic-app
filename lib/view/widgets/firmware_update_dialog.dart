@@ -8,6 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../others/firmware_integrity.dart';
 import '../../others/globals.dart';
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
@@ -102,8 +103,10 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
         return AlertDialog(
           title: Row(
             children: [
-              const Icon(Icons.integration_instructions_outlined,
-                  color: Colors.red),
+              const Icon(
+                Icons.integration_instructions_outlined,
+                color: Colors.red,
+              ),
               const SizedBox(width: 8),
               Text(l10n.flashUsbConfirmationTitle),
             ],
@@ -116,13 +119,16 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
                 Text(
                   l10n.batteryDesolderedWarning,
                   style: const TextStyle(
-                      fontWeight: FontWeight.bold, color: Colors.red),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
                 ),
                 const SizedBox(height: 8),
                 InkWell(
                   onTap: () async {
                     final url = Uri.parse(
-                        'https://github.com/fossasia/badgemagic-firmware');
+                      'https://github.com/fossasia/badgemagic-firmware',
+                    );
                     if (await canLaunchUrl(url)) {
                       await launchUrl(url);
                     }
@@ -165,8 +171,13 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
         await _skipVersionPermanently(widget.version);
       }
 
-      final Uint8List firmwareData =
-          await _flasher.downloadFirmwareBinary(widget.downloadUrl);
+      final Uint8List firmwareData = await _flasher.downloadFirmwareBinary(
+        widget.downloadUrl,
+        expectedSha256: sha256ForAssetUrl(
+          widget.releaseAssets,
+          widget.downloadUrl,
+        ),
+      );
 
       if (mounted) {
         setState(() {
@@ -180,23 +191,26 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
           onProgress: (progress) {
             if (mounted) {
               setState(() {
-                _flashStatusText =
-                    l10n.flashUsbProgress((progress * 100).toStringAsFixed(0));
+                _flashStatusText = l10n.flashUsbProgress(
+                  (progress * 100).toStringAsFixed(0),
+                );
               });
             }
           },
         );
       } else if (Platform.isLinux) {
         await _flasher.flashMergedBinaryLinux(
-            firmwareData: firmwareData,
-            onProgress: (progress) {
-              if (mounted) {
-                setState(() {
-                  _flashStatusText = l10n
-                      .flashUsbProgress((progress * 100).toStringAsFixed(0));
-                });
-              }
-            });
+          firmwareData: firmwareData,
+          onProgress: (progress) {
+            if (mounted) {
+              setState(() {
+                _flashStatusText = l10n.flashUsbProgress(
+                  (progress * 100).toStringAsFixed(0),
+                );
+              });
+            }
+          },
+        );
       }
 
       ToastUtils().showToast(l10n.firmwareUpdateSuccess);
@@ -204,7 +218,11 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      ToastUtils().showToast('Error: $e');
+      ToastUtils().showToast(
+        e is FirmwareIntegrityException
+            ? l10n.firmwareChecksumMismatch
+            : 'Error: $e',
+      );
       if (mounted) {
         setState(() {
           _isFlashing = false;
@@ -231,10 +249,14 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text('${l10n.dialogNewFirmwareVersionFound}\n'),
-          Text(l10n.versionLabel(widget.version),
-              style: const TextStyle(fontWeight: FontWeight.bold)),
-          Text(l10n.releasedLabel(widget.date),
-              style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            l10n.versionLabel(widget.version),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+          Text(
+            l10n.releasedLabel(widget.date),
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 16),
           if (_isFlashing) ...[
             LinearProgressIndicator(
