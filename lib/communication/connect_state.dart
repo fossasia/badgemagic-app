@@ -11,10 +11,12 @@ import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'base_ble_state.dart';
+import 'transfer_cancellation.dart';
 
 class ConnectState extends RetryBleState {
   final BleDevice scanResult;
   final DataTransferManager manager;
+  final TransferCancellation cancellation;
   final BuildContext context;
   final bleDialogController = GetIt.instance<BleDialogController>();
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
@@ -22,6 +24,7 @@ class ConnectState extends RetryBleState {
   ConnectState({
     required this.manager,
     required this.scanResult,
+    required this.cancellation,
     required this.context,
   });
 
@@ -69,6 +72,7 @@ class ConnectState extends RetryBleState {
       }
 
       final writeState = WriteState(
+        cancellation: cancellation,
         device: scanResult,
         manager: manager,
       );

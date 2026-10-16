@@ -9,6 +9,7 @@ import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:badgemagic/others/globals.dart';
 import 'base_ble_state.dart';
+import 'transfer_cancellation.dart';
 import 'completed_state.dart';
 
 class WriteState extends NormalBleState {
@@ -17,7 +18,7 @@ class WriteState extends NormalBleState {
   final bleDialogController = GetIt.instance<BleDialogController>();
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
-  static bool isCancellationRequested = false;
+  final TransferCancellation cancellation;
   static const int _maxRetries = 3;
   static const Duration _retryDelay = Duration(milliseconds: 200);
   static const Duration _chunkDelay = Duration(milliseconds: 120);
@@ -27,15 +28,14 @@ class WriteState extends NormalBleState {
 
   bool verifiedNextGen = false;
 
-  WriteState({required this.manager, required this.device});
+  WriteState({
+    required this.manager,
+    required this.device,
+    required this.cancellation,
+  });
 
   static Future<void> cancelTransfer() async {
-    isCancellationRequested = true;
-  }
-
-  /// Clears an old cancel request. Call it when a new transfer starts.
-  static void resetCancellation() {
-    isCancellationRequested = false;
+    TransferCancellation.cancelActive();
   }
 
   /// The badge may drop the connection right after it received the last
@@ -85,7 +85,7 @@ class WriteState extends NormalBleState {
 
     try {
       await Future.delayed(_initialDelay);
-      if (isCancellationRequested) return _handleAbortedState();
+      if (cancellation.isCancelled) return _handleAbortedState();
 
       List<BleService> discoveredServices =
           await UniversalBle.discoverServices(deviceId);
