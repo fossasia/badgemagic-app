@@ -55,7 +55,43 @@ class InlineImage extends SpecialText {
 
 const int kInlineImageSentinelStart = 0x7fffffff;
 
+class ScreenDivider extends SpecialText {
+  static const String flag = '|';
+  ScreenDivider(TextStyle? textStyle, {this.start}) : super('|', '', textStyle);
+  final int? start;
+
+  @override
+  InlineSpan finishText() {
+    return WidgetSpan(
+      alignment: PlaceholderAlignment.middle,
+      child: Container(
+        width: 1.5,
+        height: 16.h,
+        margin: EdgeInsets.symmetric(horizontal: 4.w),
+        color: Colors.red.withValues(alpha: 0.5),
+      ),
+    );
+  }
+}
+
+class HiddenDivider extends SpecialText {
+  static const String flag = '|';
+  HiddenDivider(TextStyle? textStyle, {this.start}) : super('|', '', textStyle);
+  final int? start;
+
+  @override
+  InlineSpan finishText() {
+    return const WidgetSpan(
+      child: SizedBox.shrink(), // Completely invisible
+    );
+  }
+}
+
 class ImageBuilder extends SpecialTextSpanBuilder {
+  final bool isAnimationMode;
+
+  ImageBuilder({this.isAnimationMode = false});
+
   @override
   SpecialText? createSpecialText(String flag,
       {TextStyle? textStyle,
@@ -69,5 +105,47 @@ class ImageBuilder extends SpecialTextSpanBuilder {
       );
     }
     return null;
+  }
+
+  @override
+  TextSpan build(String data,
+      {TextStyle? textStyle, SpecialTextGestureTapCallback? onTap}) {
+    final originalSpan = super.build(data, textStyle: textStyle, onTap: onTap);
+
+    List<InlineSpan> newChildren = [];
+
+    void processTextSpan(TextSpan span) {
+      if (span.text != null && span.text!.contains('|')) {
+        final parts = span.text!.split('|');
+        for (int i = 0; i < parts.length; i++) {
+          if (parts[i].isNotEmpty) {
+            newChildren.add(TextSpan(text: parts[i], style: span.style));
+          }
+          if (i < parts.length - 1) {
+            newChildren.add(isAnimationMode
+                ? ScreenDivider(span.style).finishText()
+                : HiddenDivider(span.style).finishText());
+          }
+        }
+      } else {
+        newChildren.add(span);
+      }
+    }
+
+    if (originalSpan.children != null) {
+      for (var child in originalSpan.children!) {
+        if (child is TextSpan) {
+          processTextSpan(child);
+        } else {
+          newChildren.add(child);
+        }
+      }
+    } else if (originalSpan.text != null) {
+      processTextSpan(originalSpan);
+    } else {
+      return originalSpan;
+    }
+
+    return TextSpan(children: newChildren, style: originalSpan.style);
   }
 }

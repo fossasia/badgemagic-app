@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart';
 
 String getFontKey(
     String fontFamily, double fontSize, FontWeight weight, bool italic) {
-  return '$fontFamily-${fontSize.round()}-${weight.index}-$italic';
+  return '$fontFamily-${fontSize.round()}-${weight.value}-$italic';
 }
 
 class Converters {
@@ -205,19 +205,37 @@ class Converters {
           segments.add(
               {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
           i += 6;
+        } else if (text[i] == '|') {
+          // Frame separator: flush current text then pad to next screen boundary.
+          if (currentText.trim().isNotEmpty) {
+            segments.add({'type': 'text', 'content': currentText.trim()});
+            currentText = '';
+          }
+          segments.add({'type': 'frame_break'});
+          i++;
         } else {
           currentText += text[i];
           i++;
         }
       }
       if (currentText.isNotEmpty) {
-        segments.add({'type': 'text', 'content': currentText});
+        String content = text.contains('|') ? currentText.trim() : currentText;
+        if (content.isNotEmpty) {
+          segments.add({'type': 'text', 'content': content});
+        }
       }
 
+      final bool hasFrameBreak =
+          segments.any((s) => s['type'] == 'frame_break');
       List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
+      // Track where the current frame starts so we can auto-wrap at 44 cols.
+      int frameStartCol = 0;
 
       for (var segment in segments) {
-        if (segment['type'] == 'text') {
+        if (segment['type'] == 'frame_break') {
+          _padMatrixToNextFrame(combinedMatrix);
+          frameStartCol = combinedMatrix[0].length;
+        } else if (segment['type'] == 'text') {
           String text = segment['content'];
           for (int i = 0; i < text.length; i++) {
             String char = text[i];
@@ -226,6 +244,13 @@ class Converters {
                 rows: 11, hasDescender: hasDescender);
             List<List<bool>> charMatrix = matrixData['matrix'];
             charMatrix = _trimAndPadCharMatrix(charMatrix);
+            // Auto-wrap: if multi-frame and adding this character would exceed 44 cols, start a new frame.
+            final charWidth = charMatrix.isNotEmpty ? charMatrix[0].length : 0;
+            if (hasFrameBreak &&
+                combinedMatrix[0].length - frameStartCol + charWidth > 44) {
+              _padMatrixToNextFrame(combinedMatrix);
+              frameStartCol = combinedMatrix[0].length;
+            }
             for (int row = 0; row < 11; row++) {
               combinedMatrix[row].addAll(charMatrix[row]);
             }
@@ -251,6 +276,11 @@ class Converters {
             combinedMatrix[row].addAll(clipartMatrix[row].map((v) => v == 1));
           }
         }
+      }
+
+      // Pad the final frame to a 44-column boundary if any frame breaks exist.
+      if (hasFrameBreak) {
+        _padMatrixToNextFrame(combinedMatrix);
       }
 
       int totalColumns =
@@ -304,6 +334,34 @@ class Converters {
     return hexStrings;
   }
 
+  /// Pads [combinedMatrix] with empty columns until its width is a multiple of
+  /// [badgeScreenWidth] (default 44). Used to align frames at screen boundaries
+  /// when the "Animation" (Splitting) transition is active.
+  void _padMatrixToNextFrame(
+    List<List<bool>> combinedMatrix, {
+    int badgeScreenWidth = 44,
+  }) {
+    if (combinedMatrix.isEmpty) return;
+    final currentWidth = combinedMatrix[0].length;
+
+    int paddingNeeded;
+    if (currentWidth == 0) {
+      paddingNeeded = badgeScreenWidth;
+    } else if (currentWidth % badgeScreenWidth == 0) {
+      paddingNeeded = 0;
+    } else {
+      paddingNeeded = badgeScreenWidth - (currentWidth % badgeScreenWidth);
+    }
+    if (paddingNeeded == 0) return;
+
+    final emptyCol = List<bool>.filled(11, false);
+    for (int p = 0; p < paddingNeeded; p++) {
+      for (int row = 0; row < 11; row++) {
+        combinedMatrix[row].add(emptyCol[row]);
+      }
+    }
+  }
+
   Future<List<String>> _processDefaultFont(String text) async {
     List<Map<String, dynamic>> segments = [];
     String currentText = '';
@@ -318,24 +376,50 @@ class Converters {
         segments.add(
             {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
         i += 6;
+      } else if (text[i] == '|') {
+        // Frame separator: flush current text segment then pad matrix to the
+        // next 44-column screen boundary so the following frame starts fresh.
+        if (currentText.trim().isNotEmpty) {
+          segments.add({'type': 'text', 'content': currentText.trim()});
+          currentText = '';
+        }
+        segments.add({'type': 'frame_break'});
+        i++;
       } else {
         currentText += text[i];
         i++;
       }
     }
     if (currentText.isNotEmpty) {
-      segments.add({'type': 'text', 'content': currentText});
+      String content = text.contains('|') ? currentText.trim() : currentText;
+      if (content.isNotEmpty) {
+        segments.add({'type': 'text', 'content': content});
+      }
     }
 
+    final bool hasFrameBreak = segments.any((s) => s['type'] == 'frame_break');
     List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
+    // Track where the current frame starts so we can auto-wrap at 44 cols.
+    int frameStartCol = 0;
 
     for (var segment in segments) {
-      if (segment['type'] == 'text') {
+      if (segment['type'] == 'frame_break') {
+        // Manual screen divider: pad to the next full badge screen (44 columns).
+        _padMatrixToNextFrame(combinedMatrix);
+        frameStartCol = combinedMatrix[0].length;
+      } else if (segment['type'] == 'text') {
         String segmentText = segment['content'];
         for (final char in segmentText.split('')) {
           if (!converter.charCodes.containsKey(char)) continue;
           final charMatrix = _trimAndPadCharMatrix(
               _charCodeToBoolMatrix(converter.charCodes[char]!));
+          // Auto-wrap: if multi-frame and adding this character would exceed 44 cols, start a new frame.
+          final charWidth = charMatrix.isNotEmpty ? charMatrix[0].length : 0;
+          if (hasFrameBreak &&
+              combinedMatrix[0].length - frameStartCol + charWidth > 44) {
+            _padMatrixToNextFrame(combinedMatrix);
+            frameStartCol = combinedMatrix[0].length;
+          }
           for (int row = 0; row < 11; row++) {
             combinedMatrix[row].addAll(charMatrix[row]);
           }
@@ -364,6 +448,11 @@ class Converters {
           combinedMatrix[row].addAll(clipartMatrix[row].map((v) => v == 1));
         }
       }
+    }
+
+    // Pad the final frame to a 44-column boundary if any frame breaks exist.
+    if (hasFrameBreak) {
+      _padMatrixToNextFrame(combinedMatrix);
     }
 
     if (combinedMatrix[0].isEmpty) return const [];
