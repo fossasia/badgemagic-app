@@ -1,8 +1,10 @@
 import 'package:badgemagic/others/byte_array_utils.dart';
 import 'package:badgemagic/others/file_helper.dart';
+import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
+import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/view/widgets/clipart_list_view.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,8 @@ class SavedClipartScreen extends StatefulWidget {
 class _SavedClipartScreenState extends State<SavedClipartScreen> {
   InlineImageProvider imageprovider = GetIt.instance<InlineImageProvider>();
   FileHelper file = FileHelper();
+  final ImageUtils _imageUtils = ImageUtils();
+  final ToastUtils _toastUtils = ToastUtils();
 
   @override
   void initState() {
@@ -33,6 +37,42 @@ class _SavedClipartScreenState extends State<SavedClipartScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+  }
+
+  Object? _cacheKeyForFileName(String fileName) {
+    for (final key in imageprovider.imageCache.keys) {
+      if (key is List && key.isNotEmpty && key[0].toString() == fileName) {
+        return key;
+      }
+    }
+    return null;
+  }
+
+  Future<void> _addClipartToBadge(String fileName) async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    Object? cacheKey = _cacheKeyForFileName(fileName);
+
+    if (cacheKey == null) {
+      final imageData = imageprovider.clipartsCache[fileName];
+      if (imageData != null) {
+        final bytes = await _imageUtils.convert2DListToUint8List(imageData);
+        file.addToCache(bytes, fileName);
+        cacheKey = _cacheKeyForFileName(fileName);
+      }
+    }
+
+    if (cacheKey == null) {
+      _toastUtils.showErrorToast(l10n.couldNotAddClipartToBadge);
+      return;
+    }
+
+    imageprovider.insertInlineImage(cacheKey);
+    if (!mounted) return;
+    Navigator.pushNamedAndRemoveUntil(
+      context,
+      '/',
+      (route) => false,
+    );
   }
 
   @override
@@ -111,6 +151,7 @@ class _SavedClipartScreenState extends State<SavedClipartScreen> {
                   logger.i('Clipart $fileName deleted');
                 });
               },
+              onClipartSelected: _addClipartToBadge,
             ),
     );
   }
