@@ -50,9 +50,9 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 - **Cross-Platform Support**: Works on Android, iOS, and Linux (mobile and desktop platforms)
 
 ### 👾 **FOSSASIA's firmware feature**
-The app lets you install our firmware! Go in [badgemagic-firmware](https://github.com/fossasia/badgemagic-firmware) repository and follow the instructions to prepare the badge!
-- **USB firmware update**: You put your badge in ISP mode, you choose your badge version and the game is done
-- **BLE firmware update**: This feature is in beta version and more slow, but it lets you update the badge while the app is in background
+The app lets you install our firmware! Go to the [badgemagic-firmware](https://github.com/fossasia/badgemagic-firmware) repository and follow the instructions to prepare the badge!
+- **USB firmware update**: Put your badge in ISP mode, choose your badge version, and you are done
+- **BLE firmware update**: This feature is in beta and is slower, but it lets you update the badge while the app is in the background
 - **Security PIN**: You can activate a security PIN to authorize the data transfers
 - **Badge Renaming**: You can rename your badge, to make it unique and recognizable by the app
 - **Streaming mode**: You can stream in real time what you are writing in the app on the badge
