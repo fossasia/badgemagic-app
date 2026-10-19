@@ -100,7 +100,7 @@ class WriteState extends NormalBleState {
       }
 
       for (final List<int> chunk in dataChunks) {
-        if (isCancellationRequested) {
+        if (cancellation.isCancelled) {
           return _handleAbortedState();
         }
 
@@ -127,7 +127,7 @@ class WriteState extends NormalBleState {
 
       logger.d("All chunks written successfully");
 
-      if (isCancellationRequested) return _handleAbortedState();
+      if (cancellation.isCancelled) return _handleAbortedState();
 
       return CompletedState(
         isSuccess: true,
@@ -136,7 +136,7 @@ class WriteState extends NormalBleState {
       );
     } catch (e) {
       logger.e("Transfer failed: $e");
-      if (!isCancellationRequested) {
+      if (!cancellation.isCancelled) {
         bleDialogController.update(
           BleDialogStatus.error,
           l10n.transferFailed,
@@ -166,7 +166,7 @@ class WriteState extends NormalBleState {
     required int totalChunks,
   }) async {
     for (int attempt = 1; attempt <= _maxRetries; attempt++) {
-      if (isCancellationRequested) return false;
+      if (cancellation.isCancelled) return false;
 
       try {
         await UniversalBle.write(
