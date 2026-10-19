@@ -483,47 +483,25 @@ class SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
                 const SizedBox(height: 8),
-                if (Platform.isLinux)
-                  Card(
-                    elevation: 0,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(AppRadius.medium),
-                      side: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    child: ListTile(
-                      title: Text(
-                        l10n.enableUsbTransfers,
-                        style: const TextStyle(
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      subtitle: Text(
-                        l10n.linuxUsbSoonAvailable,
-                        style: const TextStyle(fontSize: 12),
-                      ),
-                    ),
-                  )
-                else
-                  buildSwitchCard(
-                    title: l10n.enableUsbTransfers,
-                    subtitle: l10n.usbTransferDescription,
-                    icon: Icons.usb,
-                    activeColor: colorAccent,
-                    value: _isUsbTransferEnabled,
-                    onChanged: (bool value) {
-                      setState(() {
-                        _isUsbTransferEnabled = value;
-                      });
-                      _saveUsbSetting(value);
-                      final usbProvider = context.read<UsbTransferProvider>();
-                      if (value) {
-                        usbProvider.startUsbMonitoring();
-                      } else {
-                        usbProvider.stopUsbMonitoring();
-                      }
-                    },
-                  ),
+                buildSwitchCard(
+                  title: l10n.enableUsbTransfers,
+                  subtitle: l10n.usbTransferDescription,
+                  icon: Icons.usb,
+                  activeColor: colorAccent,
+                  value: _isUsbTransferEnabled,
+                  onChanged: (bool value) {
+                    setState(() {
+                      _isUsbTransferEnabled = value;
+                    });
+                    _saveUsbSetting(value);
+                    final usbProvider = context.read<UsbTransferProvider>();
+                    if (value) {
+                      usbProvider.startUsbMonitoring();
+                    } else {
+                      usbProvider.stopUsbMonitoring();
+                    }
+                  },
+                ),
                 const SizedBox(height: 24),
                 const Divider(),
                 const SizedBox(height: 12),
