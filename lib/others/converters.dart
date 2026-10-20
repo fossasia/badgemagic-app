@@ -206,7 +206,6 @@ class Converters {
               {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
           i += 6;
         } else if (text[i] == '|') {
-          // Frame separator: flush current text then pad to next screen boundary.
           if (currentText.trim().isNotEmpty) {
             segments.add({'type': 'text', 'content': currentText.trim()});
             currentText = '';
@@ -228,7 +227,6 @@ class Converters {
       final bool hasFrameBreak =
           segments.any((s) => s['type'] == 'frame_break');
       List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
-      // Track where the current frame starts so we can auto-wrap at 44 cols.
       int frameStartCol = 0;
 
       for (var segment in segments) {
@@ -244,7 +242,6 @@ class Converters {
                 rows: 11, hasDescender: hasDescender);
             List<List<bool>> charMatrix = matrixData['matrix'];
             charMatrix = _trimAndPadCharMatrix(charMatrix);
-            // Auto-wrap: if multi-frame and adding this character would exceed 44 cols, start a new frame.
             final charWidth = charMatrix.isNotEmpty ? charMatrix[0].length : 0;
             if (hasFrameBreak &&
                 combinedMatrix[0].length - frameStartCol + charWidth > 44) {
@@ -278,7 +275,6 @@ class Converters {
         }
       }
 
-      // Pad the final frame to a 44-column boundary if any frame breaks exist.
       if (hasFrameBreak) {
         _padMatrixToNextFrame(combinedMatrix);
       }
@@ -378,8 +374,6 @@ class Converters {
             {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
         i += 6;
       } else if (text[i] == '|') {
-        // Frame separator: flush current text segment then pad matrix to the
-        // next 44-column screen boundary so the following frame starts fresh.
         if (currentText.trim().isNotEmpty) {
           segments.add({'type': 'text', 'content': currentText.trim()});
           currentText = '';
@@ -400,12 +394,10 @@ class Converters {
 
     final bool hasFrameBreak = segments.any((s) => s['type'] == 'frame_break');
     List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
-    // Track where the current frame starts so we can auto-wrap at 44 cols.
     int frameStartCol = 0;
 
     for (var segment in segments) {
       if (segment['type'] == 'frame_break') {
-        // Manual screen divider: pad to the next full badge screen (44 columns).
         _padMatrixToNextFrame(combinedMatrix);
         frameStartCol = combinedMatrix[0].length;
       } else if (segment['type'] == 'text') {
@@ -414,7 +406,6 @@ class Converters {
           if (!converter.charCodes.containsKey(char)) continue;
           final charMatrix = _trimAndPadCharMatrix(
               _charCodeToBoolMatrix(converter.charCodes[char]!));
-          // Auto-wrap: if multi-frame and adding this character would exceed 44 cols, start a new frame.
           final charWidth = charMatrix.isNotEmpty ? charMatrix[0].length : 0;
           if (hasFrameBreak &&
               combinedMatrix[0].length - frameStartCol + charWidth > 44) {
@@ -451,7 +442,6 @@ class Converters {
       }
     }
 
-    // Pad the final frame to a 44-column boundary if any frame breaks exist.
     if (hasFrameBreak) {
       _padMatrixToNextFrame(combinedMatrix);
     }
