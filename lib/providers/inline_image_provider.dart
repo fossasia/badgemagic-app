@@ -81,19 +81,12 @@ class InlineImageProvider extends ChangeNotifier {
 
   TextEditingController message = TextEditingController();
 
-  /// When the multi-frame input widget is active, this is set to the
-  /// [TextEditingController] of the frame that is currently focused.
-  /// Clipart will be inserted into this controller instead of [message].
   TextEditingController? activeFrameController;
 
-  /// Saves the full multi-frame text (with \f separators) when switching away
-  /// from the Animation (Splitting) transition, so it can be restored.
   String? savedMultiFrameText;
 
-  /// Remembers which frame index was active when switching away from Splitting.
   int? savedActiveFrameIndex;
 
-  //getter for the textfield controller
   TextEditingController getController() => message;
 
   late int selectedVector;
@@ -144,8 +137,6 @@ class InlineImageProvider extends ChangeNotifier {
     }
     logger.d('Inserting image at index: $index');
     String placeholder = index < 10 ? '<<0$index>>' : '<<$index>>';
-    // Insert into the currently focused frame if available, otherwise the
-    // main message controller.
     final target = activeFrameController ?? message;
     int cursorPos =
         target.selection.baseOffset == -1 ? 0 : target.selection.baseOffset;

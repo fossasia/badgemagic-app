@@ -330,10 +330,6 @@ class Converters {
     return hexStrings;
   }
 
-  /// Pads [combinedMatrix] with empty columns until its width is a multiple of
-  /// [badgeScreenWidth] (default 48). The LS32 badge hardware advances frames in
-  /// 6-byte blocks (48 LED columns) when the "Animation" (Splitting) transition
-  /// is active.
   void _padMatrixToNextFrame(
     List<List<bool>> combinedMatrix, {
     int badgeScreenWidth = 48,

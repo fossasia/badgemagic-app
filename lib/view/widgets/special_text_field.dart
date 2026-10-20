@@ -82,7 +82,7 @@ class HiddenDivider extends SpecialText {
   @override
   InlineSpan finishText() {
     return const WidgetSpan(
-      child: SizedBox.shrink(), // Completely invisible
+      child: SizedBox.shrink(),
     );
   }
 }

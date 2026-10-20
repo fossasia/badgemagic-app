@@ -175,7 +175,6 @@ class BadgeTextInputField extends StatelessWidget {
         elevation: 4,
         child: ExtendedTextField(
           inputFormatters: [
-            // Strip unsupported emoji characters.
             TextInputFormatter.withFunction((oldValue, newValue) {
               if (_emojiRegex.hasMatch(newValue.text)) {
                 final strippedText = newValue.text.replaceAll(_emojiRegex, ' ');
@@ -193,8 +192,6 @@ class BadgeTextInputField extends StatelessWidget {
               }
               return newValue;
             }),
-            // Auto-insert a screen divider when the current frame's text
-            // exceeds the badge screen width (44 LED columns) in animation mode.
             TextInputFormatter.withFunction((oldValue, newValue) {
               if (!isAnimationMode) return newValue;
               if (newValue.text.length <= oldValue.text.length) {
