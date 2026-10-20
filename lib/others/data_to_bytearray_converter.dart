@@ -246,7 +246,7 @@ class DataToByteArrayConverter {
   String getTime(DateTime now) {
     String ans = toHex([
       int.parse((now.year & 0xFF).toString().padLeft(2, '0')),
-      int.parse(((now.month + 1) & 0xFF).toString().padLeft(2, '0')),
+      int.parse((now.month & 0xFF).toString().padLeft(2, '0')),
       int.parse((now.day & 0xFF).toString().padLeft(2, '0')),
       int.parse((now.hour & 0xFF).toString().padLeft(2, '0')),
       int.parse((now.minute & 0xFF).toString().padLeft(2, '0')),

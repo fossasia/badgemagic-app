@@ -186,6 +186,14 @@ void main() {
     expect(result[2].sublist(0, 6), [0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
   });
 
+  test('timestamp keeps the real calendar month', () {
+    DataToByteArrayConverter converter = DataToByteArrayConverter();
+
+    expect(converter.getTime(DateTime(2026, 1, 5, 4, 3, 2)), 'EA0105040302');
+    expect(
+        converter.getTime(DateTime(2026, 12, 31, 23, 59, 58)), 'EA0C1F173B3A');
+  });
+
   test('the 20 next bytes after the timestamp should all be equal to 0x00', () {
     DataToByteArrayConverter converter = DataToByteArrayConverter();
     var data = Data(messages: [
