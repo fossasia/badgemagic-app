@@ -335,11 +335,12 @@ class Converters {
   }
 
   /// Pads [combinedMatrix] with empty columns until its width is a multiple of
-  /// [badgeScreenWidth] (default 44). Used to align frames at screen boundaries
-  /// when the "Animation" (Splitting) transition is active.
+  /// [badgeScreenWidth] (default 48). The LS32 badge hardware advances frames in
+  /// 6-byte blocks (48 LED columns) when the "Animation" (Splitting) transition
+  /// is active.
   void _padMatrixToNextFrame(
     List<List<bool>> combinedMatrix, {
-    int badgeScreenWidth = 44,
+    int badgeScreenWidth = 48,
   }) {
     if (combinedMatrix.isEmpty) return;
     final currentWidth = combinedMatrix[0].length;
