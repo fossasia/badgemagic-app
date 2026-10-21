@@ -38,8 +38,6 @@ class WriteState extends NormalBleState {
     TransferCancellation.cancelActive();
   }
 
-  /// The badge may drop the connection right after it received the last
-  /// chunk. A disconnect on any earlier chunk means data is missing.
   static bool isDisconnectAcceptable({
     required int chunkIndex,
     required int totalChunks,
