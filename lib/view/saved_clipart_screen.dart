@@ -56,10 +56,13 @@ class _SavedClipartScreenState extends State<SavedClipartScreen> {
       final imageData = imageprovider.clipartsCache[fileName];
       if (imageData != null) {
         final bytes = await _imageUtils.convert2DListToUint8List(imageData);
+        if (!mounted) return;
         file.addToCache(bytes, fileName);
         cacheKey = _cacheKeyForFileName(fileName);
       }
     }
+
+    if (!mounted) return;
 
     if (cacheKey == null) {
       _toastUtils.showErrorToast(l10n.couldNotAddClipartToBadge);
@@ -67,7 +70,6 @@ class _SavedClipartScreenState extends State<SavedClipartScreen> {
     }
 
     imageprovider.insertInlineImage(cacheKey);
-    if (!mounted) return;
     Navigator.pushNamedAndRemoveUntil(
       context,
       '/',
