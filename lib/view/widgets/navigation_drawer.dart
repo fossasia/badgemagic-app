@@ -113,7 +113,7 @@ class _BMDrawerState extends State<BMDrawer> {
             assetIcon: "assets/icons/r_price.png",
             title: l10n.buyBadge,
             routeName: '/buyBadge',
-            externalLink: 'https://badgemagic.fossasia.org/shop/',
+            externalLink: 'https://badgemagic.fossasia.org/',
           ),
           _buildListTile(
             index: 7,
