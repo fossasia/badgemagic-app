@@ -9,6 +9,7 @@ import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:badgemagic/others/globals.dart';
 import 'base_ble_state.dart';
+import 'transfer_cancellation.dart';
 import 'completed_state.dart';
 
 class WriteState extends NormalBleState {
@@ -17,7 +18,7 @@ class WriteState extends NormalBleState {
   final bleDialogController = GetIt.instance<BleDialogController>();
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
-  static bool isCancellationRequested = false;
+  final TransferCancellation cancellation;
   static const int _maxRetries = 3;
   static const Duration _retryDelay = Duration(milliseconds: 200);
   static const Duration _chunkDelay = Duration(milliseconds: 120);
@@ -27,12 +28,21 @@ class WriteState extends NormalBleState {
 
   bool verifiedNextGen = false;
 
-  WriteState({required this.manager, required this.device});
+  WriteState({
+    required this.manager,
+    required this.device,
+    required this.cancellation,
+  });
 
   static Future<void> cancelTransfer() async {
-    isCancellationRequested = true;
-    await Future.delayed(const Duration(seconds: 1));
-    isCancellationRequested = false;
+    TransferCancellation.cancelActive();
+  }
+
+  static bool isDisconnectAcceptable({
+    required int chunkIndex,
+    required int totalChunks,
+  }) {
+    return chunkIndex >= totalChunks;
   }
 
   BleState? _handleAbortedState() {
@@ -65,7 +75,7 @@ class WriteState extends NormalBleState {
 
         bleDialogController.update(
           BleDialogStatus.transferring,
-          "Sending data...\n$displayedPercent%",
+          l10n.writingInProgress(displayedPercent.toString()),
           newProgress: displayedProgress,
         );
       }
@@ -73,7 +83,7 @@ class WriteState extends NormalBleState {
 
     try {
       await Future.delayed(_initialDelay);
-      if (isCancellationRequested) return _handleAbortedState();
+      if (cancellation.isCancelled) return _handleAbortedState();
 
       List<BleService> discoveredServices =
           await UniversalBle.discoverServices(deviceId);
@@ -81,14 +91,14 @@ class WriteState extends NormalBleState {
       verifiedNextGen = discoveredServices.any((service) =>
           service.uuid.toLowerCase() == ngServiceUuid.toLowerCase());
 
-      final services = await UniversalBle.discoverServices(deviceId);
-      final serviceExists = services.any((s) => s.uuid == serviceUuid);
+      final serviceExists = discoveredServices
+          .any((s) => s.uuid.toLowerCase() == serviceUuid.toLowerCase());
       if (!serviceExists) {
         throw Exception(l10n.noBLEServiceFound);
       }
 
       for (final List<int> chunk in dataChunks) {
-        if (isCancellationRequested) {
+        if (cancellation.isCancelled) {
           return _handleAbortedState();
         }
 
@@ -115,7 +125,7 @@ class WriteState extends NormalBleState {
 
       logger.d("All chunks written successfully");
 
-      if (isCancellationRequested) return _handleAbortedState();
+      if (cancellation.isCancelled) return _handleAbortedState();
 
       return CompletedState(
         isSuccess: true,
@@ -124,7 +134,7 @@ class WriteState extends NormalBleState {
       );
     } catch (e) {
       logger.e("Transfer failed: $e");
-      if (!isCancellationRequested) {
+      if (!cancellation.isCancelled) {
         bleDialogController.update(
           BleDialogStatus.error,
           l10n.transferFailed,
@@ -154,7 +164,7 @@ class WriteState extends NormalBleState {
     required int totalChunks,
   }) async {
     for (int attempt = 1; attempt <= _maxRetries; attempt++) {
-      if (isCancellationRequested) return false;
+      if (cancellation.isCancelled) return false;
 
       try {
         await UniversalBle.write(
@@ -179,11 +189,12 @@ class WriteState extends NormalBleState {
             errorStr.contains('Unknown characteristic');
 
         if (isHardDisconnection) {
-          final isNearEnd = chunkIndex >= (totalChunks * 0.85).floor();
+          final isLastChunk = isDisconnectAcceptable(
+              chunkIndex: chunkIndex, totalChunks: totalChunks);
 
-          if (isNearEnd) {
+          if (isLastChunk) {
             logger.w(
-              "Chunk $chunkIndex/$totalChunks: device disconnected near end — "
+              "Chunk $chunkIndex/$totalChunks: device disconnected after the last chunk — "
               "treating as implicit success.",
             );
             return false;
