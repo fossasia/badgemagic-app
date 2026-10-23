@@ -13,7 +13,7 @@ import 'package:get_it/get_it.dart';
 
 String getFontKey(
     String fontFamily, double fontSize, FontWeight weight, bool italic) {
-  return '$fontFamily-${fontSize.round()}-${weight.index}-$italic';
+  return '$fontFamily-${fontSize.round()}-${weight.value}-$italic';
 }
 
 class Converters {
@@ -205,19 +205,35 @@ class Converters {
           segments.add(
               {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
           i += 6;
+        } else if (text[i] == '|') {
+          if (currentText.trim().isNotEmpty) {
+            segments.add({'type': 'text', 'content': currentText.trim()});
+            currentText = '';
+          }
+          segments.add({'type': 'frame_break'});
+          i++;
         } else {
           currentText += text[i];
           i++;
         }
       }
       if (currentText.isNotEmpty) {
-        segments.add({'type': 'text', 'content': currentText});
+        String content = text.contains('|') ? currentText.trim() : currentText;
+        if (content.isNotEmpty) {
+          segments.add({'type': 'text', 'content': content});
+        }
       }
 
+      final bool hasFrameBreak =
+          segments.any((s) => s['type'] == 'frame_break');
       List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
+      int frameStartCol = 0;
 
       for (var segment in segments) {
-        if (segment['type'] == 'text') {
+        if (segment['type'] == 'frame_break') {
+          _padMatrixToNextFrame(combinedMatrix);
+          frameStartCol = combinedMatrix[0].length;
+        } else if (segment['type'] == 'text') {
           String text = segment['content'];
           for (int i = 0; i < text.length; i++) {
             String char = text[i];
@@ -226,6 +242,12 @@ class Converters {
                 rows: 11, hasDescender: hasDescender);
             List<List<bool>> charMatrix = matrixData['matrix'];
             charMatrix = _trimAndPadCharMatrix(charMatrix);
+            final charWidth = charMatrix.isNotEmpty ? charMatrix[0].length : 0;
+            if (hasFrameBreak &&
+                combinedMatrix[0].length - frameStartCol + charWidth > 44) {
+              _padMatrixToNextFrame(combinedMatrix);
+              frameStartCol = combinedMatrix[0].length;
+            }
             for (int row = 0; row < 11; row++) {
               combinedMatrix[row].addAll(charMatrix[row]);
             }
@@ -251,6 +273,10 @@ class Converters {
             combinedMatrix[row].addAll(clipartMatrix[row].map((v) => v == 1));
           }
         }
+      }
+
+      if (hasFrameBreak) {
+        _padMatrixToNextFrame(combinedMatrix);
       }
 
       int totalColumns =
@@ -304,6 +330,31 @@ class Converters {
     return hexStrings;
   }
 
+  void _padMatrixToNextFrame(
+    List<List<bool>> combinedMatrix, {
+    int badgeScreenWidth = 48,
+  }) {
+    if (combinedMatrix.isEmpty) return;
+    final currentWidth = combinedMatrix[0].length;
+
+    int paddingNeeded;
+    if (currentWidth == 0) {
+      paddingNeeded = badgeScreenWidth;
+    } else if (currentWidth % badgeScreenWidth == 0) {
+      paddingNeeded = 0;
+    } else {
+      paddingNeeded = badgeScreenWidth - (currentWidth % badgeScreenWidth);
+    }
+    if (paddingNeeded == 0) return;
+
+    final emptyCol = List<bool>.filled(11, false);
+    for (int p = 0; p < paddingNeeded; p++) {
+      for (int row = 0; row < 11; row++) {
+        combinedMatrix[row].add(emptyCol[row]);
+      }
+    }
+  }
+
   Future<List<String>> _processDefaultFont(String text) async {
     List<Map<String, dynamic>> segments = [];
     String currentText = '';
@@ -318,24 +369,45 @@ class Converters {
         segments.add(
             {'type': 'image', 'index': int.parse(text[i + 2] + text[i + 3])});
         i += 6;
+      } else if (text[i] == '|') {
+        if (currentText.trim().isNotEmpty) {
+          segments.add({'type': 'text', 'content': currentText.trim()});
+          currentText = '';
+        }
+        segments.add({'type': 'frame_break'});
+        i++;
       } else {
         currentText += text[i];
         i++;
       }
     }
     if (currentText.isNotEmpty) {
-      segments.add({'type': 'text', 'content': currentText});
+      String content = text.contains('|') ? currentText.trim() : currentText;
+      if (content.isNotEmpty) {
+        segments.add({'type': 'text', 'content': content});
+      }
     }
 
+    final bool hasFrameBreak = segments.any((s) => s['type'] == 'frame_break');
     List<List<bool>> combinedMatrix = List.generate(11, (_) => []);
+    int frameStartCol = 0;
 
     for (var segment in segments) {
-      if (segment['type'] == 'text') {
+      if (segment['type'] == 'frame_break') {
+        _padMatrixToNextFrame(combinedMatrix);
+        frameStartCol = combinedMatrix[0].length;
+      } else if (segment['type'] == 'text') {
         String segmentText = segment['content'];
         for (final char in segmentText.split('')) {
           if (!converter.charCodes.containsKey(char)) continue;
           final charMatrix = _trimAndPadCharMatrix(
               _charCodeToBoolMatrix(converter.charCodes[char]!));
+          final charWidth = charMatrix.isNotEmpty ? charMatrix[0].length : 0;
+          if (hasFrameBreak &&
+              combinedMatrix[0].length - frameStartCol + charWidth > 44) {
+            _padMatrixToNextFrame(combinedMatrix);
+            frameStartCol = combinedMatrix[0].length;
+          }
           for (int row = 0; row < 11; row++) {
             combinedMatrix[row].addAll(charMatrix[row]);
           }
@@ -364,6 +436,10 @@ class Converters {
           combinedMatrix[row].addAll(clipartMatrix[row].map((v) => v == 1));
         }
       }
+    }
+
+    if (hasFrameBreak) {
+      _padMatrixToNextFrame(combinedMatrix);
     }
 
     if (combinedMatrix[0].isEmpty) return const [];

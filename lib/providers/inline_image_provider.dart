@@ -81,6 +81,12 @@ class InlineImageProvider extends ChangeNotifier {
 
   TextEditingController message = TextEditingController();
 
+  TextEditingController? activeFrameController;
+
+  String? savedMultiFrameText;
+
+  int? savedActiveFrameIndex;
+
   TextEditingController getController() => message;
 
   late int selectedVector;
@@ -131,12 +137,13 @@ class InlineImageProvider extends ChangeNotifier {
     }
     logger.d('Inserting image at index: $index');
     String placeholder = index < 10 ? '<<0$index>>' : '<<$index>>';
+    final target = activeFrameController ?? message;
     int cursorPos =
-        message.selection.baseOffset == -1 ? 0 : message.selection.baseOffset;
-    String beforeCursor = message.text.substring(0, cursorPos);
-    String afterCursor = message.text.substring(cursorPos);
-    message.text = beforeCursor + placeholder + afterCursor;
-    message.selection = TextSelection.fromPosition(
+        target.selection.baseOffset == -1 ? 0 : target.selection.baseOffset;
+    String beforeCursor = target.text.substring(0, cursorPos);
+    String afterCursor = target.text.substring(cursorPos);
+    target.text = beforeCursor + placeholder + afterCursor;
+    target.selection = TextSelection.fromPosition(
         TextPosition(offset: cursorPos + placeholder.length));
   }
 }
