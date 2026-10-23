@@ -1,0 +1,12 @@
+🚀 Features
+
+- share app details on social platforms
+- added shortcut to open saved activities from edit activities
+- support for android 10
+- Improve Edit Clipart Screen - Size and Buttons
+
+🐛 Bug Fixes
+
+- privacy storage access crash
+- deprecated context calls
+- Draw Clipart Screen - Cannot draw
