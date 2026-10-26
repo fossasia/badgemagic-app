@@ -732,7 +732,7 @@ class _HomeScreenState extends State<HomeScreen>
                         if (!isSpecial) ...[
                           Expanded(
                             child: actionButton(
-                              label: l10n.saveButton,
+                              label: l10n.save,
                               primary: false,
                               onTap: _handleSave,
                             ),
