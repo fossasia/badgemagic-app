@@ -114,8 +114,7 @@ class _HomeScreenState extends State<HomeScreen>
       await loadPreferences();
 
       final usbPrefs = await SharedPreferences.getInstance();
-      if ((usbPrefs.getBool('usb_transfer_enabled') ?? !Platform.isLinux) &&
-          mounted) {
+      if ((usbPrefs.getBool('usb_transfer_enabled') ?? false) && mounted) {
         await context.read<UsbTransferProvider>().startUsbMonitoring();
       }
 
@@ -748,7 +747,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   await SharedPreferences.getInstance();
                               final isUsbEnabled =
                                   prefs.getBool('usb_transfer_enabled') ??
-                                      !Platform.isLinux;
+                                      false;
 
                               if (!context.mounted) return;
 

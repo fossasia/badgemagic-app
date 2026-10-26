@@ -151,8 +151,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     final prefs = await SharedPreferences.getInstance();
     if (!mounted) return;
     setState(() {
-      _isUsbTransferEnabled =
-          prefs.getBool('usb_transfer_enabled') ?? !Platform.isLinux;
+      _isUsbTransferEnabled = prefs.getBool('usb_transfer_enabled') ?? false;
     });
   }
 
