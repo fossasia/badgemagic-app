@@ -36,6 +36,7 @@ import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/save_badge_dialog.dart';
 import 'package:badgemagic/view/widgets/animated_badge.dart';
+import 'package:badgemagic/view/widgets/special_animation_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -113,8 +114,7 @@ class _HomeScreenState extends State<HomeScreen>
       await loadPreferences();
 
       final usbPrefs = await SharedPreferences.getInstance();
-      if ((usbPrefs.getBool('usb_transfer_enabled') ?? !Platform.isLinux) &&
-          mounted) {
+      if ((usbPrefs.getBool('usb_transfer_enabled') ?? false) && mounted) {
         await context.read<UsbTransferProvider>().startUsbMonitoring();
       }
 
@@ -338,6 +338,15 @@ class _HomeScreenState extends State<HomeScreen>
       );
       setState(() => _selectedGifPath = null);
       return;
+    }
+    if (inlineImageController.text.trim().isNotEmpty) {
+      final shouldSwitch = await showSpecialAnimationDialog(
+        context,
+        inlineImageController.text.trim(),
+      );
+      if (shouldSwitch != true) return;
+      if (!mounted) return;
+      inlineImageController.clear();
     }
     try {
       final ByteData bytes = await rootBundle.load(assetPath);
@@ -738,7 +747,7 @@ class _HomeScreenState extends State<HomeScreen>
                                   await SharedPreferences.getInstance();
                               final isUsbEnabled =
                                   prefs.getBool('usb_transfer_enabled') ??
-                                      !Platform.isLinux;
+                                      false;
 
                               if (!context.mounted) return;
 
