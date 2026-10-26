@@ -166,5 +166,7 @@
   "badgeNameEmpty": "बैज का नाम खाली नहीं हो सकता।",
   "badgeAlreadyExists": "इस नाम से बैज पहले से मौजूद है।",
   "couldNotRenameBadge": "बैज का नाम नहीं बदला जा सका। कृपया फिर से कोशिश करें।",
-  "badgeRenamedSuccessfully": "बैज का नाम सफलतापूर्वक बदल दिया गया!"
+  "badgeRenamedSuccessfully": "बैज का नाम सफलतापूर्वक बदल दिया गया!",
+  "addFrame": "फ्रेम जोड़ें",
+  "frameHint": "इस फ्रेम के लिए टेक्स्ट लिखें"
 }
