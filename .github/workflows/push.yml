@@ -105,6 +105,16 @@ jobs:
         with:
           name: AAB Generated
           path: build/app/outputs/bundle
+
+      - name: Setup Ruby for Fastlane
+        if: ${{ github.repository == 'fossasia/badgemagic-app' }}
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: 'ruby'
+
+      - name: Install Fastlane
+        if: ${{ github.repository == 'fossasia/badgemagic-app' }}
+        run: gem install fastlane --no-document
       
       - name: Upload APK/AAB to app branch
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -146,16 +156,6 @@ jobs:
           git branch -D app
           git branch -m app
           git push --force origin app
-
-      - name: Setup Ruby for Fastlane
-        if: ${{ github.repository == 'fossasia/badgemagic-app' }}
-        uses: ruby/setup-ruby@v1
-        with:
-          ruby-version: 'ruby'
-
-      - name: Install Fastlane
-        if: ${{ github.repository == 'fossasia/badgemagic-app' }}
-        run: gem install fastlane --no-document
 
       - name: Push app in open testing track
         if: ${{ github.repository == 'fossasia/badgemagic-app' }}
@@ -246,7 +246,7 @@ jobs:
     name: Screenshots (Android)
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      contents: write
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v7
@@ -261,7 +261,7 @@ jobs:
     name: Screenshots (iPhone)
     runs-on: macos-latest
     permissions:
-      contents: read
+      contents: write
     timeout-minutes: 30
     steps:
       - name: Set up Xcode
@@ -280,7 +280,7 @@ jobs:
     name: Screenshots (iPad)
     runs-on: macos-latest
     permissions:
-      contents: read
+      contents: write
     timeout-minutes: 30
     steps:
       - name: Set up Xcode
