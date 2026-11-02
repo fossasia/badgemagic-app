@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:ui' as ui;
 
 import 'package:badgemagic/others/byte_array_utils.dart';
 import 'package:badgemagic/others/file_helper.dart';
@@ -118,11 +117,10 @@ class InlineImageProvider extends ChangeNotifier {
     FileHelper fileHelper = FileHelper();
     await initVectors();
     for (int x = 0; x < vectors.length; x++) {
-      ui.Image image = await imageUtils.generateImageView(vectors[x]);
-      ByteData? byteData =
-          await image.toByteData(format: ui.ImageByteFormat.png);
-      var unit8List = byteData!.buffer.asUint8List();
-      imageCache[x] = unit8List;
+      // Use the same 11-row LED bitmap as the badge preview so picker
+      // tiles match what is transferred, instead of a smooth 30px SVG.
+      final matrix = await imageUtils.generateLedHexMatrix(vectors[x]);
+      imageCache[x] = await imageUtils.convert2DListToUint8List(matrix);
     }
     await fileHelper.loadImageCacheFromFiles();
     notifyListeners();
