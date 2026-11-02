@@ -70,8 +70,6 @@ class _SavedClipartScreenState extends State<SavedClipartScreen> {
     }
 
     imageprovider.insertInlineImage(cacheKey);
-    // Keep the existing Home route. Recreating '/' reloads saved
-    // preferences and overwrites the clipart that was just inserted.
     if (Navigator.of(context).canPop()) {
       Navigator.of(context).popUntil((route) => route.isFirst);
     } else {
