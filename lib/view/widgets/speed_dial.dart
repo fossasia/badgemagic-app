@@ -307,7 +307,12 @@ class _RadialDialState extends State<RadialDial> {
 }
 
 Widget _capDialSize(bool isDesktop, Widget dial) {
-  if (!isDesktop) return dial;
+  if (!isDesktop) {
+    return FittedBox(
+      fit: BoxFit.scaleDown,
+      child: dial,
+    );
+  }
   return Center(
     child: SizedBox(
       width: _RadialDialState._dialMaxSize,

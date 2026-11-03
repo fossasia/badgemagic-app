@@ -119,6 +119,10 @@ class _BMBadgeState extends State<BMBadge> {
         _drawTriangle(start.x, start.y, height, preview: true);
         break;
     }
+
+    if (shape != DrawShape.freehand) {
+      drawProvider.refreshPreviewGrid();
+    }
   }
 
   void _handlePanEnd(DragEndDetails details) {

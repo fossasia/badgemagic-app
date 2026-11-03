@@ -35,6 +35,7 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 - **Undo/Redo**: Full drawing history support
 - **Grid-Based**: Precise 11×44 LED grid editing
 - **Real-time Preview**: See changes as you draw
+- **Import from image**: It is possible to pixelate an image from the gallery
 
 ### 📱 **User Interface**
 - **4 Main Tabs**: Speed, Transition, Effects, and Animation
@@ -45,7 +46,16 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 ### 🔧 **Advanced Features**
 - **Bluetooth Alias Management**: Rename and manage connected devices
 - **Scan Settings**: Configure device discovery preferences
+- **USB transfer**: Transfer data to the badge trough USB
 - **Cross-Platform Support**: Works on Android, iOS, and Linux (mobile and desktop platforms)
+
+### 👾 **FOSSASIA's firmware feature**
+The app lets you install our firmware! Go to the [badgemagic-firmware](https://github.com/fossasia/badgemagic-firmware) repository and follow the instructions to prepare the badge!
+- **USB firmware update**: Put your badge in ISP mode, choose your badge version, and you are done
+- **BLE firmware update**: This feature is in beta and is slower, but it lets you update the badge while the app is in the background
+- **Security PIN**: You can activate a security PIN to authorize the data transfers
+- **Badge Renaming**: You can rename your badge, to make it unique and recognizable by the app
+- **Streaming mode**: You can stream in real time what you are writing in the app on the badge
 
 The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and has been significantly expanded with modern features and improved user experience.
 
@@ -201,6 +211,92 @@ This ensures that the version tested in beta is the exact one released to the pu
 * Please ensure all features and fixes are tested and merged into development before a GitHub release is created.
 * Versioning and changelogs should be updated accordingly.
 * If any hotfixes are required post-release, they should go through the same flow (PR → beta → release).
+
+## Local Development Setup
+
+Follow these steps to set up and run Badge Magic on your local machine without a Dev Container.
+
+### Prerequisites
+
+Before starting, install the following tools:
+
+* **[Git](https://git-scm.com/downloads)**: Required for version control.
+* **[Flutter SDK](https://docs.flutter.dev/get-started/install)**: The repository requires Flutter `3.47.5` (or compatible stable release) as defined in [`pubspec.yaml`](pubspec.yaml). Flutter comes bundled with a compatible **Dart SDK** (Dart `>=3.3.4 <4.0.0`).
+* **Platform Tooling** (depending on your target platform):
+  * **Android**: [Android Studio](https://developer.android.com/studio) or Android SDK Command-line Tools with Android SDK Platform, Build-Tools, and JDK 17 or 21.
+  * **iOS** (macOS only): [Xcode](https://developer.apple.com/xcode/) and CocoaPods.
+  * **Linux**: Native build essentials (`clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`).
+
+Run `flutter doctor` in your terminal to verify that Flutter and required toolchains are properly configured.
+
+### Clone the Repository
+
+Clone the repository and enter the project directory:
+
+```bash
+git clone https://github.com/fossasia/badgemagic-app.git
+cd badgemagic-app
+```
+
+Per our [Branch Policy](#branch-policy), all development takes place on the `development` branch. Check out `development` and create a dedicated feature or bugfix branch:
+
+```bash
+git checkout development
+git pull origin development
+git checkout -b <your-branch-name>
+```
+
+### Install Dependencies
+
+Fetch all project dependencies specified in `pubspec.yaml`:
+
+```bash
+flutter pub get
+```
+
+### Run the Application
+
+1. Check available connected physical devices, emulators, or desktop targets:
+
+   ```bash
+   flutter devices
+   ```
+
+2. Start the application:
+
+   ```bash
+   flutter run
+   ```
+
+   If multiple targets are available, specify your chosen target using its device ID:
+
+   ```bash
+   flutter run -d <device-id>
+   ```
+
+Note that mobile targets (Android and iOS) and Linux desktop are the primary supported development environments (see [Supported Platforms](#supported-platforms)). Different platforms may require platform-specific configuration before running.
+
+### Device and Platform Configuration
+
+* **Android Device Debugging**: Enable **Developer options** and **USB debugging** on your physical Android device (or launch an Android Virtual Device via Android Studio). Connect via USB and confirm the device is detected and authorized with `adb devices`.
+* **iOS Development** (macOS only): Ensure Xcode command-line tools are installed. If CocoaPods dependencies need updating, run `pod install` in the `iOS` directory.
+* **Linux Desktop**: Ensure required GTK and system build dependencies are installed before building.
+* **Bluetooth & Hardware Testing**: Testing Bluetooth Low Energy (BLE) scanning and badge data transmission requires a physical device with Bluetooth turned on. Grant Bluetooth permissions (and Location permissions on Android 11 and below) when prompted by the app. Virtual emulators and simulators typically do not support Bluetooth Low Energy hardware.
+* **Dev Container**: If you prefer an automated containerized environment with Android debugging support, see the [Dev Container usage](#dev-container-usage) section below.
+
+### Basic Troubleshooting
+
+* **`flutter` command not found**: Ensure the Flutter SDK's `bin` directory is added to your system's `PATH` environment variable.
+* **Missing toolchains or licenses**: Run `flutter doctor` to identify missing components. If Android licenses are unaccepted, run:
+  ```bash
+  flutter doctor --android-licenses
+  ```
+* **No connected device detected**: Run `flutter devices` to check recognized targets. For Android, ensure `adb devices` lists your device and that USB debugging is authorized on your phone screen.
+* **Dependency resolution errors**: Run `flutter pub get`. If issues persist, clean cached artifacts and re-fetch dependencies:
+  ```bash
+  flutter clean
+  flutter pub get
+  ```
 
 ## Dev Container usage
 

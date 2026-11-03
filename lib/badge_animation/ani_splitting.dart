@@ -6,13 +6,17 @@ class SplittingAnimation extends BadgeAnimation {
       List<List<bool>> processGrid, List<List<bool>> canvas) {
     int newGridHeight = processGrid.length;
     int newGridWidth = processGrid[0].length;
+    final int frameStride =
+        (newGridWidth > badgeWidth && newGridWidth % 48 == 0) ? 48 : badgeWidth;
+
     for (int i = 0; i < badgeHeight; i++) {
       for (int j = 0; j < badgeWidth; j++) {
-        int framesCount = (newGridWidth / badgeWidth).ceil();
+        int framesCount = (newGridWidth / frameStride).ceil();
+        if (framesCount == 0) framesCount = 1;
 
         int currentcountFrame = animationIndex ~/ badgeWidth % framesCount;
 
-        int startCol = currentcountFrame * badgeWidth;
+        int startCol = currentcountFrame * frameStride;
 
         bool isNewGridCell = i < newGridHeight && (startCol + j) < newGridWidth;
 

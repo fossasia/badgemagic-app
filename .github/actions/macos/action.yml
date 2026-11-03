@@ -19,6 +19,16 @@ runs:
         cache: true
         flutter-version-file: pubspec.yaml
 
+    - name: Install Dart/Flutter dependencies
+      shell: bash
+      run: flutter pub get
+
+    # hid_tool 0.1.4+ ships a relative SwiftPM path to third_party/hidapi that
+    # breaks under Flutter's ephemeral Packages/ symlink layout (#1994).
+    - name: Patch hid_tool macOS SwiftPM hidapi path
+      shell: bash
+      run: bash tool/patch_hid_tool_macos_spm.sh
+
     - name: Build macOS App
       shell: bash
       env:

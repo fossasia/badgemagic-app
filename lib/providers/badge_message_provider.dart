@@ -1,11 +1,12 @@
 import 'dart:io';
-
+import 'dart:async';
 import 'package:badgemagic/communication/base_ble_state.dart';
 import 'package:badgemagic/communication/completed_state.dart';
 import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/communication/scan_state.dart';
+import 'package:badgemagic/communication/transfer_cancellation.dart';
 import 'package:badgemagic/models/data.dart';
 import 'package:badgemagic/models/messages.dart';
 import 'package:badgemagic/models/mode.dart';
@@ -16,6 +17,7 @@ import 'package:badgemagic/others/localization_service.dart';
 import 'package:flutter/material.dart';
 import 'package:badgemagic/others/custom_transfers/transfers.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/others/app_logger.dart';
@@ -60,6 +62,9 @@ class BadgeMessageProvider {
   Converters converters = Converters();
   DataTransferManager? deviceManager;
 
+  bool isHardwareUnlocked = false;
+  String? savedPin;
+
   Future<Data> getBadgeData(String text, bool flash, bool marq, Speed speed,
       Mode mode, bool isInverted) async {
     List<String> message = await converters.messageTohex(text, isInverted);
@@ -95,12 +100,14 @@ class BadgeMessageProvider {
     DataTransferManager manager, {
     BuildContext? context,
   }) async {
+    final cancellation = TransferCancellation.startNew();
     deviceManager = manager;
     final scanProvider = context != null
         ? Provider.of<BadgeScanProvider>(context, listen: false)
         : null;
 
     final BleState initialState = ScanState(
+        cancellation: cancellation,
         manager: manager,
         mode: scanProvider?.mode ?? BadgeScanMode.any,
         allowedNames: scanProvider?.getSelectedBadgeNames() ?? <String>[],
@@ -187,12 +194,53 @@ class BadgeMessageProvider {
       return null;
     }
 
+    final prefs = await SharedPreferences.getInstance();
+    bool usePin = prefs.getBool('secure_connection_pin') ?? false;
+
     Data data;
     if (jsonData != null) {
       data = fileHelper.jsonToData(jsonData);
     } else {
       data = await generateData(
           text, flash, marq, isInverted, speedMap[speed], mode, jsonData);
+    }
+
+    if (usePin) {
+      const maxAttempts = 3;
+      for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+        final combinedManager =
+            RawDataTransferManager(pin: savedPin ?? '', textData: data);
+
+        CompletedState? result;
+        try {
+          result = await transferData(combinedManager, context: context);
+        } catch (e) {
+          logger.e("Transfer attempt $attempt failed with exception: $e");
+          result = null;
+        }
+
+        final bool success = result?.isSuccess ?? false;
+
+        if (success) {
+          savedPin = combinedManager.pin;
+          isHardwareUnlocked = true;
+          return result;
+        }
+
+        savedPin = null;
+        isHardwareUnlocked = false;
+
+        if (combinedManager.cancelledByUser) {
+          bleDialogController.update(
+              BleDialogStatus.error, l10n.transferCanceledByUser);
+          return null;
+        }
+        if (attempt < maxAttempts) {
+          await Future.delayed(const Duration(milliseconds: 1500));
+        }
+      }
+      bleDialogController.update(BleDialogStatus.error, l10n.transferFailed);
+      return null;
     }
 
     DataTransferManager manager = DataTransferManager(data);
