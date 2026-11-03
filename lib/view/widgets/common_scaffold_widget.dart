@@ -14,6 +14,7 @@ class CommonScaffold extends StatelessWidget {
   final int index;
   final List<Widget>? actions;
   final Widget? bottomNavigationBar;
+  final bool resizeToAvoidBottomInset;
 
   const CommonScaffold({
     super.key,
@@ -23,6 +24,7 @@ class CommonScaffold extends StatelessWidget {
     this.actions,
     required this.index,
     this.bottomNavigationBar,
+    this.resizeToAvoidBottomInset = true,
   });
 
   @override
@@ -31,7 +33,7 @@ class CommonScaffold extends StatelessWidget {
     return Scaffold(
       key: scaffoldKey,
       backgroundColor: colorSurface,
-      resizeToAvoidBottomInset: true,
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       appBar: AppBar(
         leading: Builder(builder: (context) {
           return IconButton(
