@@ -3,11 +3,13 @@ import 'dart:typed_data';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/others/image_utils.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/draw_badge_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:get_it/get_it.dart';
 
 class SavedClipartListView extends StatelessWidget {
   final Map<String, List<List<int>>?> images;
@@ -15,15 +17,19 @@ class SavedClipartListView extends StatelessWidget {
   final ImageUtils imageUtils = ImageUtils();
 
   final Future<void> Function(String) refreshClipartCallback;
+  final Future<void> Function(String fileName) onClipartSelected;
 
   SavedClipartListView({
     super.key,
     required this.images,
     required this.refreshClipartCallback,
+    required this.onClipartSelected,
   });
 
   @override
   Widget build(BuildContext context) {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+
     return ListView.builder(
       padding: EdgeInsets.symmetric(vertical: 10.h, horizontal: 15.w),
       itemCount: images.length,
@@ -40,8 +46,7 @@ class SavedClipartListView extends StatelessWidget {
 
         return Container(
           margin: EdgeInsets.only(bottom: 12.h),
-          padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 12.h),
-          height: 90.h,
+          padding: EdgeInsets.symmetric(horizontal: 12.w, vertical: 12.h),
           decoration: BoxDecoration(
             color: colorSurface,
             borderRadius: BorderRadius.circular(AppRadius.medium.dg),
@@ -54,77 +59,96 @@ class SavedClipartListView extends StatelessWidget {
               ),
             ],
           ),
-          child: Row(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              Expanded(
-                flex: 3,
+              Center(
                 child: FutureBuilder<Uint8List?>(
                   future: image,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
-                      return const Align(
-                        alignment: Alignment.centerLeft,
-                        child: SizedBox(
-                          width: 48,
-                          height: 48,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        ),
+                      return SizedBox(
+                        width: 48.w,
+                        height: 48.h,
+                        child: const CircularProgressIndicator(strokeWidth: 2),
                       );
                     } else if (snapshot.hasData && snapshot.data != null) {
-                      return Align(
-                        alignment: Alignment.centerLeft,
-                        child: Image.memory(
-                          snapshot.data!,
-                          scale: 0.5,
-                        ),
+                      return Image.memory(
+                        snapshot.data!,
+                        scale: 0.5,
                       );
                     }
                     return const SizedBox.shrink();
                   },
                 ),
               ),
-              const Spacer(),
-              IconButton(
-                style: IconButton.styleFrom(
-                  backgroundColor: colorSurfaceSubtle,
-                  foregroundColor: colorNeutralDark,
-                  padding: EdgeInsets.all(8.dg),
-                ),
-                onPressed: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => DrawBadge(
-                        filename: fileName,
-                        isSavedClipart: true,
-                        badgeGrid: imageData,
+              SizedBox(height: 12.h),
+              Wrap(
+                alignment: WrapAlignment.center,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                spacing: 8.w,
+                runSpacing: 8.h,
+                children: [
+                  TextButton.icon(
+                    onPressed: () async => onClipartSelected(fileName),
+                    style: TextButton.styleFrom(
+                      foregroundColor: colorPrimary,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 10.w,
+                        vertical: 8.h,
                       ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                     ),
-                  );
-                },
-                icon: const Icon(Icons.edit_outlined),
-              ),
-              SizedBox(width: 10.w),
-              IconButton(
-                icon: const Icon(Icons.share, color: colorOnSurface),
-                onPressed: () async {
-                  await FileHelper().exportClipart(fileName);
-                },
-              ),
-              SizedBox(width: 10.w),
-              IconButton(
-                style: IconButton.styleFrom(
-                  backgroundColor: colorError,
-                  foregroundColor: colorOnPrimary,
-                  padding: EdgeInsets.all(8.dg),
-                ),
-                icon: const Icon(Icons.delete_outline_rounded),
-                onPressed: () async {
-                  final value = await _showDeleteDialog(context);
-                  if (value) {
-                    await file.deleteFile(fileName);
-                    await refreshClipartCallback(fileName);
-                  }
-                },
+                    icon: Icon(Icons.add_circle_outline, size: 18.sp),
+                    label: Text(
+                      l10n.addToBadge,
+                      style: TextStyle(fontSize: 13.sp),
+                    ),
+                  ),
+                  IconButton(
+                    style: IconButton.styleFrom(
+                      backgroundColor: colorSurfaceSubtle,
+                      foregroundColor: colorNeutralDark,
+                      padding: EdgeInsets.all(8.dg),
+                    ),
+                    onPressed: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => DrawBadge(
+                            filename: fileName,
+                            isSavedClipart: true,
+                            badgeGrid: imageData,
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.edit_outlined),
+                  ),
+                  IconButton(
+                    tooltip: l10n.export,
+                    icon: const Icon(Icons.share, color: colorOnSurface),
+                    onPressed: () async {
+                      await FileHelper().exportClipart(fileName);
+                    },
+                  ),
+                  IconButton(
+                    style: IconButton.styleFrom(
+                      backgroundColor: colorError,
+                      foregroundColor: colorOnPrimary,
+                      padding: EdgeInsets.all(8.dg),
+                    ),
+                    tooltip: l10n.delete,
+                    icon: const Icon(Icons.delete_outline_rounded),
+                    onPressed: () async {
+                      final value = await _showDeleteDialog(context);
+                      if (value) {
+                        await file.deleteFile(fileName);
+                        await refreshClipartCallback(fileName);
+                      }
+                    },
+                  ),
+                ],
               ),
             ],
           ),
