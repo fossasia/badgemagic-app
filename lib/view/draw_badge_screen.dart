@@ -139,6 +139,7 @@ class _DrawBadgeState extends State<DrawBadge> {
 
     return CommonScaffold(
       index: 1,
+      resizeToAvoidBottomInset: false,
       title: l10n.appTitle,
       body: LayoutBuilder(
         builder: (context, constraints) {
