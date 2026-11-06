@@ -162,7 +162,7 @@ The app features a modern, tabbed interface with four main sections:
 
 Security in Bluetooth LE devices is optional, and many cheap products you can find on the market are not secured at all. This applies to our Bluetooth LED Badge. While this could lead to some privacy issues, this can also be a source of fun, especially when you want to use an LED Badge in a different way. It also makes it easy for us to get started with the development of a Free and Open Source Android app.
 
-As we understand how the Bluetooth LED badge works, converting a text to multiple byte arrays, we can send using the Bluetooth LE APIs. An in-depth blog post about reverse-engineering the Bluetooth LED badge [is here](https://nilhcem.com/iot/reverse-engineering-bluetooth-led-name-badge).
+As we understand how the Bluetooth LED badge works, converting a text to multiple byte arrays, we can send using the Bluetooth LE APIs. An in-depth blog post about reverse-engineering the Bluetooth LED badge [is here](https://web.archive.org/web/20240412070334/http://nilhcem.com/iot/reverse-engineering-bluetooth-led-name-badge).
 
 The implementation in the Android app consists of manipulating bits. That may be tricky. A single bit error and nothing will work, plus it will be hard to debug. For those reasons, and since the specs are perfectly clear, the reverse engineer Gautier Mechling strongly recommends to start writing unit tests before the code implementation.
 
