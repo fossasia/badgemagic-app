@@ -288,5 +288,19 @@
   "writingInProgress": "Writing in progress: {progress}%",
   "preparing": "Preparing...",
   "addFrame": "Add Screen",
-  "frameHint": "Type text for this screen"
+  "frameHint": "Type text for this screen",
+  "noSavedBadges": "No saved badges!",
+  "noSavedBadgesMessage": "Looks like there are no saved badges yet.",
+  "gifBounce": "Bounce",
+  "gifCoffee": "Coffee",
+  "gifCosmicCat": "Cosmic Cat",
+  "gifDinoRun": "Dino Run",
+  "gifDvd": "DVD",
+  "gifGhost": "Ghost",
+  "gifInvader": "Invader",
+  "gifRain": "Rain",
+  "gifRocket": "Rocket",
+  "gifSkull": "Skull",
+  "gifSmiley": "Smiley",
+  "gifWave": "Wave"
 }

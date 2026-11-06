@@ -975,7 +975,7 @@ class SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       if (!isCancelled) {
-        ToastUtils().showToast("Error: $e");
+        ToastUtils().showToast("${l10n.error}: $e");
       }
     } finally {
       if (mounted) {
