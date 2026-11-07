@@ -47,11 +47,11 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 - **Bluetooth Alias Management**: Rename and manage connected devices
 - **Scan Settings**: Configure device discovery preferences
 - **USB transfer**: Transfer data to the badge trough USB
-- **Cross-Platform Support**: Works on Android, iOS, and Linux (mobile and desktop platforms)
+- **Cross-Platform Support**: Works on Android, iOS, Linux, macOS, and Windows
 
 ### 👾 **FOSSASIA's firmware feature**
 The app lets you install our firmware! Go to the [badgemagic-firmware](https://github.com/fossasia/badgemagic-firmware) repository and follow the instructions to prepare the badge!
-- **USB firmware update**: Put your badge in ISP mode, choose your badge version, and you are done
+- **USB firmware update** (Android and Linux only): Put your badge in ISP mode, choose your badge version, and you are done
 - **BLE firmware update**: This feature is in beta and is slower, but it lets you update the badge while the app is in the background
 - **Security PIN**: You can activate a security PIN to authorize the data transfers
 - **Badge Renaming**: You can rename your badge, to make it unique and recognizable by the app
@@ -113,7 +113,9 @@ The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and ha
 ## Supported Platforms
 * **Android**: Full feature support with native Bluetooth integration
 * **iOS**: Complete functionality with TestFlight beta testing
-* **Linux**: Desktop support for development and testing
+* **Linux**: Desktop support with Flathub distribution
+* **macOS**: Desktop support
+* **Windows**: Desktop support
 
 ## Communication
 
@@ -226,6 +228,8 @@ Before starting, install the following tools:
   * **Android**: [Android Studio](https://developer.android.com/studio) or Android SDK Command-line Tools with Android SDK Platform, Build-Tools, and JDK 17 or 21.
   * **iOS** (macOS only): [Xcode](https://developer.apple.com/xcode/) and CocoaPods.
   * **Linux**: Native build essentials (`clang`, `cmake`, `ninja-build`, `pkg-config`, `libgtk-3-dev`).
+  * **macOS**: [Xcode](https://developer.apple.com/xcode/) (full installation, not just command-line tools) with configured command-line tools.
+  * **Windows**: [Visual Studio](https://visualstudio.microsoft.com/) with the **Desktop development with C++** workload.
 
 Run `flutter doctor` in your terminal to verify that Flutter and required toolchains are properly configured.
 
@@ -274,7 +278,7 @@ flutter pub get
    flutter run -d <device-id>
    ```
 
-Note that mobile targets (Android and iOS) and Linux desktop are the primary supported development environments (see [Supported Platforms](#supported-platforms)). Different platforms may require platform-specific configuration before running.
+Note that mobile targets (Android and iOS) and desktop targets (Linux, macOS, Windows) are supported development environments (see [Supported Platforms](#supported-platforms)). Different platforms may require platform-specific configuration before running.
 
 ### Device and Platform Configuration
 
