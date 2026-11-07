@@ -71,8 +71,6 @@ class DrawBadgeProvider extends ChangeNotifier {
   }
 
   void commitGridUpdate() {
-    _pushToUndoStack();
-
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
         if (_previewGrid[i][j] != null) {
