@@ -5,6 +5,7 @@ import 'package:badgemagic/badge_animation/animation_abstract.dart';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/image_utils.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
@@ -16,19 +17,50 @@ import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';
 
 const List<Map<String, String>> presetGifs = [
-  {'path': 'assets/gifs/bounce.gif', 'label': 'Bounce'},
-  {'path': 'assets/gifs/coffee.gif', 'label': 'Coffee'},
-  {'path': 'assets/gifs/cosmic_cat.gif', 'label': 'Cosmic Cat'},
-  {'path': 'assets/gifs/dino_run.gif', 'label': 'Dino Run'},
-  {'path': 'assets/gifs/dvd.gif', 'label': 'DVD'},
-  {'path': 'assets/gifs/ghost.gif', 'label': 'Ghost'},
-  {'path': 'assets/gifs/invader.gif', 'label': 'Invader'},
-  {'path': 'assets/gifs/rain.gif', 'label': 'Rain'},
-  {'path': 'assets/gifs/rocket.gif', 'label': 'Rocket'},
-  {'path': 'assets/gifs/skull.gif', 'label': 'Skull'},
-  {'path': 'assets/gifs/smiley.gif', 'label': 'Smiley'},
-  {'path': 'assets/gifs/wave.gif', 'label': 'Wave'},
+  {'path': 'assets/gifs/bounce.gif'},
+  {'path': 'assets/gifs/coffee.gif'},
+  {'path': 'assets/gifs/cosmic_cat.gif'},
+  {'path': 'assets/gifs/dino_run.gif'},
+  {'path': 'assets/gifs/dvd.gif'},
+  {'path': 'assets/gifs/ghost.gif'},
+  {'path': 'assets/gifs/invader.gif'},
+  {'path': 'assets/gifs/rain.gif'},
+  {'path': 'assets/gifs/rocket.gif'},
+  {'path': 'assets/gifs/skull.gif'},
+  {'path': 'assets/gifs/smiley.gif'},
+  {'path': 'assets/gifs/wave.gif'},
 ];
+
+String localizedGifLabel(AppLocalizations l10n, String path) {
+  switch (path) {
+    case 'assets/gifs/bounce.gif':
+      return l10n.gifBounce;
+    case 'assets/gifs/coffee.gif':
+      return l10n.gifCoffee;
+    case 'assets/gifs/cosmic_cat.gif':
+      return l10n.gifCosmicCat;
+    case 'assets/gifs/dino_run.gif':
+      return l10n.gifDinoRun;
+    case 'assets/gifs/dvd.gif':
+      return l10n.gifDvd;
+    case 'assets/gifs/ghost.gif':
+      return l10n.gifGhost;
+    case 'assets/gifs/invader.gif':
+      return l10n.gifInvader;
+    case 'assets/gifs/rain.gif':
+      return l10n.gifRain;
+    case 'assets/gifs/rocket.gif':
+      return l10n.gifRocket;
+    case 'assets/gifs/skull.gif':
+      return l10n.gifSkull;
+    case 'assets/gifs/smiley.gif':
+      return l10n.gifSmiley;
+    case 'assets/gifs/wave.gif':
+      return l10n.gifWave;
+    default:
+      return '';
+  }
+}
 
 const Map<String, IconData> gifPreviewIcons = {
   'assets/gifs/bounce.gif': Icons.sports_basketball,
@@ -89,7 +121,7 @@ class _GifAnimationGridViewState extends State<GifAnimationGridView> {
           isGif: true,
           path: g['path']!,
           icon: null,
-          label: g['label']!,
+          label: localizedGifLabel(l10n, g['path']!),
           index: -1
         ),
       (
