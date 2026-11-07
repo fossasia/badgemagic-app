@@ -295,5 +295,17 @@
   "gifRocket": "Ракета",
   "gifSkull": "Череп",
   "gifSmiley": "Смайлик",
-  "gifWave": "Волна"
+  "gifWave": "Волна",
+  "searchingUsbBadge": "Поиск USB-бейджа...",
+  "usbTransferSuccess": "Передача по USB выполнена!",
+  "usbTransferFailed": "Передача по USB не удалась. Попробуйте ещё раз.",
+  "usbTransferError": "Ошибка передачи по USB",
+  "noUsbBadgeFound": "USB-бейдж не найден. Проверьте кабель и попробуйте ещё раз.",
+  "couldNotGenerateAnimationData": "Не удалось создать данные анимации.",
+  "noUsbHidDeviceDetected": "USB HID-устройство не обнаружено.",
+  "errorOpeningHidDevice": "Ошибка открытия HID-устройства.",
+  "badgeConnectedViaUsb": "Бейдж успешно подключён по USB (HID)!",
+  "hidConnectionError": "Ошибка HID-подключения: {error}",
+  "noBadgeConnectedViaUsb": "Бейдж не подключён по USB.",
+  "usbDataTransmissionError": "Ошибка передачи данных по USB."
 }

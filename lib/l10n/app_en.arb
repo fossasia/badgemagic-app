@@ -302,5 +302,24 @@
   "gifRocket": "Rocket",
   "gifSkull": "Skull",
   "gifSmiley": "Smiley",
-  "gifWave": "Wave"
+  "gifWave": "Wave",
+  "searchingUsbBadge": "Searching for USB badge...",
+  "usbTransferSuccess": "USB transfer success!",
+  "usbTransferFailed": "USB transfer failed. Try again.",
+  "usbTransferError": "Error USB transfer",
+  "noUsbBadgeFound": "No USB badge found. Check the cable and try again.",
+  "couldNotGenerateAnimationData": "Could not generate animation data.",
+  "noUsbHidDeviceDetected": "No USB HID device detected.",
+  "errorOpeningHidDevice": "Error opening HID device.",
+  "badgeConnectedViaUsb": "Badge successfully connected via USB (HID)!",
+  "hidConnectionError": "HID Connection error: {error}",
+  "@hidConnectionError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noBadgeConnectedViaUsb": "No badge connected via USB.",
+  "usbDataTransmissionError": "USB data transmission error."
 }
