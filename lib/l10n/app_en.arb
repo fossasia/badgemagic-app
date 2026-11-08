@@ -216,7 +216,7 @@
   "savingAndRebooting": "Saving and rebooting badge...",
   "nameApplied": "Name applied to device",
   "savedToFlash": "Saved to Flash!",
-  "turnOff": "Turn Off tha badge",
+  "turnOff": "Turn Off the badge",
   "editingBadgeWithName": "Editing badge: {name}",
   "@editingBadgeWithName": {
     "placeholders": {
