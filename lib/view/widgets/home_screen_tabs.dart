@@ -137,11 +137,11 @@ class AnimationGridContent extends StatelessWidget {
     final items = <(String, Widget)>[
       for (final gif in presetGifs)
         (
-          gif['label']!,
+          localizedGifLabel(l10n, gif['path']!),
           GifAniContainer(
             key: ValueKey('gif_${gif['path']}'),
             assetPath: gif['path']!,
-            label: gif['label']!,
+            label: localizedGifLabel(l10n, gif['path']!),
             selectedGifPath: selectedGifPath,
             onTap: () => onGifSelected?.call(gif['path']!),
           ),

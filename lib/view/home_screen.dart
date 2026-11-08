@@ -929,6 +929,7 @@ class _HomeScreenState extends State<HomeScreen>
   }
 
   Future<void> _sendViaUsb(UsbTransferProvider usbProvider) async {
+    final l10n = GetIt.instance.get<LocalizationService>().l10n;
     final int aniIndex = animationProvider.getAnimationIndex() ?? 0;
 
     List<int>? generatedData;
@@ -938,7 +939,7 @@ class _HomeScreenState extends State<HomeScreen>
         speedDialProvider.getOuterValue(),
       );
       if (generatedData == null || generatedData.isEmpty) {
-        ToastUtils().showErrorToast("Could not generate animation data.");
+        ToastUtils().showErrorToast(l10n.couldNotGenerateAnimationData);
         return;
       }
     } else {
@@ -951,13 +952,13 @@ class _HomeScreenState extends State<HomeScreen>
         badgeData: badgeData,
       );
       if (generatedData == null || generatedData.isEmpty) {
-        ToastUtils().showErrorToast("Please enter a message to transfer.");
+        ToastUtils().showErrorToast(l10n.pleaseEnterMessage);
         return;
       }
     }
 
     try {
-      ToastUtils().showToast("Searching for USB badge...");
+      ToastUtils().showToast(l10n.searchingUsbBadge);
       bool connected = false;
       const int maxAttempts = 40;
       for (int attempt = 0; attempt < maxAttempts; attempt++) {
@@ -969,20 +970,19 @@ class _HomeScreenState extends State<HomeScreen>
       }
 
       if (!connected) {
-        ToastUtils().showErrorToast(
-            "No USB badge found. Check the cable and try again.");
+        ToastUtils().showErrorToast(l10n.noUsbBadgeFound);
         return;
       }
 
       final success = await usbProvider.writeBytes(generatedData, silent: true);
       if (success) {
-        ToastUtils().showToast("USB transfer success!");
+        ToastUtils().showToast(l10n.usbTransferSuccess);
       } else {
-        ToastUtils().showErrorToast("USB transfer failed. Try again.");
+        ToastUtils().showErrorToast(l10n.usbTransferFailed);
       }
     } catch (e) {
       debugPrint("Error USB: $e");
-      ToastUtils().showErrorToast("Error USB transfer");
+      ToastUtils().showErrorToast(l10n.usbTransferError);
     }
   }
 
