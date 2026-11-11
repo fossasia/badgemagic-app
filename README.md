@@ -4,7 +4,7 @@
 [![Join the chat at https://gitter.im/fossasia/badge-magic](https://badges.gitter.im/fossasia/badge-magic.svg)](https://gitter.im/fossasia/badge-magic?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 ![Github](https://img.shields.io/github/license/fossasia/badgemagic-app?logo=github)
 
-**Python Library to program via desktop https://github.com/fossasia/led-name-badge-ls32**
+**[Python Library to program via desktop](https://github.com/fossasia/led-name-badge-ls32)**
 
 **Magically Create Text and Draw Cliparts on LED Name Badges using Bluetooth**
 
@@ -39,14 +39,14 @@ The Badge Magic app is a comprehensive LED badge management system that lets you
 
 ### 📱 **User Interface**
 - **4 Main Tabs**: Speed, Transition, Effects, and Animation
-- **Multi-language Support**: English and Hindi
+- **Multi-language Support**: English, Hindi, and Italian
 - **Settings Screen**: Bluetooth device management and scan preferences
 - **Navigation Drawer**: Easy access to all features
 
 ### 🔧 **Advanced Features**
 - **Bluetooth Alias Management**: Rename and manage connected devices
 - **Scan Settings**: Configure device discovery preferences
-- **USB transfer**: Transfer data to the badge trough USB
+- **USB transfer**: Transfer data to the badge through USB
 - **Cross-Platform Support**: Works on Android, iOS, and Linux (mobile and desktop platforms)
 
 ### 👾 **FOSSASIA's firmware feature**
@@ -100,12 +100,12 @@ The project is based on the work of [Nilhcem](https://github.com/Nilhcem) and ha
 
 ## Download
 
-* [Latest Release Build](https://github.com/fossasia/badgemagic-app/raw/apk/badge-magic-development-release.apk) in the apk branch
+* [Latest Release Build](https://github.com/fossasia/badgemagic-app/raw/app/badge-magic-development-release.apk) in the app branch
 
 ## Permissions
 * **Bluetooth**: For connecting to and sending data to LED badges
 * **Storage**: For saving and loading badge designs and clipart
-* **Location** (Android 11 and below): Required by Android for Bluetooth Low Energy device discovery. For more information, see the [Android documentation](https://source.android.com/devices/bluetooth/ble)
+* **Location** (Android 11 and below): Required by Android for Bluetooth Low Energy device discovery. For more information, see the [Android documentation](https://source.android.com/docs/core/connect/bluetooth/ble)
 
 ## Privacy
 * See our [Privacy Policy](https://badgemagic.fossasia.org/privacy/) for details on data handling.
@@ -122,22 +122,22 @@ Please talk to us on the badge-magic [Gitter channel here](https://gitter.im/fos
 ## Available Devices
 
 There are a number of devices with Bluetooth on the market. As far as we can tell they are mostly from the same manufacturer. When you get a device ensure it comes with Bluetooth. There are devices that don't support Bluetooth. These are not supported in the app currently.
-* Get one from the [FOSSASIA Shop here](https://fossasia.com/product/led-badge/)
+* Get one from the [FOSSASIA Shop](https://fossasia.com)
 
 ## Screenshots
 
 <table>
   <tr>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-1_home_screen.png" width="1080"/></td>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-2_text_badge.png" width="1080"/></td>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-3_emoji_badge.png" width="1080"/></td>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-4_inverted_emoji_badge.png" width="1080"/></td>
+    <td><img src="https://raw.githubusercontent.com/fossasia/badgemagic-app/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-1_home_screen.png" width="1080"/></td>
+    <td><img src="https://raw.githubusercontent.com/fossasia/badgemagic-app/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-2_text_badge.png" width="1080"/></td>
+    <td><img src="https://raw.githubusercontent.com/fossasia/badgemagic-app/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-3_emoji_badge.png" width="1080"/></td>
+    <td><img src="https://raw.githubusercontent.com/fossasia/badgemagic-app/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-4_inverted_emoji_badge.png" width="1080"/></td>
   </tr>
   <tr>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-5_saved_badges.png" width="1080"/></td>
-    <td><img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-6_saved_badges_clicked.png" width="1080"/></td>
+    <td><img src="https://raw.githubusercontent.com/fossasia/badgemagic-app/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-5_saved_badges.png" width="1080"/></td>
+    <td><img src="https://raw.githubusercontent.com/fossasia/badgemagic-app/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-6_saved_badges_clicked.png" width="1080"/></td>
     <td colspan="2">
-      <img src="https://github.com/fossasia/badgemagic-app/blob/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-7_draw_badge.png" width="2146"/>
+      <img src="https://raw.githubusercontent.com/fossasia/badgemagic-app/fastlane-android/metadata/android/en-US/images/phoneScreenshots/Pixel_6-7_draw_badge.png" width="2146"/>
     </td>
   </tr>
 </table>
@@ -162,19 +162,18 @@ The app features a modern, tabbed interface with four main sections:
 
 Security in Bluetooth LE devices is optional, and many cheap products you can find on the market are not secured at all. This applies to our Bluetooth LED Badge. While this could lead to some privacy issues, this can also be a source of fun, especially when you want to use an LED Badge in a different way. It also makes it easy for us to get started with the development of a Free and Open Source Android app.
 
-As we understand how the Bluetooth LED badge works, converting a text to multiple byte arrays, we can send using the Bluetooth LE APIs. An indepth blog post about reverse-engineering the Bluetooth community [is here](http://nilhcem.com/iot/reverse-engineering-bluetooth-led-name-badge).
+As we understand how the Bluetooth LED badge works, converting a text to multiple byte arrays, we can send using the Bluetooth LE APIs. An in-depth blog post about reverse-engineering the Bluetooth LED badge [is here](https://web.archive.org/web/20240412070334/http://nilhcem.com/iot/reverse-engineering-bluetooth-led-name-badge).
 
-The implementation in the Android app consists of manipulating bits. That may be tricky. A single bit error and nothing will work, plus it will be hard to debug. For those reasons, and since the specs are perfectly clear the reverse engineer Gautier Mechling strongly recommends to start writing unit tests before the code implementation.
+The implementation in the Android app consists of manipulating bits. That may be tricky. A single bit error and nothing will work, plus it will be hard to debug. For those reasons, and since the specs are perfectly clear, the reverse engineer Gautier Mechling strongly recommends to start writing unit tests before the code implementation.
 
 ## Branch Policy
 
 We have the following branches
 
  * **development**: All development goes on in this branch. If you're making a contribution, you are supposed to make a pull request to _development_. PRs to development branch must pass a build check on CI/CD.
- * **apk**: This branch contains many apk files, that are automatically generated on the merged pull request a) debug apk b) release apk
-    - There are multiple files in the apk branch of the project, this branch consists of all the APK files and other files that are relevant when an APK is generated.
-    - Once a pull request is merged, the previous APK branch is deleted and a new APK branch is created.
-    - If a PR is merged in development branch then the new APKs for the development branch are generated whereas the APKs corresponding to the master branch are not regenerated and simply the previously generated files are added.
+ * **app**: This branch contains build artifacts (APK, AAB, desktop builds) that are automatically generated when a pull request is merged.
+    - Once a pull request is merged, the previous app branch is replaced with a new one containing the updated build artifacts.
+    - If a PR is merged in the development branch then the new builds for the development branch are generated.
 * **version**: This branch stores the version information for the APKs (versionName and versionCode). This is used in our workflows for automatic versioning wherein the next version information is automatically fetched from this branch and used for building APKs.
 * **fastlane***: These branches contain information and metadata used by fastlane to automate deployment.
 * **pr-screenshots**: This branch stores screenshots for every open pull request, which are shown in comments in every pull request.
@@ -189,7 +188,7 @@ Please read FOSSASIA's [Best Practices](https://blog.fossasia.org/open-source-de
 * The pull request will not get merged until and unless the commits are squashed. In case there are multiple commits on the PR, the commit author needs to squash them and not the maintainers cherrypicking and merging squashes.
 * If the PR is related to any front end change, please attach relevant screenshots in the pull request description.
 * Before you join development, please set up the project on your local machine, run it and go through the application completely. Press on any button you can find and see where it leads to. Explore.
-* If you would like to work on an issue, drop in a comment at the issue. If it is already assigned to someone, but there is no sign of any work being done, please free to drop in a comment and start working on it.
+* If you would like to work on an issue, drop in a comment at the issue. If it is already assigned to someone, but there is no sign of any work being done, please feel free to drop in a comment and start working on it.
 
 ## Release Process
 
@@ -221,7 +220,7 @@ Follow these steps to set up and run Badge Magic on your local machine without a
 Before starting, install the following tools:
 
 * **[Git](https://git-scm.com/downloads)**: Required for version control.
-* **[Flutter SDK](https://docs.flutter.dev/get-started/install)**: The repository requires Flutter `3.47.5` (or compatible stable release) as defined in [`pubspec.yaml`](pubspec.yaml). Flutter comes bundled with a compatible **Dart SDK** (Dart `>=3.3.4 <4.0.0`).
+* **[Flutter SDK](https://docs.flutter.dev/get-started/install)**: The repository requires the Flutter version pinned under `environment.flutter` in [`pubspec.yaml`](pubspec.yaml) (currently `3.47.9`). Flutter comes bundled with a compatible **Dart SDK** (Dart `>=3.3.4 <4.0.0`).
 * **Platform Tooling** (depending on your target platform):
   * **Android**: [Android Studio](https://developer.android.com/studio) or Android SDK Command-line Tools with Android SDK Platform, Build-Tools, and JDK 17 or 21.
   * **iOS** (macOS only): [Xcode](https://developer.apple.com/xcode/) and CocoaPods.
