@@ -216,7 +216,7 @@
   "savingAndRebooting": "Saving and rebooting badge...",
   "nameApplied": "Name applied to device",
   "savedToFlash": "Saved to Flash!",
-  "turnOff": "Turn Off tha badge",
+  "turnOff": "Turn Off the badge",
   "editingBadgeWithName": "Editing badge: {name}",
   "@editingBadgeWithName": {
     "placeholders": {
@@ -288,5 +288,38 @@
   "writingInProgress": "Writing in progress: {progress}%",
   "preparing": "Preparing...",
   "addFrame": "Add Screen",
-  "frameHint": "Type text for this screen"
+  "frameHint": "Type text for this screen",
+  "noSavedBadges": "No saved badges!",
+  "noSavedBadgesMessage": "Looks like there are no saved badges yet.",
+  "gifBounce": "Bounce",
+  "gifCoffee": "Coffee",
+  "gifCosmicCat": "Cosmic Cat",
+  "gifDinoRun": "Dino Run",
+  "gifDvd": "DVD",
+  "gifGhost": "Ghost",
+  "gifInvader": "Invader",
+  "gifRain": "Rain",
+  "gifRocket": "Rocket",
+  "gifSkull": "Skull",
+  "gifSmiley": "Smiley",
+  "gifWave": "Wave",
+  "searchingUsbBadge": "Searching for USB badge...",
+  "usbTransferSuccess": "USB transfer success!",
+  "usbTransferFailed": "USB transfer failed. Try again.",
+  "usbTransferError": "Error USB transfer",
+  "noUsbBadgeFound": "No USB badge found. Check the cable and try again.",
+  "couldNotGenerateAnimationData": "Could not generate animation data.",
+  "noUsbHidDeviceDetected": "No USB HID device detected.",
+  "errorOpeningHidDevice": "Error opening HID device.",
+  "badgeConnectedViaUsb": "Badge successfully connected via USB (HID)!",
+  "hidConnectionError": "HID Connection error: {error}",
+  "@hidConnectionError": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "noBadgeConnectedViaUsb": "No badge connected via USB.",
+  "usbDataTransmissionError": "USB data transmission error."
 }
