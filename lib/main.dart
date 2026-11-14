@@ -149,6 +149,7 @@ class MyApp extends StatelessWidget {
                 Locale('en'),
                 Locale('hi'),
                 Locale('it'),
+                Locale('ru'),
               ],
               localeResolutionCallback: (locale, supportedLocales) {
                 if (locale == null) return supportedLocales.first;

@@ -61,7 +61,7 @@ class _BMDrawerState extends State<BMDrawer> {
             routeName: '/',
           ),
           Semantics(
-            label: 'Draw Clipart',
+            label: l10n.drawClipart,
             child: _buildListTile(
               index: 1,
               assetIcon: "assets/icons/signature.png",
@@ -70,7 +70,7 @@ class _BMDrawerState extends State<BMDrawer> {
             ),
           ),
           Semantics(
-            label: 'Saved Badges',
+            label: l10n.savedBadges,
             child: _buildListTile(
               index: 2,
               assetIcon: "assets/icons/r_save.png",
