@@ -1,17 +1,18 @@
 import 'dart:math' as math;
 
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/special_text_field.dart';
 import 'package:extended_text_field/extended_text_field.dart';
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/material.dart' as flutter_material;
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
-import 'package:badgemagic/providers/animation_badge_provider.dart';
 
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
@@ -163,7 +164,9 @@ class BadgeTextInputField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = GetIt.instance.get<LocalizationService>().l10n;
+    final l10n = GetIt.instance
+        .get<LocalizationService>()
+        .l10n;
     final isAnimationMode =
         Provider.of<AnimationBadgeProvider>(context).getAnimationIndex() == 5;
 
@@ -238,7 +241,8 @@ class BadgeTextInputField extends StatelessWidget {
 
                 if (overflowIndex != -1) {
                   text =
-                      '${text.substring(0, overflowIndex)}|${text.substring(overflowIndex)}';
+                  '${text.substring(0, overflowIndex)}|${text.substring(
+                      overflowIndex)}';
                   cursor = (cursor > overflowIndex) ? cursor + 1 : cursor;
                 } else {
                   break;
@@ -255,17 +259,21 @@ class BadgeTextInputField extends StatelessWidget {
           specialTextSpanBuilder: ImageBuilder(
             isAnimationMode: isAnimationMode,
           ),
-          style: Provider.of<FontProvider>(context).selectedFont != null
-              ? _getFontStyle(Provider.of<FontProvider>(context).selectedFont!)
-                  .copyWith(fontSize: 14)
+          style: Provider
+              .of<FontProvider>(context)
+              .selectedFont != null
+              ? _getFontStyle(Provider
+              .of<FontProvider>(context)
+              .selectedFont!)
+              .copyWith(fontSize: 14)
               : const TextStyle(fontSize: 14),
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
+          decoration: flutter_material.InputDecoration(
+            border: flutter_material.OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.medium.r),
             ),
-            focusedBorder: OutlineInputBorder(
+            focusedBorder: flutter_material.OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.medium.r),
-              borderSide: BorderSide(color: colorPrimary),
+              borderSide: flutter_material.BorderSide(color: colorPrimary),
             ),
             contentPadding: EdgeInsets.symmetric(
               horizontal: 12.w,
@@ -284,7 +292,10 @@ class BadgeTextInputField extends StatelessWidget {
                 return Container(
                   constraints: BoxConstraints(
                     maxWidth: math.min(
-                        MediaQuery.of(context).size.width *
+                        MediaQuery
+                            .of(context)
+                            .size
+                            .width *
                             (isAnimationMode ? 0.42 : 0.280),
                         isAnimationMode ? 300.0 : 200.0),
                   ),
@@ -301,9 +312,10 @@ class BadgeTextInputField extends StatelessWidget {
                               final sel = controller.selection;
                               final text = controller.text;
                               final insertPos =
-                                  sel.isValid ? sel.baseOffset : text.length;
+                              sel.isValid ? sel.baseOffset : text.length;
                               final newText =
-                                  '${text.substring(0, insertPos)}|${text.substring(insertPos)}';
+                                  '${text.substring(0, insertPos)}|${text
+                                  .substring(insertPos)}';
                               controller.value = TextEditingValue(
                                 text: newText,
                                 selection: TextSelection.collapsed(
@@ -348,11 +360,11 @@ class BadgeTextInputField extends StatelessWidget {
                               style: MenuStyle(
                                 alignment: AlignmentDirectional.bottomEnd,
                                 minimumSize:
-                                    const WidgetStatePropertyAll(Size(180, 0)),
+                                const WidgetStatePropertyAll(Size(180, 0)),
                                 backgroundColor:
-                                    const WidgetStatePropertyAll(colorSurface),
+                                const WidgetStatePropertyAll(colorSurface),
                                 surfaceTintColor:
-                                    const WidgetStatePropertyAll(colorSurface),
+                                const WidgetStatePropertyAll(colorSurface),
                                 elevation: const WidgetStatePropertyAll(6),
                                 padding: WidgetStatePropertyAll(
                                   EdgeInsets.symmetric(vertical: 6.h),
@@ -378,16 +390,16 @@ class BadgeTextInputField extends StatelessWidget {
                                   },
                                   trailingIcon: selected
                                       ? Icon(Icons.check,
-                                          size: 18, color: colorPrimary)
+                                      size: 18, color: colorPrimary)
                                       : const SizedBox(width: 18),
                                   child: Padding(
                                     padding:
-                                        EdgeInsets.symmetric(vertical: 4.h),
+                                    EdgeInsets.symmetric(vertical: 4.h),
                                     child: Text(
                                       label,
                                       style: (opt == null
-                                              ? const TextStyle()
-                                              : _getFontStyle(opt))
+                                          ? const TextStyle()
+                                          : _getFontStyle(opt))
                                           .copyWith(
                                         fontSize: 14,
                                         color: selected
@@ -404,7 +416,7 @@ class BadgeTextInputField extends StatelessWidget {
                               builder: (context, controller, child) {
                                 return InkWell(
                                   borderRadius:
-                                      BorderRadius.circular(AppRadius.medium.r),
+                                  BorderRadius.circular(AppRadius.medium.r),
                                   onTap: () {
                                     FocusScope.of(context).unfocus();
                                     controller.isOpen
@@ -413,7 +425,7 @@ class BadgeTextInputField extends StatelessWidget {
                                   },
                                   child: Padding(
                                     padding:
-                                        EdgeInsets.symmetric(vertical: 6.h),
+                                    EdgeInsets.symmetric(vertical: 6.h),
                                     child: Row(
                                       mainAxisSize: MainAxisSize.min,
                                       children: [
