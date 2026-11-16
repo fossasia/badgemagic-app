@@ -19,7 +19,6 @@ class ConnectState extends RetryBleState {
   final TransferCancellation cancellation;
   final BuildContext context;
   final bleDialogController = GetIt.instance<BleDialogController>();
-  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   ConnectState({
     required this.manager,
