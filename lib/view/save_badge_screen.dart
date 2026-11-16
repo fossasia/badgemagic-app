@@ -221,14 +221,14 @@ class _SaveBadgeScreenState extends State<SaveBadgeScreen> {
                       height: 20.h,
                     ),
                     Text(
-                      'No saved badges !',
+                      l10n.noSavedBadges,
                       style: TextStyle(
                         color: colorOnSurface,
                         fontSize: 20.sp,
                       ),
                     ),
                     Text(
-                      'Looks like there are no saved badges yet.',
+                      l10n.noSavedBadgesMessage,
                       style: TextStyle(
                         color: colorOnSurface,
                         fontSize: 14.sp,

@@ -2,7 +2,10 @@ import 'dart:async';
 import 'dart:io' show Platform;
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
+import 'package:get_it/get_it.dart';
 import 'package:hid_tool/hid_tool.dart';
+import 'package:badgemagic/l10n/app_localizations.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 
 enum UsbConnectionType { none, hid }
@@ -10,6 +13,8 @@ enum UsbConnectionType { none, hid }
 class UsbTransferProvider with ChangeNotifier {
   static const int _badgeVendorId = 0x0416;
   static const int _badgeProductId = 0x5020;
+
+  AppLocalizations get _l10n => GetIt.instance.get<LocalizationService>().l10n;
 
   UsbConnectionType _connectionType = UsbConnectionType.none;
   bool get isConnected => _connectionType != UsbConnectionType.none;
@@ -83,7 +88,7 @@ class UsbTransferProvider with ChangeNotifier {
           vendorId: _badgeVendorId, productId: _badgeProductId);
 
       if (availableDevices.isEmpty) {
-        if (!silent) ToastUtils().showErrorToast("No USB HID device detected.");
+        if (!silent) ToastUtils().showErrorToast(_l10n.noUsbHidDeviceDetected);
         return false;
       }
 
@@ -91,7 +96,7 @@ class UsbTransferProvider with ChangeNotifier {
       await targetDevice.open();
 
       if (!targetDevice.isOpen) {
-        if (!silent) ToastUtils().showErrorToast("Error opening HID device.");
+        if (!silent) ToastUtils().showErrorToast(_l10n.errorOpeningHidDevice);
         return false;
       }
 
@@ -100,12 +105,12 @@ class UsbTransferProvider with ChangeNotifier {
       notifyListeners();
 
       if (!silent) {
-        ToastUtils().showToast("Badge successfully connected via USB (HID)!");
+        ToastUtils().showToast(_l10n.badgeConnectedViaUsb);
       }
       return true;
     } catch (e) {
       debugPrint("HID connection error: $e");
-      if (!silent) ToastUtils().showErrorToast("HID Connection error: $e");
+      if (!silent) ToastUtils().showErrorToast(_l10n.hidConnectionError('$e'));
       await disconnectUsb();
       return false;
     }
@@ -113,7 +118,7 @@ class UsbTransferProvider with ChangeNotifier {
 
   Future<bool> writeBytes(List<int> bytes, {bool silent = false}) async {
     if (!isConnected) {
-      if (!silent) ToastUtils().showErrorToast("No badge connected via USB.");
+      if (!silent) ToastUtils().showErrorToast(_l10n.noBadgeConnectedViaUsb);
       return false;
     }
 
@@ -148,7 +153,7 @@ class UsbTransferProvider with ChangeNotifier {
       return true;
     } catch (e) {
       debugPrint("Error writing data: $e");
-      if (!silent) ToastUtils().showErrorToast("USB data transmission error.");
+      if (!silent) ToastUtils().showErrorToast(_l10n.usbDataTransmissionError);
       return false;
     }
   }
