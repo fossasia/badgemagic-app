@@ -170,7 +170,7 @@ class BadgeTextInputField extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
-      child: Material(
+      child: flutter_material.Material(
         color: drawerHeaderTitle,
         borderRadius: BorderRadius.circular(AppRadius.medium.r),
         elevation: 4,

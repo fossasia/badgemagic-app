@@ -127,47 +127,50 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                   ],
                   borderRadius: BorderRadius.circular(AppRadius.small),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(left: 12.0, top: 12.0),
-                      child: Text(
-                        l10n.contactWithUs,
-                        style: GoogleFonts.sora(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: colorTextSecondary,
+                child: Material(
+                  color: colorTransparent,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(left: 12.0, top: 12.0),
+                        child: Text(
+                          l10n.contactWithUs,
+                          style: GoogleFonts.sora(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: colorTextSecondary,
+                          ),
                         ),
                       ),
-                    ),
-                    ListTile(
-                      leading: Image.asset(
-                        'assets/icons/github.png',
-                        height: 40,
-                        fit: BoxFit.contain,
-                      ),
-                      title: Text(
-                        l10n.github,
-                        style: GoogleFonts.sora(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: colorOnSurface,
+                      ListTile(
+                        leading: Image.asset(
+                          'assets/icons/github.png',
+                          height: 40,
+                          fit: BoxFit.contain,
                         ),
-                      ),
-                      subtitle: Text(
-                        l10n.githubDescription,
-                        style: GoogleFonts.sora(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: colorTextSecondary,
+                        title: Text(
+                          l10n.github,
+                          style: GoogleFonts.sora(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: colorOnSurface,
+                          ),
                         ),
-                        softWrap: true,
+                        subtitle: Text(
+                          l10n.githubDescription,
+                          style: GoogleFonts.sora(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorTextSecondary,
+                          ),
+                          softWrap: true,
+                        ),
+                        onTap: () => openUrl(
+                            'https://github.com/fossasia/badgemagic-app'),
                       ),
-                      onTap: () =>
-                          openUrl('https://github.com/fossasia/badgemagic-app'),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
               SizedBox(height: 10),
@@ -183,83 +186,86 @@ class _AboutUsScreenState extends State<AboutUsScreen> {
                   ],
                   borderRadius: BorderRadius.circular(AppRadius.small),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(12.0),
-                      child: Text(
-                        l10n.license,
-                        style: GoogleFonts.sora(
-                          fontSize: 18,
-                          fontWeight: FontWeight.w500,
-                          color: colorTextSecondary,
-                        ),
-                      ),
-                    ),
-                    ListTile(
-                      leading: Image.asset(
-                        'assets/icons/badge.png',
-                        height: 40,
-                        fit: BoxFit.contain,
-                      ),
-                      title: Text(
-                        l10n.appLicense,
-                        style: GoogleFonts.sora(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: colorOnSurface,
-                        ),
-                      ),
-                      subtitle: Text(
-                        '${l10n.checkApacheLicense} ${l10n.appTitle}',
-                        style: GoogleFonts.sora(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: colorTextSecondary,
-                        ),
-                        softWrap: true,
-                      ),
-                      onTap: () => openUrl(
-                          'https://github.com/fossasia/badgemagic-app/blob/development/LICENSE'),
-                    ),
-                    ListTile(
-                      leading: const Icon(
-                        Icons.description_outlined,
-                        size: 38,
-                        color: colorOnSurface,
-                      ),
-                      title: Text(
-                        l10n.openSourceLicenses,
-                        style: GoogleFonts.sora(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                          color: colorOnSurface,
-                        ),
-                      ),
-                      subtitle: Text(
-                        l10n.openSourceLicensesDescription,
-                        style: GoogleFonts.sora(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w500,
-                          color: colorTextSecondary,
-                        ),
-                        softWrap: true,
-                      ),
-                      onTap: () => showLicensePage(
-                        context: context,
-                        applicationName: l10n.appTitle,
-                        applicationIcon: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Image.asset(
-                            'assets/icons/icon.png',
-                            height: 48,
-                            fit: BoxFit.contain,
+                child: Material(
+                  color: colorTransparent,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(12.0),
+                        child: Text(
+                          l10n.license,
+                          style: GoogleFonts.sora(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w500,
+                            color: colorTextSecondary,
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                      ListTile(
+                        leading: Image.asset(
+                          'assets/icons/badge.png',
+                          height: 40,
+                          fit: BoxFit.contain,
+                        ),
+                        title: Text(
+                          l10n.appLicense,
+                          style: GoogleFonts.sora(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: colorOnSurface,
+                          ),
+                        ),
+                        subtitle: Text(
+                          '${l10n.checkApacheLicense} ${l10n.appTitle}',
+                          style: GoogleFonts.sora(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorTextSecondary,
+                          ),
+                          softWrap: true,
+                        ),
+                        onTap: () => openUrl(
+                            'https://github.com/fossasia/badgemagic-app/blob/development/LICENSE'),
+                      ),
+                      ListTile(
+                        leading: const Icon(
+                          Icons.description_outlined,
+                          size: 38,
+                          color: colorOnSurface,
+                        ),
+                        title: Text(
+                          l10n.openSourceLicenses,
+                          style: GoogleFonts.sora(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                            color: colorOnSurface,
+                          ),
+                        ),
+                        subtitle: Text(
+                          l10n.openSourceLicensesDescription,
+                          style: GoogleFonts.sora(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w500,
+                            color: colorTextSecondary,
+                          ),
+                          softWrap: true,
+                        ),
+                        onTap: () => showLicensePage(
+                          context: context,
+                          applicationName: l10n.appTitle,
+                          applicationIcon: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Image.asset(
+                              'assets/icons/icon.png',
+                              height: 48,
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],
