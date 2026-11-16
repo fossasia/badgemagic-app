@@ -220,7 +220,7 @@ Follow these steps to set up and run Badge Magic on your local machine without a
 Before starting, install the following tools:
 
 * **[Git](https://git-scm.com/downloads)**: Required for version control.
-* **[Flutter SDK](https://docs.flutter.dev/get-started/install)**: The repository requires the Flutter version pinned under `environment.flutter` in [`pubspec.yaml`](pubspec.yaml) (currently `3.47.9`). Flutter comes bundled with a compatible **Dart SDK** (Dart `>=3.3.4 <4.0.0`).
+* **[Flutter SDK](https://docs.flutter.dev/get-started/install)**: The repository requires the Flutter version pinned under `environment.flutter` in [`pubspec.yaml`](pubspec.yaml) (currently `3.50.0`). Flutter comes bundled with a compatible **Dart SDK** (Dart `>=3.3.4 <4.0.0`).
 * **Platform Tooling** (depending on your target platform):
   * **Android**: [Android Studio](https://developer.android.com/studio) or Android SDK Command-line Tools with Android SDK Platform, Build-Tools, and JDK 17 or 21.
   * **iOS** (macOS only): [Xcode](https://developer.apple.com/xcode/) and CocoaPods.
