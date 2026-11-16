@@ -431,7 +431,7 @@ class FileHelper {
         baseName = 'Imported Badge';
       }
       Data data = Data.fromJson(badgeJson);
-      String filename = await _uniqueBadgeFilename(baseName);
+      String filename = await uniqueBadgeFilename(baseName);
       await FileStorage.write('$filename.json', jsonEncode(data.toJson()));
       logger.d('Imported badge from QR: $filename');
       return true;
@@ -441,12 +441,18 @@ class FileHelper {
     }
   }
 
-  Future<String> _uniqueBadgeFilename(String baseName) async {
+  @visibleForTesting
+  Future<String> uniqueBadgeFilename(String baseName) async {
     final directory = await getApplicationDocumentsDirectory();
-    String candidate = baseName;
+    final cleanBaseName = baseName
+        .replaceAll(RegExp(r'\.json$', caseSensitive: false), '')
+        .trim();
+    final effectiveName =
+        cleanBaseName.isEmpty ? 'Imported Badge' : cleanBaseName;
+    String candidate = effectiveName;
     int counter = 1;
     while (await File('${directory.path}/$candidate.json').exists()) {
-      candidate = '$baseName ($counter)';
+      candidate = '$effectiveName ($counter)';
       counter++;
     }
     return candidate;
@@ -468,7 +474,9 @@ class FileHelper {
       File file = File(pickedFile.path!);
 
       if (file.path.toLowerCase().endsWith('.gif')) {
-        final fileName = file.uri.pathSegments.last.replaceAll('.gif', '.json');
+        final baseName = file.uri.pathSegments.last
+            .replaceAll(RegExp(r'\.gif$', caseSensitive: false), '');
+        final fileName = await uniqueBadgeFilename(baseName);
 
         final hexFrames =
             imageUtils.convertGifFramesToLEDHex(await file.readAsBytes());
@@ -485,17 +493,19 @@ class FileHelper {
           ],
         });
 
-        await FileStorage.write(fileName, jsonEncode(data.toJson()));
+        await FileStorage.write('$fileName.json', jsonEncode(data.toJson()));
 
-        logger.d('Imported badge: $fileName, data: $data');
+        logger.d('Imported badge: $fileName.json, data: $data');
 
         return true;
       } else if (file.path.toLowerCase().endsWith('.json')) {
         Data data = Data.fromJson(jsonDecode(await file.readAsString()));
 
-        await FileStorage.write(pickedFile.name, jsonEncode(data.toJson()));
+        final fileName = await uniqueBadgeFilename(pickedFile.name);
 
-        logger.d('Imported badge to: ${pickedFile.name}, data: $data');
+        await FileStorage.write('$fileName.json', jsonEncode(data.toJson()));
+
+        logger.d('Imported badge to: $fileName.json, data: $data');
 
         return true;
       } else {
