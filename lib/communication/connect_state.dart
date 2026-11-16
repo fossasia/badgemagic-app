@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/communication/write_state.dart';
 import 'package:badgemagic/communication/completed_state.dart';
+import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/view/widgets/auth_pin_data.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:get_it/get_it.dart';
@@ -18,6 +19,7 @@ class ConnectState extends RetryBleState {
   final TransferCancellation cancellation;
   final BuildContext context;
   final bleDialogController = GetIt.instance<BleDialogController>();
+  final l10n = GetIt.instance.get<LocalizationService>().l10n;
 
   ConnectState({
     required this.manager,
