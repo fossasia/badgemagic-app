@@ -5,7 +5,7 @@ import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/special_text_field.dart';
 import 'package:extended_text_field/extended_text_field.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';

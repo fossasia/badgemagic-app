@@ -5,7 +5,7 @@ import 'dart:ui' as ui;
 import 'package:badgemagic/others/byte_array_utils.dart';
 import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/others/image_utils.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 

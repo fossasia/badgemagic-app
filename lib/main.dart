@@ -16,7 +16,7 @@ import 'package:badgemagic/view/save_badge_screen.dart';
 import 'package:badgemagic/view/saved_clipart_screen.dart';
 import 'package:badgemagic/view/settings_screen.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'l10n/app_localizations.dart';
 import 'package:flutter/services.dart';

@@ -9,7 +9,7 @@ import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
 import 'package:badgemagic/view/widgets/setting_option.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_foreground_task/flutter_foreground_task.dart';
 import 'package:get_it/get_it.dart';

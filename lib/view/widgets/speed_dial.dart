@@ -3,7 +3,7 @@ import 'dart:math';
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 

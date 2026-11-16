@@ -2,7 +2,7 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:badgemagic/theme/app_radius.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
 
 class BadgeScanSettingsWidget extends StatefulWidget {
