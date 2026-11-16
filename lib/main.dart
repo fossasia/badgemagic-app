@@ -18,7 +18,7 @@ import 'package:badgemagic/view/settings_screen.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_localizations/flutter_localizations.dart'
-    hide GlobalMaterialLocalizations;
+    as flutter_localizations;
 import 'l10n/app_localizations.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -139,26 +139,13 @@ class MyApp extends StatelessWidget {
                   ),
                 ),
               ),
-              locale: locale ?? const Locale('en', 'US'),
-              localizationsDelegates: const [
+              locale: locale ?? const Locale('en'),
+              localizationsDelegates: <LocalizationsDelegate<dynamic>>[
                 AppLocalizations.delegate,
-                GlobalMaterialLocalizations.delegate,
-                GlobalWidgetsLocalizations.delegate,
+                ...GlobalMaterialLocalizations.delegates,
+                ...flutter_localizations.GlobalMaterialLocalizations.delegates,
               ],
-              supportedLocales: const [
-                Locale('en'),
-                Locale('hi'),
-                Locale('it'),
-              ],
-              localeResolutionCallback: (locale, supportedLocales) {
-                if (locale == null) return supportedLocales.first;
-                for (var supportedLocale in supportedLocales) {
-                  if (supportedLocale.languageCode == locale.languageCode) {
-                    return supportedLocale;
-                  }
-                }
-                return supportedLocales.first;
-              },
+              supportedLocales: AppLocalizations.supportedLocales,
               initialRoute: '/',
               routes: {
                 '/': (context) => const HomeScreen(),
