@@ -1,7 +1,7 @@
 import 'dart:ui' as ui;
 
 import 'package:badgemagic/others/converters.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image/image.dart' as img;

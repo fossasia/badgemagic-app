@@ -2,7 +2,7 @@ import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/providers/draw_badge_provider.dart';
 import 'package:badgemagic/theme/app_radius.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 

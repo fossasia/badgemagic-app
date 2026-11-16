@@ -13,7 +13,7 @@ import 'package:badgemagic/view/widgets/draw_badge.dart';
 import 'package:badgemagic/view/widgets/draw_shape_options_bar.dart';
 import 'package:badgemagic/view/widgets/draw_tool_button.dart';
 import 'package:badgemagic/view/widgets/save_clipart_name_dialog.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 import '../providers/image_converter_provider.dart';

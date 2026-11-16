@@ -15,7 +15,7 @@ import 'package:badgemagic/view/home_screen.dart';
 import 'package:badgemagic/view/widgets/badge_delete_dialog.dart';
 import 'package:badgemagic/view/widgets/qr_share_dialog.dart';
 import 'package:badgemagic/view/widgets/rename_badge_dialog.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:provider/provider.dart';

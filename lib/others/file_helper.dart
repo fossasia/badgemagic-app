@@ -11,7 +11,7 @@ import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:get_it/get_it.dart';
 import 'package:path_provider/path_provider.dart';

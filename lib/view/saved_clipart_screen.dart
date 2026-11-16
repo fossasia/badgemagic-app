@@ -7,7 +7,7 @@ import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/view/widgets/clipart_list_view.dart';
 import 'package:badgemagic/view/widgets/common_scaffold_widget.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:flutter_svg/flutter_svg.dart';
