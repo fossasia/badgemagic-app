@@ -1,17 +1,18 @@
 import 'dart:math' as math;
 
 import 'package:badgemagic/constants.dart';
+import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/view/widgets/special_text_field.dart';
 import 'package:extended_text_field/extended_text_field.dart';
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart' as flutter_material;
 import 'package:flutter/services.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:provider/provider.dart';
-import 'package:badgemagic/providers/animation_badge_provider.dart';
 
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
@@ -169,7 +170,7 @@ class BadgeTextInputField extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 15.w, vertical: 8.h),
-      child: Material(
+      child: flutter_material.Material(
         color: drawerHeaderTitle,
         borderRadius: BorderRadius.circular(AppRadius.medium.r),
         elevation: 4,
@@ -259,13 +260,13 @@ class BadgeTextInputField extends StatelessWidget {
               ? _getFontStyle(Provider.of<FontProvider>(context).selectedFont!)
                   .copyWith(fontSize: 14)
               : const TextStyle(fontSize: 14),
-          decoration: InputDecoration(
-            border: OutlineInputBorder(
+          decoration: flutter_material.InputDecoration(
+            border: flutter_material.OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.medium.r),
             ),
-            focusedBorder: OutlineInputBorder(
+            focusedBorder: flutter_material.OutlineInputBorder(
               borderRadius: BorderRadius.circular(AppRadius.medium.r),
-              borderSide: BorderSide(color: colorPrimary),
+              borderSide: flutter_material.BorderSide(color: colorPrimary),
             ),
             contentPadding: EdgeInsets.symmetric(
               horizontal: 12.w,

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:badgemagic/badge_animation/ani_left.dart';
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 

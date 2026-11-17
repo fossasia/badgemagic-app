@@ -10,7 +10,7 @@ import 'package:badgemagic/others/converters.dart';
 import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/others/toast_utils.dart';
 import 'package:badgemagic/providers/speed_dial_provider.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:badgemagic/providers/animation_badge_provider.dart';
 import 'package:badgemagic/badge_animation/ani_splitting.dart';

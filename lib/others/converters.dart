@@ -8,7 +8,7 @@ import 'package:badgemagic/others/file_helper.dart';
 import 'package:badgemagic/others/image_utils.dart';
 import 'package:badgemagic/providers/font_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get_it/get_it.dart';
 
 String getFontKey(

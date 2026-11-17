@@ -35,7 +35,7 @@ import 'package:badgemagic/badge_effect/flash_effect.dart';
 import 'package:badgemagic/badge_effect/invert_led_effect.dart';
 import 'package:badgemagic/badge_effect/marquee_effect.dart';
 import 'package:badgemagic/constants.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:badgemagic/badge_animation/ani_equalizer.dart';
 import 'package:badgemagic/badge_animation/ani_cycle.dart';
 import 'package:universal_ble/universal_ble.dart';

@@ -7,7 +7,7 @@ import 'package:badgemagic/view/widgets/gifview.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/view/widgets/animation_container.dart';
 import 'package:badgemagic/view/widgets/effects_container.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
 
