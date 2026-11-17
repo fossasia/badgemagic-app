@@ -431,7 +431,7 @@ class FileHelper {
         baseName = 'Imported Badge';
       }
       Data data = Data.fromJson(badgeJson);
-      String filename = await uniqueBadgeFilename(baseName);
+      String filename = await _uniqueBadgeFilename(baseName);
       await FileStorage.write('$filename.json', jsonEncode(data.toJson()));
       logger.d('Imported badge from QR: $filename');
       return true;
@@ -441,8 +441,7 @@ class FileHelper {
     }
   }
 
-  @visibleForTesting
-  Future<String> uniqueBadgeFilename(String baseName) async {
+  Future<String> _uniqueBadgeFilename(String baseName) async {
     final directory = await getApplicationDocumentsDirectory();
     final cleanBaseName = baseName
         .replaceAll(RegExp(r'\.json$', caseSensitive: false), '')
@@ -476,7 +475,7 @@ class FileHelper {
       if (file.path.toLowerCase().endsWith('.gif')) {
         final baseName = file.uri.pathSegments.last
             .replaceAll(RegExp(r'\.gif$', caseSensitive: false), '');
-        final fileName = await uniqueBadgeFilename(baseName);
+        final fileName = await _uniqueBadgeFilename(baseName);
 
         final hexFrames =
             imageUtils.convertGifFramesToLEDHex(await file.readAsBytes());
@@ -501,7 +500,7 @@ class FileHelper {
       } else if (file.path.toLowerCase().endsWith('.json')) {
         Data data = Data.fromJson(jsonDecode(await file.readAsString()));
 
-        final fileName = await uniqueBadgeFilename(pickedFile.name);
+        final fileName = await _uniqueBadgeFilename(pickedFile.name);
 
         await FileStorage.write('$fileName.json', jsonEncode(data.toJson()));
 
