@@ -1,5 +1,5 @@
 import 'package:badgemagic/others/localization_service.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get_it/get_it.dart';
 
 Future<String?> showSaveClipartNameDialog(BuildContext context) {

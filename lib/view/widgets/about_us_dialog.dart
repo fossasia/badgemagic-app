@@ -1,6 +1,6 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/theme/app_radius.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:google_fonts/google_fonts.dart';
 

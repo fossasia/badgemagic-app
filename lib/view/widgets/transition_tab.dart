@@ -1,7 +1,7 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/others/localization_service.dart';
 import 'package:badgemagic/view/widgets/animation_container.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:get_it/get_it.dart';
 
 class TransitionTab extends StatefulWidget {

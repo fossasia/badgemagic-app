@@ -3,3 +3,5 @@ output-localization-file: app_localizations.dart
 output-class: AppLocalizations
 template-arb-file: app_en.arb
 untranslated-messages-file: untranslated.json
+# Ignore deprecations because we cannot do anything about it, and we don't want the CI build job to fail.
+header: "// ignore_for_file: deprecated_member_use\n"

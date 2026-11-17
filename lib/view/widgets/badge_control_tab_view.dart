@@ -1,7 +1,7 @@
 import 'package:badgemagic/view/widgets/home_screen_tabs.dart';
 import 'package:badgemagic/view/widgets/speed_dial.dart';
 import 'package:badgemagic/view/widgets/transition_tab.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class BadgeControlTabView extends StatelessWidget {
