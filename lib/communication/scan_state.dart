@@ -2,7 +2,7 @@ import 'dart:async';
 import 'package:badgemagic/communication/connect_state.dart';
 import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:get_it/get_it.dart';
 import 'package:badgemagic/others/app_logger.dart';
 import 'package:badgemagic/others/localization_service.dart';

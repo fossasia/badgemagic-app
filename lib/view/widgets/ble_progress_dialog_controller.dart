@@ -1,4 +1,4 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
 import 'package:get_it/get_it.dart';
 
 import 'package:badgemagic/others/localization_service.dart';

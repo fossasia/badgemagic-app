@@ -14,7 +14,7 @@ import 'package:badgemagic/models/speed.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:badgemagic/others/localization_service.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:badgemagic/others/custom_transfers/transfers.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';

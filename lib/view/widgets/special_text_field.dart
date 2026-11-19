@@ -1,6 +1,6 @@
 import 'package:badgemagic/providers/inline_image_provider.dart';
 import 'package:extended_text_field/extended_text_field.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:get_it/get_it.dart';
 

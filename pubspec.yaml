@@ -20,7 +20,7 @@ version: 1.0.0+1
 
 environment:
   sdk: '>=3.3.4 <4.0.0'
-  flutter: '3.47.9'
+  flutter: '3.50.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -41,27 +41,30 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^2.0.0
   provider: ^6.1.5
-  universal_ble: ^3.2.0
+  universal_ble: ^3.3.0
   hid_tool: ^0.1.4
   permission_handler: ^12.0.3
   logger: ^2.8.0
   image_picker: ^1.2.4
-  flutter_svg: ^2.3.2
+  flutter_svg: ^2.4.0
   get_it: ^9.3.0
   flutter_screenutil: ^5.9.3
   extended_text_field: ^17.0.0
   path_provider: ^2.1.6
   uuid: ^4.6.0
-  go_router: ^18.1.2
+  go_router: ^18.1.4
   share_plus: ^13.3.1
-  file_picker: ^13.3.0
+  file_picker: ^13.3.3
   google_fonts: ^9.0.0
   url_launcher: ^6.3.3
   image: ^4.12.0
   qr_flutter: ^4.1.0
   flutter_foreground_task: ^11.0.3
-  mobile_scanner: ^7.4.2
+  mobile_scanner: ^7.5.0
   crop_your_image: ^2.0.1
+  material_ui: any
+  http: any
+  cupertino_ui: any
 dev_dependencies:
   flutter_test:
     sdk: flutter

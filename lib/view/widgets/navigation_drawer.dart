@@ -1,6 +1,6 @@
 import 'package:badgemagic/constants.dart';
 import 'package:badgemagic/others/localization_service.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:share_plus/share_plus.dart';
 import 'dart:io';
 import 'package:get_it/get_it.dart';

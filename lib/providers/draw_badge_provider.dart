@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:badgemagic/badge_animation/ani_left.dart';
 import 'package:badgemagic/badge_animation/animation_abstract.dart';
 
@@ -71,8 +71,6 @@ class DrawBadgeProvider extends ChangeNotifier {
   }
 
   void commitGridUpdate() {
-    _pushToUndoStack();
-
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
         if (_previewGrid[i][j] != null) {

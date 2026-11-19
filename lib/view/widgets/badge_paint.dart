@@ -2,7 +2,7 @@ import 'dart:math' as math;
 
 import 'package:badgemagic/theme/app_radius.dart';
 import 'package:badgemagic/utils/badge_utils.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class BadgePaint extends CustomPainter {
   BadgeUtils badgeUtils = BadgeUtils();

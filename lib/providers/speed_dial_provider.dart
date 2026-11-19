@@ -1,5 +1,5 @@
 import 'package:badgemagic/providers/animation_badge_provider.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 class SpeedDialProvider extends ChangeNotifier {
   AnimationBadgeProvider? badgeProvider;
