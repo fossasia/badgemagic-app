@@ -204,7 +204,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
         Navigator.of(context).pop();
       }
     } catch (e) {
-      ToastUtils().showToast('Error: $e');
+      ToastUtils().showToast('${l10n.error}: $e');
       if (mounted) {
         setState(() {
           _isFlashing = false;

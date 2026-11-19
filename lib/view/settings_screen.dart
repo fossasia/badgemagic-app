@@ -20,6 +20,7 @@ import 'package:url_launcher/url_launcher.dart';
 
 import '../communication/connect_state.dart';
 import '../models/hardware_variant.dart';
+import '../l10n/app_localizations.dart';
 import '../others/byte_array_utils.dart';
 import '../others/globals.dart';
 import '../others/localization_service.dart';
@@ -48,7 +49,7 @@ class SettingsScreenState extends State<SettingsScreen> {
   bool _initialized = false;
   final FirmwareUpdateService _updateService = FirmwareUpdateService();
   bool _isUsbTransferEnabled = false;
-  final l10n = GetIt.instance.get<LocalizationService>().l10n;
+  AppLocalizations get l10n => GetIt.instance.get<LocalizationService>().l10n;
   bool _isSecureConnectionEnabled = false;
   double _flashProgress = 0.0;
   bool _foregroundTaskInitialized = false;
@@ -975,7 +976,7 @@ class SettingsScreenState extends State<SettingsScreen> {
       }
     } catch (e) {
       if (!isCancelled) {
-        ToastUtils().showToast("Error: $e");
+        ToastUtils().showToast("${l10n.error}: $e");
       }
     } finally {
       if (mounted) {
