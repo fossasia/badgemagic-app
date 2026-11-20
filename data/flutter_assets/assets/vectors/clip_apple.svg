@@ -1,0 +1,65 @@
+<svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 44 11"
+    id="vector">
+    <path
+        id="path"
+        d="M 17 9 L 18 9 L 18 10 L 17 10 Z"
+        fill="#000000"/>
+    <path
+        id="path_1"
+        d="M 15 5 L 16 5 L 16 7 L 15 7 Z"
+        fill="#000000"/>
+    <path
+        id="path_2"
+        d="M 16 3 L 18 3 L 18 4 L 17 4 L 17 5 L 16 5 Z"
+        fill="#000000"/>
+    <path
+        id="path_3"
+        d="M 16 7 L 17 7 L 17 9 L 16 9 Z"
+        fill="#000000"/>
+    <path
+        id="path_4"
+        d="M 18 10 L 20 10 L 20 11 L 18 11 Z"
+        fill="#000000"/>
+    <path
+        id="path_5"
+        d="M 20 9 L 22 9 L 22 10 L 20 10 Z"
+        fill="#000000"/>
+    <path
+        id="path_6"
+        d="M 22 10 L 24 10 L 24 11 L 22 11 Z"
+        fill="#000000"/>
+    <path
+        id="path_7"
+        d="M 24 9 L 25 9 L 25 10 L 24 10 Z"
+        fill="#000000"/>
+    <path
+        id="path_8"
+        d="M 25 8 L 26 8 L 26 9 L 25 9 Z"
+        fill="#000000"/>
+    <path
+        id="path_9"
+        d="M 24 7 L 25 7 L 25 8 L 24 8 Z"
+        fill="#000000"/>
+    <path
+        id="path_10"
+        d="M 23 6 L 24 6 L 24 7 L 23 7 Z"
+        fill="#000000"/>
+    <path
+        id="path_11"
+        d="M 22 4 L 23 4 L 23 6 L 22 6 Z"
+        fill="#000000"/>
+    <path
+        id="path_12"
+        d="M 18 2 L 25 2 L 25 3 L 24 3 L 24 4 L 23 4 L 23 3 L 18 3 Z"
+        fill="#000000"/>
+    <path
+        id="path_13"
+        d="M 20 1 L 21 1 L 21 2 L 20 2 Z"
+        fill="#000000"/>
+    <path
+        id="path_14"
+        d="M 21 0 L 22 0 L 22 1 L 21 1 Z"
+        fill="#000000"/>
+</svg>
