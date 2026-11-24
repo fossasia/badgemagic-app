@@ -1037,10 +1037,10 @@ packages:
     dependency: "direct main"
     description:
       name: universal_ble
-      sha256: bfbc5dea17fa04e365d3870309d8a8a49067ff5195a84d4f6f73c92aa96bf7ed
+      sha256: "9fa963c8e12a7c644c5dc05106f2858dee4465e3e1dcb14c17e05f983c254ad2"
       url: "https://pub.dev"
     source: hosted
-    version: "3.3.0"
+    version: "3.4.0"
   url_launcher:
     dependency: "direct main"
     description:
