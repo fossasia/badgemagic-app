@@ -46,9 +46,6 @@ hidapi = (hid_root / "third_party" / "hidapi").resolve()
 if not manifest.is_file():
     print(f"error: Package.swift not found at {manifest}", file=sys.stderr)
     sys.exit(1)
-if not (hidapi / "Package.swift").is_file():
-    print(f"error: hidapi package not found at {hidapi}", file=sys.stderr)
-    sys.exit(1)
 
 text = manifest.read_text(encoding="utf-8")
 pattern = re.compile(
@@ -58,7 +55,19 @@ pattern = re.compile(
 replacement = f'.package(name: "hidapi", path: "{hidapi.as_posix()}")'
 new_text, count = pattern.subn(replacement, text, count=1)
 if count != 1:
+    local_hidapi = manifest.parent / "hidapi"
+    is_local_target = re.search(
+        r'\.target\(\s*name:\s*"hidapi"\s*,', text, re.MULTILINE
+    )
+    if is_local_target and (local_hidapi / "hid.c").is_file():
+        print(f"hidapi is already a local target in {manifest}; no patch needed")
+        sys.exit(0)
+
     print(f"error: could not find hidapi path dependency in {manifest}", file=sys.stderr)
+    sys.exit(1)
+
+if not (hidapi / "Package.swift").is_file():
+    print(f"error: hidapi package not found at {hidapi}", file=sys.stderr)
     sys.exit(1)
 
 if new_text == text:
