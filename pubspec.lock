@@ -427,10 +427,10 @@ packages:
     dependency: "direct main"
     description:
       name: hid_tool
-      sha256: "17b337f4093b99cf48ede8c70f8e8e56afdf443723eb8ae264561d2ad6bb655a"
+      sha256: "0ca5a58e5c0dad217c85a7f6044e0437272e3245d50bf1d3dba42d97f52f9ea0"
       url: "https://pub.dev"
     source: hosted
-    version: "0.1.5"
+    version: "0.1.7"
   hooks:
     dependency: transitive
     description:
