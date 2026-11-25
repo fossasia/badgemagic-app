@@ -1,3 +1,4 @@
+import 'package:badgemagic/communication/badge_advertisement.dart';
 import 'package:material_ui/material_ui.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -5,7 +6,7 @@ enum BadgeScanMode { any, specific }
 
 class BadgeScanProvider with ChangeNotifier {
   BadgeScanMode _mode = BadgeScanMode.any;
-  List<String> _badgeNames = ['lsled', 'vblab'];
+  List<String> _badgeNames = List.of(defaultBadgeNames);
   Set<int> _selectedIndices = {};
   bool _isLoaded = false;
   bool _isStreamingEnabled = false;

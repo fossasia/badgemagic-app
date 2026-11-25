@@ -18,6 +18,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../communication/badge_advertisement.dart';
 import '../communication/connect_state.dart';
 import '../models/hardware_variant.dart';
 import '../others/byte_array_utils.dart';
@@ -1012,12 +1013,12 @@ class SettingsScreenState extends State<SettingsScreen> {
 
     subscription = UniversalBle.scanStream.listen(
       (device) async {
-        final matchesUuid = device.services.contains(serviceUuid);
+        final isBadge = isBadgeAdvertisement(device, allowedNames);
         final deviceName = (device.name ?? "").trim().toLowerCase();
         final matchesName =
             mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
 
-        if (matchesUuid && matchesName) {
+        if (isBadge && matchesName) {
           await cleanup();
           if (!completer.isCompleted) {
             completer.complete(device);
@@ -1040,9 +1041,7 @@ class SettingsScreenState extends State<SettingsScreen> {
     });
 
     try {
-      await UniversalBle.startScan(
-        scanFilter: ScanFilter(withServices: [serviceUuid]),
-      );
+      await UniversalBle.startScan(scanFilter: badgeScanFilter);
     } catch (e) {
       await cleanup();
       if (!completer.isCompleted) {
