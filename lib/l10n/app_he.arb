@@ -284,7 +284,7 @@
   "developerModeOff": "מצב מפתחים כבוי",
   "testBleFirmwareUpdate": "בדוק את עדכון קושחה של BLE",
   "testBleFirmwareDescription": "השתמש בקושחה HARDCODED כדי לבדוק את הפלאש על התג באמצעות BLE",
-  "flashingFirmwareProgress": "קושחה מהבהבת... __PH_התקדמות__% {progress}",
+  "flashingFirmwareProgress": "קושחה מהבהבת... {progress}%",
   "writingInProgress": "כתיבה בעיצומה: {progress}%",
   "preparing": "עֲרִיכָה...",
   "addFrame": "הוסף מסך",

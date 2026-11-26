@@ -402,11 +402,27 @@ class SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 8),
                 DropdownButtonFormField<String>(
                   initialValue: Localizations.localeOf(context).languageCode,
-                  items: [
-                    DropdownMenuItem(value: 'en', child: Text(l10n.english)),
-                    DropdownMenuItem(value: 'hi', child: Text(l10n.hindi)),
-                    DropdownMenuItem(value: 'it', child: Text(l10n.italian)),
-                    DropdownMenuItem(value: 'ru', child: Text(l10n.russian)),
+                  items: const [
+                    DropdownMenuItem(value: 'en', child: Text('English')),
+                    DropdownMenuItem(value: 'de', child: Text('Deutsch')),
+                    DropdownMenuItem(value: 'el', child: Text('Ελληνικά')),
+                    DropdownMenuItem(value: 'es', child: Text('Español')),
+                    DropdownMenuItem(value: 'fr', child: Text('Français')),
+                    DropdownMenuItem(value: 'he', child: Text('עברית')),
+                    DropdownMenuItem(value: 'hi', child: Text('हिन्दी')),
+                    DropdownMenuItem(value: 'id', child: Text('Bahasa Indonesia')),
+                    DropdownMenuItem(value: 'it', child: Text('Italiano')),
+                    DropdownMenuItem(value: 'ja', child: Text('日本語')),
+                    DropdownMenuItem(value: 'ml', child: Text('മലയാളം')),
+                    DropdownMenuItem(value: 'my', child: Text('မြန်မာ')),
+                    DropdownMenuItem(value: 'nb', child: Text('Norsk Bokmål')),
+                    DropdownMenuItem(value: 'pt', child: Text('Português')),
+                    DropdownMenuItem(value: 'ru', child: Text('Русский')),
+                    DropdownMenuItem(value: 'ta', child: Text('தமிழ்')),
+                    DropdownMenuItem(value: 'te', child: Text('తెలుగు')),
+                    DropdownMenuItem(value: 'uk', child: Text('Українська')),
+                    DropdownMenuItem(value: 'vi', child: Text('Tiếng Việt')),
+                    DropdownMenuItem(value: 'zh', child: Text('中文')),
                   ],
                   onChanged: (value) {
                     if (value != null) {

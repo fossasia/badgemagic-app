@@ -2,9 +2,11 @@
 """Validate translated ARB files against the English source of truth.
 
 For every lib/l10n/app_*.arb (other than app_en.arb) this reports:
-  * missing keys      - present in app_en.arb, absent from the target
-  * extra keys        - present in the target, absent from app_en.arb
-  * placeholder diffs - the set of {placeholder} names differs from English
+  * missing keys       - present in app_en.arb, absent from the target
+  * extra keys         - present in the target, absent from app_en.arb
+  * placeholder diffs  - the set of {placeholder} names differs from English
+  * type errors        - value is not a string
+  * artifact errors    - literal placeholder markers (e.g. __PH_) found
 
 Keys starting with '@' (ARB metadata) are compared for presence but are not
 checked for placeholders.
@@ -26,6 +28,7 @@ L10N_DIR = REPO_ROOT / "lib" / "l10n"
 SOURCE_FILE = L10N_DIR / "app_en.arb"
 
 PLACEHOLDER_RE = re.compile(r"\{\s*([A-Za-z_]\w*)\s*(?=[,}])")
+ARTIFACT_RE = re.compile(r"__\s*PH_[A-Za-z0-9_]*\s*__", re.IGNORECASE)
 
 
 def load_arb(path):
@@ -49,7 +52,7 @@ def extract_placeholders(value):
 
 
 def validate(source, target):
-    """Compare target against source; return (missing, extra, mismatches)."""
+    """Compare target against source; return (missing, extra, mismatches, type_errors, artifacts)."""
     source_keys = set(source)
     target_keys = set(target)
 
@@ -57,15 +60,26 @@ def validate(source, target):
     extra = sorted(target_keys - source_keys)
 
     mismatches = []
+    type_errors = []
+    artifacts = []
+
     for key in sorted(source_keys & target_keys):
         if key.startswith("@"):
             continue
+        val = target[key]
+        if not isinstance(val, str):
+            type_errors.append((key, type(val).__name__))
+            continue
+
+        if ARTIFACT_RE.search(val) or "__PH_" in val:
+            artifacts.append(key)
+
         expected = extract_placeholders(source[key])
-        actual = extract_placeholders(target[key])
+        actual = extract_placeholders(val)
         if expected != actual:
             mismatches.append((key, expected, actual))
 
-    return missing, extra, mismatches
+    return missing, extra, mismatches, type_errors, artifacts
 
 
 def fmt_set(items):
@@ -73,16 +87,17 @@ def fmt_set(items):
 
 
 def print_summary(rows):
-    headers = ("File", "Missing", "Extra", "Placeholder", "Status")
+    headers = ("File", "Missing", "Extra", "Placeholders", "Errors", "Status")
     table = [headers] + [
         (
             name,
             str(missing),
             str(extra),
             str(placeholder),
+            str(errors),
             status,
         )
-        for name, missing, extra, placeholder, status in rows
+        for name, missing, extra, placeholder, errors, status in rows
     ]
     widths = [max(len(row[i]) for row in table) for i in range(len(headers))]
 
@@ -147,12 +162,13 @@ def main():
             target = load_arb(path)
         except ValueError as e:
             print(f"\n[{path.name}] ERROR: {e}")
-            rows.append((path.name, "-", "-", "-", "INVALID"))
+            rows.append((path.name, "-", "-", "-", "-", "INVALID"))
             has_errors = True
             continue
 
-        missing, extra, mismatches = validate(source, target)
-        failed = bool(missing or extra or mismatches)
+        missing, extra, mismatches, type_errors, artifacts = validate(source, target)
+        error_count = len(type_errors) + len(artifacts)
+        failed = bool(missing or extra or mismatches or error_count)
         if not args.report:
             has_errors = has_errors or failed
 
@@ -162,6 +178,10 @@ def main():
                 print(f"  missing key: {key}")
             for key in extra:
                 print(f"  extra key:   {key}")
+            for key, tname in type_errors:
+                print(f"  type error:  {key} (expected str, got {tname})")
+            for key in artifacts:
+                print(f"  artifact:    {key} (contains unparsed placeholder token)")
             for key, expected, actual in mismatches:
                 print(
                     f"  placeholder mismatch: {key} "
@@ -174,13 +194,14 @@ def main():
                 len(missing),
                 len(extra),
                 len(mismatches),
+                error_count,
                 "FAIL" if failed else "OK",
             )
         )
 
     print_summary([tuple(str(c) for c in row) for row in rows])
 
-    failed_count = sum(1 for row in rows if row[4] != "OK")
+    failed_count = sum(1 for row in rows if row[5] != "OK")
     print(f"\n{len(rows)} file(s) checked, {failed_count} with errors.")
     return 1 if has_errors else 0
 
