@@ -8,7 +8,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:universal_ble/universal_ble.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../../others/globals.dart';
+import '../../communication/badge_advertisement.dart';
 import '../../others/localization_service.dart';
 import '../../others/toast_utils.dart';
 import '../../providers/badge_scan_provider.dart';
@@ -64,12 +64,12 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
         .toList();
 
     subscription = UniversalBle.scanStream.listen((device) async {
-      final matchesUuid = device.services.contains(serviceUuid);
+      final isBadge = isBadgeAdvertisement(device, allowedNames);
       final deviceName = (device.name ?? "").trim().toLowerCase();
       final matchesName =
           mode == BadgeScanMode.any || normalizedNames.contains(deviceName);
 
-      if (matchesUuid && matchesName) {
+      if (isBadge && matchesName) {
         subscription?.cancel();
         await UniversalBle.stopScan();
         if (!completer.isCompleted) {
@@ -78,9 +78,7 @@ class _FirmwareUpdateDialogState extends State<FirmwareUpdateDialog> {
       }
     });
 
-    await UniversalBle.startScan(
-      scanFilter: ScanFilter(withServices: [serviceUuid]),
-    );
+    await UniversalBle.startScan(scanFilter: badgeScanFilter);
 
     Timer(const Duration(seconds: 10), () async {
       await UniversalBle.stopScan();

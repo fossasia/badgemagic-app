@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:badgemagic/communication/badge_advertisement.dart';
 import 'package:badgemagic/communication/connect_state.dart';
 import 'package:badgemagic/communication/datagenerator.dart';
 import 'package:badgemagic/providers/badge_scan_provider.dart';
@@ -10,7 +11,6 @@ import 'package:badgemagic/view/widgets/ble_progress_dialog.dart';
 import 'package:badgemagic/view/widgets/ble_progress_dialog_controller.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_ble/universal_ble.dart';
-import 'package:badgemagic/others/globals.dart';
 import 'base_ble_state.dart';
 import 'transfer_cancellation.dart';
 
@@ -22,8 +22,6 @@ class ScanState extends NormalBleState {
   final List<String> allowedNames;
   final bleDialogController = GetIt.instance<BleDialogController>();
   final l10n = GetIt.instance.get<LocalizationService>().l10n;
-
-  final String targetServiceUuid = serviceUuid;
 
   ScanState({
     required this.cancellation,
@@ -58,13 +56,13 @@ class ScanState extends NormalBleState {
                 .where((e) => e.isNotEmpty)
                 .toList();
 
-            final matchesUuid = device.services.contains(targetServiceUuid);
+            final isBadge = isBadgeAdvertisement(device, allowedNames);
 
             final deviceName = (device.name ?? "").trim().toLowerCase();
             final matchesName = mode == BadgeScanMode.any ||
                 normalizedAllowedNames.contains(deviceName);
 
-            if (matchesUuid && matchesName) {
+            if (isBadge && matchesName) {
               badgeScanProvider.addBadgeName(deviceName);
               isCompleted = true;
               timeoutTimer?.cancel();
@@ -99,11 +97,7 @@ class ScanState extends NormalBleState {
         },
       );
 
-      await UniversalBle.startScan(
-        scanFilter: ScanFilter(
-          withServices: [targetServiceUuid],
-        ),
-      );
+      await UniversalBle.startScan(scanFilter: badgeScanFilter);
 
       timeoutTimer = Timer(const Duration(seconds: 15), () async {
         if (!isCompleted) {
