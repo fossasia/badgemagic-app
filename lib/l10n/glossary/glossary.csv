@@ -1,0 +1,56 @@
+term_en,part_of_speech,do_not_translate,notes
+Badge Magic,proper noun,yes,Product name - do not translate or transliterate
+FOSSASIA,proper noun,yes,Organization name - keep Latin script
+GitHub,proper noun,yes,Platform name - keep Latin script
+Apache 2.0,proper noun,yes,License name - keep Latin script
+BLE,noun,yes,Bluetooth Low Energy - technical protocol abbreviation
+Bluetooth,proper noun,yes,Protocol name - keep Latin script
+USB,noun,yes,Hardware interface abbreviation
+OTG,noun,yes,USB On-The-Go hardware feature
+ISP,noun,yes,In-System Programming mode
+LED,noun,yes,Light Emitting Diode hardware display
+QR,noun,yes,Quick Response barcode standard
+LS LED,proper noun,yes,Device model name
+VB Lab,proper noun,yes,Device model name
+badge,noun,no,Electronic name badge device
+clipart,noun,no,Pre-made pixel graphic/vector icon
+transfer,noun/verb,no,Data transmission from app to physical badge
+firmware,noun,no,Embedded device system software
+flash,verb,no,Action of writing firmware to badge memory
+flash,noun,no,Blinking light visual effect
+marquee,noun,no,Scrolling light border visual effect
+invert,verb/noun,no,Inverting LED on/off states
+screen,noun,no,Display frame or canvas grid
+speed,noun,no,LED animation scroll speed level
+slot,noun,no,Badge memory storage slot (1 to 8)
+speed dial,noun,no,Radial dial widget to select speed
+draw,verb/noun,no,Pixel canvas drawing mode
+animation,noun,no,Dynamic motion pattern on LED grid
+effect,noun,no,Visual filter applied to badge display
+Left,proper noun,no,Animation type: scroll left
+Right,proper noun,no,Animation type: scroll right
+Up,proper noun,no,Animation type: scroll up
+Down,proper noun,no,Animation type: scroll down
+Fixed,proper noun,no,Animation type: static non-moving display
+Animation,proper noun,no,Animation type: preset sequence
+Snowflake,proper noun,no,Animation type: falling snowflakes
+Picture,proper noun,no,Animation type: graphic display
+Laser,proper noun,no,Animation type: scanning laser beam
+Pacman,proper noun,no,Animation type: chomping character
+Chevron,proper noun,no,Animation type: moving arrows
+Diamond,proper noun,no,Animation type: expanding diamond
+Feet,proper noun,no,Animation type: walking footprints
+Broken Hearts,proper noun,no,Animation type: splitting hearts
+Cupid,proper noun,no,Animation type: arrow through heart
+Cycle,proper noun,no,Animation type: cycling frames
+Diagonal,proper noun,no,Animation type: diagonal sweep
+Emergency,proper noun,no,Animation type: alternating strobe
+Beating Hearts,proper noun,no,Animation type: pulsating hearts
+Fireworks,proper noun,no,Animation type: exploding bursts
+Equalizer,proper noun,no,Animation type: audio equalizer bars
+Splitting,proper noun,no,Animation type: center split
+Invert,proper noun,no,Effect type: inverse LED display
+Marquee,proper noun,no,Effect type: moving border
+Flash,proper noun,no,Effect type: flashing strobe
+live mirroring,noun,no,Real-time streaming from app to badge
+security PIN,noun,no,Numeric authentication PIN for transfers

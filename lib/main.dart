@@ -145,12 +145,7 @@ class MyApp extends StatelessWidget {
                 ...GlobalMaterialLocalizations.delegates,
                 ...flutter_localizations.GlobalMaterialLocalizations.delegates,
               ],
-              supportedLocales: const [
-                Locale('en'),
-                Locale('hi'),
-                Locale('it'),
-                Locale('ru'),
-              ],
+              supportedLocales: AppLocalizations.supportedLocales,
               initialRoute: '/',
               routes: {
                 '/': (context) => const HomeScreen(),
